@@ -86,18 +86,42 @@ public partial class PDMediaPlayerTests
 		Get<bool>("showSpectrogram").Should().BeFalse();
 	}
 
-	/// <summary>The labels-inside option reaches the script, so the plot can fill the width and line up with the seek bar.</summary>
+	/// <summary>The frequency labels are on by default and the option reaches the script.</summary>
 	[Fact]
-	public void Visualisation_LabelsInside_IsPassedToScript()
+	public void Visualisation_FrequencyLabels_AreOnByDefaultAndPassedToScript()
 	{
 		RenderPlayer(p =>
 		{
 			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.SpectrogramLabelsInside, true);
+		});
+		var options = _module.Invocations.Single(i => i.Identifier == "visualise").Arguments[3]!;
+		((bool)options.GetType().GetProperty("frequencyLabels")!.GetValue(options)!).Should().BeTrue();
+
+		var off = RenderPlayer(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.ShowSpectrogramFrequencyLabels, false);
+		});
+		off.Instance.ShowSpectrogramFrequencyLabels.Should().BeFalse();
+		var offOptions = _module.Invocations.Last(i => i.Identifier == "visualise").Arguments[3]!;
+		((bool)offOptions.GetType().GetProperty("frequencyLabels")!.GetValue(offOptions)!).Should().BeFalse();
+	}
+
+	/// <summary>The start time is passed as seconds since midnight, in its own offset, or as nothing for song time.</summary>
+	[Fact]
+	public void Visualisation_StartTime_IsPassedAsClockSeconds()
+	{
+		RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+		RenderPlayer(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.SpectrogramStartTime, new DateTimeOffset(2026, 10, 19, 14, 30, 5, TimeSpan.FromHours(1)));
 		});
 
-		var options = _module.Invocations.Single(i => i.Identifier == "visualise").Arguments[3]!;
-		((bool)options.GetType().GetProperty("labelsInside")!.GetValue(options)!).Should().BeTrue();
+		var calls = _module.Invocations.Where(i => i.Identifier == "visualise").ToList();
+		double? Seconds(object o) => (double?)o.GetType().GetProperty("startSeconds")!.GetValue(o);
+		Seconds(calls[0].Arguments[3]!).Should().BeNull();
+		Seconds(calls[1].Arguments[3]!).Should().Be((14 * 3600) + (30 * 60) + 5);
 	}
 
 	/// <summary>The analysis window is rounded to a power of two within its limits.</summary>

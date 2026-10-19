@@ -195,7 +195,7 @@ export function reveal(container) {
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 const visuals = new WeakMap();
-const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
+const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800, 3600];
 
 export function visualise(el, canvas, dotNetRef, options) {
 	clearVisualisation(el);
@@ -415,11 +415,10 @@ function layout(v) {
 		v.canvas.width = Math.round(width * dpr);
 		v.canvas.height = Math.round(height * dpr);
 	}
-	const inside = Boolean(v.options.labelsInside);
-	const left = inside ? 0 : 64;
-	const right = inside ? 0 : 10;
+	const left = 0;
+	const right = 0;
 	const top = 8;
-	const bottom = 34;
+	const bottom = 22;
 	const options = v.options;
 	let seconds = v.spectrogram ? v.spectrogram.seconds : Number.isFinite(v.el.duration) ? v.el.duration : 0;
 	if (!seconds) {
@@ -432,7 +431,6 @@ function layout(v) {
 	}
 	return {
 		dpr,
-		inside,
 		width,
 		height,
 		left,
@@ -472,6 +470,18 @@ function formatTime(seconds) {
 	return Math.floor(whole / 60) + ":" + String(Math.round(whole % 60)).padStart(2, "0");
 }
 
+// A clock label for a time in seconds on the broadcast clock. wallSeconds counts from midnight of the wall-clock day the
+// media started on, in the start time's own offset, so it can run past 24 hours and is wrapped for display.
+function formatClock(wallSeconds, step) {
+	const day = ((Math.round(wallSeconds) % 86400) + 86400) % 86400;
+	const h = String(Math.floor(day / 3600)).padStart(2, "0");
+	const m = String(Math.floor((day % 3600) / 60)).padStart(2, "0");
+	if (step >= 60) {
+		return h + ":" + m;
+	}
+	return h + ":" + m + ":" + String(day % 60).padStart(2, "0");
+}
+
 function draw(v) {
 	if (!v.dotNetRef) {
 		return;
@@ -498,60 +508,49 @@ function draw(v) {
 	ctx.lineWidth = 1;
 	ctx.font = "11px system-ui, sans-serif";
 	ctx.strokeRect(l.left + 0.5, l.top + 0.5, l.pw, l.ph);
-	const tStep = niceStep(l.seconds, l.pw, 60);
+	const clock = Number.isFinite(v.options.startSeconds);
+	const tStep = niceStep(l.seconds, l.pw, clock ? 70 : 60);
+	// on the broadcast clock the ticks fall on round times (for example every 10 seconds on the :00), not on round offsets
+	const offset = clock ? v.options.startSeconds : 0;
+	const firstTick = clock ? Math.ceil(offset / tStep - 1e-9) * tStep - offset : 0;
 	ctx.textAlign = "center";
-	for (let t = 0; t <= l.seconds + 1e-9; t += tStep) {
+	for (let t = firstTick; t <= l.seconds + 1e-9; t += tStep) {
 		const px = Math.round(x(t)) + 0.5;
 		ctx.beginPath();
 		ctx.moveTo(px, l.top + l.ph);
 		ctx.lineTo(px, l.top + l.ph + 4);
 		ctx.stroke();
-		const first = l.inside && t === 0;
-		const last = l.inside && x(t) > l.left + l.pw - 12;
+		const first = x(t) < l.left + 12;
+		const last = x(t) > l.left + l.pw - 12;
 		ctx.textAlign = first ? "left" : last ? "right" : "center";
-		ctx.fillText(formatTime(t), first ? l.left : last ? l.left + l.pw : px, l.top + l.ph + 16);
+		ctx.fillText(clock ? formatClock(offset + t, tStep) : formatTime(t), first ? l.left : last ? l.left + l.pw : px, l.top + l.ph + 16);
 	}
-	const hzStep = l.maxHz >= 4000 ? 1000 : l.maxHz >= 1500 ? 500 : l.maxHz >= 600 ? 200 : 100;
-	ctx.textAlign = "right";
-	for (let hz = 0; hz <= l.maxHz + 1e-9; hz += hzStep) {
-		const py = Math.round(y(hz)) + 0.5;
-		const label = hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz";
-		if (l.inside) {
+	if (v.options.frequencyLabels) {
+		const hzStep = l.maxHz >= 4000 ? 1000 : l.maxHz >= 1500 ? 500 : l.maxHz >= 600 ? 200 : 100;
+		ctx.textAlign = "left";
+		for (let hz = 0; hz <= l.maxHz + 1e-9; hz += hzStep) {
+			const py = Math.round(y(hz)) + 0.5;
+			const label = hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz";
 			const ly = py - 3 < l.top + 9 ? py + 12 : py - 3;
-			ctx.textAlign = "left";
 			ctx.lineWidth = 3;
 			ctx.strokeStyle = "rgba(10,14,24,0.85)";
 			ctx.strokeText(label, l.left + 4, ly);
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = "rgba(143,155,184,0.9)";
 			ctx.fillText(label, l.left + 4, ly);
-		} else {
-			ctx.beginPath();
-			ctx.moveTo(l.left - 4, py);
-			ctx.lineTo(l.left, py);
-			ctx.stroke();
-			ctx.fillText(label, l.left - 7, py + 4);
-		}
-		if (hz > 0) {
-			ctx.save();
-			ctx.strokeStyle = "rgba(255,255,255,0.07)";
-			ctx.beginPath();
-			ctx.moveTo(l.left, py);
-			ctx.lineTo(l.left + l.pw, py);
-			ctx.stroke();
-			ctx.restore();
+			if (hz > 0) {
+				ctx.save();
+				ctx.strokeStyle = "rgba(255,255,255,0.07)";
+				ctx.beginPath();
+				ctx.moveTo(l.left, py);
+				ctx.lineTo(l.left + l.pw, py);
+				ctx.stroke();
+				ctx.restore();
+			}
 		}
 	}
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#c9d3ea";
-	ctx.fillText("Time (seconds)", l.left + l.pw / 2, l.height - 4);
-	if (!l.inside) {
-		ctx.save();
-		ctx.translate(12, l.top + l.ph / 2);
-		ctx.rotate(-Math.PI / 2);
-		ctx.fillText("Frequency", 0, 0);
-		ctx.restore();
-	}
 
 	ctx.save();
 	ctx.beginPath();

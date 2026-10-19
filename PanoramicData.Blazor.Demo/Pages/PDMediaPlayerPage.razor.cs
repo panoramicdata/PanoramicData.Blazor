@@ -128,7 +128,9 @@ public partial class PDMediaPlayerPage
 
 	protected bool ShowSpectrogram { get; set; }
 
-	protected bool LabelsInside { get; set; }
+	protected bool FrequencyLabels { get; set; } = true;
+
+	protected bool BroadcastClock { get; set; }
 
 	protected bool ShowKeyPoints { get; set; }
 

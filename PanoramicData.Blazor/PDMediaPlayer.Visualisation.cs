@@ -64,12 +64,19 @@ public partial class PDMediaPlayer
 	public IEnumerable<PDMediaLandmark>? Landmarks { get; set; }
 
 	/// <summary>
-	/// Gets or sets whether the frequency labels are drawn inside the plot, without a title for the frequency axis. The plot then fills
-	/// the full width of the visualisation, so that its time axis lines up exactly with the seek bar below it. The default is false,
-	/// which leaves a margin on the left for the labels and the title.
+	/// Gets or sets whether the frequency labels and the faint lines at each label are drawn inside the plot. The plot always fills
+	/// the full width of the visualisation, so that its time axis lines up exactly with the seek bar below it. The default is true.
 	/// </summary>
 	[Parameter]
-	public bool SpectrogramLabelsInside { get; set; }
+	public bool ShowSpectrogramFrequencyLabels { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets the clock time at which the media starts. When null (the default) the time axis shows the position in the media,
+	/// as in a song (0:00, 0:10, ...). When set, it shows absolute time, as in a broadcast: each label is this time plus the position
+	/// (14:30:00, 14:30:10, ...), at round times, in the offset of the value given.
+	/// </summary>
+	[Parameter]
+	public DateTimeOffset? SpectrogramStartTime { get; set; }
 
 	/// <summary>
 	/// Gets or sets the height in pixels of the visualisation, from 80 to 800. The default is 260.
@@ -233,7 +240,8 @@ public partial class PDMediaPlayer
 			SpectrogramHopValue,
 			SpectrogramMaxFrequencyValue,
 			SpectrogramMaxDuration.TotalSeconds,
-			SpectrogramLabelsInside);
+			ShowSpectrogramFrequencyLabels,
+			SpectrogramStartTime);
 		if (key == _visualKey
 			&& ReferenceEquals(KeyPoints, _visualKeyPoints)
 			&& ReferenceEquals(Landmarks, _visualLandmarks))
@@ -252,7 +260,8 @@ public partial class PDMediaPlayer
 		showSpectrogram = ShowSpectrogram,
 		showKeyPoints = ShowKeyPoints,
 		showLandmarks = ShowLandmarks,
-		labelsInside = SpectrogramLabelsInside,
+		frequencyLabels = ShowSpectrogramFrequencyLabels,
+			startSeconds = SpectrogramStartTime is { } start ? start.TimeOfDay.TotalSeconds : (double?)null,
 			sampleRate = SpectrogramSampleRateValue,
 		windowSize = SpectrogramWindowValue,
 		hopSize = SpectrogramHopValue,
