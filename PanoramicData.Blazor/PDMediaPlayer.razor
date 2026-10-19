@@ -61,6 +61,21 @@
 			</div>
 		}
 
+		@if (HasVisualisation)
+		{
+			<div class="pdmp-visual">
+				<canvas @ref="VisualCanvas"
+						class="pdmp-visual-canvas"
+						style="height:@(SpectrogramHeightValue)px"
+						role="img"
+						aria-label="@VisualAccessibleName"></canvas>
+				@if (!string.IsNullOrEmpty(_visualStatus))
+				{
+					<div class="pdmp-visual-status small text-muted" aria-live="polite">@_visualStatus</div>
+				}
+			</div>
+		}
+
 		<div class="pdmp-timeline">
 			@if (segmentsAbove)
 			{

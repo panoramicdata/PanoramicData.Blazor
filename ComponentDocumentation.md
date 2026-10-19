@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-10-15 14:55:56
+Generated on: 2026-10-19 13:06:21
 
 ## PDAnimation
 
@@ -293,45 +293,6 @@ This component has no public parameters.
 | OnMessageSent | EventCallback<ChatMessage> | An event callback that is invoked when a message is sent. |
 | OnMessageReceivedEvent | EventCallback<ChatMessage> | An event callback that is invoked when a message is received. |
 | OnAutoRestored | EventCallback | An event callback that is invoked when the chat window is automatically restored. |
-
-**Toast notifications:** PDChat can double as a toast surface. When a message arrives while the chat is closed (minimized, or fully hidden when `MinimizedButtonPosition` is `None`), it animates into view and, if auto-dismiss is enabled, animates out after a configurable time. Toasts stack (oldest at the top) and each runs its own independent dismiss timer. Defaults are set on `IChatService` via the `Toast*` members (`ToastEnabled`, `ToastEntryAnimation`, `ToastExitAnimation`, `ToastAnimationDurationMs`, `ToastAutoDismiss`, `ToastDisplayDurationSeconds`, `ToastShowTitle`, `ToastMinWidth`/`ToastMaxWidth`/`ToastMinHeight`/`ToastMaxHeight`, `ToastMaxVisible`, `ToastAnchor`) and can be overridden per message via `ChatMessage.ToastOptions`. The legacy `ShowLastMessage` / `ShowLastMessageDurationSeconds` members are obsolete and map onto `ToastEnabled` / `ToastDisplayDurationSeconds`.
-
-**Conversation history (optional):** a host that can store conversations implements `IChatConversationService` and passes it as `ConversationService`. Doing so is what makes a conversation list, conversation tabs and their toolbar available; a host that passes nothing gets exactly the chat described above, with no conversation UI and no code path that could show it.
-
-```csharp
-public interface IChatConversationService
-{
-    bool SupportsSemanticSearch => false;
-
-    Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken);
-    Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(Guid id, CancellationToken cancellationToken);
-    Task<ChatConversation> CreateAsync(CancellationToken cancellationToken);
-    Task RenameAsync(Guid id, string title, CancellationToken cancellationToken);
-    Task ArchiveAsync(Guid id, CancellationToken cancellationToken);
-    Task UnarchiveAsync(Guid id, CancellationToken cancellationToken);
-}
-```
-
-Three things about it are deliberate and worth knowing before you implement one:
-
-- **There is no `DeleteAsync`, and there will not be one.** A transcript is a record of what an assistant told somebody, so a conversation is archived (`ArchiveAsync`, reversed by `UnarchiveAsync`) and never removed. The guarantee is the absence of the method rather than a UI that hides a button — a UI-only guarantee lasts until the next person adds a convenience call.
-- **Scoping results to the current user is yours to do.** The component has no notion of who is signed in and will render whatever it is handed, without error. An implementation that returns unscoped rows will show one user another user's transcripts.
-- **It is a parameter, not an injected service**, matching `ChatService` beside it. Acquiring the two by different routes would let a host pass a bespoke chat service and silently receive a conversation store from the container that knows nothing about it.
-
-`DumbChatService`, the demo service shipped with the library, implements the conversation-addressed API in full (`SupportsConversations` is `true`) and is the worked example to copy: it keys transcripts by conversation id, raises `OnConversationMessageReceived` for every message, and raises the singular `OnMessageReceived` only for the active conversation, because a consumer using the singular event has no way to tell which conversation it was handed.
-
-`ChatConversationQuery` carries `SearchText` (use `HasSearchText`, which ignores whitespace), `SearchMode` (`Keyword` by default, `Semantic` only where `SupportsSemanticSearch` is true), `IncludeArchived` (**false** by default — archived means hidden from the default list), and `Skip`/`Take` (defaulting to `ChatConversationQuery.DefaultTake`). `ListAsync` returns a `ChatConversationPage`; a search matching nothing returns `ChatConversationPage.Empty` rather than throwing. On that page, `HasMore` is stated by the implementer rather than inferred from a short result set, and `TotalCount` is nullable, where `null` means *not counted* and is distinct from `0`, meaning *counted, and there are none*.
-
-**The full-screen conversation UI.** When a `ConversationService` is supplied *and* the chat is full-screen, `PDChat` renders a conversation sidebar, a toolbar and one tab per open conversation. None of it appears in the Docked, Minimised or Toast modes, which the feature deliberately leaves unchanged.
-
-- **Sidebar** — rows show the conversation's `DisplayName`, its last-activity time and an archived marker, newest first. The search box is debounced (300ms) and cancellable: a superseded search is abandoned rather than left to land out of order and overwrite a newer result. The semantic/keyword toggle is *hidden* rather than disabled when the store reports `SupportsSemanticSearch` as `false`. **Include archived** is unchecked by default, and unticking it clears archived rows from the list immediately rather than after a round trip.
-- **Tabs** — rendered with the library's own `PDTabSet`, one per *open* conversation, which is not the same as one per conversation that exists: the sidebar lists everything, tabs hold what the user is working on. Opening a conversation that is already open selects its existing tab. Closing a tab neither archives nor deletes — the conversation is still in the sidebar. Closing the last one leaves an empty state offering a new conversation.
-- **Unread markers** — a reply arriving for a tab the user is not looking at marks that tab and does **not** steal focus. This is what makes tabs worth having when an answer can take minutes: ask, switch away, come back.
-Tabs are also renamable by double-click, which writes through to `IChatConversationService.RenameAsync`, and `PDTabSet`'s own **+** creates a new conversation.
-
-- **Toolbar** — collapse/expand the sidebar, archive the selected conversation, and **un-archive** it. Archiving closes the tab; un-archiving deliberately does not, because the user has just said they want that conversation back. The un-archive control is *hidden* rather than disabled when the conversation is not archived — un-archiving something never archived is meaningless, not merely unavailable. **Opening an archived conversation does not un-archive it**: it stays archived until un-archived explicitly, so the archived filter is browsable rather than self-defeating. Archiving closes the tab, because leaving an archived conversation open and re-activating it on the next keystroke is a confusing pair of behaviours. There is no delete control, because there is no delete.
-
-A failing `ListAsync` degrades to a visible message in the sidebar with a retry, and leaves the transcript beside it usable.
 
 ---
 
@@ -675,6 +636,24 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | TimeZoneIdChanged | EventCallback<string?> | An event callback that is invoked when <see cref="TimeZoneId"/> changes. |
 | Value | DateTimeOffset | Gets or sets the current value. |
 | ValueChanged | EventCallback<DateTimeOffset> | An event callback that is invoked when the value changes. |
+
+---
+
+## PDDiffPanel
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets or sets the editor id. |
+| Original | string | Gets or sets the left-hand (before) text. A null value is treated as empty. |
+| Modified | string | Gets or sets the right-hand (after) text. A null value is treated as empty. |
+| FileName | string? | Gets or sets the file name shown in the toolbar and used to infer the language. |
+| Language | string? | Gets or sets an explicit Monaco language id, overriding the one inferred from <see cref="FileName"/>. |
+| SideBySide | bool | Gets or sets whether the two sides are shown side by side (true) or inline (false). Defaults to true. A toolbar button toggles the layout at runtime until the parent changes this value. |
+| ReadOnly | bool | Gets or sets whether the modified side is read-only. Defaults to true. |
+| Height | string | Gets or sets the CSS height of the panel. Defaults to 100%. |
+| Theme | string | Gets or sets the Monaco theme; empty uses Monaco's default. Monaco themes are global to the page: panels with different themes end up with whichever was set last, and setting this back to empty does not revert it. |
 
 ---
 
@@ -1552,26 +1531,6 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 
 ---
 
-## PDDiffPanel
-
-A Monaco diff view of two texts. Changing `Original` or `Modified` swaps text into the existing models, so scroll position survives a live refresh. Shows "No changes" when the texts are identical.
-
-**Parameters:**
-
-| Name | Type | Description |
-|------|------|-------------|
-| Id | string | Gets or sets the editor id. |
-| Original | string | Gets or sets the left-hand (before) text. A null value is treated as empty. |
-| Modified | string | Gets or sets the right-hand (after) text. A null value is treated as empty. |
-| FileName | string? | Gets or sets the file name shown in the toolbar and used to infer the language. |
-| Language | string? | Gets or sets an explicit Monaco language id, overriding the one inferred from FileName. |
-| SideBySide | bool | Gets or sets whether the two sides are shown side by side (true) or inline (false). Defaults to true. A toolbar button toggles the layout at runtime until the parent changes this value. |
-| ReadOnly | bool | Gets or sets whether the modified side is read-only. Defaults to true. |
-| Height | string | Gets or sets the CSS height of the panel. Defaults to 100%. |
-| Theme | string | Gets or sets the Monaco theme; empty uses Monaco's default. Monaco themes are global to the page: panels with different themes end up with whichever was set last, and setting this back to empty does not revert it. |
-
----
-
 ## PDNavLink
 
 **Parameters:**
@@ -2314,6 +2273,7 @@ This component has no public parameters.
 | NodeExpanded | EventCallback<TreeNode<TItem>> | Callback fired whenever the user expands a node. |
 | NodeTemplate | RenderFragment<TreeNode<TItem>>? | Gets or sets the template to render for each node. |
 | NodeUpdated | EventCallback<TreeNode<TItem>> | Callback fired whenever a tree node is updated. |
+| OptimizeRendering | bool | Gets or sets whether each <see cref="PDTreeNode{TItem}"/> skips re-rendering (and so skips re-invoking <see cref="NodeTemplate"/>) when none of its own observable state has changed since its last render. Without this, every render of an ancestor component — including one entirely unrelated to the tree — unconditionally re-renders every currently expanded node, which scales with (expanded node count) and dominates render time on a large, mostly-expanded tree. Off by default to preserve existing behaviour for callers that mutate node data in place without signalling the change through <see cref="TreeNode{TItem}.RenderVersion"/> — call <see cref="RefreshNode"/> after such a mutation once this is enabled. |
 | ParentKeyField | Func<TItem, object>? | A function that selects the field that contains the parent key value. |
 | Ready | EventCallback | Gets or sets an event callback raised when the component has performed all its initialization. |
 | RightClickSelectsItem | bool | Gets or sets whether right clicking on an item selects it. |

@@ -125,6 +125,38 @@ public partial class PDMediaPlayerPage
 
 	// set by the markup's @ref
 	protected PDMediaPlayer? Player { get; set; }
+
+	protected bool ShowSpectrogram { get; set; }
+
+	protected bool FrequencyLabels { get; set; } = true;
+
+	protected bool BroadcastClock { get; set; }
+
+	protected bool ShowKeyPoints { get; set; }
+
+	protected bool ShowLandmarks { get; set; }
+
+	// example data: a rising run of peaks, each joined to the next by a landmark
+	private static readonly PDMediaKeyPoint[] _keyPoints =
+	[
+		.. Enumerable.Range(0, 24).Select(i => new PDMediaKeyPoint
+		{
+			Time = TimeSpan.FromSeconds(1 + (i * 2.2)),
+			FrequencyHz = 300 + (i % 8 * 450),
+			Weight = 0.3 + (i % 3 * 0.3)
+		})
+	];
+
+	private static readonly PDMediaLandmark[] _landmarks =
+	[
+		.. _keyPoints.Zip(_keyPoints.Skip(1), (a, b) => new PDMediaLandmark
+		{
+			FromTime = a.Time,
+			FromFrequencyHz = a.FrequencyHz,
+			ToTime = b.Time,
+			ToFrequencyHz = b.FrequencyHz
+		})
+	];
 	private PDMediaMarker[] _markers = _showMarkers;
 	private bool _manyMarkers;
 	private TimeSpan? _duration;
