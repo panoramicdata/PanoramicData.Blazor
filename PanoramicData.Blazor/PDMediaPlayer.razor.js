@@ -196,8 +196,8 @@ export function reveal(container) {
 
 const visuals = new WeakMap();
 const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800, 3600];
-const tinyAmount = 0.000000001;
-const silenceFloor = 0.000000000001;
+const tinyAmount = Math.pow(10, -9);
+const silenceFloor = Math.pow(10, -12);
 const redrawIntervalMs = 40;
 const dynamicRangeDb = 80;
 
@@ -300,54 +300,69 @@ function report(v, status) {
 
 // ---- getting the audio and making the spectrogram ----
 
-function fetchBytes(url) {
-	return new Promise((resolve, reject) => {
-		const request = new XMLHttpRequest();
-		request.open("GET", url);
-		request.responseType = "arraybuffer";
-		request.onload = () =>
-			request.status >= 200 && request.status < 300
-				? resolve(request.response)
-				: reject(new Error(String(request.status)));
-		request.onerror = () => reject(new Error("network"));
-		request.send();
-	});
+// reads a media source into an ArrayBuffer and calls done with it, or with null when it could not be read
+function fetchBytes(url, done) {
+	const request = new XMLHttpRequest();
+	request.open("GET", url);
+	request.responseType = "arraybuffer";
+	request.onload = () => {
+		const ok = request.status >= 200 && request.status < 300;
+		done(ok ? request.response : null);
+	};
+	request.onerror = () => done(null);
+	request.send();
 }
 
 function createAudioContext(sampleRate) {
 	try {
 		return new AudioContext({ sampleRate });
-	} catch {
+	} catch (error) {
 		return new AudioContext();
 	}
 }
 
-async function decodeSource(src, sampleRate) {
-	const bytes = await fetchBytes(src);
+// decodes bytes at the wanted sample rate and calls done with the decoded audio, or with null when it cannot be decoded
+function decodeBytes(bytes, sampleRate, done) {
 	const context = createAudioContext(sampleRate);
-	try {
-		return await context.decodeAudioData(bytes);
-	} finally {
-		await context.close();
-	}
+	const finish = (decoded) => {
+		context.close();
+		done(decoded);
+	};
+	context.decodeAudioData(
+		bytes,
+		(decoded) => finish(decoded),
+		() => finish(null),
+	);
 }
 
-async function analyseSource(v, src) {
-	try {
-		const decoded = await decodeSource(src, v.options.sampleRate);
-		if (decoded.duration > v.options.maxDuration) {
-			return { spectrogram: null, status: "toolong" };
+// calls done with the spectrogram (or null) and a status of ready, toolong or failed
+function analyseSource(v, src, done) {
+	fetchBytes(src, (bytes) => {
+		if (!bytes) {
+			done(null, "failed");
+			return;
 		}
-		return {
-			spectrogram: makeSpectrogram(decoded, v.options),
-			status: "ready",
-		};
-	} catch {
-		return { spectrogram: null, status: "failed" };
+		decodeBytes(bytes, v.options.sampleRate, (decoded) => {
+			done(...spectrogramFor(v, decoded));
+		});
+	});
+}
+
+function spectrogramFor(v, decoded) {
+	if (!decoded) {
+		return [null, "failed"];
+	}
+	if (decoded.duration > v.options.maxDuration) {
+		return [null, "toolong"];
+	}
+	try {
+		return [makeSpectrogram(decoded, v.options), "ready"];
+	} catch (error) {
+		return [null, "failed"];
 	}
 }
 
-async function loadSpectrogram(v) {
+function loadSpectrogram(v) {
 	const generation = ++v.generation;
 	const src = v.el.currentSrc || v.el.src;
 	if (!src) {
@@ -355,13 +370,14 @@ async function loadSpectrogram(v) {
 		return;
 	}
 	report(v, "loading");
-	const result = await analyseSource(v, src);
-	if (generation !== v.generation) {
-		return;
-	}
-	v.spectrogram = result.spectrogram;
-	report(v, result.status);
-	draw(v);
+	analyseSource(v, src, (spectrogram, status) => {
+		if (generation !== v.generation) {
+			return;
+		}
+		v.spectrogram = spectrogram;
+		report(v, status);
+		draw(v);
+	});
 }
 
 function mixToMono(decoded) {
