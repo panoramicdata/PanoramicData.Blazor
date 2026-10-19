@@ -61,6 +61,33 @@
 			</div>
 		}
 
+		@if (ShowNotes && DurationSeconds > 0)
+		{
+			var notes = VisibleNotes;
+			var low = notes.Count > 0 ? Math.Max(0, notes.Min(n => n.MidiNote) - 1) : 48;
+			var high = notes.Count > 0 ? Math.Min(127, Math.Max(low + 11, notes.Max(n => n.MidiNote) + 1)) : 72;
+			<div class="pdmp-piano" aria-label="Piano roll: pitch against time in seconds">
+				<div class="pdmp-pitch-labels" aria-hidden="true">
+					@for (var midi = low; midi <= high; midi++)
+					{
+						if (midi % 12 == 0)
+						{
+							<span style="bottom:@Percent(100.0 * (midi - low) / (high - low + 1))">@NoteName(midi)</span>
+						}
+					}
+				</div>
+				<div class="pdmp-note-grid">
+					@foreach (var note in notes)
+					{
+						<button type="button" class="pdmp-note" style="@NoteStyle(note, low, high)" title="@NoteTitle(note)"
+							aria-label="@NoteTitle(note)" disabled="@(!canSeek)" @onclick="() => SeekAsync(note.Start)"></button>
+					}
+					<div class="pdmp-note-playhead" style="left:@Percent(ProgressPercent)" aria-hidden="true"></div>
+				</div>
+				<div class="pdmp-note-times"><span>0 s</span><span>@FormatNumber(DurationSeconds) s</span></div>
+			</div>
+		}
+
 		<div class="pdmp-timeline">
 			@if (segmentsAbove)
 			{

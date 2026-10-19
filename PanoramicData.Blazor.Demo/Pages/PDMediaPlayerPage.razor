@@ -61,7 +61,9 @@
 			</div>
 		</div>
 
+		<label class="form-check mb-3"><input type="checkbox" class="form-check-input" @bind="showNotes" /> Show example piano roll (illustrative notes)</label>
 		<PDMediaPlayer @ref="Player"
+					   ShowNotes="showNotes" Notes="exampleNotes"
 					   Src="@CurrentSource"
 					   MediaKind="@CurrentKind"
 					   Title="@($"Demo show: {SourceName}")"
