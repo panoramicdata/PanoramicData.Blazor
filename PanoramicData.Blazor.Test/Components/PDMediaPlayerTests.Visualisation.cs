@@ -86,6 +86,20 @@ public partial class PDMediaPlayerTests
 		Get<bool>("showSpectrogram").Should().BeFalse();
 	}
 
+	/// <summary>The labels-inside option reaches the script, so the plot can fill the width and line up with the seek bar.</summary>
+	[Fact]
+	public void Visualisation_LabelsInside_IsPassedToScript()
+	{
+		RenderPlayer(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.SpectrogramLabelsInside, true);
+		});
+
+		var options = _module.Invocations.Single(i => i.Identifier == "visualise").Arguments[3]!;
+		((bool)options.GetType().GetProperty("labelsInside")!.GetValue(options)!).Should().BeTrue();
+	}
+
 	/// <summary>The analysis window is rounded to a power of two within its limits.</summary>
 	[Theory]
 	[InlineData(64, 64)]

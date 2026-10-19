@@ -64,6 +64,14 @@ public partial class PDMediaPlayer
 	public IEnumerable<PDMediaLandmark>? Landmarks { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the frequency labels are drawn inside the plot, without a title for the frequency axis. The plot then fills
+	/// the full width of the visualisation, so that its time axis lines up exactly with the seek bar below it. The default is false,
+	/// which leaves a margin on the left for the labels and the title.
+	/// </summary>
+	[Parameter]
+	public bool SpectrogramLabelsInside { get; set; }
+
+	/// <summary>
 	/// Gets or sets the height in pixels of the visualisation, from 80 to 800. The default is 260.
 	/// </summary>
 	[Parameter]
@@ -224,7 +232,8 @@ public partial class PDMediaPlayer
 			SpectrogramWindowValue,
 			SpectrogramHopValue,
 			SpectrogramMaxFrequencyValue,
-			SpectrogramMaxDuration.TotalSeconds);
+			SpectrogramMaxDuration.TotalSeconds,
+			SpectrogramLabelsInside);
 		if (key == _visualKey
 			&& ReferenceEquals(KeyPoints, _visualKeyPoints)
 			&& ReferenceEquals(Landmarks, _visualLandmarks))
@@ -243,7 +252,8 @@ public partial class PDMediaPlayer
 		showSpectrogram = ShowSpectrogram,
 		showKeyPoints = ShowKeyPoints,
 		showLandmarks = ShowLandmarks,
-		sampleRate = SpectrogramSampleRateValue,
+		labelsInside = SpectrogramLabelsInside,
+			sampleRate = SpectrogramSampleRateValue,
 		windowSize = SpectrogramWindowValue,
 		hopSize = SpectrogramHopValue,
 		maxFrequency = SpectrogramMaxFrequencyValue,

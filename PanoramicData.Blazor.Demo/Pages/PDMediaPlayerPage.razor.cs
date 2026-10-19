@@ -128,6 +128,8 @@ public partial class PDMediaPlayerPage
 
 	protected bool ShowSpectrogram { get; set; }
 
+	protected bool LabelsInside { get; set; }
+
 	protected bool ShowKeyPoints { get; set; }
 
 	protected bool ShowLandmarks { get; set; }

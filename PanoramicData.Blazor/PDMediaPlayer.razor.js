@@ -415,8 +415,9 @@ function layout(v) {
 		v.canvas.width = Math.round(width * dpr);
 		v.canvas.height = Math.round(height * dpr);
 	}
-	const left = 64;
-	const right = 10;
+	const inside = Boolean(v.options.labelsInside);
+	const left = inside ? 0 : 64;
+	const right = inside ? 0 : 10;
 	const top = 8;
 	const bottom = 34;
 	const options = v.options;
@@ -431,6 +432,7 @@ function layout(v) {
 	}
 	return {
 		dpr,
+		inside,
 		width,
 		height,
 		left,
@@ -504,17 +506,32 @@ function draw(v) {
 		ctx.moveTo(px, l.top + l.ph);
 		ctx.lineTo(px, l.top + l.ph + 4);
 		ctx.stroke();
-		ctx.fillText(formatTime(t), px, l.top + l.ph + 16);
+		const first = l.inside && t === 0;
+		const last = l.inside && x(t) > l.left + l.pw - 12;
+		ctx.textAlign = first ? "left" : last ? "right" : "center";
+		ctx.fillText(formatTime(t), first ? l.left : last ? l.left + l.pw : px, l.top + l.ph + 16);
 	}
 	const hzStep = l.maxHz >= 4000 ? 1000 : l.maxHz >= 1500 ? 500 : l.maxHz >= 600 ? 200 : 100;
 	ctx.textAlign = "right";
 	for (let hz = 0; hz <= l.maxHz + 1e-9; hz += hzStep) {
 		const py = Math.round(y(hz)) + 0.5;
-		ctx.beginPath();
-		ctx.moveTo(l.left - 4, py);
-		ctx.lineTo(l.left, py);
-		ctx.stroke();
-		ctx.fillText(hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz", l.left - 7, py + 4);
+		const label = hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz";
+		if (l.inside) {
+			const ly = py - 3 < l.top + 9 ? py + 12 : py - 3;
+			ctx.textAlign = "left";
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = "rgba(10,14,24,0.85)";
+			ctx.strokeText(label, l.left + 4, ly);
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = "rgba(143,155,184,0.9)";
+			ctx.fillText(label, l.left + 4, ly);
+		} else {
+			ctx.beginPath();
+			ctx.moveTo(l.left - 4, py);
+			ctx.lineTo(l.left, py);
+			ctx.stroke();
+			ctx.fillText(label, l.left - 7, py + 4);
+		}
 		if (hz > 0) {
 			ctx.save();
 			ctx.strokeStyle = "rgba(255,255,255,0.07)";
@@ -528,11 +545,13 @@ function draw(v) {
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#c9d3ea";
 	ctx.fillText("Time (seconds)", l.left + l.pw / 2, l.height - 4);
-	ctx.save();
-	ctx.translate(12, l.top + l.ph / 2);
-	ctx.rotate(-Math.PI / 2);
-	ctx.fillText("Frequency", 0, 0);
-	ctx.restore();
+	if (!l.inside) {
+		ctx.save();
+		ctx.translate(12, l.top + l.ph / 2);
+		ctx.rotate(-Math.PI / 2);
+		ctx.fillText("Frequency", 0, 0);
+		ctx.restore();
+	}
 
 	ctx.save();
 	ctx.beginPath();

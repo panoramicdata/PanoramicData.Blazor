@@ -64,6 +64,10 @@
 				<label class="form-check-label" for="mp-spectrogram">Spectrogram</label>
 			</div>
 			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-inside" @bind="LabelsInside" />
+				<label class="form-check-label" for="mp-inside">Labels inside (aligns with seek bar)</label>
+			</div>
+			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-keypoints" @bind="ShowKeyPoints" />
 				<label class="form-check-label" for="mp-keypoints">Key points (example data)</label>
 			</div>
@@ -87,6 +91,7 @@
 					   MarkerListPlacement="Placement"
 					   PersistKey="@(Persist ? "pdmediaplayer-demo" : null)"
 					   ShowSpectrogram="ShowSpectrogram"
+					   SpectrogramLabelsInside="LabelsInside"
 					   ShowKeyPoints="ShowKeyPoints"
 					   KeyPoints="_keyPoints"
 					   ShowLandmarks="ShowLandmarks"
