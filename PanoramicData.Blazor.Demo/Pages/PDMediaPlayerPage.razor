@@ -64,6 +64,14 @@
 				<label class="form-check-label" for="mp-spectrogram">Spectrogram</label>
 			</div>
 			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-window" @bind="SlidingWindow" />
+				<label class="form-check-label" for="mp-window">Sliding 12 second window</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-controls" @bind="Controls" />
+				<label class="form-check-label" for="mp-controls">Controls</label>
+			</div>
+			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-clock" @bind="BroadcastClock" />
 				<label class="form-check-label" for="mp-clock">Broadcast clock time (14:30:00 start)</label>
 			</div>
@@ -97,6 +105,8 @@
 					   MarkerListPlacement="Placement"
 					   PersistKey="@(Persist ? "pdmediaplayer-demo" : null)"
 					   ShowSpectrogram="ShowSpectrogram"
+					   ShowControls="Controls"
+					   SpectrogramWindow="@(SlidingWindow ? TimeSpan.FromSeconds(12) : null)"
 					   ShowSpectrogramFrequencyLabels="FrequencyLabels"
 					   SpectrogramStartTime="@(BroadcastClock ? new DateTimeOffset(2026, 10, 19, 14, 30, 0, TimeSpan.Zero) : null)"
 					   ShowKeyPoints="ShowKeyPoints"

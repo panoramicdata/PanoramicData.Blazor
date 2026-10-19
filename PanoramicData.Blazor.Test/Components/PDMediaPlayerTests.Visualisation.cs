@@ -143,7 +143,7 @@ public partial class PDMediaPlayerTests
 		cut.Instance.SpectrogramWindowValue.Should().Be(expected);
 	}
 
-	/// <summary>The script is only called again when an option or a data collection changes.</summary>
+	/// <summary>A new data collection updates the drawing in place; only an option change attaches again.</summary>
 	[Fact]
 	public void Visualisation_OnlyReattachesWhenSomethingChanges()
 	{
@@ -157,6 +157,10 @@ public partial class PDMediaPlayerTests
 		CountOf("visualise").Should().Be(1);
 
 		cut.Render(p => p.Add(x => x.KeyPoints, KeyPointSet()));
+		CountOf("visualise").Should().Be(1);
+		CountOf("updateVisualisation").Should().Be(1);
+
+		cut.Render(p => p.Add(x => x.SpectrogramWindow, TimeSpan.FromSeconds(12)));
 		CountOf("visualise").Should().Be(2);
 	}
 
@@ -265,5 +269,103 @@ public partial class PDMediaPlayerTests
 		await player.OnSpectrogramStatus("failed");
 
 		raised.Should().BeFalse();
+	}
+
+	/// <summary>The controls are shown by default and can be switched off, leaving the visualisation.</summary>
+	[Fact]
+	public void Controls_CanBeHidden()
+	{
+		var shown = RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+		shown.FindAll(".pdmp-controls").Should().HaveCount(1);
+		shown.FindAll(".pdmp-timeline").Should().HaveCount(1);
+
+		var hidden = RenderPlayer(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.ShowControls, false);
+		});
+
+		hidden.FindAll(".pdmp-controls").Should().BeEmpty();
+		hidden.FindAll(".pdmp-timeline").Should().BeEmpty();
+		hidden.FindAll("canvas.pdmp-visual-canvas").Should().HaveCount(1);
+	}
+
+	/// <summary>The sliding window is clamped and passed to the script, or is null for the whole media.</summary>
+	[Theory]
+	[InlineData(null, null)]
+	[InlineData(0.0, null)]
+	[InlineData(-5.0, null)]
+	[InlineData(12.0, 12.0)]
+	[InlineData(0.2, 1.0)]
+	[InlineData(99999.0, 3600.0)]
+	public void Visualisation_Window_IsClampedAndPassed(double? seconds, double? expected)
+	{
+		var cut = RenderPlayer(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.SpectrogramWindow, seconds is { } v ? TimeSpan.FromSeconds(v) : null);
+		});
+
+		cut.Instance.SlidingWindowSeconds.Should().Be(expected);
+		var options = _module.Invocations.Single(i => i.Identifier == "visualise").Arguments[3]!;
+		((double?)options.GetType().GetProperty("windowSeconds")!.GetValue(options)).Should().Be(expected);
+	}
+
+	/// <summary>Pushed columns are handed to the script with their shape and duration.</summary>
+	[Fact]
+	public async Task PushSpectrum_PassesColumnsToScript()
+	{
+		var cut = RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+
+		await cut.InvokeAsync(() => cut.Instance.PushSpectrumAsync(new byte[12], 4, TimeSpan.FromMilliseconds(23)));
+
+		var call = _module.Invocations.Single(i => i.Identifier == "pushSpectrum");
+		((byte[])call.Arguments[1]!).Should().HaveCount(12);
+		call.Arguments[2].Should().Be(4);
+		call.Arguments[3].Should().Be(0.023);
+	}
+
+	/// <summary>Pushing nothing does nothing; clearing reaches the script.</summary>
+	[Fact]
+	public async Task PushSpectrum_EmptyIsIgnored_ClearReachesScript()
+	{
+		var cut = RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+
+		await cut.InvokeAsync(() => cut.Instance.PushSpectrumAsync([], 4, TimeSpan.FromSeconds(1)));
+		await cut.InvokeAsync(() => cut.Instance.ClearSpectrumAsync());
+
+		CountOf("pushSpectrum").Should().Be(0);
+		CountOf("clearSpectrum").Should().Be(1);
+	}
+
+	/// <summary>Bad arguments to PushSpectrumAsync are refused.</summary>
+	[Fact]
+	public async Task PushSpectrum_ValidatesArguments()
+	{
+		var cut = RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+		var player = cut.Instance;
+
+		await cut.InvokeAsync(async () =>
+		{
+			await FluentActions.Awaiting(() => player.PushSpectrumAsync(null!, 4, TimeSpan.FromSeconds(1))).Should().ThrowAsync<ArgumentNullException>();
+			await FluentActions.Awaiting(() => player.PushSpectrumAsync(new byte[4], 1, TimeSpan.FromSeconds(1))).Should().ThrowAsync<ArgumentOutOfRangeException>();
+			await FluentActions.Awaiting(() => player.PushSpectrumAsync(new byte[4], 4, TimeSpan.Zero)).Should().ThrowAsync<ArgumentOutOfRangeException>();
+			await FluentActions.Awaiting(() => player.PushSpectrumAsync(new byte[5], 4, TimeSpan.FromSeconds(1))).Should().ThrowAsync<ArgumentException>();
+		});
+	}
+
+	/// <summary>After disposal, pushing and clearing do nothing.</summary>
+	[Fact]
+	public async Task PushSpectrum_AfterDisposal_DoesNothing()
+	{
+		var cut = RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+		var player = cut.Instance;
+		await DisposeComponentsAsync();
+
+		await player.PushSpectrumAsync(new byte[4], 4, TimeSpan.FromSeconds(1));
+		await player.ClearSpectrumAsync();
+
+		CountOf("pushSpectrum").Should().Be(0);
+		CountOf("clearSpectrum").Should().Be(0);
 	}
 }
