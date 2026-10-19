@@ -77,6 +77,7 @@ export function attach(el, dotNetRef, intervalMs) {
 }
 
 export function detach(el) {
+	clearVisualisation(el);
 	const player = el ? players.get(el) : null;
 	if (!player) {
 		return;
@@ -186,4 +187,387 @@ export function reveal(container) {
 			container.scrollTop = top - container.clientHeight / 3;
 		}
 	}
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Visualisation: a spectrogram with labelled axes, a playhead, and optional key points and landmarks drawn over it. .NET decides what
+// is shown and passes the points and lines; this code decodes the audio, makes the spectrogram, draws, and reports clicks and status.
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+const visuals = new WeakMap();
+const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
+
+export function visualise(el, canvas, dotNetRef, options) {
+	clearVisualisation(el);
+	if (!el || !canvas) {
+		return;
+	}
+	const v = { el, canvas, dotNetRef, options, spectrogram: null, token: 0, raf: 0, listeners: [], observer: null };
+	visuals.set(el, v);
+	const redraw = () => draw(v);
+	const startLoop = () => {
+		cancelAnimationFrame(v.raf);
+		const tick = () => {
+			draw(v);
+			v.raf = requestAnimationFrame(tick);
+		};
+		v.raf = requestAnimationFrame(tick);
+	};
+	const stopLoop = () => {
+		cancelAnimationFrame(v.raf);
+		v.raf = 0;
+		draw(v);
+	};
+	const handlers = [
+		["play", startLoop],
+		["pause", stopLoop],
+		["ended", stopLoop],
+		["seeked", redraw],
+		["timeupdate", redraw],
+		["loadedmetadata", redraw],
+		["durationchange", redraw],
+	];
+	for (const [type, fn] of handlers) {
+		el.addEventListener(type, fn);
+		v.listeners.push([type, fn]);
+	}
+	v.onClick = (e) => {
+		const point = fromPixel(v, e);
+		if (point && v.dotNetRef) {
+			v.dotNetRef.invokeMethodAsync("OnVisualisationPointer", point.seconds, point.hz).catch(() => {});
+		}
+	};
+	canvas.addEventListener("click", v.onClick);
+	if (typeof ResizeObserver !== "undefined") {
+		v.observer = new ResizeObserver(redraw);
+		v.observer.observe(canvas);
+	}
+	if (!el.paused) {
+		startLoop();
+	}
+	if (options.showSpectrogram) {
+		loadSpectrogram(v);
+	} else {
+		draw(v);
+	}
+}
+
+export function clearVisualisation(el) {
+	const v = el ? visuals.get(el) : null;
+	if (!v) {
+		return;
+	}
+	cancelAnimationFrame(v.raf);
+	for (const [type, fn] of v.listeners) {
+		el.removeEventListener(type, fn);
+	}
+	v.canvas.removeEventListener("click", v.onClick);
+	if (v.observer) {
+		v.observer.disconnect();
+	}
+	v.token++;
+	v.dotNetRef = null;
+	visuals.delete(el);
+}
+
+function report(v, status) {
+	if (v.dotNetRef) {
+		v.dotNetRef.invokeMethodAsync("OnSpectrogramStatus", status).catch(() => {});
+	}
+}
+
+async function loadSpectrogram(v) {
+	const token = ++v.token;
+	const src = v.el.currentSrc || v.el.src;
+	if (!src) {
+		draw(v);
+		return;
+	}
+	report(v, "loading");
+	try {
+		const response = await fetch(src);
+		const buffer = await response.arrayBuffer();
+		let context;
+		try {
+			context = new AudioContext({ sampleRate: v.options.sampleRate });
+		} catch {
+			context = new AudioContext();
+		}
+		const decoded = await context.decodeAudioData(buffer);
+		await context.close();
+		if (token !== v.token) {
+			return;
+		}
+		if (decoded.duration > v.options.maxDuration) {
+			v.spectrogram = null;
+			report(v, "toolong");
+		} else {
+			v.spectrogram = makeSpectrogram(decoded, v.options);
+			report(v, "ready");
+		}
+	} catch {
+		if (token === v.token) {
+			v.spectrogram = null;
+			report(v, "failed");
+		}
+	}
+	if (token === v.token) {
+		draw(v);
+	}
+}
+
+// Short-time Fourier transform: Hann window, radix-2 FFT, decibels scaled over the 80 dB below the loudest cell. Column m is the
+// window that starts at m * hop samples, so it is drawn at time m * hop / rate.
+function makeSpectrogram(decoded, options) {
+	const rate = decoded.sampleRate;
+	const win = options.windowSize;
+	const hop = options.hopSize;
+	const length = decoded.length;
+	const mono = new Float32Array(length);
+	for (let c = 0; c < decoded.numberOfChannels; c++) {
+		const channel = decoded.getChannelData(c);
+		for (let i = 0; i < length; i++) {
+			mono[i] += channel[i] / decoded.numberOfChannels;
+		}
+	}
+	const hzPerBin = rate / win;
+	const maxHz = Math.min(options.maxFrequency, rate / 2);
+	const bins = Math.min(win / 2 + 1, Math.ceil(maxHz / hzPerBin) + 1);
+	const frames = Math.max(0, Math.floor((length - win) / hop) + 1);
+	const hann = new Float64Array(win);
+	for (let i = 0; i < win; i++) {
+		hann[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / win);
+	}
+	const cos = new Float64Array(win / 2);
+	const sin = new Float64Array(win / 2);
+	for (let i = 0; i < win / 2; i++) {
+		cos[i] = Math.cos((-2 * Math.PI * i) / win);
+		sin[i] = Math.sin((-2 * Math.PI * i) / win);
+	}
+	const reverse = new Uint32Array(win);
+	const bits = Math.log2(win);
+	for (let i = 0; i < win; i++) {
+		let r = 0;
+		for (let b = 0; b < bits; b++) {
+			r |= ((i >> b) & 1) << (bits - 1 - b);
+		}
+		reverse[i] = r;
+	}
+	const re = new Float64Array(win);
+	const im = new Float64Array(win);
+	const db = new Float32Array(frames * bins);
+	let max = -Infinity;
+	for (let f = 0; f < frames; f++) {
+		for (let i = 0; i < win; i++) {
+			re[reverse[i]] = mono[f * hop + i] * hann[i];
+			im[reverse[i]] = 0;
+		}
+		for (let size = 2; size <= win; size <<= 1) {
+			const half = size >> 1;
+			const step = win / size;
+			for (let start = 0; start < win; start += size) {
+				for (let k = 0; k < half; k++) {
+					const a = start + k;
+					const b = a + half;
+					const wr = cos[k * step];
+					const wi = sin[k * step];
+					const tr = re[b] * wr - im[b] * wi;
+					const ti = re[b] * wi + im[b] * wr;
+					re[b] = re[a] - tr;
+					im[b] = im[a] - ti;
+					re[a] += tr;
+					im[a] += ti;
+				}
+			}
+		}
+		for (let k = 0; k < bins; k++) {
+			const value = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + 1e-12);
+			db[f * bins + k] = value;
+			if (value > max) {
+				max = value;
+			}
+		}
+	}
+	const image = document.createElement("canvas");
+	image.width = Math.max(1, frames);
+	image.height = bins;
+	const ictx = image.getContext("2d");
+	const data = ictx.createImageData(image.width, image.height);
+	for (let f = 0; f < frames; f++) {
+		for (let k = 0; k < bins; k++) {
+			const level = Math.min(1, Math.max(0, (db[f * bins + k] - (max - 80)) / 80));
+			const p = ((bins - 1 - k) * image.width + f) * 4;
+			data.data[p] = Math.min(255, Math.round(255 * Math.pow(level, 0.9) * 1.25));
+			data.data[p + 1] = Math.min(255, Math.round(255 * Math.pow(level, 2.2) * 1.1));
+			data.data[p + 2] = level < 0.05 ? 20 : Math.round(70 + 140 * Math.sin(Math.PI * Math.min(1, level * 1.2)) * (1 - level * 0.6));
+			data.data[p + 3] = 255;
+		}
+	}
+	ictx.putImageData(data, 0, 0);
+	return { image, frames, bins, hzPerBin, seconds: (frames * hop) / rate, maxHz };
+}
+
+function layout(v) {
+	const dpr = window.devicePixelRatio || 1;
+	const width = v.canvas.clientWidth || 600;
+	const height = v.canvas.clientHeight || 200;
+	if (v.canvas.width !== Math.round(width * dpr) || v.canvas.height !== Math.round(height * dpr)) {
+		v.canvas.width = Math.round(width * dpr);
+		v.canvas.height = Math.round(height * dpr);
+	}
+	const left = 64;
+	const right = 10;
+	const top = 8;
+	const bottom = 34;
+	const options = v.options;
+	let seconds = v.spectrogram ? v.spectrogram.seconds : Number.isFinite(v.el.duration) ? v.el.duration : 0;
+	if (!seconds) {
+		for (let i = 0; i < options.keyPoints.length; i += 3) {
+			seconds = Math.max(seconds, options.keyPoints[i] + 0.5);
+		}
+		for (let i = 0; i < options.landmarks.length; i += 4) {
+			seconds = Math.max(seconds, options.landmarks[i], options.landmarks[i + 2]);
+		}
+	}
+	return {
+		dpr,
+		width,
+		height,
+		left,
+		top,
+		pw: width - left - right,
+		ph: height - top - bottom,
+		seconds: seconds || 1,
+		maxHz: v.spectrogram ? v.spectrogram.maxHz : options.maxFrequency,
+	};
+}
+
+function fromPixel(v, e) {
+	const l = layout(v);
+	const rect = v.canvas.getBoundingClientRect();
+	const x = e.clientX - rect.left - l.left;
+	const y = e.clientY - rect.top - l.top;
+	if (x < 0 || y < 0 || x > l.pw || y > l.ph) {
+		return null;
+	}
+	return { seconds: (x / l.pw) * l.seconds, hz: (1 - y / l.ph) * l.maxHz };
+}
+
+function niceStep(span, pixels, minPixels) {
+	for (const step of timeSteps) {
+		if ((step / span) * pixels >= minPixels) {
+			return step;
+		}
+	}
+	return timeSteps[timeSteps.length - 1];
+}
+
+function formatTime(seconds) {
+	const whole = Math.round(seconds * 10) / 10;
+	if (whole < 60) {
+		return Number.isInteger(whole) ? String(whole) : whole.toFixed(1);
+	}
+	return Math.floor(whole / 60) + ":" + String(Math.round(whole % 60)).padStart(2, "0");
+}
+
+function draw(v) {
+	if (!v.dotNetRef) {
+		return;
+	}
+	const l = layout(v);
+	const ctx = v.canvas.getContext("2d");
+	ctx.setTransform(l.dpr, 0, 0, l.dpr, 0, 0);
+	ctx.clearRect(0, 0, l.width, l.height);
+	ctx.fillStyle = "#0a0e18";
+	ctx.fillRect(l.left, l.top, l.pw, l.ph);
+	const x = (t) => l.left + (t / l.seconds) * l.pw;
+	const y = (hz) => l.top + l.ph - (hz / l.maxHz) * l.ph;
+
+	if (v.spectrogram && v.options.showSpectrogram) {
+		const s = v.spectrogram;
+		const rows = Math.min(s.bins, l.maxHz / s.hzPerBin + 1);
+		const sy = s.bins - rows;
+		ctx.imageSmoothingEnabled = true;
+		ctx.drawImage(s.image, 0, sy, s.frames, rows, l.left, l.top, (s.seconds / l.seconds) * l.pw, l.ph);
+	}
+
+	ctx.strokeStyle = "rgba(143,155,184,0.9)";
+	ctx.fillStyle = "#8f9bb8";
+	ctx.lineWidth = 1;
+	ctx.font = "11px system-ui, sans-serif";
+	ctx.strokeRect(l.left + 0.5, l.top + 0.5, l.pw, l.ph);
+	const tStep = niceStep(l.seconds, l.pw, 60);
+	ctx.textAlign = "center";
+	for (let t = 0; t <= l.seconds + 1e-9; t += tStep) {
+		const px = Math.round(x(t)) + 0.5;
+		ctx.beginPath();
+		ctx.moveTo(px, l.top + l.ph);
+		ctx.lineTo(px, l.top + l.ph + 4);
+		ctx.stroke();
+		ctx.fillText(formatTime(t), px, l.top + l.ph + 16);
+	}
+	const hzStep = l.maxHz >= 4000 ? 1000 : l.maxHz >= 1500 ? 500 : l.maxHz >= 600 ? 200 : 100;
+	ctx.textAlign = "right";
+	for (let hz = 0; hz <= l.maxHz + 1e-9; hz += hzStep) {
+		const py = Math.round(y(hz)) + 0.5;
+		ctx.beginPath();
+		ctx.moveTo(l.left - 4, py);
+		ctx.lineTo(l.left, py);
+		ctx.stroke();
+		ctx.fillText(hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz", l.left - 7, py + 4);
+		if (hz > 0) {
+			ctx.save();
+			ctx.strokeStyle = "rgba(255,255,255,0.07)";
+			ctx.beginPath();
+			ctx.moveTo(l.left, py);
+			ctx.lineTo(l.left + l.pw, py);
+			ctx.stroke();
+			ctx.restore();
+		}
+	}
+	ctx.textAlign = "center";
+	ctx.fillStyle = "#c9d3ea";
+	ctx.fillText("Time (seconds)", l.left + l.pw / 2, l.height - 4);
+	ctx.save();
+	ctx.translate(12, l.top + l.ph / 2);
+	ctx.rotate(-Math.PI / 2);
+	ctx.fillText("Frequency", 0, 0);
+	ctx.restore();
+
+	ctx.save();
+	ctx.beginPath();
+	ctx.rect(l.left, l.top, l.pw, l.ph);
+	ctx.clip();
+	if (v.options.showLandmarks) {
+		const lines = v.options.landmarks;
+		const colours = v.options.landmarkColors;
+		ctx.lineWidth = 1;
+		for (let i = 0, n = 0; i + 3 < lines.length; i += 4, n++) {
+			ctx.strokeStyle = colours[n] || "rgba(124,240,178,0.65)";
+			ctx.beginPath();
+			ctx.moveTo(x(lines[i]), y(lines[i + 1]));
+			ctx.lineTo(x(lines[i + 2]), y(lines[i + 3]));
+			ctx.stroke();
+		}
+	}
+	if (v.options.showKeyPoints) {
+		const points = v.options.keyPoints;
+		ctx.fillStyle = "#4cc2ff";
+		ctx.strokeStyle = "#06202e";
+		for (let i = 0; i + 2 < points.length; i += 3) {
+			ctx.beginPath();
+			ctx.arc(x(points[i]), y(points[i + 1]), 2 + points[i + 2] * 2.5, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.stroke();
+		}
+	}
+	const now = v.el.currentTime || 0;
+	const px = x(Math.min(now, l.seconds));
+	ctx.strokeStyle = "#ffffff";
+	ctx.lineWidth = 1.5;
+	ctx.beginPath();
+	ctx.moveTo(px, l.top);
+	ctx.lineTo(px, l.top + l.ph);
+	ctx.stroke();
+	ctx.restore();
 }

@@ -59,6 +59,18 @@
 				<input class="form-check-input" type="checkbox" id="mp-persist" @bind="Persist" />
 				<label class="form-check-label" for="mp-persist">Remember speed and position</label>
 			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-spectrogram" @bind="ShowSpectrogram" />
+				<label class="form-check-label" for="mp-spectrogram">Spectrogram</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-keypoints" @bind="ShowKeyPoints" />
+				<label class="form-check-label" for="mp-keypoints">Key points (example data)</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-landmarks" @bind="ShowLandmarks" />
+				<label class="form-check-label" for="mp-landmarks">Landmarks (example data)</label>
+			</div>
 		</div>
 
 		<PDMediaPlayer @ref="Player"
@@ -74,6 +86,11 @@
 					   RangeEnd="@(ShadeRange ? TimeSpan.FromSeconds(55) : null)"
 					   MarkerListPlacement="Placement"
 					   PersistKey="@(Persist ? "pdmediaplayer-demo" : null)"
+					   ShowSpectrogram="ShowSpectrogram"
+					   ShowKeyPoints="ShowKeyPoints"
+					   KeyPoints="_keyPoints"
+					   ShowLandmarks="ShowLandmarks"
+					   Landmarks="_landmarks"
 					   ShowDownload="true"
 					   DownloadFileName="demo-show.wav"
 					   @bind-PlaybackRate="Rate"
