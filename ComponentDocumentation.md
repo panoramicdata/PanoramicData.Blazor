@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-10-19 16:48:37
+Generated on: 2026-10-20 12:33:32
 
 ## PDAnimation
 

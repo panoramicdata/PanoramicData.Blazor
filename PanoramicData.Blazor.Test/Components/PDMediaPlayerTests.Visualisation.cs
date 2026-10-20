@@ -56,9 +56,9 @@ public partial class PDMediaPlayerTests
 		cut.Find("canvas.pdmp-visual-canvas").GetAttribute("aria-label").Should().Contain("time and frequency plot");
 	}
 
-	/// <summary>The script gets clamped options and the points and lines flattened into arrays.</summary>
+	/// <summary>The script gets clamped options, and the points and lines as raw float64 bytes in a call of their own.</summary>
 	[Fact]
-	public void Visualisation_PassesOptionsAndFlattenedDataToScript()
+	public void Visualisation_PassesOptionsAndDataToScript()
 	{
 		RenderPlayer(p =>
 		{
@@ -76,52 +76,67 @@ public partial class PDMediaPlayerTests
 		call.Arguments.Should().HaveCount(4);
 		var options = call.Arguments[3]!;
 		T Get<T>(string name) => (T)options.GetType().GetProperty(name)!.GetValue(options)!;
-		Get<double[]>("keyPoints").Should().Equal(1, 440, 0.9, 2, 880, 1);
-		Get<double[]>("landmarks").Should().Equal(1, 440, 2, 880);
-		Get<string?[]>("landmarkColors").Should().Equal("red");
 		Get<int>("windowSize").Should().Be(1024);
 		Get<int>("hopSize").Should().Be(1024);
 		Get<int>("sampleRate").Should().Be(3000);
 		Get<double>("maxFrequency").Should().Be(1500);
 		Get<bool>("showSpectrogram").Should().BeFalse();
+		options.GetType().GetProperty("keyPoints").Should().BeNull();
+
+		var data = _module.Invocations.Single(i => i.Identifier == "setVisualisationData");
+		Doubles(data.Arguments[1]).Should().Equal(1, 440, 0.9, 2, 880, 1);
+		Doubles(data.Arguments[2]).Should().Equal(1, 440, 2, 880);
+		((string?[])data.Arguments[3]!).Should().Equal("red");
 	}
 
-	/// <summary>The frequency labels are on by default and the option reaches the script.</summary>
+	private static double[] Doubles(object? bytes)
+	{
+		var raw = (byte[])bytes!;
+		var values = new double[raw.Length / sizeof(double)];
+		Buffer.BlockCopy(raw, 0, values, 0, raw.Length);
+		return values;
+	}
+
+	/// <summary>Colours are only sent when some landmark has one.</summary>
 	[Fact]
-	public void Visualisation_FrequencyLabels_AreOnByDefaultAndPassedToScript()
+	public void Visualisation_NoLandmarkColours_SendsNull()
 	{
 		RenderPlayer(p =>
 		{
-			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.ShowLandmarks, true);
+			p.Add(x => x.Landmarks, new[] { new PDMediaLandmark { FromTime = TimeSpan.Zero, FromFrequencyHz = 1, ToTime = TimeSpan.FromSeconds(1), ToFrequencyHz = 2 } });
 		});
-		var options = _module.Invocations.Single(i => i.Identifier == "visualise").Arguments[3]!;
-		((bool)options.GetType().GetProperty("frequencyLabels")!.GetValue(options)!).Should().BeTrue();
 
-		var off = RenderPlayer(p =>
-		{
-			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.ShowSpectrogramFrequencyLabels, false);
-		});
-		off.Instance.ShowSpectrogramFrequencyLabels.Should().BeFalse();
-		var offOptions = _module.Invocations.Last(i => i.Identifier == "visualise").Arguments[3]!;
-		((bool)offOptions.GetType().GetProperty("frequencyLabels")!.GetValue(offOptions)!).Should().BeFalse();
+		var data = _module.Invocations.Single(i => i.Identifier == "setVisualisationData");
+		data.Arguments[3].Should().BeNull();
 	}
 
-	/// <summary>The start time is passed as seconds since midnight, in its own offset, or as nothing for song time.</summary>
+	/// <summary>Data set directly goes to the script without rendering; it is ignored when nothing is shown or after disposal.</summary>
 	[Fact]
-	public void Visualisation_StartTime_IsPassedAsClockSeconds()
+	public async Task SetVisualisationData_GoesStraightToScript()
 	{
-		RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
-		RenderPlayer(p =>
+		var cut = RenderPlayer(p =>
 		{
-			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.SpectrogramStartTime, new DateTimeOffset(2026, 10, 19, 14, 30, 5, TimeSpan.FromHours(1)));
+			p.Add(x => x.ShowKeyPoints, true);
+			p.Add(x => x.ShowLandmarks, true);
 		});
+		var renders = cut.RenderCount;
 
-		var calls = _module.Invocations.Where(i => i.Identifier == "visualise").ToList();
-		double? Seconds(object o) => (double?)o.GetType().GetProperty("startSeconds")!.GetValue(o);
-		Seconds(calls[0].Arguments[3]!).Should().BeNull();
-		Seconds(calls[1].Arguments[3]!).Should().Be((14 * 3600) + (30 * 60) + 5);
+		await cut.InvokeAsync(() => cut.Instance.SetVisualisationDataAsync(KeyPointSet(), LandmarkSet()));
+
+		cut.RenderCount.Should().Be(renders);
+		var data = _module.Invocations.Last(i => i.Identifier == "setVisualisationData");
+		Doubles(data.Arguments[1]).Should().HaveCount(6);
+		Doubles(data.Arguments[2]).Should().HaveCount(4);
+
+		var nothing = RenderPlayer();
+		await nothing.InvokeAsync(() => nothing.Instance.SetVisualisationDataAsync(KeyPointSet(), null));
+		CountOf("setVisualisationData").Should().Be(2);
+
+		var player = cut.Instance;
+		await DisposeComponentsAsync();
+		await player.SetVisualisationDataAsync(KeyPointSet(), null);
+		CountOf("setVisualisationData").Should().Be(2);
 	}
 
 	/// <summary>The analysis window is rounded to a power of two within its limits.</summary>
@@ -158,7 +173,7 @@ public partial class PDMediaPlayerTests
 
 		cut.Render(p => p.Add(x => x.KeyPoints, KeyPointSet()));
 		CountOf("visualise").Should().Be(1);
-		CountOf("updateVisualisation").Should().Be(1);
+		CountOf("setVisualisationData").Should().Be(2);
 
 		cut.Render(p => p.Add(x => x.SpectrogramWindow, TimeSpan.FromSeconds(12)));
 		CountOf("visualise").Should().Be(2);
