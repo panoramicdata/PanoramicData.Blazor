@@ -200,7 +200,13 @@ export function reveal(container) {
 const visuals = new WeakMap();
 const liveBuffers = new WeakMap();
 const maxLiveColumns = 16384;
-const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800, 3600];
+const timeSteps = [
+	0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800,
+	3600,
+];
+const minTimeSpan = 0.5;
+const minFrequencySpan = 100;
+const wheelZoomPerPixel = 0.002;
 const tinyAmount = Math.pow(10, -9);
 const silenceFloor = Math.pow(10, -12);
 const redrawIntervalMs = 40;
@@ -222,6 +228,8 @@ export function visualise(el, canvas, dotNetRef, options) {
 		landmarks: new Float64Array(0),
 		colours: [],
 		pending: 0,
+		view: { time: null, freq: null },
+		following: true,
 		live: liveBuffers.get(el) || null,
 		generation: 0,
 		timer: 0,
@@ -251,6 +259,7 @@ export function clearVisualisation(el) {
 		el.removeEventListener(type, fn);
 	}
 	v.canvas.removeEventListener("click", v.onClick);
+	v.canvas.removeEventListener("wheel", v.onWheel);
 	if (v.observer) {
 		v.observer.disconnect();
 	}
@@ -276,6 +285,8 @@ function attachVisualListeners(v) {
 	}
 	v.onClick = (e) => reportClick(v, e);
 	v.canvas.addEventListener("click", v.onClick);
+	v.onWheel = (e) => onWheel(v, e);
+	v.canvas.addEventListener("wheel", v.onWheel, { passive: false });
 	if (typeof ResizeObserver !== "undefined") {
 		v.observer = new ResizeObserver(redraw);
 		v.observer.observe(v.canvas);
@@ -314,6 +325,233 @@ function scheduleDraw(v) {
 		v.pending = 0;
 		draw(v);
 	}, redrawIntervalMs);
+}
+
+function clampNumber(value, low, high) {
+	return Math.min(Math.max(value, low), Math.max(low, high));
+}
+
+// the longest time span worth showing: everything there is, or at least the sliding window
+function maxTimeSpan(v) {
+	const live = v.live && v.live.count > 0 ? v.live : null;
+	const history = live
+		? Math.min(liveEnd(live), live.capacity * live.columnSeconds)
+		: plotSeconds(v);
+	return Math.max(history || 1, v.options.windowSeconds || 0, minTimeSpan);
+}
+
+// remembers a time view, or forgets it when it is the default view anyway
+function setTimeView(v, start, span) {
+	const limit = maxTimeSpan(v);
+	const clamped = clampNumber(span, minTimeSpan, limit);
+	v.view.time =
+		v.options.windowSeconds > 0
+			? windowedView(v, start, clamped, limit)
+			: wholeView(start, clamped, limit);
+}
+
+function wholeView(start, span, limit) {
+	if (span >= limit - tinyAmount) {
+		return null;
+	}
+	return { span, start: clampNumber(start, 0, limit - span) };
+}
+
+// for a sliding window the view is a span and how far back from the present it ends
+function windowedView(v, start, span, limit) {
+	const back = clampNumber(nowSeconds(v) - (start + span), 0, limit - span);
+	const isDefault =
+		back < tinyAmount && Math.abs(span - v.options.windowSeconds) < tinyAmount;
+	return isDefault ? null : { span, back };
+}
+
+function setFrequencyView(v, low, span) {
+	const full = fullMaxHz(v);
+	const clamped = clampNumber(span, minFrequencySpan, full);
+	const from = clampNumber(low, 0, full - clamped);
+	v.view.freq =
+		clamped >= full - tinyAmount ? null : { low: from, high: from + clamped };
+}
+
+// zooms the time axis by a factor (below 1 zooms in), keeping the time at anchor where it is on the screen
+function zoomTime(v, factor, anchor) {
+	const l = layout(v);
+	const next = clampNumber(l.seconds * factor, minTimeSpan, maxTimeSpan(v));
+	const ratio = (anchor - l.start) / l.seconds;
+	setTimeView(v, anchor - ratio * next, next);
+}
+
+function panTime(v, fraction) {
+	const l = layout(v);
+	setTimeView(v, l.start + fraction * l.seconds, l.seconds);
+}
+
+function zoomFrequency(v, factor, anchor) {
+	const l = layout(v);
+	const span = l.maxHz - l.minHz;
+	const next = clampNumber(span * factor, minFrequencySpan, fullMaxHz(v));
+	setFrequencyView(v, anchor - ((anchor - l.minHz) / span) * next, next);
+}
+
+function panFrequency(v, fraction) {
+	const l = layout(v);
+	const span = l.maxHz - l.minHz;
+	setFrequencyView(v, l.minHz + fraction * span, span);
+}
+
+// Wheel with a modifier key: Ctrl zooms time, Alt zooms frequency, Shift pans time, Shift and Alt pan frequency. Without a
+// modifier the wheel scrolls the page as usual.
+function wheelMode(e) {
+	if (e.shiftKey && e.altKey) {
+		return "panFrequency";
+	}
+	if (e.shiftKey) {
+		return "panTime";
+	}
+	if (e.ctrlKey || e.metaKey) {
+		return "zoomTime";
+	}
+	return e.altKey ? "zoomFrequency" : null;
+}
+
+function onWheel(v, e) {
+	const mode = wheelMode(e);
+	if (!mode || !v.options.wheelZoom) {
+		return;
+	}
+	e.preventDefault();
+	v.following = false;
+	const delta = clampNumber(e.deltaY || e.deltaX, -200, 200);
+	const l = layout(v);
+	const at = fromPixel(v, e) || {
+		seconds: l.start + l.seconds / 2,
+		hz: (l.minHz + l.maxHz) / 2,
+	};
+	const zoom = Math.exp(delta * wheelZoomPerPixel);
+	const pan = (delta / 100) * 0.15;
+	const actions = {
+		zoomTime: () => zoomTime(v, zoom, at.seconds),
+		zoomFrequency: () => zoomFrequency(v, zoom, at.hz),
+		panTime: () => panTime(v, pan),
+		panFrequency: () => panFrequency(v, -pan),
+	};
+	actions[mode]();
+	draw(v);
+}
+
+// Called from the control panel: zoom about the middle of the view, or pan by a fraction of it
+export function zoomView(el, axis, factor) {
+	const v = el ? visuals.get(el) : null;
+	if (!v) {
+		return;
+	}
+	v.following = false;
+	const l = layout(v);
+	if (axis === "frequency") {
+		zoomFrequency(v, factor, (l.minHz + l.maxHz) / 2);
+	} else {
+		zoomTime(v, factor, l.start + l.seconds / 2);
+	}
+	draw(v);
+}
+
+export function panView(el, axis, fraction) {
+	const v = el ? visuals.get(el) : null;
+	if (!v) {
+		return;
+	}
+	v.following = false;
+	if (axis === "frequency") {
+		panFrequency(v, fraction);
+	} else {
+		panTime(v, fraction);
+	}
+	draw(v);
+}
+
+export function resetView(el) {
+	const v = el ? visuals.get(el) : null;
+	if (v) {
+		v.view = { time: null, freq: null };
+		v.following = true;
+		draw(v);
+	}
+}
+
+// Resumes following the playhead
+export function followPlayhead(el) {
+	const v = el ? visuals.get(el) : null;
+	if (v) {
+		v.following = true;
+		draw(v);
+	}
+}
+
+// ---- following the playhead ----
+
+// the media's own length, when there is media (a live feed has no end to stop at)
+function mediaEnd(v) {
+	return v.live && v.live.count > 0
+		? Infinity
+		: v.spectrogram
+			? v.spectrogram.seconds
+			: v.el.duration;
+}
+
+// moves the time view, if the options ask for it and the user has not taken over, so the playhead is where it should be
+function applyFollow(v) {
+	const mode = v.options.followMode;
+	if (mode === "free" || !v.following) {
+		return;
+	}
+	const range = timeRange(v);
+	const now = nowSeconds(v);
+	const start =
+		mode === "centre" ? centredStart(range, now) : marginStart(v, range, now);
+	if (!v.view.time && start === range.start) {
+		return;
+	}
+	storeFollowedStart(v, start, range.seconds);
+}
+
+function centredStart(range, now) {
+	return now - range.seconds / 2;
+}
+
+// Margin mode: the view stays put until the playhead is closer than the margin to an edge, then moves (continuously or a page
+// at a time) to put it back at the margin
+function marginStart(v, range, now) {
+	const margin = (v.options.followMarginPercent / 100) * range.seconds;
+	const high = range.start + range.seconds - margin;
+	const low = range.start + margin;
+	if (now > high) {
+		return v.options.followScroll === "pageturn"
+			? now - margin
+			: now - range.seconds + margin;
+	}
+	if (now < low) {
+		return v.options.followScroll === "pageturn"
+			? now - range.seconds + margin
+			: now - margin;
+	}
+	return range.start;
+}
+
+// remembers the followed view; near the end the view stops scrolling, if asked to, and a view of a whole recording never
+// scrolls to before its start in Margin mode
+function storeFollowedStart(v, wanted, span) {
+	const end = mediaEnd(v);
+	let start = wanted;
+	if (v.options.followStopsAtEnd && Number.isFinite(end)) {
+		start = Math.min(start, Math.max(end - span, 0));
+	}
+	if (v.options.followMode === "margin") {
+		start = Math.max(start, 0);
+	}
+	v.view.time =
+		v.options.windowSeconds > 0
+			? { span, back: nowSeconds(v) - (start + span) }
+			: { span, start };
 }
 
 // appends columns to the live spectrogram: levels holds columns of bins bytes each, quiet 0 to loud 255, spread from 0 Hz up to
@@ -357,6 +595,7 @@ function stopRedraw(v) {
 function reportClick(v, e) {
 	const point = fromPixel(v, e);
 	if (point && v.dotNetRef) {
+		v.following = true;
 		v.dotNetRef
 			.invokeMethodAsync("OnVisualisationPointer", point.seconds, point.hz)
 			.catch(() => {});
@@ -613,8 +852,11 @@ function makeSpectrogram(decoded, options) {
 // ---- the live spectrogram: a ring of columns held on an off-screen canvas, one pixel wide each ----
 
 function liveCapacity(options, columnSeconds) {
+	const window = options.windowSeconds;
 	const span =
-		options.windowSeconds > 0 ? options.windowSeconds : options.maxDuration;
+		window > 0
+			? Math.min(options.maxDuration, window * 10)
+			: options.maxDuration;
 	return Math.min(maxLiveColumns, Math.ceil(span / columnSeconds) + 2);
 }
 
@@ -636,6 +878,7 @@ function createLive(options, bins, columnSeconds) {
 		bins,
 		columnSeconds,
 		capacity,
+		maxFrequency: options.maxFrequency,
 		canvas,
 		context: canvas.getContext("2d"),
 		count: 0,
@@ -686,12 +929,35 @@ function nowSeconds(v) {
 }
 
 // the first time shown and how many seconds are shown: all of it, or a window that slides to end at the present
+// the first time shown and how many seconds are shown: all of it, or a window that slides to end at the present, either of
+// which the user may have zoomed and panned
 function timeRange(v) {
 	const windowSeconds = v.options.windowSeconds;
+	const view = v.view.time;
 	if (windowSeconds > 0) {
-		return { start: nowSeconds(v) - windowSeconds, seconds: windowSeconds };
+		const span = view ? view.span : windowSeconds;
+		const back = view ? view.back : 0;
+		return { start: nowSeconds(v) - back - span, seconds: span };
+	}
+	if (view) {
+		return { start: view.start, seconds: view.span };
 	}
 	return { start: 0, seconds: plotSeconds(v) || 1 };
+}
+
+function fullMaxHz(v) {
+	return v.spectrogram ? v.spectrogram.maxHz : v.options.maxFrequency;
+}
+
+function frequencyRange(v) {
+	const full = fullMaxHz(v);
+	const view = v.view.freq;
+	if (!view) {
+		return { minHz: 0, maxHz: full };
+	}
+	const span = clampNumber(view.high - view.low, minFrequencySpan, full);
+	const low = clampNumber(view.low, 0, full - span);
+	return { minHz: low, maxHz: low + span };
 }
 
 function sizeCanvas(v) {
@@ -724,7 +990,7 @@ function layout(v) {
 		pw: width,
 		ph: height - top - bottom,
 		...timeRange(v),
-		maxHz: v.spectrogram ? v.spectrogram.maxHz : v.options.maxFrequency,
+		...frequencyRange(v),
 	};
 }
 
@@ -738,7 +1004,7 @@ function fromPixel(v, e) {
 	}
 	return {
 		seconds: l.start + (x / l.pw) * l.seconds,
-		hz: (1 - y / l.ph) * l.maxHz,
+		hz: l.minHz + (1 - y / l.ph) * (l.maxHz - l.minHz),
 	};
 }
 
@@ -747,40 +1013,63 @@ function niceStep(span, pixels, minPixels) {
 	return step ?? timeSteps[timeSteps.length - 1];
 }
 
-function formatTime(seconds) {
-	const whole = Math.round(seconds * 10) / 10;
-	if (whole < 60) {
-		return Number.isInteger(whole) ? String(whole) : whole.toFixed(1);
+function decimalPlaces(step) {
+	if (step >= 1) {
+		return 0;
 	}
-	const minutes = Math.floor(whole / 60);
-	return minutes + ":" + String(Math.round(whole % 60)).padStart(2, "0");
+	return step >= 0.1 ? 1 : 2;
+}
+
+function zeroPad(text, decimals) {
+	return text.padStart(decimals === 0 ? 2 : decimals + 3, "0");
+}
+
+// seconds as a label; a step finer than a second needs decimals, and a minute or more reads as minutes and seconds
+function formatTime(seconds, step) {
+	const decimals = decimalPlaces(step);
+	const rounded = Number(seconds.toFixed(decimals));
+	if (rounded >= 60) {
+		const minutes = Math.floor(rounded / 60);
+		return (
+			minutes +
+			":" +
+			zeroPad((rounded - minutes * 60).toFixed(decimals), decimals)
+		);
+	}
+	return rounded.toFixed(decimals);
 }
 
 // A clock label for a time in seconds on the broadcast clock. wallSeconds counts from midnight of the wall-clock day the
 // media started on, in the start time's own offset, so it can run past 24 hours and is wrapped for display.
 function formatClock(wallSeconds, step) {
-	const day = ((Math.round(wallSeconds) % 86400) + 86400) % 86400;
+	const decimals = decimalPlaces(step);
+	const day = ((wallSeconds % 86400) + 86400) % 86400;
 	const h = String(Math.floor(day / 3600)).padStart(2, "0");
 	const m = String(Math.floor((day % 3600) / 60)).padStart(2, "0");
-	return step >= 60
-		? h + ":" + m
-		: h + ":" + m + ":" + String(day % 60).padStart(2, "0");
+	if (step >= 60) {
+		return h + ":" + m;
+	}
+	return h + ":" + m + ":" + zeroPad((day % 60).toFixed(decimals), decimals);
 }
 
-function frequencyStep(maxHz) {
-	if (maxHz >= 4000) {
-		return 1000;
-	}
-	if (maxHz >= 1500) {
-		return 500;
-	}
-	return maxHz >= 600 ? 200 : 100;
+function frequencyStep(spanHz) {
+	const steps = [
+		[4000, 1000],
+		[1500, 500],
+		[600, 200],
+		[300, 100],
+		[150, 50],
+		[60, 20],
+	];
+	const found = steps.find(([from]) => spanHz >= from);
+	return found ? found[1] : 10;
 }
 
 function scales(l) {
+	const hzSpan = l.maxHz - l.minHz;
 	return {
 		x: (t) => l.left + ((t - l.start) / l.seconds) * l.pw,
-		y: (hz) => l.top + l.ph - (hz / l.maxHz) * l.ph,
+		y: (hz) => l.top + l.ph - ((hz - l.minHz) / hzSpan) * l.ph,
 	};
 }
 
@@ -803,19 +1092,21 @@ function drawBackground(ctx, v, l) {
 }
 
 // the part of the decoded spectrogram that falls inside the time range
+// the part of the decoded spectrogram that falls inside the time and frequency ranges
 function drawDecoded(ctx, s, l) {
 	const from = Math.max(0, l.start);
 	const to = Math.min(s.seconds, l.start + l.seconds);
 	if (to <= from) {
 		return;
 	}
-	const rows = Math.min(s.bins, l.maxHz / s.hzPerBin + 1);
+	const sy = Math.max(0, s.bins - 1 - l.maxHz / s.hzPerBin);
+	const sh = Math.min(s.bins, s.bins - l.minHz / s.hzPerBin) - sy;
 	const sx = (from / s.seconds) * s.frames;
 	const sw = ((to - from) / s.seconds) * s.frames;
 	const dx = l.left + ((from - l.start) / l.seconds) * l.pw;
 	const dw = ((to - from) / l.seconds) * l.pw;
 	ctx.imageSmoothingEnabled = true;
-	ctx.drawImage(s.image, sx, s.bins - rows, sw, rows, dx, l.top, dw, l.ph);
+	ctx.drawImage(s.image, sx, sy, sw, sh, dx, l.top, dw, l.ph);
 }
 
 function drawLiveSpectrum(ctx, live, l) {
@@ -831,6 +1122,7 @@ function drawLiveSpectrum(ctx, live, l) {
 }
 
 // draws columns first to last (exclusive), in two pieces when they wrap round the end of the ring
+// draws columns first to last (exclusive), in two pieces when they wrap round the end of the ring
 function drawLiveColumns(ctx, live, l, first, last) {
 	const room = live.capacity - (first % live.capacity);
 	if (last - first > room) {
@@ -841,13 +1133,14 @@ function drawLiveColumns(ctx, live, l, first, last) {
 	const cs = live.columnSeconds;
 	const dx = l.left + ((first * cs - l.start) / l.seconds) * l.pw;
 	const dw = (((last - first) * cs) / l.seconds) * l.pw;
+	const rows = liveRows(live, l);
 	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(
 		live.canvas,
 		first % live.capacity,
-		0,
+		rows.top,
 		last - first,
-		live.bins,
+		rows.height,
 		dx,
 		l.top,
 		dw,
@@ -855,13 +1148,26 @@ function drawLiveColumns(ctx, live, l, first, last) {
 	);
 }
 
+// the rows of the live image that fall inside the frequency range (row 0 is the highest frequency)
+function liveRows(live, l) {
+	const perHz = (live.bins - 1) / live.maxFrequency;
+	const top = Math.max(0, live.bins - 1 - l.maxHz * perHz);
+	const bottom = Math.min(live.bins, live.bins - l.minHz * perHz);
+	return { top, height: bottom - top };
+}
+
+// the times (in seconds from the start of the media) of the ticks; on the broadcast clock they fall on round clock times
 // the times (in seconds from the start of the media) of the ticks; on the broadcast clock they fall on round clock times
 function timeTicks(l, clock, offset, step) {
 	const from = Math.max(l.start, 0) + offset;
-	const first = Math.ceil(from / step - tinyAmount) * step - offset;
+	const end = l.start + l.seconds + offset;
 	const ticks = [];
-	for (let t = first; t <= l.start + l.seconds + tinyAmount; t += step) {
-		ticks.push(t);
+	for (
+		let k = Math.ceil(from / step - tinyAmount);
+		k * step <= end + tinyAmount;
+		k++
+	) {
+		ticks.push(k * step - offset);
 	}
 	return ticks;
 }
@@ -881,7 +1187,7 @@ function drawTimeAxis(ctx, v, l, sc) {
 		ctx.moveTo(px, l.top + l.ph);
 		ctx.lineTo(px, l.top + l.ph + 4);
 		ctx.stroke();
-		const text = clock ? formatClock(offset + t, step) : formatTime(t);
+		const text = clock ? formatClock(offset + t, step) : formatTime(t, step);
 		drawEdgeAwareLabel(ctx, text, px, l);
 	}
 }
@@ -906,16 +1212,16 @@ function drawFrequencyLabel(ctx, l, text, py) {
 }
 
 function drawFrequencyAxis(ctx, l, sc) {
-	const step = frequencyStep(l.maxHz);
+	const step = frequencyStep(l.maxHz - l.minHz);
 	ctx.textAlign = "left";
-	for (let hz = 0; hz <= l.maxHz + tinyAmount; hz += step) {
+	for (
+		let k = Math.ceil(l.minHz / step - tinyAmount);
+		k * step <= l.maxHz + tinyAmount;
+		k++
+	) {
+		const hz = k * step;
 		const py = Math.round(sc.y(hz)) + 0.5;
-		drawFrequencyLabel(
-			ctx,
-			l,
-			hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz",
-			py,
-		);
+		drawFrequencyLabel(ctx, l, frequencyLabel(hz), py);
 		if (hz > 0) {
 			ctx.strokeStyle = "rgba(255,255,255,0.07)";
 			ctx.beginPath();
@@ -924,6 +1230,10 @@ function drawFrequencyAxis(ctx, l, sc) {
 			ctx.stroke();
 		}
 	}
+}
+
+function frequencyLabel(hz) {
+	return hz >= 1000 ? Number((hz / 1000).toFixed(2)) + " kHz" : hz + " Hz";
 }
 
 // one path per colour, so thousands of landmarks cost a few strokes rather than thousands
@@ -975,7 +1285,7 @@ function drawKeyPoints(ctx, v, sc) {
 }
 
 function drawPlayhead(ctx, v, l, sc) {
-	const px = sc.x(Math.min(v.el.currentTime || 0, l.seconds));
+	const px = sc.x(v.el.currentTime || 0);
 	ctx.strokeStyle = "#ffffff";
 	ctx.lineWidth = 1.5;
 	ctx.beginPath();
@@ -1005,6 +1315,7 @@ function draw(v) {
 	if (!v.dotNetRef) {
 		return;
 	}
+	applyFollow(v);
 	const l = layout(v);
 	const ctx = v.canvas.getContext("2d");
 	const sc = scales(l);

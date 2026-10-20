@@ -136,11 +136,33 @@ public partial class PDMediaPlayerPage
 
 	protected bool ShowSpectrogram { get; set; }
 
+	// switches on everything the visualisation offers, with a follow mode that keeps the playhead in view once zoomed in
+	protected void ShowEverything()
+	{
+		ShowSpectrogram = true;
+		ShowKeyPoints = true;
+		ShowLandmarks = true;
+		FrequencyLabels = true;
+		FollowMode = MediaFollowMode.Margin;
+		FollowScroll = MediaFollowScroll.Glide;
+		FollowMargin = 15;
+		FollowStopsAtEnd = true;
+		Controls = true;
+	}
+
 	protected bool FrequencyLabels { get; set; } = true;
 
 	protected bool BroadcastClock { get; set; }
 
 	protected bool SlidingWindow { get; set; }
+
+	protected MediaFollowMode FollowMode { get; set; } = MediaFollowMode.Free;
+
+	protected double FollowMargin { get; set; } = 15;
+
+	protected MediaFollowScroll FollowScroll { get; set; } = MediaFollowScroll.Glide;
+
+	protected bool FollowStopsAtEnd { get; set; } = true;
 
 	protected bool Controls { get; set; } = true;
 

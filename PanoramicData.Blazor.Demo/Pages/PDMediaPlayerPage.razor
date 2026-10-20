@@ -59,6 +59,13 @@
 				<input class="form-check-input" type="checkbox" id="mp-persist" @bind="Persist" />
 				<label class="form-check-label" for="mp-persist">Remember speed and position</label>
 			</div>
+			<div class="w-100">
+				<button type="button" class="btn btn-sm btn-primary" id="mp-show-everything" @onclick="ShowEverything">Show the visualisation features</button>
+				<span class="text-muted small ms-2">
+					Ctrl + wheel zooms time, Alt + wheel zooms frequency, Shift + wheel pans time, Shift + Alt + wheel pans frequency.
+					The Time and Freq buttons in the control panel do the same; try zooming in, then playing with a follow mode.
+				</span>
+			</div>
 			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-spectrogram" @bind="ShowSpectrogram" />
 				<label class="form-check-label" for="mp-spectrogram">Spectrogram</label>
@@ -66,6 +73,29 @@
 			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-window" @bind="SlidingWindow" />
 				<label class="form-check-label" for="mp-window">Sliding 12 second window</label>
+			</div>
+			<div>
+				<label class="form-label mb-0" for="mp-follow">Follow the playhead</label>
+				<select class="form-select form-select-sm" id="mp-follow" @bind="FollowMode">
+					<option value="@MediaFollowMode.Free">Free (view stays put)</option>
+					<option value="@MediaFollowMode.Margin">Margin (keep inside the edges)</option>
+					<option value="@MediaFollowMode.Centre">Centre (media scrolls past)</option>
+				</select>
+			</div>
+			<div>
+				<label class="form-label mb-0" for="mp-margin">Margin @FollowMargin %</label>
+				<input type="range" class="form-range" id="mp-margin" min="0" max="45" step="1" @bind="FollowMargin" @bind:event="oninput" />
+			</div>
+			<div>
+				<label class="form-label mb-0" for="mp-scroll">Margin scrolling</label>
+				<select class="form-select form-select-sm" id="mp-scroll" @bind="FollowScroll">
+					<option value="@MediaFollowScroll.Glide">Glide</option>
+					<option value="@MediaFollowScroll.PageTurn">Page turn</option>
+				</select>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-stopatend" @bind="FollowStopsAtEnd" />
+				<label class="form-check-label" for="mp-stopatend">Stop scrolling at the end</label>
 			</div>
 			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-controls" @bind="Controls" />
@@ -108,6 +138,10 @@
 					   ShowSpectrogram="ShowSpectrogram"
 					   ShowControls="Controls"
 					   SpectrogramWindow="@(SlidingWindow ? TimeSpan.FromSeconds(12) : null)"
+					   SpectrogramFollowMode="FollowMode"
+					   SpectrogramFollowMarginPercent="FollowMargin"
+					   SpectrogramFollowScroll="FollowScroll"
+					   SpectrogramFollowStopsAtEnd="FollowStopsAtEnd"
 					   ShowSpectrogramFrequencyLabels="FrequencyLabels"
 					   SpectrogramStartTime="@(BroadcastClock ? new DateTimeOffset(2026, 10, 19, 14, 30, 0, TimeSpan.Zero) : null)"
 					   ShowKeyPoints="ShowKeyPoints"

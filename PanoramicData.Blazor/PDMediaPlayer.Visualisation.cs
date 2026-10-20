@@ -1,3 +1,4 @@
+using PanoramicData.Blazor.Enums;
 using PanoramicData.Blazor.Helpers;
 using PanoramicData.Blazor.Models;
 
@@ -95,6 +96,54 @@ public partial class PDMediaPlayer
 	public TimeSpan? SpectrogramWindow { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the mouse wheel zooms and pans the visualisation when a modifier key is held: Ctrl (or Cmd) and the wheel
+	/// zoom the time axis, Alt and the wheel zoom the frequency axis, Shift and the wheel pan time, and Shift with Alt and the wheel pan
+	/// frequency. Zooming is about the point under the pointer. The wheel scrolls the page as usual when no modifier is held. The
+	/// default is true.
+	/// </summary>
+	[Parameter]
+	public bool AllowSpectrogramZoom { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether the control panel has buttons to zoom and pan the visualisation (they show only when there is a
+	/// visualisation and <see cref="ShowControls"/> is set). The default is true.
+	/// </summary>
+	[Parameter]
+	public bool ShowSpectrogramViewControls { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets how the view follows the playhead while the media plays: <see cref="MediaFollowMode.Free"/> (the default) leaves
+	/// the view where the zoom and pan put it, <see cref="MediaFollowMode.Margin"/> scrolls to keep the playhead inside
+	/// <see cref="SpectrogramFollowMarginPercent"/> of the edges, and <see cref="MediaFollowMode.Centre"/> holds the playhead in the
+	/// middle while the media scrolls past. Panning or zooming by hand (wheel or buttons) suspends following until
+	/// <see cref="FollowPlayheadAsync"/>, <see cref="ResetViewAsync"/> or a click on the visualisation resumes it.
+	/// </summary>
+	[Parameter]
+	public MediaFollowMode SpectrogramFollowMode { get; set; } = MediaFollowMode.Free;
+
+	/// <summary>
+	/// Gets or sets, for <see cref="MediaFollowMode.Margin"/>, the smallest distance the playhead keeps from either edge of the view,
+	/// as a percentage of the view's width, from 0 to 45. The default is 15.
+	/// </summary>
+	[Parameter]
+	public double SpectrogramFollowMarginPercent { get; set; } = 15;
+
+	/// <summary>
+	/// Gets or sets how <see cref="MediaFollowMode.Margin"/> moves the view: <see cref="MediaFollowScroll.Glide"/> (the default)
+	/// continuously, or <see cref="MediaFollowScroll.PageTurn"/> by jumping a screen at a time.
+	/// </summary>
+	[Parameter]
+	public MediaFollowScroll SpectrogramFollowScroll { get; set; } = MediaFollowScroll.Glide;
+
+	/// <summary>
+	/// Gets or sets whether following stops scrolling when the end of the media is in view, so that the last screen stays still and the
+	/// playhead runs on towards the right edge, past the margin. When false the playhead keeps its place and empty space opens up beyond
+	/// the end. The default is true.
+	/// </summary>
+	[Parameter]
+	public bool SpectrogramFollowStopsAtEnd { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the height in pixels of the visualisation, from 80 to 800. The default is 260.
 	/// </summary>
 	[Parameter]
@@ -186,6 +235,12 @@ public partial class PDMediaPlayer
 	internal double? SlidingWindowSeconds => SpectrogramWindow is { } w && w > TimeSpan.Zero
 		? Math.Clamp(w.TotalSeconds, 1, 3600)
 		: null;
+
+	/// <summary>
+	/// Gets the follow margin after clamping to between 0 and 45 percent.
+	/// </summary>
+	internal double SpectrogramFollowMarginValue =>
+		Math.Clamp(double.IsFinite(SpectrogramFollowMarginPercent) ? SpectrogramFollowMarginPercent : 15, 0, 45);
 
 	private string VisualAccessibleName =>
 		$"{AccessibleName}: {(ShowSpectrogram ? "spectrogram" : "time and frequency plot")} (time across, frequency up)"
@@ -280,6 +335,80 @@ public partial class PDMediaPlayer
 		}
 	}
 
+	/// <summary>
+	/// Zooms the time axis of the visualisation about the middle of what is shown. A factor below 1 zooms in (0.5 shows half the time)
+	/// and above 1 zooms out, down to half a second and up to everything there is.
+	/// </summary>
+	/// <param name="factor">The factor to scale the visible time span by, greater than zero.</param>
+	/// <returns>A task that completes when the view has changed.</returns>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="factor"/> is not a finite number above zero.</exception>
+	public Task ZoomAsync(double factor) => ChangeViewAsync("zoomView", "time", Positive(factor, nameof(factor)));
+
+	/// <summary>
+	/// Zooms the frequency axis of the visualisation about the middle of what is shown, with the same factor as <see cref="ZoomAsync"/>.
+	/// </summary>
+	/// <param name="factor">The factor to scale the visible frequency span by, greater than zero.</param>
+	/// <returns>A task that completes when the view has changed.</returns>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="factor"/> is not a finite number above zero.</exception>
+	public Task ZoomFrequencyAsync(double factor) => ChangeViewAsync("zoomView", "frequency", Positive(factor, nameof(factor)));
+
+	/// <summary>
+	/// Pans the time axis of the visualisation by a fraction of what is shown: positive moves later in time, negative earlier. On a
+	/// sliding window, panning back stops it following the present until the view is reset.
+	/// </summary>
+	/// <param name="fraction">The fraction of the visible time span to move by.</param>
+	/// <returns>A task that completes when the view has changed.</returns>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="fraction"/> is not a finite number.</exception>
+	public Task PanAsync(double fraction) => ChangeViewAsync("panView", "time", Finite(fraction, nameof(fraction)));
+
+	/// <summary>
+	/// Pans the frequency axis of the visualisation by a fraction of what is shown: positive moves up, negative down.
+	/// </summary>
+	/// <param name="fraction">The fraction of the visible frequency span to move by.</param>
+	/// <returns>A task that completes when the view has changed.</returns>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="fraction"/> is not a finite number.</exception>
+	public Task PanFrequencyAsync(double fraction) => ChangeViewAsync("panView", "frequency", Finite(fraction, nameof(fraction)));
+
+	/// <summary>
+	/// Shows the whole of the visualisation again (all of the time, or the sliding window following the present, and the whole
+	/// frequency range).
+	/// </summary>
+	/// <returns>A task that completes when the view has been reset.</returns>
+	public async Task ResetViewAsync()
+	{
+		if (!_disposed && HasVisualisation)
+		{
+			await TryInvokeVoidAsync("resetView", MediaElement).ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
+	/// Resumes following the playhead after a manual pan or zoom suspended it, and brings the playhead back into view at once. It
+	/// has no effect when <see cref="SpectrogramFollowMode"/> is <see cref="MediaFollowMode.Free"/>.
+	/// </summary>
+	/// <returns>A task that completes when following has resumed.</returns>
+	public async Task FollowPlayheadAsync()
+	{
+		if (!_disposed && HasVisualisation)
+		{
+			await TryInvokeVoidAsync("followPlayhead", MediaElement).ConfigureAwait(true);
+		}
+	}
+
+	private async Task ChangeViewAsync(string function, string axis, double amount)
+	{
+		if (!_disposed && HasVisualisation)
+		{
+			await TryInvokeVoidAsync(function, MediaElement, axis, amount).ConfigureAwait(true);
+		}
+	}
+
+	private static double Positive(double value, string name) =>
+		double.IsFinite(value) && value > 0 ? value : throw new ArgumentOutOfRangeException(name, value, "must be a finite number above zero");
+
+	private static double Finite(double value, string name) =>
+		double.IsFinite(value) ? value : throw new ArgumentOutOfRangeException(name, value, "must be a finite number");
+
 	private async Task SyncVisualisationAsync()
 	{
 		if (!HasVisualisation)
@@ -307,7 +436,12 @@ public partial class PDMediaPlayer
 			SpectrogramMaxDuration.TotalSeconds,
 			ShowSpectrogramFrequencyLabels,
 			SpectrogramStartTime,
-			SlidingWindowSeconds);
+			SlidingWindowSeconds,
+			AllowSpectrogramZoom,
+			SpectrogramFollowMode,
+			SpectrogramFollowMarginValue,
+			SpectrogramFollowScroll,
+			SpectrogramFollowStopsAtEnd);
 		if (key == _visualKey)
 		{
 			if (!ReferenceEquals(KeyPoints, _visualKeyPoints) || !ReferenceEquals(Landmarks, _visualLandmarks))
@@ -351,6 +485,11 @@ public partial class PDMediaPlayer
 		showLandmarks = ShowLandmarks,
 		frequencyLabels = ShowSpectrogramFrequencyLabels,
 		windowSeconds = SlidingWindowSeconds,
+		wheelZoom = AllowSpectrogramZoom,
+		followMode = SpectrogramFollowMode.ToString().ToLowerInvariant(),
+		followMarginPercent = SpectrogramFollowMarginValue,
+		followScroll = SpectrogramFollowScroll.ToString().ToLowerInvariant(),
+		followStopsAtEnd = SpectrogramFollowStopsAtEnd,
 		startSeconds = SpectrogramStartTime is { } start ? start.TimeOfDay.TotalSeconds : (double?)null,
 		sampleRate = SpectrogramSampleRateValue,
 		windowSize = SpectrogramWindowValue,
