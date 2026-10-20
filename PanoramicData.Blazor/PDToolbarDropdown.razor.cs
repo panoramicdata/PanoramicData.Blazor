@@ -179,8 +179,8 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 
 	private async Task OnItemClick(MenuItem item)
 	{
-		// A disabled item is shown greyed out and must not raise its click, whether clicked or by shortcut.
-		if (item.IsDisabled)
+		// A disabled item, or any item of a disabled dropdown, must not raise its click, whether clicked or by shortcut.
+		if (!IsEnabled || item.IsDisabled)
 		{
 			return;
 		}

@@ -179,8 +179,23 @@ public partial class PDButton : IEnablable, IDisposable
 	{
 		if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 		{
-			await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
+			await InvokeAsync(OnShortcutAsync).ConfigureAwait(true);
 		}
+	}
+
+	// #257 A shortcut is a click, so it is ignored while the button is disabled or its Operation runs.
+	private async Task OnShortcutAsync()
+	{
+		if (!ActualEnabledState)
+		{
+			return;
+		}
+
+		// Blazor re-renders around a mouse click's handler, but not around a shortcut's.
+		var click = OnClickAsync(new MouseEventArgs());
+		StateHasChanged();
+		await click.ConfigureAwait(true);
+		StateHasChanged();
 	}
 
 	/// <summary>

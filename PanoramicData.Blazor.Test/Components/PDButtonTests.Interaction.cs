@@ -115,6 +115,87 @@ public partial class PDButtonTests
 		component.WaitForAssertion(() => clicks.Should().Be(1));
 	}
 
+	/// <summary>A disabled button ignores its shortcut, as it ignores a click (#257).</summary>
+	[Fact]
+	public void Shortcut_on_a_disabled_button_raises_nothing()
+	{
+		var clicks = new List<string>();
+		Render<PDButton>(parameters => parameters
+			.Add(p => p.IsEnabled, false)
+			.Add(p => p.ShortcutKey, ShortcutKey.Create("ctrl-KeyQ"))
+			.Add(p => p.Click, () => clicks.Add("disabled")));
+		var enabled = Render<PDButton>(parameters => parameters
+			.Add(p => p.ShortcutKey, ShortcutKey.Create("ctrl-KeyO"))
+			.Add(p => p.Click, () => clicks.Add("enabled")));
+
+		GlobalEvents.KeyUp(new KeyboardInfo { Key = "q", Code = "KeyQ", CtrlKey = true });
+		GlobalEvents.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+
+		// The shortcuts are dispatched in order, so a click from the disabled button would arrive first.
+		enabled.WaitForAssertion(() => clicks.Should().Equal("enabled"), TimeSpan.FromSeconds(10));
+	}
+
+	/// <summary>
+	/// A shortcut runs the operation as a click does: the button is disabled and shows the operation icon while
+	/// it runs, and Click is not raised (#257).
+	/// </summary>
+	[Fact]
+	public void Shortcut_runs_the_operation_like_a_click()
+	{
+		var gate = new TaskCompletionSource();
+		var runs = 0;
+		var clicks = 0;
+		var component = Render<PDButton>(parameters => parameters
+			.Add(p => p.IconCssClass, "fas fa-play")
+			.Add(p => p.OperationIconCssClass, "fas fa-spinner")
+			.Add(p => p.ShortcutKey, ShortcutKey.Create("ctrl-KeyS"))
+			.Add(p => p.Click, () => clicks++)
+			.Add(p => p.Operation, _ =>
+			{
+				runs++;
+				return gate.Task;
+			}));
+
+		GlobalEvents.KeyUp(new KeyboardInfo { Key = "s", Code = "KeyS", CtrlKey = true });
+
+		component.WaitForAssertion(() => component.Find("button").HasAttribute("disabled").Should().BeTrue());
+		component.Find("span.icon").ClassList.Should().Contain("fa-spinner");
+
+		gate.SetResult();
+
+		component.WaitForAssertion(() => component.Find("button").HasAttribute("disabled").Should().BeFalse());
+		component.Find("span.icon").ClassList.Should().Contain("fa-play");
+		runs.Should().Be(1);
+		clicks.Should().Be(0);
+	}
+
+	/// <summary>While its operation runs, the button ignores its shortcut, so the operation cannot start twice (#257).</summary>
+	[Fact]
+	public async Task Shortcut_while_the_operation_runs_is_ignored()
+	{
+		var gate = new TaskCompletionSource();
+		var runs = 0;
+		var clicks = 0;
+		var component = Render<PDButton>(parameters => parameters
+			.Add(p => p.ShortcutKey, ShortcutKey.Create("ctrl-KeyS"))
+			.Add(p => p.Click, () => clicks++)
+			.Add(p => p.Operation, _ =>
+			{
+				runs++;
+				return gate.Task;
+			}));
+
+		var click = component.Find("button").ClickAsync(new MouseEventArgs());
+		component.WaitForAssertion(() => component.Find("button").HasAttribute("disabled").Should().BeTrue());
+
+		GlobalEvents.KeyUp(new KeyboardInfo { Key = "s", Code = "KeyS", CtrlKey = true });
+		gate.SetResult();
+		await click;
+
+		runs.Should().Be(1);
+		clicks.Should().Be(0);
+	}
+
 	/// <summary>Without a shortcut key, key presses never raise Click and nothing is registered.</summary>
 	[Fact]
 	public void No_shortcut_ignores_key_up()

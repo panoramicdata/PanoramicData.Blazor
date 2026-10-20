@@ -27,7 +27,8 @@
         <PDButton Text="Long running operation"
                   IconCssClass="fas fa-fw fa-cog"
                   CssClass="btn btn-secondary"
-                  ToolTip="@($"Click me to start long running operation")"
+                  ShortcutKey="_shortcut4"
+                  ToolTip="@($"Click me or press {_shortcut4} to start long running operation")"
                   Operation="_ => DoLongRunningOperation()"
                   OperationIconCssClass="fas fa-fw fa-cog fa-spin">
         </PDButton>
@@ -44,8 +45,10 @@
             <PDButton CssClass="btn btn-secondary ms-2"
                       IconCssClass="@($"fas fa-fw {(ButtonEnabled ? "fa-toggle-on" : "fa-toggle-off")}")"
                       IsEnabled="ButtonEnabled"
+                      ShortcutKey="_shortcut5"
                       Text="@(ButtonEnabled ? "Enabled" : "Disabled")"
-                      ToolTip="@($"This button does nothing")">
+                      ToolTip="@($"Click me or press {_shortcut5} to add an event, ignored while disabled")"
+                      Click="OnStateButtonClick">
             </PDButton>
         </div>
     </div>
