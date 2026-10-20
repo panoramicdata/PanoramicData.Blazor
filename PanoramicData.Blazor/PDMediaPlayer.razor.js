@@ -1013,32 +1013,43 @@ function niceStep(span, pixels, minPixels) {
 	return step ?? timeSteps[timeSteps.length - 1];
 }
 
+function decimalPlaces(step) {
+	if (step >= 1) {
+		return 0;
+	}
+	return step >= 0.1 ? 1 : 2;
+}
+
+function zeroPad(text, decimals) {
+	return text.padStart(decimals === 0 ? 2 : decimals + 3, "0");
+}
+
 // seconds as a label; a step finer than a second needs decimals, and a minute or more reads as minutes and seconds
 function formatTime(seconds, step) {
-	const decimals = step < 0.1 ? 2 : step < 1 ? 1 : 0;
+	const decimals = decimalPlaces(step);
 	const rounded = Number(seconds.toFixed(decimals));
-	if (rounded < 60) {
-		return rounded.toFixed(decimals);
+	if (rounded >= 60) {
+		const minutes = Math.floor(rounded / 60);
+		return (
+			minutes +
+			":" +
+			zeroPad((rounded - minutes * 60).toFixed(decimals), decimals)
+		);
 	}
-	const minutes = Math.floor(rounded / 60);
-	const rest = (rounded - minutes * 60).toFixed(decimals);
-	return minutes + ":" + rest.padStart(decimals > 0 ? decimals + 3 : 2, "0");
+	return rounded.toFixed(decimals);
 }
 
 // A clock label for a time in seconds on the broadcast clock. wallSeconds counts from midnight of the wall-clock day the
 // media started on, in the start time's own offset, so it can run past 24 hours and is wrapped for display.
-// A clock label for a time in seconds on the broadcast clock. wallSeconds counts from midnight of the wall-clock day the
-// media started on, in the start time's own offset, so it can run past 24 hours and is wrapped for display.
 function formatClock(wallSeconds, step) {
-	const decimals = step < 0.1 ? 2 : step < 1 ? 1 : 0;
+	const decimals = decimalPlaces(step);
 	const day = ((wallSeconds % 86400) + 86400) % 86400;
 	const h = String(Math.floor(day / 3600)).padStart(2, "0");
 	const m = String(Math.floor((day % 3600) / 60)).padStart(2, "0");
 	if (step >= 60) {
 		return h + ":" + m;
 	}
-	const s = (day % 60).toFixed(decimals);
-	return h + ":" + m + ":" + s.padStart(decimals > 0 ? decimals + 3 : 2, "0");
+	return h + ":" + m + ":" + zeroPad((day % 60).toFixed(decimals), decimals);
 }
 
 function frequencyStep(spanHz) {
