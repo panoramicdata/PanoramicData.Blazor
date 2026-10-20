@@ -204,6 +204,7 @@ const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800, 3600];
 const tinyAmount = Math.pow(10, -9);
 const silenceFloor = Math.pow(10, -12);
 const redrawIntervalMs = 40;
+const defaultLandmarkColour = "rgba(124,240,178,0.65)";
 const dynamicRangeDb = 80;
 
 export function visualise(el, canvas, dotNetRef, options) {
@@ -217,6 +218,10 @@ export function visualise(el, canvas, dotNetRef, options) {
 		dotNetRef,
 		options,
 		spectrogram: null,
+		keyPoints: new Float64Array(0),
+		landmarks: new Float64Array(0),
+		colours: [],
+		pending: 0,
 		live: liveBuffers.get(el) || null,
 		generation: 0,
 		timer: 0,
@@ -241,6 +246,7 @@ export function clearVisualisation(el) {
 		return;
 	}
 	clearInterval(v.timer);
+	clearTimeout(v.pending);
 	for (const [type, fn] of v.listeners) {
 		el.removeEventListener(type, fn);
 	}
@@ -277,12 +283,43 @@ function attachVisualListeners(v) {
 }
 
 // swaps the options (the points and lines, mostly) without attaching again
-export function updateVisualisation(el, options) {
+// Replaces the key points (time, Hz, weight triples) and the landmarks (time, Hz, time, Hz quads), both as raw float64 bytes,
+// which cross the interop boundary far faster than the same numbers as JSON; colours holds a CSS colour (or null) per landmark,
+// or is null when none has a colour of its own.
+export function setVisualisationData(
+	el,
+	keyPointBytes,
+	landmarkBytes,
+	colours,
+) {
 	const v = el ? visuals.get(el) : null;
-	if (v) {
-		v.options = options;
-		draw(v);
+	if (!v) {
+		return;
 	}
+	v.keyPoints = toFloats(keyPointBytes);
+	v.landmarks = toFloats(landmarkBytes);
+	v.colours = colours || [];
+	scheduleDraw(v);
+}
+
+function toFloats(bytes) {
+	if (!bytes || bytes.byteLength < 8) {
+		return new Float64Array(0);
+	}
+	return new Float64Array(
+		bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+	);
+}
+
+// several changes in quick succession (new columns, new points) are drawn once
+function scheduleDraw(v) {
+	if (v.pending) {
+		return;
+	}
+	v.pending = setTimeout(() => {
+		v.pending = 0;
+		draw(v);
+	}, redrawIntervalMs);
 }
 
 // appends columns to the live spectrogram: levels holds columns of bins bytes each, quiet 0 to loud 255, spread from 0 Hz up to
@@ -300,7 +337,7 @@ export function pushSpectrum(el, levels, bins, columnSeconds) {
 	for (let i = 0; i < columns; i++) {
 		writeColumn(v.live, levels, i * bins);
 	}
-	draw(v);
+	scheduleDraw(v);
 }
 
 export function clearSpectrum(el) {
@@ -627,13 +664,13 @@ function writeColumn(live, levels, offset) {
 
 // ---- layout and axes ----
 
-function dataSeconds(options) {
+function dataSeconds(v) {
 	let seconds = 0;
-	for (let i = 0; i < options.keyPoints.length; i += 3) {
-		seconds = Math.max(seconds, options.keyPoints[i] + 0.5);
+	for (let i = 0; i < v.keyPoints.length; i += 3) {
+		seconds = Math.max(seconds, v.keyPoints[i] + 0.5);
 	}
-	for (let i = 0; i < options.landmarks.length; i += 4) {
-		seconds = Math.max(seconds, options.landmarks[i], options.landmarks[i + 2]);
+	for (let i = 0; i < v.landmarks.length; i += 4) {
+		seconds = Math.max(seconds, v.landmarks[i], v.landmarks[i + 2]);
 	}
 	return seconds;
 }
@@ -646,9 +683,7 @@ function plotSeconds(v) {
 		return v.spectrogram.seconds;
 	}
 	const duration = v.el.duration;
-	return Number.isFinite(duration) && duration > 0
-		? duration
-		: dataSeconds(v.options);
+	return Number.isFinite(duration) && duration > 0 ? duration : dataSeconds(v);
 }
 
 // the time the plot ends at: the end of the live data, or the playhead
@@ -897,32 +932,49 @@ function drawFrequencyAxis(ctx, l, sc) {
 	}
 }
 
+// one path per colour, so thousands of landmarks cost a few strokes rather than thousands
 function drawLandmarks(ctx, v, sc) {
-	const lines = v.options.landmarks;
-	const colours = v.options.landmarkColors;
-	ctx.lineWidth = 1;
+	const lines = v.landmarks;
+	const byColour = new Map();
 	for (let i = 0, n = 0; i + 3 < lines.length; i += 4, n++) {
-		ctx.strokeStyle = colours[n] || "rgba(124,240,178,0.65)";
+		const colour = v.colours[n] || defaultLandmarkColour;
+		if (!byColour.has(colour)) {
+			byColour.set(colour, []);
+		}
+		byColour.get(colour).push(i);
+	}
+	ctx.lineWidth = 1;
+	for (const [colour, starts] of byColour) {
+		ctx.strokeStyle = colour;
 		ctx.beginPath();
-		ctx.moveTo(sc.x(lines[i]), sc.y(lines[i + 1]));
-		ctx.lineTo(sc.x(lines[i + 2]), sc.y(lines[i + 3]));
+		for (const i of starts) {
+			ctx.moveTo(sc.x(lines[i]), sc.y(lines[i + 1]));
+			ctx.lineTo(sc.x(lines[i + 2]), sc.y(lines[i + 3]));
+		}
 		ctx.stroke();
 	}
 }
 
+// one path per dot size (the weight in half-pixel steps)
 function drawKeyPoints(ctx, v, sc) {
-	const points = v.options.keyPoints;
+	const points = v.keyPoints;
+	const bySize = new Map();
+	for (let i = 0; i + 2 < points.length; i += 3) {
+		const radius = Math.round((2 + points[i + 2] * 2.5) * 2) / 2;
+		if (!bySize.has(radius)) {
+			bySize.set(radius, []);
+		}
+		bySize.get(radius).push(i);
+	}
 	ctx.fillStyle = "#4cc2ff";
 	ctx.strokeStyle = "#06202e";
-	for (let i = 0; i + 2 < points.length; i += 3) {
+	for (const [radius, starts] of bySize) {
 		ctx.beginPath();
-		ctx.arc(
-			sc.x(points[i]),
-			sc.y(points[i + 1]),
-			2 + points[i + 2] * 2.5,
-			0,
-			Math.PI * 2,
-		);
+		for (const i of starts) {
+			const x = sc.x(points[i]);
+			ctx.moveTo(x + radius, sc.y(points[i + 1]));
+			ctx.arc(x, sc.y(points[i + 1]), radius, 0, Math.PI * 2);
+		}
 		ctx.fill();
 		ctx.stroke();
 	}

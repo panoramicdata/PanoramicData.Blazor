@@ -314,7 +314,7 @@ public partial class PDMediaPlayer
 			{
 				_visualKeyPoints = KeyPoints;
 				_visualLandmarks = Landmarks;
-				await TryInvokeVoidAsync("updateVisualisation", MediaElement, BuildVisualisationOptions()).ConfigureAwait(true);
+				await SendVisualisationDataAsync(KeyPoints, Landmarks).ConfigureAwait(true);
 			}
 
 			return;
@@ -324,6 +324,24 @@ public partial class PDMediaPlayer
 		_visualKeyPoints = KeyPoints;
 		_visualLandmarks = Landmarks;
 		await TryInvokeVoidAsync("visualise", MediaElement, VisualCanvas, _objRef, BuildVisualisationOptions()).ConfigureAwait(true);
+		await SendVisualisationDataAsync(KeyPoints, Landmarks).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Replaces the key points and landmarks that are drawn without rendering the component again, for data that changes many times a
+	/// second, such as a live feed (see <see cref="PushSpectrumAsync"/>). The points and lines cross to the browser as raw bytes, so
+	/// thousands cost a millisecond or two. They are drawn only if <see cref="ShowKeyPoints"/> and <see cref="ShowLandmarks"/> are
+	/// set, and they stay until this method is called again or the <see cref="KeyPoints"/> or <see cref="Landmarks"/> parameters change.
+	/// </summary>
+	/// <param name="keyPoints">The key points, or null for none.</param>
+	/// <param name="landmarks">The landmarks, or null for none.</param>
+	/// <returns>A task that completes when the data has been handed to the browser.</returns>
+	public async Task SetVisualisationDataAsync(IReadOnlyList<PDMediaKeyPoint>? keyPoints, IReadOnlyList<PDMediaLandmark>? landmarks)
+	{
+		if (!_disposed && HasVisualisation)
+		{
+			await SendVisualisationDataAsync(keyPoints, landmarks).ConfigureAwait(true);
+		}
 	}
 
 	private object BuildVisualisationOptions() => new
@@ -332,21 +350,62 @@ public partial class PDMediaPlayer
 		showKeyPoints = ShowKeyPoints,
 		showLandmarks = ShowLandmarks,
 		frequencyLabels = ShowSpectrogramFrequencyLabels,
-			windowSeconds = SlidingWindowSeconds,
-			startSeconds = SpectrogramStartTime is { } start ? start.TimeOfDay.TotalSeconds : (double?)null,
-			sampleRate = SpectrogramSampleRateValue,
+		windowSeconds = SlidingWindowSeconds,
+		startSeconds = SpectrogramStartTime is { } start ? start.TimeOfDay.TotalSeconds : (double?)null,
+		sampleRate = SpectrogramSampleRateValue,
 		windowSize = SpectrogramWindowValue,
 		hopSize = SpectrogramHopValue,
 		maxFrequency = SpectrogramMaxFrequencyValue,
-		maxDuration = SpectrogramMaxDuration.TotalSeconds,
-		keyPoints = ShowKeyPoints ? FlattenKeyPoints() : [],
-		landmarks = ShowLandmarks ? FlattenLandmarks() : [],
-		landmarkColors = ShowLandmarks ? (Landmarks ?? []).Select(l => l.Color).ToArray() : []
+		maxDuration = SpectrogramMaxDuration.TotalSeconds
 	};
 
-	private double[] FlattenKeyPoints() =>
-		[.. (KeyPoints ?? []).SelectMany(p => new[] { p.Time.TotalSeconds, p.FrequencyHz, Math.Clamp(p.Weight, 0, 1) })];
+	private async Task SendVisualisationDataAsync(IEnumerable<PDMediaKeyPoint>? keyPoints, IEnumerable<PDMediaLandmark>? landmarks)
+	{
+		var points = keyPoints as IReadOnlyList<PDMediaKeyPoint> ?? [.. keyPoints ?? []];
+		var lines = landmarks as IReadOnlyList<PDMediaLandmark> ?? [.. landmarks ?? []];
+		await TryInvokeVoidAsync(
+			"setVisualisationData",
+			MediaElement,
+			ToBytes(ShowKeyPoints ? FlattenKeyPoints(points) : []),
+			ToBytes(ShowLandmarks ? FlattenLandmarks(lines) : []),
+			ShowLandmarks ? LandmarkColours(lines) : null).ConfigureAwait(true);
+	}
 
-	private double[] FlattenLandmarks() =>
-		[.. (Landmarks ?? []).SelectMany(l => new[] { l.FromTime.TotalSeconds, l.FromFrequencyHz, l.ToTime.TotalSeconds, l.ToFrequencyHz })];
+	private static byte[] ToBytes(double[] values)
+	{
+		var bytes = new byte[values.Length * sizeof(double)];
+		Buffer.BlockCopy(values, 0, bytes, 0, bytes.Length);
+		return bytes;
+	}
+
+	private static double[] FlattenKeyPoints(IReadOnlyList<PDMediaKeyPoint> points)
+	{
+		var values = new double[points.Count * 3];
+		for (var i = 0; i < points.Count; i++)
+		{
+			values[i * 3] = points[i].Time.TotalSeconds;
+			values[(i * 3) + 1] = points[i].FrequencyHz;
+			values[(i * 3) + 2] = Math.Clamp(points[i].Weight, 0, 1);
+		}
+
+		return values;
+	}
+
+	private static double[] FlattenLandmarks(IReadOnlyList<PDMediaLandmark> lines)
+	{
+		var values = new double[lines.Count * 4];
+		for (var i = 0; i < lines.Count; i++)
+		{
+			values[i * 4] = lines[i].FromTime.TotalSeconds;
+			values[(i * 4) + 1] = lines[i].FromFrequencyHz;
+			values[(i * 4) + 2] = lines[i].ToTime.TotalSeconds;
+			values[(i * 4) + 3] = lines[i].ToFrequencyHz;
+		}
+
+		return values;
+	}
+
+	// a colour per landmark, or null when no landmark has a colour of its own (the usual case, which then costs nothing)
+	private static string?[]? LandmarkColours(IReadOnlyList<PDMediaLandmark> lines) =>
+		lines.Any(l => l.Color is not null) ? [.. lines.Select(l => l.Color)] : null;
 }
