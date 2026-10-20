@@ -282,22 +282,16 @@ function attachVisualListeners(v) {
 	}
 }
 
-// swaps the options (the points and lines, mostly) without attaching again
 // Replaces the key points (time, Hz, weight triples) and the landmarks (time, Hz, time, Hz quads), both as raw float64 bytes,
 // which cross the interop boundary far faster than the same numbers as JSON; colours holds a CSS colour (or null) per landmark,
 // or is null when none has a colour of its own.
-export function setVisualisationData(
-	el,
-	keyPointBytes,
-	landmarkBytes,
-	colours,
-) {
+export function setVisualisationData(el, points, lines, colours) {
 	const v = el ? visuals.get(el) : null;
 	if (!v) {
 		return;
 	}
-	v.keyPoints = toFloats(keyPointBytes);
-	v.landmarks = toFloats(landmarkBytes);
+	v.keyPoints = toFloats(points);
+	v.landmarks = toFloats(lines);
 	v.colours = colours || [];
 	scheduleDraw(v);
 }
