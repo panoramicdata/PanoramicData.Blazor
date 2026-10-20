@@ -142,6 +142,14 @@ public partial class PDMediaPlayerPage
 
 	protected bool SlidingWindow { get; set; }
 
+	protected MediaFollowMode FollowMode { get; set; } = MediaFollowMode.Free;
+
+	protected double FollowMargin { get; set; } = 15;
+
+	protected MediaFollowScroll FollowScroll { get; set; } = MediaFollowScroll.Glide;
+
+	protected bool FollowStopsAtEnd { get; set; } = true;
+
 	protected bool Controls { get; set; } = true;
 
 	protected bool ShowKeyPoints { get; set; }

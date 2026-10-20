@@ -119,6 +119,7 @@
 				<canvas @ref="VisualCanvas"
 						class="pdmp-visual-canvas"
 						style="height:@(SpectrogramHeightValue)px"
+						title="@(AllowSpectrogramZoom ? "Ctrl and wheel: zoom time. Alt and wheel: zoom frequency. Shift and wheel: pan time. Shift, Alt and wheel: pan frequency." : null)"
 						role="img"
 						aria-label="@VisualAccessibleName"></canvas>
 				@if (!string.IsNullOrEmpty(_visualStatus))
@@ -287,6 +288,30 @@
 				}
 			</select>
 
+			@if (HasVisualisation && ShowSpectrogramViewControls)
+			{
+				<div class="pdmp-view" role="group" aria-label="Zoom and pan the visualisation">
+					<span class="pdmp-view-label" aria-hidden="true">Time</span>
+					<div class="btn-group btn-group-sm" role="group" aria-label="Time">
+						<button type="button" class="btn btn-outline-secondary pdmp-zoom-out" title="Zoom out in time (Ctrl and wheel)" aria-label="Zoom out in time" @onclick="() => ZoomAsync(2)"><i class="fas fa-search-minus" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-outline-secondary pdmp-zoom-in" title="Zoom in on time (Ctrl and wheel)" aria-label="Zoom in on time" @onclick="() => ZoomAsync(0.5)"><i class="fas fa-search-plus" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-outline-secondary pdmp-pan-left" title="Earlier (Shift and wheel)" aria-label="Pan earlier" @onclick="() => PanAsync(-0.25)"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-outline-secondary pdmp-pan-right" title="Later (Shift and wheel)" aria-label="Pan later" @onclick="() => PanAsync(0.25)"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+					</div>
+					<span class="pdmp-view-label" aria-hidden="true">Freq</span>
+					<div class="btn-group btn-group-sm" role="group" aria-label="Frequency">
+						<button type="button" class="btn btn-outline-secondary pdmp-frequency-zoom-out" title="Zoom out in frequency (Alt and wheel)" aria-label="Zoom out in frequency" @onclick="() => ZoomFrequencyAsync(2)"><i class="fas fa-search-minus" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-outline-secondary pdmp-frequency-zoom-in" title="Zoom in on frequency (Alt and wheel)" aria-label="Zoom in on frequency" @onclick="() => ZoomFrequencyAsync(0.5)"><i class="fas fa-search-plus" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-outline-secondary pdmp-frequency-up" title="Higher (Shift, Alt and wheel)" aria-label="Pan higher" @onclick="() => PanFrequencyAsync(0.25)"><i class="fas fa-arrow-up" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-outline-secondary pdmp-frequency-down" title="Lower (Shift, Alt and wheel)" aria-label="Pan lower" @onclick="() => PanFrequencyAsync(-0.25)"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>
+					</div>
+					@if (SpectrogramFollowMode != MediaFollowMode.Free)
+					{
+						<button type="button" class="btn btn-sm btn-outline-secondary pdmp-follow" title="Follow the playhead" aria-label="Follow the playhead" @onclick="FollowPlayheadAsync"><i class="fas fa-crosshairs" aria-hidden="true"></i></button>
+					}
+					<button type="button" class="btn btn-sm btn-outline-secondary pdmp-view-reset" title="Show everything" aria-label="Show everything" @onclick="ResetViewAsync"><i class="fas fa-expand" aria-hidden="true"></i></button>
+				</div>
+			}
 			@if (ShowDownload && !string.IsNullOrWhiteSpace(DownloadHref))
 			{
 				<a class="btn btn-sm btn-outline-secondary pdmp-download"

@@ -644,3 +644,14 @@
 .pdmp-visual-status {
 	padding: 0.125rem 0;
 }
+
+.pdmp-view {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.pdmp-view-label {
+	font-size: 0.75rem;
+	color: var(--bs-secondary-color, #6c757d);
+}
