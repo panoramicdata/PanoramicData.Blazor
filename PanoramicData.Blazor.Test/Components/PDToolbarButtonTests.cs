@@ -1,8 +1,10 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -146,6 +148,29 @@ public class PDToolbarButtonTests : BunitContext
 
 		operationRuns.Should().Be(1);
 		clicks.Should().Be(0);
+	}
+
+	/// <summary>A disabled button ignores its shortcut key (#257).</summary>
+	[Fact]
+	public void Shortcut_WhenDisabled_RaisesNothing()
+	{
+		var clicks = new List<string>();
+		Render<PDToolbarButton>(p => p
+			.Add(x => x.Key, "off")
+			.Add(x => x.IsEnabled, false)
+			.Add(x => x.ShortcutKey, ShortcutKey.Create("ctrl-KeyQ"))
+			.Add(x => x.Click, (KeyedEventArgs<MouseEventArgs> a) => clicks.Add(a.Key)));
+		var enabled = Render<PDToolbarButton>(p => p
+			.Add(x => x.Key, "on")
+			.Add(x => x.ShortcutKey, ShortcutKey.Create("ctrl-KeyO"))
+			.Add(x => x.Click, (KeyedEventArgs<MouseEventArgs> a) => clicks.Add(a.Key)));
+		var events = Services.GetRequiredService<IGlobalEventService>();
+
+		events.KeyUp(new KeyboardInfo { Key = "q", Code = "KeyQ", CtrlKey = true });
+		events.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+
+		// The shortcuts are dispatched in order, so a click from the disabled button would arrive first.
+		enabled.WaitForAssertion(() => clicks.Should().Equal("on"), TimeSpan.FromSeconds(10));
 	}
 
 	/// <summary>Size, icon and text CSS are passed through to the inner button.</summary>

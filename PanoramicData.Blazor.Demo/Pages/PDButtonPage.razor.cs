@@ -7,6 +7,8 @@ public partial class PDButtonPage : IAsyncDisposable
 	private readonly ShortcutKey _shortcut1 = ShortcutKey.Create("Shift-Ctrl-Digit1");
 	private readonly ShortcutKey _shortcut2 = ShortcutKey.Create("Shift-Ctrl-Digit2");
 	private readonly ShortcutKey _shortcut3 = ShortcutKey.Create("Shift-Ctrl-Digit3");
+	private readonly ShortcutKey _shortcut4 = ShortcutKey.Create("Shift-Ctrl-Digit4");
+	private readonly ShortcutKey _shortcut5 = ShortcutKey.Create("Shift-Ctrl-Digit5");
 	protected int Counter { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
@@ -37,6 +39,8 @@ public partial class PDButtonPage : IAsyncDisposable
 		EventManager?.Add(new Event("Button 1 Click", new EventArgument("Ctrl", args.CtrlKey)));
 		Counter++;
 	}
+
+	private void OnStateButtonClick() => EventManager?.Add(new Event("State Button Click"));
 
 	private async Task OnButton3Click(MouseEventArgs args)
 	{

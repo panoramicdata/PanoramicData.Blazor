@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDCardDeckGroup and PDCardDeck: new ShowLoadingIcon, LoadingMessage and ShowLoadingElapsedTime parameters turn the loading icon off (which also stops a group blocking the page while its decks load), change its message and hide its elapsed-time counter, through new Message and ShowElapsedTime parameters on PDCardDeckLoadingIcon. The icon's colour is the new --pd-carddeck-loading-color CSS variable, defaulting to --bs-emphasis-color, so it follows Bootstrap 5.3 dark mode instead of always being black. A deck now loads its cards and joins its group before it downloads its script, so a full page load no longer shows the loading icon while the script downloads, and its cards can be dragged once the script's drop listener is in place.
+      - PDButton and PDToolbarButton: a shortcut key now does exactly what a click does (#257). It is ignored while the button is disabled or its Operation is running, and on a button with an Operation it runs the Operation, showing the operation icon, instead of raising Click. PDToolbarDropdown: a disabled dropdown ignores its items' shortcut keys, as it already did for a disabled item.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
