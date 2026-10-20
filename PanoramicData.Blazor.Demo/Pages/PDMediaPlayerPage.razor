@@ -59,6 +59,13 @@
 				<input class="form-check-input" type="checkbox" id="mp-persist" @bind="Persist" />
 				<label class="form-check-label" for="mp-persist">Remember speed and position</label>
 			</div>
+			<div class="w-100">
+				<button type="button" class="btn btn-sm btn-primary" id="mp-show-everything" @onclick="ShowEverything">Show the visualisation features</button>
+				<span class="text-muted small ms-2">
+					Ctrl + wheel zooms time, Alt + wheel zooms frequency, Shift + wheel pans time, Shift + Alt + wheel pans frequency.
+					The Time and Freq buttons in the control panel do the same; try zooming in, then playing with a follow mode.
+				</span>
+			</div>
 			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-spectrogram" @bind="ShowSpectrogram" />
 				<label class="form-check-label" for="mp-spectrogram">Spectrogram</label>
