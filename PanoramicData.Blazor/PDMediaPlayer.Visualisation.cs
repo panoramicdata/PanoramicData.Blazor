@@ -144,6 +144,30 @@ public partial class PDMediaPlayer
 	public bool SpectrogramFollowStopsAtEnd { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets whether an overview bar of the whole media shows under the visualisation, with the part currently shown
+	/// highlighted. Drag the highlight to pan, drag its edges or use the wheel to zoom, and click elsewhere on the bar to move the
+	/// view there. The default is false.
+	/// </summary>
+	[Parameter]
+	public bool ShowSpectrogramOverview { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the seek bar (with its markers and segment lanes) shows only the part of the media that the visualisation
+	/// shows, following its zoom, pan and sliding window. It needs a visualisation to be switched on, and does nothing without one.
+	/// The default is false, which shows the whole media.
+	/// </summary>
+	[Parameter]
+	public bool SeekBarFollowsView { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the piano roll (see <see cref="ShowNotes"/>) shows only the part of the media that the visualisation
+	/// shows, following its zoom, pan and sliding window. It needs a visualisation to be switched on, and does nothing without one.
+	/// The default is false, which shows the whole media.
+	/// </summary>
+	[Parameter]
+	public bool NotesFollowView { get; set; }
+
+	/// <summary>
 	/// Gets or sets the height in pixels of the visualisation, from 80 to 800. The default is 260.
 	/// </summary>
 	[Parameter]
@@ -241,6 +265,8 @@ public partial class PDMediaPlayer
 	/// </summary>
 	internal double SpectrogramFollowMarginValue =>
 		Math.Clamp(double.IsFinite(SpectrogramFollowMarginPercent) ? SpectrogramFollowMarginPercent : 15, 0, 45);
+
+	private static string? FollowClass(bool follows) => follows ? "pdmp-follow-view" : null;
 
 	private string VisualAccessibleName =>
 		$"{AccessibleName}: {(ShowSpectrogram ? "spectrogram" : "time and frequency plot")} (time across, frequency up)"

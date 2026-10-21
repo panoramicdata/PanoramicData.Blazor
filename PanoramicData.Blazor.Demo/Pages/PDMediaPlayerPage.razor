@@ -44,7 +44,7 @@
 				</select>
 			</label>
 			<label class="form-label mb-0">
-				Seek lead (seconds)
+				Seek lead (seconds before a marker or section)
 				<input type="number" class="form-control form-control-sm" style="width: 5rem;" min="0" max="10" @bind="SeekLeadSeconds" />
 			</label>
 			<div class="form-check">
@@ -98,6 +98,18 @@
 				<label class="form-check-label" for="mp-stopatend">Stop scrolling at the end</label>
 			</div>
 			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-overview" @bind="Overview" />
+				<label class="form-check-label" for="mp-overview">Overview bar (drag, wheel)</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-seekfollow" @bind="SeekBarFollows" />
+				<label class="form-check-label" for="mp-seekfollow">Seek bar follows the view</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-notesfollow" @bind="NotesFollow" />
+				<label class="form-check-label" for="mp-notesfollow">Piano roll follows the view</label>
+			</div>
+			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="mp-controls" @bind="Controls" />
 				<label class="form-check-label" for="mp-controls">Controls</label>
 			</div>
@@ -136,6 +148,9 @@
 					   MarkerListPlacement="Placement"
 					   PersistKey="@(Persist ? "pdmediaplayer-demo" : null)"
 					   ShowSpectrogram="ShowSpectrogram"
+					   ShowSpectrogramOverview="Overview"
+					   SeekBarFollowsView="SeekBarFollows"
+					   NotesFollowView="NotesFollow"
 					   ShowControls="Controls"
 					   SpectrogramWindow="@(SlidingWindow ? TimeSpan.FromSeconds(12) : null)"
 					   SpectrogramFollowMode="FollowMode"

@@ -655,3 +655,71 @@
 	font-size: 0.75rem;
 	color: var(--bs-secondary-color, #6c757d);
 }
+
+/* the parts of the seek bar and piano roll that can follow the visualisation's view: the inner box is the whole media, and is
+   widened and shifted by the zoom and offset that the script publishes on the player */
+.pdmp-view-inner {
+	position: absolute;
+	inset: 0;
+}
+
+.pdmp-follow-view {
+	overflow: hidden;
+}
+
+	.pdmp-follow-view > .pdmp-view-inner {
+		inset: 0 auto 0 0;
+		width: calc(var(--pdmp-zoom, 1) * 100%);
+		transform: translateX(calc(var(--pdmp-offset, 0) * -100%));
+	}
+
+.pdmp-overview {
+	position: relative;
+	height: 1.75rem;
+	margin-top: 0.25rem;
+	background: var(--pdmp-muted-bg);
+	border-radius: 0.25rem;
+	cursor: pointer;
+	touch-action: none;
+	user-select: none;
+}
+
+.pdmp-overview-window {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: calc(var(--pdmp-view-left, 0) * 100%);
+	width: calc(var(--pdmp-view-width, 1) * 100%);
+	min-width: 12px;
+	background: rgba(76, 194, 255, 0.25);
+	border: 1px solid #4cc2ff;
+	border-radius: 0.25rem;
+	cursor: grab;
+}
+
+.pdmp-overview-handle {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 6px;
+	background: rgba(76, 194, 255, 0.7);
+	cursor: ew-resize;
+}
+
+.pdmp-overview-handle-start {
+	left: -1px;
+}
+
+.pdmp-overview-handle-end {
+	right: -1px;
+}
+
+.pdmp-overview-playhead {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: calc(var(--pdmp-playhead, 0) * 100%);
+	width: 2px;
+	background: #fff;
+	pointer-events: none;
+}

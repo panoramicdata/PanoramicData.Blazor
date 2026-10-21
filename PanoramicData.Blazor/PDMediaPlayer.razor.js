@@ -207,6 +207,7 @@ const timeSteps = [
 const minTimeSpan = 0.5;
 const minFrequencySpan = 100;
 const wheelZoomPerPixel = 0.002;
+const maxViewZoom = 5000;
 const tinyAmount = Math.pow(10, -9);
 const silenceFloor = Math.pow(10, -12);
 const redrawIntervalMs = 40;
@@ -230,6 +231,9 @@ export function visualise(el, canvas, dotNetRef, options) {
 		pending: 0,
 		view: { time: null, freq: null },
 		following: true,
+		root: el.closest(".pd-media-player"),
+		drag: null,
+		published: "",
 		live: liveBuffers.get(el) || null,
 		generation: 0,
 		timer: 0,
@@ -260,6 +264,14 @@ export function clearVisualisation(el) {
 	}
 	v.canvas.removeEventListener("click", v.onClick);
 	v.canvas.removeEventListener("wheel", v.onWheel);
+	const host = v.canvas.parentElement;
+	if (host) {
+		host.removeEventListener("pointerdown", v.onOverviewDown);
+		host.removeEventListener("pointermove", v.onOverviewMove);
+		host.removeEventListener("pointerup", v.onOverviewUp);
+		host.removeEventListener("pointercancel", v.onOverviewUp);
+		host.removeEventListener("wheel", v.onOverviewWheel);
+	}
 	if (v.observer) {
 		v.observer.disconnect();
 	}
@@ -285,6 +297,16 @@ function attachVisualListeners(v) {
 	}
 	v.onClick = (e) => reportClick(v, e);
 	v.canvas.addEventListener("click", v.onClick);
+	v.onOverviewDown = (e) => overviewDown(v, e);
+	v.onOverviewMove = (e) => overviewMove(v, e);
+	v.onOverviewUp = () => (v.drag = null);
+	v.onOverviewWheel = (e) => overviewWheel(v, e);
+	const host = v.canvas.parentElement;
+	host.addEventListener("pointerdown", v.onOverviewDown);
+	host.addEventListener("pointermove", v.onOverviewMove);
+	host.addEventListener("pointerup", v.onOverviewUp);
+	host.addEventListener("pointercancel", v.onOverviewUp);
+	host.addEventListener("wheel", v.onOverviewWheel, { passive: false });
 	v.onWheel = (e) => onWheel(v, e);
 	v.canvas.addEventListener("wheel", v.onWheel, { passive: false });
 	if (typeof ResizeObserver !== "undefined") {
@@ -359,9 +381,15 @@ function wholeView(start, span, limit) {
 
 // for a sliding window the view is a span and how far back from the present it ends
 function windowedView(v, start, span, limit) {
-	const back = clampNumber(nowSeconds(v) - (start + span), 0, limit - span);
+	const now = nowSeconds(v);
+	const live = v.live && v.live.count > 0;
+	// a live feed has no future to look at, but a recording has: the view may end as late as the end of the media
+	const earliestBack = live ? 0 : now - limit;
+	const latestBack = Math.min(limit - span, now - span);
+	const back = clampNumber(now - (start + span), earliestBack, latestBack);
 	const isDefault =
-		back < tinyAmount && Math.abs(span - v.options.windowSeconds) < tinyAmount;
+		Math.abs(back) < tinyAmount &&
+		Math.abs(span - v.options.windowSeconds) < tinyAmount;
 	return isDefault ? null : { span, back };
 }
 
@@ -476,6 +504,129 @@ export function resetView(el) {
 		v.following = true;
 		draw(v);
 	}
+}
+
+// ---- publishing the view, and the overview ----
+
+// the length of everything there is to see: the live data so far, or the media
+function totalSeconds(v) {
+	if (v.live && v.live.count > 0) {
+		return liveEnd(v.live);
+	}
+	const duration = v.el.duration;
+	return Number.isFinite(duration) && duration > 0 ? duration : plotSeconds(v);
+}
+
+// Publishes the view as CSS variables on the player: the zoom and offset that the seek bar and piano roll use to follow it, and
+// the fractions that place the highlight and the playhead on the overview
+function publishView(v, l) {
+	const total = totalSeconds(v) || l.seconds;
+	const left = clampNumber(l.start / total, 0, 1);
+	const values = {
+		"--pdmp-zoom": clampNumber(total / l.seconds, 1, maxViewZoom),
+		"--pdmp-offset": l.start / total,
+		"--pdmp-view-left": left,
+		"--pdmp-view-width": clampNumber(l.seconds / total, 0, 1 - left),
+		"--pdmp-playhead": clampNumber(nowSeconds(v) / total, 0, 1),
+	};
+	const key = JSON.stringify(values);
+	if (!v.root || key === v.published) {
+		return;
+	}
+	v.published = key;
+	for (const [name, value] of Object.entries(values)) {
+		v.root.style.setProperty(name, String(value));
+	}
+}
+
+function overviewOf(e) {
+	return e.target instanceof Element
+		? e.target.closest(".pdmp-overview")
+		: null;
+}
+
+// what a press on the overview does: resize from an edge, pan from the highlight, or move the view to where it was pressed
+function dragMode(e) {
+	if (e.target.classList.contains("pdmp-overview-handle-start")) {
+		return "start";
+	}
+	if (e.target.classList.contains("pdmp-overview-handle-end")) {
+		return "end";
+	}
+	return e.target.closest(".pdmp-overview-window") ? "pan" : "jump";
+}
+
+function overviewDown(v, e) {
+	const overview = overviewOf(e);
+	if (!overview || e.button !== 0) {
+		return;
+	}
+	e.preventDefault();
+	const rect = overview.getBoundingClientRect();
+	const l = layout(v);
+	const total = totalSeconds(v) || l.seconds;
+	const drag = {
+		mode: dragMode(e),
+		x0: e.clientX,
+		start: l.start,
+		span: l.seconds,
+		total,
+		width: rect.width || 1,
+	};
+	if (drag.mode === "jump") {
+		drag.start = ((e.clientX - rect.left) / drag.width) * total - l.seconds / 2;
+		drag.mode = "pan";
+		setTimeView(v, drag.start, drag.span);
+	}
+	v.following = false;
+	v.drag = drag;
+	overview.setPointerCapture(e.pointerId);
+	draw(v);
+}
+
+function overviewMove(v, e) {
+	const drag = v.drag;
+	if (!drag) {
+		return;
+	}
+	const dt = ((e.clientX - drag.x0) / drag.width) * drag.total;
+	if (drag.mode === "start") {
+		const end = drag.start + drag.span;
+		const start = clampNumber(drag.start + dt, 0, end - minTimeSpan);
+		setTimeView(v, start, end - start);
+	} else if (drag.mode === "end") {
+		setTimeView(
+			v,
+			drag.start,
+			clampNumber(drag.span + dt, minTimeSpan, drag.total - drag.start),
+		);
+	} else {
+		setTimeView(v, drag.start + dt, drag.span);
+	}
+	draw(v);
+}
+
+// the wheel on the overview zooms about the pointer, or with Shift pans
+function overviewWheel(v, e) {
+	const overview = overviewOf(e);
+	if (!overview || !v.options.wheelZoom) {
+		return;
+	}
+	e.preventDefault();
+	v.following = false;
+	const rect = overview.getBoundingClientRect();
+	const total = totalSeconds(v) || 1;
+	const delta = clampNumber(e.deltaY || e.deltaX, -200, 200);
+	if (e.shiftKey) {
+		panTime(v, (delta / 100) * 0.15);
+	} else {
+		zoomTime(
+			v,
+			Math.exp(delta * wheelZoomPerPixel),
+			((e.clientX - rect.left) / (rect.width || 1)) * total,
+		);
+	}
+	draw(v);
 }
 
 // Resumes following the playhead
@@ -1317,6 +1468,7 @@ function draw(v) {
 	}
 	applyFollow(v);
 	const l = layout(v);
+	publishView(v, l);
 	const ctx = v.canvas.getContext("2d");
 	const sc = scales(l);
 	drawBackground(ctx, v, l);
