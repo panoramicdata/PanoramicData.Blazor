@@ -213,7 +213,7 @@ public partial class PDMediaPlayerPage
 
 	protected MediaMarkerListPlacement Placement { get; set; } = MediaMarkerListPlacement.Below;
 
-	protected double SeekLeadSeconds { get; set; } = 2;
+	protected double SeekLeadSeconds { get; set; }
 
 	protected bool ShadeRange { get; set; } = true;
 
