@@ -720,6 +720,6 @@
 	bottom: 0;
 	left: calc(var(--pdmp-playhead, 0) * 100%);
 	width: 2px;
-	background: #ffffff;
+	background: #fff;
 	pointer-events: none;
 }
