@@ -136,6 +136,12 @@ public partial class PDMediaPlayerPage
 
 	protected bool ShowSpectrogram { get; set; }
 
+	protected bool Overview { get; set; }
+
+	protected bool SeekBarFollows { get; set; }
+
+	protected bool NotesFollow { get; set; }
+
 	// switches on everything the visualisation offers, with a follow mode that keeps the playhead in view once zoomed in
 	protected void ShowEverything()
 	{
@@ -148,6 +154,11 @@ public partial class PDMediaPlayerPage
 		FollowMargin = 15;
 		FollowStopsAtEnd = true;
 		Controls = true;
+		Overview = true;
+		SeekBarFollows = true;
+		NotesFollow = true;
+		SlidingWindow = true;
+		showNotes = true;
 	}
 
 	protected bool FrequencyLabels { get; set; } = true;

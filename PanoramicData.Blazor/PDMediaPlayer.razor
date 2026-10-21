@@ -71,15 +71,17 @@
 			<div class="pdmp-piano" aria-label="Piano roll: pitch against time in seconds">
 				@foreach (var lane in noteBars.GroupBy(b => b.Lane))
 				{
-					<div class="pdmp-note-sections" aria-label="Sections in the note timeline">
+					<div class="pdmp-note-sections @FollowClass(NotesFollowView)" aria-label="Sections in the note timeline">
+						<div class="pdmp-view-inner">
 						@foreach (var bar in lane)
 						{
 							<button type="button" class="pdmp-note-section" style="@GetBarStyle(bar)" title="@GetBarTitle(bar)"
 								aria-label="@GetBarTitle(bar)" disabled="@(!canSeek)" @onclick="() => SeekToSegmentAsync(bar.First)">@(bar.First.Label ?? GetKindLabel(MediaSegmentNavigator.GetKind(bar.First)))</button>
 						}
+						</div>
 					</div>
 				}
-				<div class="pdmp-note-grid" style="height:@(NotesHeightValue)px">
+				<div class="pdmp-note-grid @FollowClass(NotesFollowView)" style="height:@(NotesHeightValue)px">
 					<div class="pdmp-pitch-labels" aria-hidden="true">
 						@for (var midi = low; midi <= high; midi++)
 						{
@@ -89,6 +91,7 @@
 							}
 						}
 					</div>
+					<div class="pdmp-view-inner">
 					@foreach (var time in times)
 					{
 						<span class="pdmp-note-time-line" style="left:@Percent(100 * time / DurationSeconds)" aria-hidden="true"></span>
@@ -103,12 +106,15 @@
 							aria-label="@NoteTitle(note)" disabled="@(!canSeek)" @onclick="() => SeekAsync(note.Start)"></button>
 					}
 					<div class="pdmp-note-playhead" style="left:@Percent(ProgressPercent)" aria-hidden="true"></div>
+					</div>
 				</div>
-				<div class="pdmp-note-times" aria-hidden="true">
+				<div class="pdmp-note-times @FollowClass(NotesFollowView)" aria-hidden="true">
+					<div class="pdmp-view-inner">
 					@foreach (var time in times)
 					{
 						<span style="left:@Percent(100 * time / DurationSeconds)">@FormatNumber(time) s</span>
 					}
+					</div>
 				</div>
 			</div>
 		}
@@ -122,6 +128,16 @@
 						title="@(AllowSpectrogramZoom ? "Ctrl and wheel: zoom time. Alt and wheel: zoom frequency. Shift and wheel: pan time. Shift, Alt and wheel: pan frequency." : null)"
 						role="img"
 						aria-label="@VisualAccessibleName"></canvas>
+				@if (ShowSpectrogramOverview)
+				{
+					<div class="pdmp-overview" role="group" aria-label="Overview of the whole media: drag the highlighted range to pan, drag its edges or use the wheel to zoom">
+						<div class="pdmp-overview-window">
+							<span class="pdmp-overview-handle pdmp-overview-handle-start"></span>
+							<span class="pdmp-overview-handle pdmp-overview-handle-end"></span>
+						</div>
+						<span class="pdmp-overview-playhead"></span>
+					</div>
+				}
 				@if (!string.IsNullOrEmpty(_visualStatus))
 				{
 					<div class="pdmp-visual-status small text-muted" aria-live="polite">@_visualStatus</div>
@@ -138,7 +154,8 @@
 			}
 			@if (_visibleMarkers.Count > 0 && canSeek)
 			{
-				<div class="pdmp-lane" aria-hidden="true">
+				<div class="pdmp-lane @FollowClass(SeekBarFollowsView)" aria-hidden="true">
+					<div class="pdmp-view-inner">
 					@foreach (var tick in GetTicks())
 					{
 						var thisTick = tick;
@@ -147,9 +164,11 @@
 							  title="@GetTickTitle(thisTick)"
 							  @onclick="() => SeekToMarkerAsync(thisTick.First)"></span>
 					}
+					</div>
 				</div>
 			}
-			<div class="pdmp-track">
+			<div class="pdmp-track @FollowClass(SeekBarFollowsView)">
+				<div class="pdmp-view-inner">
 				@if (RangeSegment is { } range)
 				{
 					<div class="pdmp-range" style="@GetSegmentStyle(range)"></div>
@@ -170,6 +189,7 @@
 					   aria-valuetext="@SeekValueText"
 					   @oninput="OnSeekInput"
 					   @onchange="OnSeekChangeAsync" />
+				</div>
 			</div>
 			@if (!segmentsAbove)
 			{
@@ -480,7 +500,8 @@
 		@if (canSeek && _visibleSegments.Count > 0)
 		{
 			var bars = GetBars();
-			<div class="pdmp-segment-lanes" style="@GetLanesStyle(SegmentLaneCount)" aria-hidden="true">
+			<div class="pdmp-segment-lanes @FollowClass(SeekBarFollowsView)" style="@GetLanesStyle(SegmentLaneCount)" aria-hidden="true">
+				<div class="pdmp-view-inner">
 				@foreach (var bar in bars)
 				{
 					var thisBar = bar;
@@ -490,6 +511,7 @@
 						  @onclick="() => SeekToSegmentAsync(thisBar.First)"
 						  @ondblclick="() => PlaySegmentAsync(thisBar.First)">@thisBar.First.Label</span>
 				}
+				</div>
 			</div>
 		}
 	};
