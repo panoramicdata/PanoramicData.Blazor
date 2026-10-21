@@ -177,7 +177,7 @@ public partial class PDMediaPlayer
 	private string GetBarClass(MediaSegmentBar bar)
 	{
 		var classes = new StringBuilder("pdmp-segment-bar");
-		classes.Append(bar.Start <= DisplayPosition && DisplayPosition < bar.End ? " pdmp-segment-current" : string.Empty);
+		classes.Append(bar.Start <= MarkerCursor && MarkerCursor < bar.End ? " pdmp-segment-current" : string.Empty);
 		classes.Append(bar.Count > 1 ? " pdmp-segment-merged" : string.Empty);
 		return $"{classes} {bar.First.CssClass}".TrimEnd();
 	}

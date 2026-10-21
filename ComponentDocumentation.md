@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-10-21 01:04:32
+Generated on: 2026-10-21 02:23:58
 
 ## PDAnimation
 
@@ -1369,7 +1369,7 @@ This component has no public parameters.
 | OnRangeEntered | EventCallback<TimeSpan> | Gets or sets the callback invoked with the position when playback enters the shaded range (including when it first starts inside it). |
 | OnRangeLeft | EventCallback<TimeSpan> | Gets or sets the callback invoked with the position when playback leaves the shaded range. |
 | Markers | IEnumerable<PDMediaMarker>? | Gets or sets the markers: events along the timeline, in any order. Assign a new collection to change them. |
-| SeekLead | TimeSpan | Gets or sets how far before a marker to seek when it is selected, so that the lead-up can be heard. The default is zero. Marker navigation and the current marker are worked out from the position plus this lead. |
+| SeekLead | TimeSpan | Gets or sets how far before a marker or segment to seek when it is selected, so that the lead-up can be heard. The default is zero. Marker and segment navigation and the current marker and segment are worked out from the position plus this lead, so a marker or segment that has just been selected is the current one even though the playhead is still the lead before it. |
 | MarkerTolerance | TimeSpan | Gets or sets how close to the current position a marker (or segment start) may be before next and previous skip over it. Previous within this time of a marker's start goes to the marker before; further in, it returns to the marker's start. The default is half a second. |
 | VisibleKinds | IReadOnlySet<string>? | Gets or sets the kinds of marker to show, or <c>null</c> (the default) to show every kind. Hidden kinds are left off the seek bar and the list and skipped by next and previous. A kind missing from the set is hidden, including a kind that only appears when <see cref="Markers"/> changes. Use with <see cref="VisibleKindsChanged"/> for two-way binding. |
 | VisibleKindsChanged | EventCallback<IReadOnlySet<string>?> | Gets or sets the callback invoked when the user shows or hides a kind. |

@@ -285,8 +285,9 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	public IEnumerable<PDMediaMarker>? Markers { get; set; }
 
 	/// <summary>
-	/// Gets or sets how far before a marker to seek when it is selected, so that the lead-up can be heard. The default
-	/// is zero. Marker navigation and the current marker are worked out from the position plus this lead.
+	/// Gets or sets how far before a marker or segment to seek when it is selected, so that the lead-up can be heard. The default
+	/// is zero. Marker and segment navigation and the current marker and segment are worked out from the position plus this lead, so a
+	/// marker or segment that has just been selected is the current one even though the playhead is still the lead before it.
 	/// </summary>
 	[Parameter]
 	public TimeSpan SeekLead { get; set; }
