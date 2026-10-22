@@ -398,13 +398,17 @@ public partial class PDChatTests
 		component.Find(".pdchat-read-aloud-toggle").GetAttribute("aria-pressed").Should().Be(readAloud ? "true" : "false");
 	}
 
-	/// <summary>Verifies that the microphone control is an icon alone, named for screen readers by its label.</summary>
+	/// <summary>
+	/// Verifies that the microphone control is an icon alone, named for screen readers by its label: in the default
+	/// HAL mode, the HAL eye (issue #265).
+	/// </summary>
 	[Fact]
 	public void The_microphone_control_is_an_icon_only()
 	{
 		var toggle = RenderChat(VoiceService()).Find(".pdchat-voice-toggle");
 
-		toggle.TextContent.Trim().Should().Be("🎙️");
+		toggle.TextContent.Trim().Should().BeEmpty();
+		toggle.QuerySelector(".pdchat-hal-eye")!.GetAttribute("aria-hidden").Should().Be("true");
 		toggle.GetAttribute("aria-label").Should().Be("Voice: speak instead of typing");
 	}
 

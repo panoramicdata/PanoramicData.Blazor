@@ -80,7 +80,7 @@ public partial class PDChat
 	private void RestartIdleTimer()
 	{
 		CancelIdleTimer();
-		if (VoiceState != PDChatVoiceState.Listening || WakePhraseWords().Count == 0)
+		if (VoiceState != PDChatVoiceState.Listening || WakePhraseWords().Count == 0 || VoiceMode == PDChatVoiceMode.Dictate)
 		{
 			return;
 		}

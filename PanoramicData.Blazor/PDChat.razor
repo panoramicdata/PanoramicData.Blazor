@@ -337,12 +337,33 @@
 					title="@ReadAloudButtonTitle"
 					aria-label="@ReadAloudButtonTitle"
 					aria-pressed="@(IsReadAloudOn ? "true" : "false")">@(IsReadAloudOn ? "🔊" : "🔇")</button>
+			<label class="pdchat-toolbar-picker pdchat-voice-mode-picker">
+				<select title="How Voice Mode listens" aria-label="Voice mode" @onchange="OnVoiceModeSelectedAsync">
+					<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause" selected="@(VoiceMode == PDChatVoiceMode.Hal)">HAL</option>
+					<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send" selected="@(VoiceMode == PDChatVoiceMode.Dictate)">Dictate</option>
+					@if (IsWakeModeOffered)
+					{
+						<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause" selected="@(VoiceMode == PDChatVoiceMode.Wake)">@FirstWakePhrase</option>
+					}
+				</select>
+			</label>
 			<button type="button"
-					class="pdchat-toolbar-btn pdchat-voice-toggle@(IsVoiceModeOn ? " active" : string.Empty)"
+					class="@VoiceButtonCssClass"
 					@onclick="ToggleVoiceModeAsync"
 					title="@VoiceButtonTitle"
 					aria-label="@VoiceButtonTitle"
-					aria-pressed="@(IsVoiceModeOn ? "true" : "false")">🎙️</button>
+					aria-pressed="@(IsVoiceModeOn ? "true" : "false")">@switch (VoiceMode)
+				{
+					case PDChatVoiceMode.Hal:
+						<span class="pdchat-hal-eye" aria-hidden="true"></span>
+						break;
+					case PDChatVoiceMode.Wake:
+						<span aria-hidden="true">👂</span>
+						break;
+					default:
+						<span aria-hidden="true">🎙️</span>
+						break;
+				}</button>
 		}
 	</text>;
 }

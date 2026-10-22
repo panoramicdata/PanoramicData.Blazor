@@ -58,6 +58,8 @@ internal sealed class ChatServiceDefaultState
 
 	public bool IsReadAloudEnabled { get; set; }
 
+	public PDChatVoiceMode VoiceMode { get; set; } = PDChatVoiceMode.Hal;
+
 	/// <summary>
 	/// Gets or sets the handlers subscribed to the default <see cref="IChatService.OnConversationMessageReceived"/>.
 	/// They are kept so that subscribing and unsubscribing behave as they would on any event, but a service that
