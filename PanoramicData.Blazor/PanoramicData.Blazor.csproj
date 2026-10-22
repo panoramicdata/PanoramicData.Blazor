@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDButton and PDToolbarButton: a shortcut key now does exactly what a click does (#257). It is ignored while the button is disabled or its Operation is running, and on a button with an Operation it runs the Operation, showing the operation icon, instead of raising Click. PDToolbarDropdown: a disabled dropdown ignores its items' shortcut keys, as it already did for a disabled item.
+      - PDCardDeck and PDCardDeckGroup: RefreshAsync reads the cards again from the data function, for when something outside the decks, such as a filter, changes which cards they hold (#263). The group's refresh waits for a drop that is still being saved, and a refresh deselects any selected card its deck no longer holds, so a later drag cannot take it along.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

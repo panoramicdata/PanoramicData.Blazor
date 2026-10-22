@@ -52,12 +52,16 @@ public partial class PDCardDeckTests
 		}
 	}
 
-	private IRenderedComponent<PDCardDeckGroup<Card>> RenderGroup(Board board, Func<PDCardDeck<Card>, PDCardDeck<Card>, bool>? validate = null)
+	private IRenderedComponent<PDCardDeckGroup<Card>> RenderGroup(
+		Board board,
+		Func<PDCardDeck<Card>, PDCardDeck<Card>, bool>? validate = null,
+		Func<PDCardDeck<Card>, PDCardDeck<Card>, List<Card>, Task>? transformation = null)
 	{
+		var transform = transformation ?? board.Transform;
 		var group = Render<PDCardDeckGroup<Card>>(parameters => parameters
 			.Add(p => p.DataProvider, new ListDataProviderService<Card>())
 			.Add(p => p.ValidateCardMove, validate)
-			.Add(p => p.Transformation, (_, source, destination, cards) => board.Transform(source, destination, cards))
+			.Add(p => p.Transformation, (_, source, destination, cards) => transform(source, destination, cards))
 			.AddChildContent<PDCardDeck<Card>>(deck => deck
 				.Add(p => p.Id, "left")
 				.Add(p => p.MultipleSelection, true)
