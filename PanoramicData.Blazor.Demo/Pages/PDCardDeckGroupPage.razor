@@ -205,7 +205,7 @@
 		   @bind:event="oninput"
 		   @bind:after="ApplyFilterAsync" />
 
-	<PDCardDeckGroup @ref="_filteredGroup"
+	<PDCardDeckGroup @ref="FilteredGroup"
 					 DataProvider="TodoList8"
 					 CssClass="pd-kanbanboard"
 					 Transformation="MoveCardToRespectiveStatusAsync">

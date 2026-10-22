@@ -21,7 +21,7 @@ public partial class PDCardDeckGroupPage
 
 	public CardDeckDataProviderService<Todo> TodoList8 { get; set; } = new();
 
-	private PDCardDeckGroup<Todo>? _filteredGroup;
+	protected PDCardDeckGroup<Todo>? FilteredGroup { get; set; }
 
 	private string FilterText { get; set; } = string.Empty;
 
@@ -96,9 +96,9 @@ public partial class PDCardDeckGroupPage
 
 	private async Task ApplyFilterAsync()
 	{
-		if (_filteredGroup is not null)
+		if (FilteredGroup is not null)
 		{
-			await _filteredGroup.RefreshAsync();
+			await FilteredGroup.RefreshAsync();
 		}
 	}
 
