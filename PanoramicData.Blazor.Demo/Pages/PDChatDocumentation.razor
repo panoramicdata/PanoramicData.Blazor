@@ -147,8 +147,17 @@
 				<tr><td><code>VoiceAutoSendDelay</code></td><td><code>TimeSpan</code></td><td>1 second</td><td>How long after a pause dictation is sent, when the user is not editing.</td></tr>
 				<tr><td><code>WakePhrases</code></td><td><code>IReadOnlyList&lt;string&gt;?</code></td><td><code>null</code> (off)</td><td>Phrases such as "Hey DumbBot" that wake a dormant microphone. Case and punctuation are ignored, and the phrase itself is never typed.</td></tr>
 				<tr><td><code>VoiceIdleTimeout</code></td><td><code>TimeSpan</code></td><td>10 seconds</td><td>How long the microphone may hear nothing before it goes dormant. Applies only with wake phrases.</td></tr>
+				<tr><td><code>VoiceMode</code></td><td><code>PDChatVoiceMode</code></td><td><code>Hal</code></td><td>The mode the user last chose: <code>Hal</code> listens at once and sends on a pause; <code>Dictate</code> listens only while the text box has focus and never sends by itself; <code>Wake</code> starts dormant and returns there after each exchange (offered only with wake phrases). Implement it to remember the choice per user.</td></tr>
 			</tbody>
 		</table>
+		<p>
+			The microphone button shows the mode as its icon (the HAL eye, a microphone, or an ear) and the state through
+			its colour and motion: listening, editing, thinking, speaking, dormant or paused. Its title says both in words.
+			In <code>Hal</code> and <code>Wake</code>, clicking in the text box switches to manual: dictation keeps
+			streaming into the box, Send submits, and the next pause sends again. A message's
+			<code>SpokenMessage</code>, when set, is read aloud in place of the message, which is displayed unchanged; an
+			empty value reads nothing.
+		</p>
 		<p>
 			With wake phrases set, Voice Mode goes <code>Dormant</code> after the idle timeout (never while the user is
 			editing or a send is pending). While dormant nothing is typed or sent until a wake phrase is heard; the words

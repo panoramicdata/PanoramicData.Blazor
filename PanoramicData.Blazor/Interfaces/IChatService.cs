@@ -165,6 +165,16 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets or sets how Voice Mode listens and sends, as last chosen by the user. Defaults to
+	/// <see cref="PDChatVoiceMode.Hal"/>. A host that implements it can remember the choice for each user.
+	/// </summary>
+	PDChatVoiceMode VoiceMode
+	{
+		get => ChatServiceDefaultState.For(this).VoiceMode;
+		set => ChatServiceDefaultState.For(this).VoiceMode = value;
+	}
+
+	/// <summary>
 	/// Gets the models the user may choose to answer, or null (the default) when the host offers no choice.
 	/// A picker is shown in the input toolbar only when there are two or more.
 	/// </summary>

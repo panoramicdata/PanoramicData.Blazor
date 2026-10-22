@@ -327,6 +327,7 @@ public partial class PDChat : JSModuleComponentBase
 		// and Thoughts once.
 		existing.Form = message.Form;
 		existing.FormSubmission = message.FormSubmission;
+		existing.SpokenMessage = message.SpokenMessage;
 
 		return false;
 	}

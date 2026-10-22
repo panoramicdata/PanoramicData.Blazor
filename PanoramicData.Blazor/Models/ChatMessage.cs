@@ -85,6 +85,12 @@ public class ChatMessage
 	public string? PartialMessage { get; set; }
 
 	/// <summary>
+	/// Gets or sets plain text to read aloud in place of <see cref="Message"/>, or null (the default) to read the
+	/// message itself. The displayed message is unaffected; an empty value reads nothing.
+	/// </summary>
+	public string? SpokenMessage { get; set; }
+
+	/// <summary>
 	/// Gets or sets optional per-message overrides for the toast shown when this message arrives while the
 	/// chat is closed. When <c>null</c>, the service-level <c>Toast*</c> defaults on
 	/// <see cref="Interfaces.IChatService"/> are used. Individual override properties that are left <c>null</c>
