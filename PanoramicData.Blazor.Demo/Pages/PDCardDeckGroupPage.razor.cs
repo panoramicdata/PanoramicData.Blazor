@@ -19,6 +19,12 @@ public partial class PDCardDeckGroupPage
 
 	public CardDeckDataProviderService<Todo> TodoList7 { get; set; } = new();
 
+	public CardDeckDataProviderService<Todo> TodoList8 { get; set; } = new();
+
+	protected PDCardDeckGroup<Todo>? FilteredGroup { get; set; }
+
+	private string FilterText { get; set; } = string.Empty;
+
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	protected override void OnInitialized()
@@ -57,6 +63,14 @@ public partial class PDCardDeckGroupPage
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+		TodoList8.List.AddRange([
+			new() { Title = "Buy milk", Description = "a description" },
+			new() { Title = "Paint the fence", Description = "a description" },
+			new() { Title = "Buy bread", Description = "a description", Progress = TodoProgress.InProgress },
+			new() { Title = "Fix the gate", Description = "a description", Progress = TodoProgress.InProgress },
+			new() { Title = "Buy paint", Description = "a description", Progress = TodoProgress.Done },
+			new() { Title = "Mow the lawn", Description = "a description", Progress = TodoProgress.Done }]);
 	}
 
 	private static Func<Task<DataResponse<Todo>>> GetDataFunction(CardDeckDataProviderService<Todo> dataProvider, TodoProgress progress)
@@ -73,6 +87,20 @@ public partial class PDCardDeckGroupPage
 				ResponseFilter = items => items.Where(item => item.Progress == progress),
 			}, 5, CancellationToken.None);
 
+	private Func<Task<DataResponse<Todo>>> GetFilteredDataFunction(TodoProgress progress)
+		=> ()
+			=> TodoList8.GetDataAsync(new DataRequest<Todo>
+			{
+				ResponseFilter = items => items.Where(item => item.Progress == progress && item.Title.Contains(FilterText, StringComparison.OrdinalIgnoreCase)),
+			}, CancellationToken.None);
+
+	private async Task ApplyFilterAsync()
+	{
+		if (FilteredGroup is not null)
+		{
+			await FilteredGroup.RefreshAsync();
+		}
+	}
 
 	private async Task MoveCardToRespectiveStatusAsync(
 		IDataProviderService<Todo> dataProvider,
@@ -85,10 +113,10 @@ public partial class PDCardDeckGroupPage
 
 		var cardProgress = destinationId switch
 		{
-			"beingdefined" => TodoProgress.BeingDefined,
-			"inprogress" => TodoProgress.InProgress,
+			"beingdefined" or "filtered-beingdefined" => TodoProgress.BeingDefined,
+			"inprogress" or "filtered-inprogress" => TodoProgress.InProgress,
 			"readyfortest" => TodoProgress.ReadyForTest,
-			"done" => TodoProgress.Done,
+			"done" or "filtered-done" => TodoProgress.Done,
 			_ => TodoProgress.BeingDefined
 		};
 

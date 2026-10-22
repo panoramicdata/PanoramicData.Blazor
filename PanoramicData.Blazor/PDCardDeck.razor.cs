@@ -564,7 +564,16 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		}
 	}
 
-	internal async Task RefreshAsync()
+	/// <summary>
+	/// Reads this deck's cards again from <see cref="DataFunction"/> and shows them, for when something outside the deck,
+	/// such as a filter, changes which cards it holds. A selected card that the deck no longer holds is deselected.
+	/// </summary>
+	/// <remarks>
+	/// In a <see cref="PDCardDeckGroup{TCard}"/>, prefer <see cref="PDCardDeckGroup{TCard}.RefreshAsync"/>, which also waits
+	/// for a drop that is still being saved.
+	/// </remarks>
+	/// <returns>A task that completes when the deck shows its new cards.</returns>
+	public async Task RefreshAsync()
 	{
 		DataLoaded = false;
 		Cards.Clear();
@@ -576,6 +585,12 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 			.ToList();
 
 		Cards = newOrder;
+
+		// A new list rather than an edit, as a move in progress may still be reading the old one
+		Selection = [.. Selection
+			.Select(selected => Cards.FindIndex(card => card.Id == selected.Id))
+			.Where(index => index >= 0)
+			.Select(index => Cards[index])];
 		DataLoaded = true;
 
 		// Always re-render: a deck outside a group has nothing else to render it once its data arrives.

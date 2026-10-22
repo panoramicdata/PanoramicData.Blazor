@@ -13,6 +13,11 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	private readonly SemaphoreSlim _dragLock = new(1, 1);
 
 	/// <summary>
+	/// True while <see cref="Transformation"/> runs, so a refresh it asks for does not wait for the move it is part of.
+	/// </summary>
+	private readonly AsyncLocal<bool> _isTransforming = new();
+
+	/// <summary>
 	/// Holds a list of destination deck IDs that are part of the current card migration process (this is for UI only).
 	/// </summary>
 	private readonly List<string> _destinations = [];
@@ -277,7 +282,15 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 		destination.UpdateCardDeckPositions();
 		_sourceDeck.UpdateCardDeckPositions();
 
-		await Transformation(_dataProviderService, _sourceDeck, destination, movingCards);
+		_isTransforming.Value = true;
+		try
+		{
+			await Transformation(_dataProviderService, _sourceDeck, destination, movingCards);
+		}
+		finally
+		{
+			_isTransforming.Value = false;
+		}
 
 		// Refresh the source deck and destination deck
 		await RefreshDecksAsync();
@@ -305,7 +318,45 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	}
 
 	/// <summary>
-	/// Clears the selection of all decks in this group, except for the active deck. 
+	/// Reads every deck's cards again from its <see cref="PDCardDeck{TCard}.DataFunction"/> and shows them, for when
+	/// something outside the decks, such as a filter, changes which cards they hold. A selected card that its deck no
+	/// longer holds is deselected.
+	/// </summary>
+	/// <remarks>
+	/// A drop that is still being saved finishes first, so its cards do not jump back to where they came from. Called from
+	/// <see cref="Transformation"/>, it refreshes at once instead. Cards the user is dragging when it runs go back to where
+	/// their data puts them.
+	/// </remarks>
+	/// <returns>A task that completes when every deck shows its new cards.</returns>
+	public async Task RefreshAsync()
+	{
+		if (_isTransforming.Value)
+		{
+			await RefreshAllDecksAsync();
+			return;
+		}
+
+		await _dragLock.WaitAsync();
+		try
+		{
+			await RefreshAllDecksAsync();
+		}
+		finally
+		{
+			_ = _dragLock.Release();
+		}
+	}
+
+	private async Task RefreshAllDecksAsync()
+	{
+		// A copy, as a deck rendered meanwhile registers itself with the group
+		List<PDCardDeck<TCard>> decks = [.. _decks];
+		await Task.WhenAll(decks.Select(deck => deck.RefreshAsync()));
+		await InvokeAsync(StateHasChanged);
+	}
+
+	/// <summary>
+	/// Clears the selection of all decks in this group, except for the active deck.
 	/// </summary>
 	/// <param name="activeDeck"></param>
 	/// <remarks>

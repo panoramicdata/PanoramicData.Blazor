@@ -51,6 +51,18 @@
 		</table>
 	</section>
 
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>RefreshAsync()</code></td><td><code>Task</code></td><td>Reads the cards again from <code>DataFunction</code>, for when something outside the deck, such as a filter, changes which cards it holds. A selected card the deck no longer holds is deselected. In a group, use the group's <code>RefreshAsync</code>, which also waits for a drop that is still being saved</td></tr>
+			</tbody>
+		</table>
+	</section>
+
 	<section id="css-variables">
 		<h2 class="doc-section">CSS Variables</h2>
 		<table class="table table-sm doc-props-table">
