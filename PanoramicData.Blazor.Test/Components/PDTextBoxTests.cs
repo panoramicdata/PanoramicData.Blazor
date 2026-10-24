@@ -39,6 +39,28 @@ public partial class PDTextBoxTests : BunitContext
 		input.Id.Should().StartWith("pd-textbox-");
 	}
 
+	/// <summary>A maximum length is rendered onto the input, with or without keypress events.</summary>
+	[Theory]
+	[InlineData(false)]
+	[InlineData(true)]
+	public void MaxLength_IsRenderedOntoTheInput(bool keypressEvent)
+	{
+		var component = Render<PDTextBox>(parameters => parameters
+			.Add(p => p.KeypressEvent, keypressEvent)
+			.Add(p => p.MaxLength, 20));
+
+		component.Find("input").GetAttribute("maxlength").Should().Be("20");
+	}
+
+	/// <summary>Without a maximum length the input has no maxlength attribute.</summary>
+	[Fact]
+	public void NoMaxLength_RendersNoMaxLengthAttribute()
+	{
+		var component = Render<PDTextBox>();
+
+		component.Find("input").HasAttribute("maxlength").Should().BeFalse();
+	}
+
 	/// <summary>The input type is rendered in lower case, with DateTimeLocal hyphenated.</summary>
 	[Theory]
 	[InlineData(PDInputType.Password, "password")]

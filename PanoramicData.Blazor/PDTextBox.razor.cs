@@ -9,6 +9,9 @@ public partial class PDTextBox : IAsyncDisposable
 	private DotNetObjectReference<PDTextBox>? _objRef;
 	private IJSObjectReference? _commonModule;
 
+	// A value a change event has already sent, so the debounced report of the same typing is not sent again.
+	private string? _committedValue;
+
 	/// <summary>
 	/// Gets or sets JavaScript runtime used by this component.
 	/// </summary>
@@ -92,6 +95,12 @@ public partial class PDTextBox : IAsyncDisposable
 	public string Width { get; set; } = "Auto";
 
 	/// <summary>
+	/// Gets or sets the maximum number of characters the text box accepts, or null for no limit.
+	/// </summary>
+	[Parameter]
+	public int? MaxLength { get; set; }
+
+	/// <summary>
 	/// Gets or sets placeholder text for the text box.
 	/// </summary>
 	[Parameter]
@@ -134,7 +143,7 @@ public partial class PDTextBox : IAsyncDisposable
 	public bool ShowSpeechButton { get; set; }
 
 	/// <summary>
-	/// Sets the debounce wait period in milliseconds.
+	/// Sets the debounce wait period in milliseconds. Leaving the text box or pressing Enter sends the value without waiting.
 	/// </summary>
 	[Parameter]
 	public int DebounceWait { get; set; }
@@ -209,11 +218,20 @@ public partial class PDTextBox : IAsyncDisposable
 
 	private async Task OnChange(ChangeEventArgs args)
 	{
-		if (DebounceWait <= 0)
+		var value = args.Value?.ToString() ?? string.Empty;
+		if (DebounceWait > 0)
 		{
-			Value = args.Value?.ToString() ?? string.Empty;
-			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+			// Send the typing now, unless the debounce has already sent it, so a click that follows, such as a form's Save, has it.
+			if (value == Value)
+			{
+				return;
+			}
+
+			_committedValue = value;
 		}
+
+		Value = value;
+		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 	}
 
 	private async Task OnClear()
@@ -235,6 +253,13 @@ public partial class PDTextBox : IAsyncDisposable
 	[JSInvokable]
 	public async Task OnDebouncedInput(string value)
 	{
+		var committedValue = _committedValue;
+		_committedValue = null;
+		if (value == committedValue)
+		{
+			return;
+		}
+
 		Value = value;
 		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 	}

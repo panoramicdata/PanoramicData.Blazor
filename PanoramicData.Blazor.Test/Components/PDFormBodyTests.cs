@@ -161,7 +161,8 @@ public partial class PDFormBodyTests : BunitContext
 		int titleWidth = 200,
 		bool showValidationIndicator = true,
 		HelpTextMode helpTextMode = HelpTextMode.Toggle,
-		PDTable<Person>? table = null)
+		PDTable<Person>? table = null,
+		int debounceWait = 0)
 		=> Render<PDForm<Person>>(parameters => parameters
 			.Add(p => p.HelpTextMode, helpTextMode)
 			.Add(p => p.DataProvider, new ListDataProviderService<Person>([_person]))
@@ -172,6 +173,7 @@ public partial class PDFormBodyTests : BunitContext
 				builder.AddComponentParameter(2, nameof(PDFormBody<Person>.ShowValidationIndicator), showValidationIndicator);
 				builder.AddComponentParameter(3, nameof(PDFormBody<Person>.Table), table);
 				builder.AddComponentParameter(4, nameof(PDFormBody<Person>.ChildContent), (RenderFragment)(b => AddFields(b, fields)));
+				builder.AddComponentParameter(5, nameof(PDFormBody<Person>.DebounceWait), debounceWait);
 				builder.CloseComponent();
 			})));
 

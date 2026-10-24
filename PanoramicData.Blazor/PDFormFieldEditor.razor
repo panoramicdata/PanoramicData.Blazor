@@ -18,14 +18,30 @@
 	}
 	else if (Field.IsPassword || Field.IsSensitive(Form?.Item, Form))
 	{
-		<input @onblur="() => Field.SuppressErrors = false"
-			   @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)"
-			   autocomplete="@Field.AutoComplete"
-			   class="form-control @GetEditorClass(Field)"
-			   disabled="@IsReadOnly(Field)"
-			   maxlength="@(Field.MaxLength ?? -1)"
-			   type="password"
-			   value="@Form?.GetFieldStringValue(Field)" />
+		if (fieldType?.FullName == "System.String")
+		{
+			<PDTextBox CssClass="@GetEditorClass(Field)"
+					   AutoComplete="@Field.AutoComplete"
+					   Blur="() => Field.SuppressErrors = false"
+					   ShowClearButton="false"
+					   Type="PDInputType.Password"
+					   MaxLength="@Field.MaxLength"
+					   IsEnabled="!IsReadOnly(Field)"
+					   Value="@(Form?.GetFieldStringValue(Field))"
+					   ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+					   DebounceWait="DebounceWait" />
+		}
+		else
+		{
+			<input @onblur="() => Field.SuppressErrors = false"
+				   @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)"
+				   autocomplete="@Field.AutoComplete"
+				   class="form-control @GetEditorClass(Field)"
+				   disabled="@IsReadOnly(Field)"
+				   maxlength="@(Field.MaxLength ?? -1)"
+				   type="password"
+				   value="@Form?.GetFieldStringValue(Field)" />
+		}
 	}
 	else if (fieldType?.FullName == "System.DateTime")
 	{

@@ -1961,6 +1961,7 @@ No code-behind file found for this component.
 | IsVisible | bool | Gets or sets whether the toolbar item is visible. |
 | IsEnabled | bool | Gets or sets whether the toolbar item is enabled. |
 | Width | string | Sets the width of the containing div element. |
+| MaxLength | int? | Gets or sets the maximum number of characters the text box accepts, or null for no limit. |
 | Placeholder | string | Gets or sets placeholder text for the text box. |
 | Value | string | Sets the initial text value. |
 | ValueChanged | EventCallback<string> | Event raised whenever the text value changes. |
@@ -1968,7 +1969,7 @@ No code-behind file found for this component.
 | Keypress | EventCallback<KeyboardEventArgs> | Event raised whenever a key is pressed. |
 | ShowClearButton | bool | Gets or sets whether the clear button is displayed. |
 | ShowSpeechButton | bool | Gets or sets whether the user may use speech to populate the textbox. |
-| DebounceWait | int | Sets the debounce wait period in milliseconds. |
+| DebounceWait | int | Sets the debounce wait period in milliseconds. Leaving the text box or pressing Enter sends the value without waiting. |
 | Cleared | EventCallback | Event raised when the user clicks on the clear button. |
 
 ---
