@@ -26,13 +26,14 @@ public partial class PDFormFieldEditorTests : BunitContext
 			.Add(p => p.Item, _person)
 			.Add(p => p.DefaultMode, mode));
 
-	private IRenderedComponent<PDFormFieldEditor<Person>> RenderEditor(FormField<Person> field, FormModes mode = FormModes.Edit)
-		=> RenderEditor(field, RenderForm(mode).Instance);
+	private IRenderedComponent<PDFormFieldEditor<Person>> RenderEditor(FormField<Person> field, FormModes mode = FormModes.Edit, int debounceWait = 0)
+		=> RenderEditor(field, RenderForm(mode).Instance, debounceWait);
 
-	private IRenderedComponent<PDFormFieldEditor<Person>> RenderEditor(FormField<Person> field, PDForm<Person> form)
+	private IRenderedComponent<PDFormFieldEditor<Person>> RenderEditor(FormField<Person> field, PDForm<Person> form, int debounceWait = 0)
 		=> Render<PDFormFieldEditor<Person>>(parameters => parameters
 			.Add(p => p.Form, form)
-			.Add(p => p.Field, field));
+			.Add(p => p.Field, field)
+			.Add(p => p.DebounceWait, debounceWait));
 
 	private static FormField<Person> FieldFor(System.Linq.Expressions.Expression<Func<Person, object>> expression)
 		=> new() { Field = expression };

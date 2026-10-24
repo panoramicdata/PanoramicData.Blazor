@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDCardDeck and PDCardDeckGroup: RefreshAsync reads the cards again from the data function, for when something outside the decks, such as a filter, changes which cards they hold (#263). The group's refresh waits for a drop that is still being saved, and a refresh deselects any selected card its deck no longer holds, so a later drag cannot take it along.
+      - PDForm and PDTextBox: a password or sensitive text field in a PDForm sends what is typed to the form once typing pauses for the form's DebounceWait, as a text field does, rather than only when it loses focus (#270). A debounced PDTextBox sends its value at once when the user leaves it or presses Enter, so a Save clicked straight after typing saves what was typed. PDTextBox gains a MaxLength parameter.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
