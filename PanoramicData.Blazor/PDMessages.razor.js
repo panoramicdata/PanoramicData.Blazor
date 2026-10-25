@@ -50,32 +50,48 @@ async function blobToBase64(blob) {
 	return btoa(binary);
 }
 
-async function shrink(blob) {
-	const bitmap = await createImageBitmap(blob);
-	const longest = Math.max(bitmap.width, bitmap.height);
-	const scale = Math.min(1, maxImageEdge / longest);
-	if (scale === 1 && blob.size <= keepAsIsBytes) {
-		bitmap.close();
-		return blob;
+// A Blazor Server hub refuses a message from the browser over 32 KB by default, so an image goes in pieces.
+const chunkSize = 16000;
+let imageCounter = 0;
+
+async function sendImage(dotNetRef, type, base64, name) {
+	const key = `${Date.now()}-${imageCounter++}`;
+	for (let i = 0; i < base64.length; i += chunkSize) {
+		await dotNetRef.invokeMethodAsync(
+			"OnImageChunk",
+			key,
+			base64.slice(i, i + chunkSize),
+			i + chunkSize >= base64.length,
+			type,
+			name,
+		);
+	}
+}
+
+// The image as { type, base64 }, re-encoded as JPEG only when it is too big to send as it is.
+async function shrink(source, width, height, original) {
+	const scale = Math.min(1, maxImageEdge / Math.max(width, height));
+	if (original && scale === 1 && original.size <= keepAsIsBytes) {
+		return { type: original.type, base64: await blobToBase64(original) };
 	}
 
-	const canvas = new OffscreenCanvas(
-		Math.max(1, Math.round(bitmap.width * scale)),
-		Math.max(1, Math.round(bitmap.height * scale)),
-	);
-	canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-	bitmap.close();
-	return await canvas.convertToBlob({ type: "image/jpeg", quality: 0.85 });
+	const canvas = document.createElement("canvas");
+	canvas.width = Math.max(1, Math.round(width * scale));
+	canvas.height = Math.max(1, Math.round(height * scale));
+	canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
+	const url = canvas.toDataURL("image/jpeg", 0.85);
+	return { type: "image/jpeg", base64: url.split(",")[1] };
 }
 
 async function addImage(blob, name, dotNetRef) {
 	try {
-		const small = await shrink(blob);
-		const data = await blobToBase64(small);
-		await dotNetRef.invokeMethodAsync(
-			"OnImageAdded",
-			small.type || "image/png",
-			data,
+		const bitmap = await createImageBitmap(blob);
+		const image = await shrink(bitmap, bitmap.width, bitmap.height, blob);
+		bitmap.close();
+		await sendImage(
+			dotNetRef,
+			image.type || "image/png",
+			image.base64,
 			name ?? null,
 		);
 	} catch {
@@ -126,6 +142,7 @@ export function attachImageHandlers(textarea, dotNetRef) {
 	zone.addEventListener("dragover", onDragOver);
 	zone.addEventListener("drop", onDrop);
 	textarea._pdImageHandlers = { zone, onPaste, onDragOver, onDrop };
+	textarea.dataset.imagesReady = "true";
 }
 
 export function detachImageHandlers(textarea) {
@@ -135,16 +152,26 @@ export function detachImageHandlers(textarea) {
 	h.zone.removeEventListener("dragover", h.onDragOver);
 	h.zone.removeEventListener("drop", h.onDrop);
 	delete textarea._pdImageHandlers;
+	delete textarea.dataset.imagesReady;
 }
 
-export function openFilePicker(input) {
+// The file input sits in the same chat panel as the text box.
+function filePicker(textarea) {
+	return textarea
+		?.closest(".pdchat-panel-flex")
+		?.querySelector(".pdchat-image-file-input");
+}
+
+export function openFilePicker(textarea) {
+	const input = filePicker(textarea);
 	if (input) {
 		input.value = "";
 		input.click();
 	}
 }
 
-export async function readPickedFiles(input, dotNetRef, room) {
+export async function readPickedFiles(textarea, dotNetRef, room) {
+	const input = filePicker(textarea);
 	const files = imageFiles(input?.files);
 	const allowed = Math.max(room, 0);
 	if (input) input.value = "";
@@ -187,13 +214,14 @@ export async function captureTab(dotNetRef) {
 	}
 
 	try {
-		const track = stream.getVideoTracks()[0];
-		const frame = await new ImageCapture(track).grabFrame();
-		const canvas = new OffscreenCanvas(frame.width, frame.height);
-		canvas.getContext("2d").drawImage(frame, 0, 0);
+		const video = document.createElement("video");
+		video.muted = true;
+		video.srcObject = stream;
+		await video.play();
+		const frame = await createImageBitmap(video);
+		const image = await shrink(frame, frame.width, frame.height, null);
 		frame.close();
-		const blob = await canvas.convertToBlob({ type: "image/png" });
-		await addImage(blob, "Screenshot", dotNetRef);
+		await sendImage(dotNetRef, image.type, image.base64, "Screenshot");
 	} catch {
 		await dotNetRef.invokeMethodAsync(
 			"OnImageError",

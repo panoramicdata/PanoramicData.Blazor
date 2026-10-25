@@ -118,6 +118,10 @@ public partial class PDMessages : IChatInput
 	/// <summary>The most images one message may carry.</summary>
 	public static int MaxImages => 5;
 
+	private const int MaxImageBase64Length = 8 * 1024 * 1024;
+
+	private readonly Dictionary<string, StringBuilder> _imageChunks = [];
+
 	/// <summary>
 	/// Gets or sets whether pasting, dropping, picking and screenshot controls for images are offered. False by default.
 	/// </summary>
@@ -188,6 +192,41 @@ public partial class PDMessages : IChatInput
 		await SetImagesAsync([.. Images, new ChatImage { ContentType = contentType, Base64Data = base64, Name = name }]);
 	}
 
+	/// <summary>
+	/// Called from JavaScript with one piece of an image. A hub refuses a message from the browser over a size set by
+	/// the host (32 KB by default), so an image arrives in pieces and is added when the last one has.
+	/// </summary>
+	/// <param name="key">Names the image the piece belongs to.</param>
+	/// <param name="chunk">The next piece of the image's base64.</param>
+	/// <param name="isLast">Whether this is the last piece.</param>
+	/// <param name="contentType">The image's media type.</param>
+	/// <param name="name">A file name, when there is one.</param>
+	[JSInvokable]
+	public async Task OnImageChunk(string key, string chunk, bool isLast, string contentType, string? name)
+	{
+		if (!_imageChunks.TryGetValue(key, out var pieces))
+		{
+			pieces = new StringBuilder();
+			_imageChunks[key] = pieces;
+		}
+
+		pieces.Append(chunk);
+		if (pieces.Length > MaxImageBase64Length)
+		{
+			_imageChunks.Remove(key);
+			await OnImageError("That image is too large.");
+			return;
+		}
+
+		if (!isLast)
+		{
+			return;
+		}
+
+		_imageChunks.Remove(key);
+		await OnImageAdded(contentType, pieces.ToString(), name);
+	}
+
 	/// <summary>Called from JavaScript when an image could not be added.</summary>
 	/// <param name="message">What went wrong, for the user.</param>
 	[JSInvokable]
@@ -207,8 +246,6 @@ public partial class PDMessages : IChatInput
 
 	private string? ImageNotice { get; set; }
 
-	private ElementReference _filePickerRef;
-
 	private async Task SetImagesAsync(List<ChatImage> images)
 	{
 		Images = images;
@@ -226,7 +263,7 @@ public partial class PDMessages : IChatInput
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("openFilePicker", _filePickerRef);
+			await _module.InvokeVoidAsync("openFilePicker", InputRef);
 		}
 	}
 
@@ -234,7 +271,7 @@ public partial class PDMessages : IChatInput
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("readPickedFiles", _filePickerRef, _dotNetRef, MaxImages - Images.Count);
+			await _module.InvokeVoidAsync("readPickedFiles", InputRef, _dotNetRef, MaxImages - Images.Count);
 		}
 	}
 

@@ -214,6 +214,53 @@ public partial class PDChatTests
 		image.GetAttribute("src").Should().Be($"data:image/png;base64,{TinyPng}");
 	}
 
+	/// <summary>Verifies that an image sent in pieces is added once, when the last piece arrives, with its pieces joined in order.</summary>
+	[Fact]
+	public async Task An_image_sent_in_pieces_is_added_when_the_last_piece_arrives()
+	{
+		var component = RenderChat(new FakeChatService { IsImageInputOffered = true });
+		var messages = component.FindComponent<PDMessages>();
+
+		await component.InvokeAsync(() => messages.Instance.OnImageChunk("a", TinyPng[..20], false, "image/png", "big"));
+		component.FindAll(".pdchat-image-thumb").Should().BeEmpty("the image is not whole yet");
+		await component.InvokeAsync(() => messages.Instance.OnImageChunk("a", TinyPng[20..], true, "image/png", "big"));
+
+		component.FindAll(".pdchat-image-thumb").Should().ContainSingle();
+		component.Find(".pdchat-image-thumb img").GetAttribute("src").Should().Be($"data:image/png;base64,{TinyPng}");
+	}
+
+	/// <summary>Verifies that pieces of two images arriving interleaved are not mixed up.</summary>
+	[Fact]
+	public async Task Pieces_of_two_images_are_kept_apart()
+	{
+		var component = RenderChat(new FakeChatService { IsImageInputOffered = true });
+		var messages = component.FindComponent<PDMessages>();
+
+		await component.InvokeAsync(() => messages.Instance.OnImageChunk("a", "AAAA", false, "image/png", null));
+		await component.InvokeAsync(() => messages.Instance.OnImageChunk("b", TinyPng, true, "image/png", null));
+		await component.InvokeAsync(() => messages.Instance.OnImageChunk("a", "BBBB", true, "image/png", null));
+
+		component.FindAll(".pdchat-image-thumb img").Select(image => image.GetAttribute("src"))
+			.Should().Equal($"data:image/png;base64,{TinyPng}", "data:image/png;base64,AAAABBBB");
+	}
+
+	/// <summary>Verifies that an image whose pieces add up to too much is refused with a message, and nothing is added.</summary>
+	[Fact]
+	public async Task An_image_that_grows_past_the_limit_is_refused()
+	{
+		var component = RenderChat(new FakeChatService { IsImageInputOffered = true });
+		var messages = component.FindComponent<PDMessages>();
+		var piece = new string('A', 1024 * 1024);
+
+		for (var i = 0; i < 9; i++)
+		{
+			await component.InvokeAsync(() => messages.Instance.OnImageChunk("big", piece, false, "image/png", null));
+		}
+
+		component.FindAll(".pdchat-image-thumb").Should().BeEmpty();
+		component.Find(".pdchat-image-notice").TextContent.Should().Contain("too large");
+	}
+
 	private static async Task AddImagesAsync(IRenderedComponent<PDChat> component, int count)
 	{
 		var messages = component.FindComponent<PDMessages>();

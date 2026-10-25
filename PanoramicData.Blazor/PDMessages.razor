@@ -26,7 +26,7 @@
 			{
 				<button type="button" class="pdchat-toolbar-btn pdchat-image-attach" @onclick="OnAttachClickedAsync" title="Attach images" aria-label="Attach images">📎</button>
 				<button type="button" class="pdchat-toolbar-btn pdchat-image-screenshot" @onclick="OnScreenshotClickedAsync" title="Add a screenshot of this tab" aria-label="Add a screenshot of this tab">📷</button>
-				<input type="file" @ref="_filePickerRef" class="pdchat-image-file-input" accept="image/*" multiple hidden @onchange="OnFilePickerChangedAsync" />
+				<input type="file" class="pdchat-image-file-input" accept="image/*" multiple hidden @onchange="OnFilePickerChangedAsync" />
 			}
 			@if (IsInputPermitted)
 			{

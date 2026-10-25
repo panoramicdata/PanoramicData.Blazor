@@ -1,12 +1,21 @@
 import { test, expect, type Page } from "@playwright/test";
 
+// Lets the screenshot button capture this tab without the permission prompt, which a test cannot answer.
+test.use({
+	launchOptions: {
+		args: ["--auto-accept-this-tab-capture", "--use-fake-ui-for-media-stream"],
+	},
+});
+
 const pngBase64 =
 	"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
 async function openChat(page: Page) {
 	await page.goto("/pdchat");
 	const toggle = page.locator(".pdchat-toggle-collapsed").first();
-	const textarea = page.locator(".chat-input-container textarea");
+	const textarea = page.locator(
+		".chat-input-container textarea[data-images-ready]",
+	);
 	// The button is prerendered before Blazor is interactive, so a first click can be lost.
 	await expect(async () => {
 		if (!(await textarea.isVisible())) {
@@ -42,7 +51,9 @@ test.describe("PDChat: Mic off, model label and images", () => {
 		page,
 	}) => {
 		await openChat(page);
-		const textarea = page.locator(".chat-input-container textarea");
+		const textarea = page.locator(
+			".chat-input-container textarea[data-images-ready]",
+		);
 		const thumbs = page.locator(".pdchat-image-thumb");
 
 		// Ctrl+V with an image on the clipboard.
@@ -108,5 +119,20 @@ test.describe("PDChat: Mic off, model label and images", () => {
 		const imageBox = await sent.first().boundingBox();
 		const textBox = await message.locator(".pdchat-text").boundingBox();
 		expect(imageBox!.width).toBeGreaterThan(textBox!.width * 0.9);
+	});
+});
+
+test.describe("PDChat: screenshot of this tab", () => {
+	test("the screenshot button adds a numbered image of the tab", async ({
+		page,
+	}) => {
+		await openChat(page);
+
+		await page.locator(".pdchat-image-screenshot").click();
+
+		await expect(page.locator(".pdchat-image-thumb")).toHaveCount(1, {
+			timeout: 15000,
+		});
+		await expect(page.locator(".pdchat-image-notice")).toHaveCount(0);
 	});
 });
