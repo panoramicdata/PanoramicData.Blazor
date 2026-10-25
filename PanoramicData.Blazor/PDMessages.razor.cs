@@ -116,7 +116,7 @@ public partial class PDMessages : IChatInput
 	[Parameter] public bool IsInputAutoFocused { get; set; } = true;
 
 	/// <summary>The most images one message may carry.</summary>
-	public const int MaxImages = 5;
+	public static int MaxImages => 5;
 
 	/// <summary>
 	/// Gets or sets whether pasting, dropping, picking and screenshot controls for images are offered. False by default.
@@ -207,7 +207,7 @@ public partial class PDMessages : IChatInput
 
 	private string? ImageNotice { get; set; }
 
-	private ElementReference FilePickerRef { get; set; }
+	private ElementReference _filePickerRef;
 
 	private async Task SetImagesAsync(List<ChatImage> images)
 	{
@@ -226,7 +226,7 @@ public partial class PDMessages : IChatInput
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("openFilePicker", FilePickerRef);
+			await _module.InvokeVoidAsync("openFilePicker", _filePickerRef);
 		}
 	}
 
@@ -234,7 +234,7 @@ public partial class PDMessages : IChatInput
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("readPickedFiles", FilePickerRef, _dotNetRef, MaxImages - Images.Count);
+			await _module.InvokeVoidAsync("readPickedFiles", _filePickerRef, _dotNetRef, MaxImages - Images.Count);
 		}
 	}
 
