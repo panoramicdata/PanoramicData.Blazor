@@ -37,6 +37,7 @@ public partial class PDMessages : IAsyncDisposable
 			{
 				_dotNetRef ??= DotNetObjectReference.Create(this);
 				await _module.InvokeVoidAsync("attachEnterHandler", InputRef, _dotNetRef);
+				await _module.InvokeVoidAsync("attachImageHandlers", InputRef, _dotNetRef);
 				_enterHandlerAttached = true;
 				if (IsInputAutoFocused)
 				{
@@ -60,6 +61,7 @@ public partial class PDMessages : IAsyncDisposable
 			if (_module is not null && InputRef.Context != null)
 			{
 				await _module.InvokeVoidAsync("detachEnterHandler", InputRef);
+				await _module.InvokeVoidAsync("detachImageHandlers", InputRef);
 			}
 		}
 		catch (Exception)

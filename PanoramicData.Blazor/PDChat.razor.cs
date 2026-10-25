@@ -524,7 +524,12 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task SendCurrentMessageAsync()
 	{
-		if (string.IsNullOrWhiteSpace(_currentInput))
+		if (ChatService.ImageInputBlockedReason is not null && HasPendingImages)
+		{
+			return;
+		}
+
+		if (string.IsNullOrWhiteSpace(_currentInput) && !HasPendingImages)
 		{
 			return;
 		}
@@ -533,6 +538,7 @@ public partial class PDChat : JSModuleComponentBase
 		{
 			Id = Guid.NewGuid(),
 			Message = _currentInput,
+			Images = HasPendingImages ? [.. _pendingImages] : null,
 			Sender = User,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
@@ -553,11 +559,20 @@ public partial class PDChat : JSModuleComponentBase
 		// Clear input locally
 		_currentInput = string.Empty;
 
+		_pendingImages = [];
 		// Clear the PDMessages component's textarea
 		MessagesComponent?.ClearInput();
+		MessagesComponent?.ClearImages();
 	}
 
-	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
+	private List<ChatImage> _pendingImages = [];
+
+	private bool HasPendingImages => ChatService.IsImageInputOffered && _pendingImages.Count > 0;
+
+	private void OnImagesChanged(List<ChatImage> images) => _pendingImages = images;
+
+	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive && ChatService.ImageInputBlockedReason is null
+		&& (!string.IsNullOrWhiteSpace(_currentInput) || HasPendingImages);
 
 	private void OnTabAdded()
 	{

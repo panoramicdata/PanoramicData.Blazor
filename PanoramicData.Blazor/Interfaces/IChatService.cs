@@ -191,6 +191,27 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets the name of the model that answered the latest turn, shown in the input toolbar after the agent picker, or
+	/// null (the default) to show nothing.
+	/// </summary>
+	string? AnsweringModelName => null;
+
+	/// <summary>Gets the tooltip for <see cref="AnsweringModelName"/>, or null (the default) for none.</summary>
+	string? AnsweringModelDescription => null;
+
+	/// <summary>
+	/// Gets whether the user may add images to a message: pasted, dropped, picked or captured from the screen. False by
+	/// default, so a host that cannot use images shows none of the controls.
+	/// </summary>
+	bool IsImageInputOffered => false;
+
+	/// <summary>
+	/// Gets why images cannot be sent right now, such as the selected model not accepting them, or null (the default)
+	/// when they can. While it is set the images stay in the message but Send is disabled, and this is shown.
+	/// </summary>
+	string? ImageInputBlockedReason => null;
+
+	/// <summary>
 	/// Gets or sets whether the chat should auto-restore when new messages arrive.
 	/// </summary>
 	bool AutoRestoreOnNewMessage { get; set; }

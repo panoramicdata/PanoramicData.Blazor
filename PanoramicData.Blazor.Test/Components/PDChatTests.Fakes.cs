@@ -58,6 +58,10 @@ public partial class PDChatTests
 		public IReadOnlyList<PDChatAgentOption>? Agents { get; set; }
 		public PDChatPickerAction? AgentPickerAction { get; set; }
 		public IReadOnlyList<PDChatModelOption>? Models { get; set; }
+		public string? AnsweringModelName { get; set; }
+		public string? AnsweringModelDescription { get; set; }
+		public bool IsImageInputOffered { get; set; }
+		public string? ImageInputBlockedReason { get; set; }
 
 		public IReadOnlyList<ChatMessage> Messages => Store;
 		public bool SupportsConversations { get; init; }

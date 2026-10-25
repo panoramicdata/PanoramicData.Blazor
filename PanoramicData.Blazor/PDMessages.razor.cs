@@ -115,10 +115,30 @@ public partial class PDMessages : IChatInput
 	/// </summary>
 	[Parameter] public bool IsInputAutoFocused { get; set; } = true;
 
+	/// <summary>The most images one message may carry.</summary>
+	public const int MaxImages = 5;
+
+	/// <summary>
+	/// Gets or sets whether pasting, dropping, picking and screenshot controls for images are offered. False by default.
+	/// </summary>
+	[Parameter] public bool IsImageInputOffered { get; set; }
+
+	/// <summary>
+	/// Gets or sets why images cannot be sent now. While set, Send is disabled and this is shown beside the images.
+	/// </summary>
+	[Parameter] public string? ImageBlockedReason { get; set; }
+
+	/// <summary>Gets or sets the images in the message being composed, oldest first.</summary>
+	[Parameter] public List<ChatImage> Images { get; set; } = [];
+
+	/// <summary>An event callback invoked when an image is added to or removed from <see cref="Images"/>.</summary>
+	[Parameter] public EventCallback<List<ChatImage>> ImagesChanged { get; set; }
+
 	private string _localInput = string.Empty;
 	private string _inputKey = Guid.NewGuid().ToString();
 
-	private bool CanSendLocal => IsInputPermitted && IsLive && !string.IsNullOrWhiteSpace(_localInput);
+	private bool CanSendLocal => IsInputPermitted && IsLive && ImageBlockedReason is null
+		&& (!string.IsNullOrWhiteSpace(_localInput) || (IsImageInputOffered && Images.Count > 0));
 
 	/// <inheritdoc />
 	public string Text => _localInput;
@@ -144,6 +164,87 @@ public partial class PDMessages : IChatInput
 
 	/// <inheritdoc />
 	public Task SendAsync() => OnSendClickedInternal();
+
+	/// <summary>Called from JavaScript for each image pasted, dropped, picked or captured.</summary>
+	/// <param name="contentType">The image's media type.</param>
+	/// <param name="base64">The image bytes as base64.</param>
+	/// <param name="name">A file name, when there is one.</param>
+	[JSInvokable]
+	public async Task OnImageAdded(string contentType, string base64, string? name)
+	{
+		if (!IsImageInputOffered)
+		{
+			return;
+		}
+
+		if (Images.Count >= MaxImages)
+		{
+			ImageNotice = $"A message can carry at most {MaxImages} images.";
+			StateHasChanged();
+			return;
+		}
+
+		ImageNotice = null;
+		await SetImagesAsync([.. Images, new ChatImage { ContentType = contentType, Base64Data = base64, Name = name }]);
+	}
+
+	/// <summary>Called from JavaScript when an image could not be added.</summary>
+	/// <param name="message">What went wrong, for the user.</param>
+	[JSInvokable]
+	public Task OnImageError(string message) => InvokeAsync(() =>
+	{
+		ImageNotice = message;
+		StateHasChanged();
+	});
+
+	/// <summary>Removes every image. Called by the parent after a message is sent.</summary>
+	public void ClearImages()
+	{
+		ImageNotice = null;
+		Images = [];
+		StateHasChanged();
+	}
+
+	private string? ImageNotice { get; set; }
+
+	private ElementReference FilePickerRef { get; set; }
+
+	private async Task SetImagesAsync(List<ChatImage> images)
+	{
+		Images = images;
+		await ImagesChanged.InvokeAsync(images);
+		StateHasChanged();
+	}
+
+	private Task RemoveImageAsync(int index)
+	{
+		ImageNotice = null;
+		return SetImagesAsync([.. Images.Where((_, i) => i != index)]);
+	}
+
+	private async Task OnAttachClickedAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("openFilePicker", FilePickerRef);
+		}
+	}
+
+	private async Task OnFilePickerChangedAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("readPickedFiles", FilePickerRef, _dotNetRef, MaxImages - Images.Count);
+		}
+	}
+
+	private async Task OnScreenshotClickedAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("captureTab", _dotNetRef);
+		}
+	}
 
 	/// <summary>
 	/// Clears the textarea. Called by the parent after a message is sent.

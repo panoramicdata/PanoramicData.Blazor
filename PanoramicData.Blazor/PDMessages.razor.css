@@ -144,3 +144,60 @@
 
 /* Scrollbar and focus-ring colours are theme-aware via --pd-chat-* variables above now.
    No prefers-color-scheme block needed. */
+
+/* Images waiting to be sent, stacked above the text box. */
+.pdchat-image-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 6px;
+	padding: 6px 8px 0;
+}
+
+.pdchat-image-thumb {
+	position: relative;
+	margin: 0;
+}
+
+.pdchat-image-thumb img {
+	display: block;
+	height: 64px;
+	width: auto;
+	max-width: 120px;
+	object-fit: cover;
+	border-radius: 4px;
+	border: 1px solid var(--pd-chat-border, #dee2e6);
+}
+
+.pdchat-image-thumb figcaption {
+	position: absolute;
+	left: 2px;
+	bottom: 2px;
+	padding: 0 5px;
+	font-size: 0.7rem;
+	border-radius: 8px;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.65);
+}
+
+.pdchat-image-remove {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	line-height: 16px;
+	font-size: 0.8rem;
+	border-radius: 50%;
+	border: 1px solid var(--pd-chat-border, #dee2e6);
+	color: var(--pd-chat-text-color, #212529);
+	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	cursor: pointer;
+}
+
+.pdchat-image-notice {
+	flex-basis: 100%;
+	font-size: 0.8rem;
+	color: var(--bs-danger, #dc3545);
+}
