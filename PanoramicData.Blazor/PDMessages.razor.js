@@ -68,11 +68,11 @@ async function sendImage(dotNetRef, type, base64, name) {
 	}
 }
 
-// The image as { type, base64 }, re-encoded as JPEG only when it is too big to send as it is.
+// The image as [type, base64], re-encoded as JPEG only when it is too big to send as it is.
 async function shrink(source, width, height, original) {
 	const scale = Math.min(1, maxImageEdge / Math.max(width, height));
 	if (original && scale === 1 && original.size <= keepAsIsBytes) {
-		return { type: original.type, base64: await blobToBase64(original) };
+		return [original.type, await blobToBase64(original)];
 	}
 
 	const canvas = document.createElement("canvas");
@@ -80,26 +80,27 @@ async function shrink(source, width, height, original) {
 	canvas.height = Math.max(1, Math.round(height * scale));
 	canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
 	const url = canvas.toDataURL("image/jpeg", 0.85);
-	return { type: "image/jpeg", base64: url.split(",")[1] };
+	return ["image/jpeg", url.split(",")[1]];
+}
+
+async function readImage(blob) {
+	const bitmap = await createImageBitmap(blob);
+	const image = await shrink(bitmap, bitmap.width, bitmap.height, blob);
+	bitmap.close();
+	return image;
 }
 
 async function addImage(blob, name, dotNetRef) {
-	try {
-		const bitmap = await createImageBitmap(blob);
-		const image = await shrink(bitmap, bitmap.width, bitmap.height, blob);
-		bitmap.close();
-		await sendImage(
-			dotNetRef,
-			image.type || "image/png",
-			image.base64,
-			name ?? null,
-		);
-	} catch {
+	const image = await readImage(blob).catch(() => null);
+	if (!image) {
 		await dotNetRef.invokeMethodAsync(
 			"OnImageError",
 			"That image could not be read.",
 		);
+		return;
 	}
+
+	await sendImage(dotNetRef, image[0] || "image/png", image[1], name ?? null);
 }
 
 function imageFiles(files) {
@@ -213,21 +214,44 @@ export async function captureTab(dotNetRef) {
 		return;
 	}
 
+	const stop = () => stream.getTracks().forEach((t) => t.stop());
+	const video = document.createElement("video");
+	video.muted = true;
+	video.srcObject = stream;
+
+	// The first frame is not there when play() returns, so the capture waits for it.
+	video.addEventListener(
+		"loadeddata",
+		async () => {
+			try {
+				const frame = await createImageBitmap(video);
+				const [type, base64] = await shrink(
+					frame,
+					frame.width,
+					frame.height,
+					null,
+				);
+				frame.close();
+				await sendImage(dotNetRef, type, base64, "Screenshot");
+			} catch {
+				await dotNetRef.invokeMethodAsync(
+					"OnImageError",
+					"The screenshot could not be taken.",
+				);
+			} finally {
+				stop();
+			}
+		},
+		{ once: true },
+	);
+
 	try {
-		const video = document.createElement("video");
-		video.muted = true;
-		video.srcObject = stream;
 		await video.play();
-		const frame = await createImageBitmap(video);
-		const image = await shrink(frame, frame.width, frame.height, null);
-		frame.close();
-		await sendImage(dotNetRef, image.type, image.base64, "Screenshot");
 	} catch {
+		stop();
 		await dotNetRef.invokeMethodAsync(
 			"OnImageError",
 			"The screenshot could not be taken.",
 		);
-	} finally {
-		stream.getTracks().forEach((t) => t.stop());
 	}
 }

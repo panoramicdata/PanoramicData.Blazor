@@ -1,4 +1,10 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect as baseExpect, type Page } from "@playwright/test";
+
+// A cold server is slow to start Blazor and to decode the first image.
+const expect = baseExpect.configure({ timeout: 15000 });
+
+// The demo chat service is one object shared by every page load, so these tests take turns.
+test.describe.configure({ mode: "serial" });
 
 // Lets the screenshot button capture this tab without the permission prompt, which a test cannot answer.
 test.use({
