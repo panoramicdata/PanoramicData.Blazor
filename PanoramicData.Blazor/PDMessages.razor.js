@@ -188,6 +188,13 @@ export async function readPickedFiles(textarea, dotNetRef, room) {
 	}
 }
 
+async function grabFrame(video) {
+	const frame = await createImageBitmap(video);
+	const image = await shrink(frame, frame.width, frame.height, null);
+	frame.close();
+	return image;
+}
+
 // The current tab only: Chrome and Edge skip the picker with preferCurrentTab, and still ask once for permission.
 export async function captureTab(dotNetRef) {
 	if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -223,24 +230,17 @@ export async function captureTab(dotNetRef) {
 	video.addEventListener(
 		"loadeddata",
 		async () => {
-			try {
-				const frame = await createImageBitmap(video);
-				const [type, base64] = await shrink(
-					frame,
-					frame.width,
-					frame.height,
-					null,
-				);
-				frame.close();
-				await sendImage(dotNetRef, type, base64, "Screenshot");
-			} catch {
-				await dotNetRef.invokeMethodAsync(
-					"OnImageError",
-					"The screenshot could not be taken.",
-				);
-			} finally {
-				stop();
+			const image = await grabFrame(video).catch(() => null);
+			stop();
+			if (image) {
+				await sendImage(dotNetRef, image[0], image[1], "Screenshot");
+				return;
 			}
+
+			await dotNetRef.invokeMethodAsync(
+				"OnImageError",
+				"The screenshot could not be taken.",
+			);
 		},
 		{ once: true },
 	);
