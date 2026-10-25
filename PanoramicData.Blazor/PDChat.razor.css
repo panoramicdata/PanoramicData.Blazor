@@ -1419,3 +1419,14 @@ body:has(.pdchat-container.dock-fullscreen) {
 	color: inherit;
 	cursor: pointer;
 }
+
+/* The model that answered the latest turn, after the agent picker. */
+.pdchat-answering-model {
+	flex-shrink: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.75rem;
+	color: var(--pd-chat-muted-color, #6c757d);
+}

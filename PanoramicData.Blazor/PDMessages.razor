@@ -22,6 +22,12 @@
 		@* Every control sits in this thin bar, so the text box below has the whole width. *@
 		<div class="chat-input-accessories" role="toolbar">
 			@InputAccessories
+			@if (IsInputPermitted && IsImageInputOffered)
+			{
+				<button type="button" class="pdchat-toolbar-btn pdchat-image-attach" @onclick="OnAttachClickedAsync" title="Attach images" aria-label="Attach images">📎</button>
+				<button type="button" class="pdchat-toolbar-btn pdchat-image-screenshot" @onclick="OnScreenshotClickedAsync" title="Add a screenshot of this tab" aria-label="Add a screenshot of this tab">📷</button>
+				<input type="file" class="pdchat-image-file-input" accept="image/*" multiple hidden @onchange="OnFilePickerChangedAsync" />
+			}
 			@if (IsInputPermitted)
 			{
 				<button class="btn btn-sm btn-secondary chat-send" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
@@ -30,6 +36,24 @@
 	}
 	@if (IsInputPermitted)
 	{
+		@if (IsImageInputOffered && (Images.Count > 0 || ImageNotice is not null || ImageBlockedReason is not null))
+		{
+			<div class="pdchat-image-strip" role="list" aria-label="Images in this message">
+				@for (var i = 0; i < Images.Count; i++)
+				{
+					var index = i;
+					<figure class="pdchat-image-thumb" role="listitem">
+						<img src="@Images[index].DataUri" alt="@(Images[index].Name ?? $"Image {index + 1}")" />
+						<figcaption>@(index + 1)</figcaption>
+						<button type="button" class="pdchat-image-remove" title="Remove image @(index + 1)" aria-label="Remove image @(index + 1)" @onclick="() => RemoveImageAsync(index)">×</button>
+					</figure>
+				}
+				@if (ImageBlockedReason is not null || ImageNotice is not null)
+				{
+					<div class="pdchat-image-notice" role="alert">@(ImageBlockedReason ?? ImageNotice)</div>
+				}
+			</div>
+		}
 		<div class="chat-input-container">
 			<textarea
 				@key="_inputKey"

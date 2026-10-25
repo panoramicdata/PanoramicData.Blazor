@@ -177,8 +177,20 @@ public partial class PDChat
 		}
 	}
 
+	private const string MicOffValue = "MicOff";
+
 	private async Task OnVoiceModeSelectedAsync(ChangeEventArgs args)
 	{
+		if (args.Value?.ToString() == MicOffValue)
+		{
+			if (IsVoiceModeOn)
+			{
+				await StopVoiceModeAsync();
+			}
+
+			return;
+		}
+
 		if (!Enum.TryParse<PDChatVoiceMode>(args.Value?.ToString(), out var mode))
 		{
 			return;

@@ -31,6 +31,7 @@
 					{
 						<span>@Message.Message</span>
 					}
+					@RenderImages
 					@RenderForm
 				</div>
 			</div>
@@ -101,6 +102,7 @@
 					{
 						<span>@Message.Message</span>
 					}
+					@RenderImages
 					@RenderForm
 				</div>
 			</div>
@@ -149,6 +151,7 @@
 			{
 				<span class="@(Message.Sender.IsUser ? "right" : "left")">@Message.Message</span>
 			}
+			@RenderImages
 			@RenderForm
 		</div>
 	}
@@ -173,6 +176,20 @@
 			<PDFormMessage Form="Message.Form"
 						   OnSubmitted="@(async (ChatFormSubmission s) => { if (FormContext?.OnSubmitted is not null) { await FormContext.OnSubmitted(s); } })"
 						   OnDismissed="@(async (Guid id) => { if (FormContext?.OnDismissed is not null) { await FormContext.OnDismissed(id); } })" />
+		}
+	};
+
+	/// <summary>The message's images, each the full width of the message and as tall as its proportions need.</summary>
+	private RenderFragment RenderImages => __builder =>
+	{
+		if (Message.Images is { Count: > 0 })
+		{
+			<div class="pdchat-message-images">
+				@for (var i = 0; i < Message.Images.Count; i++)
+				{
+					<img class="pdchat-message-image" src="@Message.Images[i].DataUri" alt="@(Message.Images[i].Name ?? $"Image {i + 1}")" />
+				}
+			</div>
 		}
 	};
 

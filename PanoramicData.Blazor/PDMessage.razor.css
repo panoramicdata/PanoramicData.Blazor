@@ -456,3 +456,19 @@
 	flex-shrink: 0;
 	border-radius: 50%;
 }
+
+/* Fit to the message width and scale with it as the chat is widened. */
+.pdchat-message-images {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 6px;
+}
+
+.pdchat-message-image {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: 4px;
+	border: 1px solid var(--pd-chat-border, #dee2e6);
+}

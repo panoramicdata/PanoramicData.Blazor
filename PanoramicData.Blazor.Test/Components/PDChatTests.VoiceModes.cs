@@ -29,11 +29,11 @@ public partial class PDChatTests
 	public void The_wake_mode_is_offered_only_with_wake_phrases()
 	{
 		RenderChat(VoiceService()).FindAll(".pdchat-voice-mode-picker option").Select(option => option.GetAttribute("value"))
-			.Should().Equal("Hal", "Dictate");
+			.Should().Equal("MicOff", "Hal", "Dictate");
 
 		var withWake = RenderChat(WakeService()).FindAll(".pdchat-voice-mode-picker option");
-		withWake.Select(option => option.GetAttribute("value")).Should().Equal("Hal", "Dictate", "Wake");
-		withWake[2].TextContent.Should().Be("Hey DumbBot");
+		withWake.Select(option => option.GetAttribute("value")).Should().Equal("MicOff", "Hal", "Dictate", "Wake");
+		withWake[3].TextContent.Should().Be("Hey DumbBot");
 	}
 
 	/// <summary>Verifies that a chosen Wake mode with no wake phrases behaves, and shows, as HAL.</summary>

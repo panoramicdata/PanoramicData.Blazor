@@ -193,6 +193,10 @@
 													CurrentInputChanged="@((string v) => _currentInput = v)"
 													IsLive="@ChatService.IsLive"
 													CanSend="@CanSend"
+													IsImageInputOffered="@ChatService.IsImageInputOffered"
+													ImageBlockedReason="@ChatService.ImageInputBlockedReason"
+													Images="_pendingImages"
+													ImagesChanged="OnImagesChanged"
 													IsInputPermitted="@ChatService.IsInputPermitted"
 													InputDisabledMessage="@ChatService.InputDisabledMessage"
 													OnSendClicked="SendCurrentMessageAsync"
@@ -243,6 +247,10 @@
 										CurrentInputChanged="@((string v) => _currentInput = v)"
 										IsLive="@ChatService.IsLive"
 										CanSend="@CanSend"
+										IsImageInputOffered="@ChatService.IsImageInputOffered"
+										ImageBlockedReason="@ChatService.ImageInputBlockedReason"
+										Images="_pendingImages"
+										ImagesChanged="OnImagesChanged"
 										IsInputPermitted="@ChatService.IsInputPermitted"
 										InputDisabledMessage="@ChatService.InputDisabledMessage"
 										OnSendClicked="SendCurrentMessageAsync"
@@ -267,6 +275,10 @@
 								CurrentInputChanged="@((string v) => _currentInput = v)"
 								IsLive="@ChatService.IsLive"
 								CanSend="@CanSend"
+								IsImageInputOffered="@ChatService.IsImageInputOffered"
+								ImageBlockedReason="@ChatService.ImageInputBlockedReason"
+								Images="_pendingImages"
+								ImagesChanged="OnImagesChanged"
 								IsInputPermitted="@ChatService.IsInputPermitted"
 								InputDisabledMessage="@ChatService.InputDisabledMessage"
 								OnSendClicked="SendCurrentMessageAsync"
@@ -310,6 +322,10 @@
 				</select>
 			</label>
 		}
+		@if (ChatService.AnsweringModelName is { Length: > 0 } answeringModel)
+		{
+			<span class="pdchat-answering-model" title="@ChatService.AnsweringModelDescription">@answeringModel</span>
+		}
 		@if (IsModelPickerOffered)
 		{
 			<label class="pdchat-toolbar-picker pdchat-model-picker">
@@ -339,11 +355,12 @@
 					aria-pressed="@(IsReadAloudOn ? "true" : "false")">@(IsReadAloudOn ? "🔊" : "🔇")</button>
 			<label class="pdchat-toolbar-picker pdchat-voice-mode-picker">
 				<select title="How Voice Mode listens" aria-label="Voice mode" @onchange="OnVoiceModeSelectedAsync">
-					<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause" selected="@(VoiceMode == PDChatVoiceMode.Hal)">HAL</option>
-					<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send" selected="@(VoiceMode == PDChatVoiceMode.Dictate)">Dictate</option>
+					<option value="@MicOffValue" title="The microphone is off" selected="@(!IsVoiceModeOn)">Mic off</option>
+					<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Hal)">HAL</option>
+					<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Dictate)">Dictate</option>
 					@if (IsWakeModeOffered)
 					{
-						<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause" selected="@(VoiceMode == PDChatVoiceMode.Wake)">@FirstWakePhrase</option>
+						<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Wake)">@FirstWakePhrase</option>
 					}
 				</select>
 			</label>

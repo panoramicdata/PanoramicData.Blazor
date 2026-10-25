@@ -40,6 +40,9 @@ public class ChatMessage
 	/// </remarks>
 	public string? AuthorImageSvg { get; set; }
 
+	/// <summary>Gets or sets images attached to this message, shown full width under its text.</summary>
+	public IReadOnlyList<ChatImage>? Images { get; set; }
+
 	/// <summary>Gets or sets the semantic type of this message, which controls its visual presentation.</summary>
 	public required MessageType Type { get; set; } = MessageType.Normal;
 
