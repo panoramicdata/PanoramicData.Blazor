@@ -129,7 +129,7 @@ public partial class PDChatTests
 		html.IndexOf("pdchat-image-strip", StringComparison.Ordinal).Should().BeLessThan(html.IndexOf("<textarea", StringComparison.Ordinal));
 		component.FindAll(".chat-input-container .pdchat-image-strip").Should().BeEmpty("the strip is above the text box row, not beside the text box");
 
-		await ClickRemoveAsync(component, 0);
+		await component.FindAll(".pdchat-image-remove")[0].ClickAsync(new());
 
 		component.FindAll(".pdchat-image-thumb figcaption").Select(caption => caption.TextContent).Should().Equal("1");
 	}
@@ -261,25 +261,6 @@ public partial class PDChatTests
 		component.Find(".pdchat-image-notice").TextContent.Should().Contain("too large");
 	}
 
-	// A render can land between finding the button and clicking it, which retires the handler the click was aimed at.
-	private static async Task ClickRemoveAsync(IRenderedComponent<PDChat> component, int index)
-	{
-		for (var attempt = 0; attempt < 5; attempt++)
-		{
-			try
-			{
-				await component.FindAll(".pdchat-image-remove")[index].ClickAsync(new());
-				return;
-			}
-			catch (ArgumentException)
-			{
-				await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
-			}
-		}
-
-		await component.FindAll(".pdchat-image-remove")[index].ClickAsync(new());
-	}
-
 	private static async Task AddImagesAsync(IRenderedComponent<PDChat> component, int count)
 	{
 		var messages = component.FindComponent<PDMessages>();
@@ -288,5 +269,8 @@ public partial class PDChatTests
 			var name = $"shot{i}";
 			await component.InvokeAsync(() => messages.Instance.OnImageAdded("image/png", TinyPng, name));
 		}
+
+		// PDMessages renders again about 10 ms later, and that render retires the handlers a click would be aimed at.
+		await Task.Delay(250, Xunit.TestContext.Current.CancellationToken);
 	}
 }
