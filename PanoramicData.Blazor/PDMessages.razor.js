@@ -245,9 +245,11 @@ export async function captureTab(dotNetRef) {
 		{ once: true },
 	);
 
-	try {
-		await video.play();
-	} catch {
+	const isPlaying = await video.play().then(
+		() => true,
+		() => false,
+	);
+	if (!isPlaying) {
 		stop();
 		await dotNetRef.invokeMethodAsync(
 			"OnImageError",
