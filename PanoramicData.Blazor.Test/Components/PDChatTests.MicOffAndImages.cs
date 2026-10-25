@@ -129,7 +129,7 @@ public partial class PDChatTests
 		html.IndexOf("pdchat-image-strip", StringComparison.Ordinal).Should().BeLessThan(html.IndexOf("<textarea", StringComparison.Ordinal));
 		component.FindAll(".chat-input-container .pdchat-image-strip").Should().BeEmpty("the strip is above the text box row, not beside the text box");
 
-		await component.FindAll(".pdchat-image-remove")[0].ClickAsync(new());
+		await ClickRemoveAsync(component, 0);
 
 		component.FindAll(".pdchat-image-thumb figcaption").Select(caption => caption.TextContent).Should().Equal("1");
 	}
@@ -259,6 +259,23 @@ public partial class PDChatTests
 
 		component.FindAll(".pdchat-image-thumb").Should().BeEmpty();
 		component.Find(".pdchat-image-notice").TextContent.Should().Contain("too large");
+	}
+
+	// A render can land between finding the button and clicking it, which retires the handler the click was aimed at.
+	private static async Task ClickRemoveAsync(IRenderedComponent<PDChat> component, int index)
+	{
+		for (var attempt = 0; ; attempt++)
+		{
+			try
+			{
+				await component.FindAll(".pdchat-image-remove")[index].ClickAsync(new());
+				return;
+			}
+			catch (ArgumentException) when (attempt < 5)
+			{
+				await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
+			}
+		}
 	}
 
 	private static async Task AddImagesAsync(IRenderedComponent<PDChat> component, int count)
