@@ -264,18 +264,20 @@ public partial class PDChatTests
 	// A render can land between finding the button and clicking it, which retires the handler the click was aimed at.
 	private static async Task ClickRemoveAsync(IRenderedComponent<PDChat> component, int index)
 	{
-		for (var attempt = 0; ; attempt++)
+		for (var attempt = 0; attempt < 5; attempt++)
 		{
 			try
 			{
 				await component.FindAll(".pdchat-image-remove")[index].ClickAsync(new());
 				return;
 			}
-			catch (ArgumentException) when (attempt < 5)
+			catch (ArgumentException)
 			{
 				await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
 			}
 		}
+
+		await component.FindAll(".pdchat-image-remove")[index].ClickAsync(new());
 	}
 
 	private static async Task AddImagesAsync(IRenderedComponent<PDChat> component, int count)
