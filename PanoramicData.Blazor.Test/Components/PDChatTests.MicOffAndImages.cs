@@ -125,8 +125,9 @@ public partial class PDChatTests
 		await AddImagesAsync(component, 2);
 
 		component.FindAll(".pdchat-image-thumb figcaption").Select(caption => caption.TextContent).Should().Equal("1", "2");
-		var html = component.Find(".chat-input-container").InnerHtml;
+		var html = component.Find(".pdchat-panel-flex").InnerHtml;
 		html.IndexOf("pdchat-image-strip", StringComparison.Ordinal).Should().BeLessThan(html.IndexOf("<textarea", StringComparison.Ordinal));
+		component.FindAll(".chat-input-container .pdchat-image-strip").Should().BeEmpty("the strip is above the text box row, not beside the text box");
 
 		await component.FindAll(".pdchat-image-remove")[0].ClickAsync(new());
 
