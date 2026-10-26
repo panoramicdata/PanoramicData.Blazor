@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDForm and PDTextBox: a password or sensitive text field in a PDForm sends what is typed to the form once typing pauses for the form's DebounceWait, as a text field does, rather than only when it loses focus (#270). A debounced PDTextBox sends its value at once when the user leaves it or presses Enter, so a Save clicked straight after typing saves what was typed. PDTextBox gains a MaxLength parameter.
+      - PDChat: the input toolbar and header are restyled (#274). Font Awesome icons replace the emoji, set through the new PDChatIcons record on PDChat.Icons and PDMessages.Icons, so a host can use another icon set. Every picker and button is one height, the voice button and its mode select are one split control, the answering model is a badge after the model picker, and the header's dock and unpin buttons are one pin toggle. Narrower than 860px, the toolbar takes two rows with Send on the right. New --pd-chat-* CSS variables theme the toolbar, Send, the voice states and the header, and can be set on :root or a theme class. Send is now btn-primary rather than btn-secondary.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
