@@ -38,6 +38,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public EventCallback<string> OnCodeExecuted { get; set; }
 
 	/// <summary>
+	/// Event callback for when the editor's code changes, whether by typing, New or loading an example.
+	/// </summary>
+	[Parameter] public EventCallback<string> CodeChanged { get; set; }
+
+	/// <summary>
+	/// Gets the code currently in the editor.
+	/// </summary>
+	public string Code => _currentCode;
+
+	/// <summary>
 	/// Event callback for when execution state changes.
 	/// </summary>
 	[Parameter] public EventCallback<bool> OnExecutionStateChanged { get; set; }
@@ -394,15 +404,17 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			await Task.Delay(100); // Brief delay to show cancelling status
 		}
 	}
-	private void OnCodeChanged(string code)
+	private async Task OnCodeChanged(string code)
 	{
 		_currentCode = code;
+		await CodeChanged.InvokeAsync(code);
 	}
 
 	// Menu event handlers
 	private async Task OnNewClick()
 	{
 		_currentCode = string.Empty;
+		await CodeChanged.InvokeAsync(_currentCode);
 		if (EditorRef != null)
 		{
 			await EditorRef.SetMonacoValueAsync(string.Empty);
@@ -417,6 +429,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		var example = GetExample1();
 		_currentCode = example;
+		await CodeChanged.InvokeAsync(example);
 		if (EditorRef != null)
 		{
 			await EditorRef.SetMonacoValueAsync(example);
@@ -429,6 +442,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		var example = GetExample2();
 		_currentCode = example;
+		await CodeChanged.InvokeAsync(example);
 		if (EditorRef != null)
 		{
 			await EditorRef.SetMonacoValueAsync(example);
