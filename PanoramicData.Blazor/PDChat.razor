@@ -1,302 +1,305 @@
-@using static PanoramicData.Blazor.PDResizePane
 @inherits JSModuleComponentBase
 
 @* Issue #106: one cascade for the whole component, rather than threading a callback through
    PDMessages three times - once per dock mode - and PDMessage besides. *@
 <CascadingValue Value="FormContext" IsFixed="true">
-<div class="pdchat-container @GetDockModeClasses() @( ChatService.DockMode != PDChatDockMode.Minimized ? "open" : "" )">
-	@switch (ChatService.DockMode)
-	{
-		case PDChatDockMode.Minimized:
-			@if (ChatService.MinimizedButtonPosition != PDChatButtonPosition.None)
-			{
-				<div class="pdchat-minimized-button-container">
-					<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
-							@onclick="ToggleChatAsync"
-							title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
-						<span>@CollapsedIcon</span>
-						@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
-						{
-							<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
-						}
-					</button>
-				</div>
-			}
-
-			@* Toast stack: shown whenever there are live toasts, whether or not the minimized button
-			   is visible. When the button is hidden (MinimizedButtonPosition.None) this is a headless toast. *@
-			@if (_toasts.Count > 0)
-			{
-				<div class="pdchat-toast-stack @GetToastAnchorClass()">
-					@foreach (var toast in _toasts)
-					{
-						<div @key="toast.Key"
-							 class="pdchat-message-preview pdchat-toast @GetToastClasses(toast)"
-							 style="@GetToastStyle(toast)"
-							 role="@(toast.Message.Type is MessageType.Error or MessageType.Critical ? "alert" : "status")"
-							 aria-live="@GetToastAriaLive(toast.Message.Type)"
-							 @onclick="OnToastClickedAsync"
-							 @onmouseenter="() => PauseToast(toast)"
-							 @onmouseleave="() => ResumeToast(toast)">
-							<button class="pdchat-toast-close"
-									@onclick="() => BeginDismiss(toast)"
-									@onclick:stopPropagation="true"
-									title="Dismiss">×</button>
-							<div class="pdchat-preview-header">
-								<span class="pdchat-preview-sender">@toast.Message.Sender.Name</span>
-								<span class="pdchat-preview-timestamp">@toast.Message.Timestamp.ToString("HH:mm")</span>
-							</div>
-							@if (toast.ShowTitle && !string.IsNullOrEmpty(toast.Message.Title))
+	<div class="pdchat-container @GetDockModeClasses() @( ChatService.DockMode != PDChatDockMode.Minimized ? "open" : "" )">
+		@switch (ChatService.DockMode)
+		{
+			case PDChatDockMode.Minimized:
+				@if (ChatService.MinimizedButtonPosition != PDChatButtonPosition.None)
+				{
+					<div class="pdchat-minimized-button-container">
+						<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
+								@onclick="ToggleChatAsync"
+								title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
+							<span>@CollapsedIcon</span>
+							@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
 							{
-								<div class="pdchat-preview-title">
-									@if (toast.Message.IsTitleHtml)
+								<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+							}
+						</button>
+					</div>
+				}
+
+				@* Toast stack: shown whenever there are live toasts, whether or not the minimized button
+				   is visible. When the button is hidden (MinimizedButtonPosition.None) this is a headless toast. *@
+				@if (_toasts.Count > 0)
+				{
+					<div class="pdchat-toast-stack @GetToastAnchorClass()">
+						@foreach (var toast in _toasts)
+						{
+							<div @key="toast.Key"
+								 class="pdchat-message-preview pdchat-toast @GetToastClasses(toast)"
+								 style="@GetToastStyle(toast)"
+								 role="@(toast.Message.Type is MessageType.Error or MessageType.Critical ? "alert" : "status")"
+								 aria-live="@GetToastAriaLive(toast.Message.Type)"
+								 @onclick="OnToastClickedAsync"
+								 @onmouseenter="() => PauseToast(toast)"
+								 @onmouseleave="() => ResumeToast(toast)">
+								<button class="pdchat-toast-close"
+										@onclick="() => BeginDismiss(toast)"
+										@onclick:stopPropagation="true"
+										title="Dismiss">×</button>
+								<div class="pdchat-preview-header">
+									<span class="pdchat-preview-sender">@toast.Message.Sender.Name</span>
+									<span class="pdchat-preview-timestamp">@toast.Message.Timestamp.ToString("HH:mm")</span>
+								</div>
+								@if (toast.ShowTitle && !string.IsNullOrEmpty(toast.Message.Title))
+								{
+									<div class="pdchat-preview-title">
+										@if (toast.Message.IsTitleHtml)
+										{
+											@((MarkupString)toast.Message.Title)
+										}
+										else
+										{
+											@toast.Message.Title
+										}
+									</div>
+								}
+								<div class="pdchat-preview-content">
+									@if (toast.Message.IsMessageHtml)
 									{
-										@((MarkupString)toast.Message.Title)
+										@((MarkupString)toast.Message.Message)
 									}
 									else
 									{
-										@toast.Message.Title
+										@toast.Message.Message
 									}
 								</div>
-							}
-							<div class="pdchat-preview-content">
-								@if (toast.Message.IsMessageHtml)
-								{
-									@((MarkupString)toast.Message.Message)
-								}
-								else
-								{
-									@toast.Message.Message
-								}
-							</div>
-						</div>
-					}
-				</div>
-			}
-			break;
-		default:
-			<div class="pdchat-window@(ChatService.DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
-				<div class="pdchat-header">
-					<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
-					@if (ChatService.IsClearPermitted && _messages.Count > 0)
-					{
-						<button class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat">
-							<span>🗑️</span>
-						</button>
-					}
-					@* Show dock to side button for corner modes *@
-					@if (ChatService.DockMode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
-					   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft)
-					{
-						<button class="pdchat-header-btn" @onclick="DockToSideAsync" title="Dock to Side">
-							<span>▷</span>
-						</button>
-					}
-					@* Show unpin button when in split mode *@
-					@if (ChatService.DockMode is PDChatDockMode.Left or PDChatDockMode.Right)
-					{
-						<button class="pdchat-header-btn" @onclick="UnpinFromSideAsync" title="Unpin from Side">
-							<span>🗗</span>
-						</button>
-					}
-
-					@if (ChatService.IsMaximizePermitted)
-					{
-						<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(ChatService.DockMode == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
-							<span>@(ChatService.DockMode == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
-						</button>
-					}
-					<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
-				</div>
-
-				@if (IsVoiceModeOn || VoiceError is not null)
-				{
-					<div class="@VoiceStatusCssClass" role="status" aria-live="polite">
-						@VoiceStatusText
-					</div>
-				}
-
-				@* Conversation history: full-screen only, and only when the host supplied a store to back it
-				   (issues #111 and #112). Takes precedence over the canvas layout below because both want the
-				   same space, and a conversation list with nowhere to open a conversation into is useless. *@
-				@if (ChatService.DockMode == PDChatDockMode.FullScreen && HasConversationHistory)
-				{
-					<div class="pdchat-conversation-layout">
-						@if (!_isConversationSidebarCollapsed)
-						{
-							<div class="pdchat-conversation-sidebar-pane">
-								<PDChatConversationSidebar @ref="ConversationSidebar"
-														   ConversationService="ConversationService!"
-														   SelectedConversationId="_selectedConversationId"
-														   OnConversationSelected="OpenConversationAsync"
-														   OnConversationsLoaded="OnConversationsLoadedAsync" />
 							</div>
 						}
-
-						<div class="pdchat-conversation-main">
-							<div class="pdchat-conversation-toolbar">
-								<button type="button"
-										class="pdchat-conversation-toolbar-btn"
-										title="@(_isConversationSidebarCollapsed ? "Show conversations" : "Hide conversations")"
-										@onclick="ToggleConversationSidebarAsync">
-									@(_isConversationSidebarCollapsed ? "▶" : "◀")
-								</button>
-								<button type="button"
-										class="pdchat-conversation-toolbar-btn"
-										title="@(_selectedConversationId is null ? "Select a conversation to archive it" : "Archive this conversation")"
-										disabled="@(_selectedConversationId is null)"
-										@onclick="ArchiveSelectedConversationAsync">
-									Archive
-								</button>
-
-								@* Hidden rather than disabled when the conversation is not archived: un-archiving
-								   something that was never archived is meaningless, not merely unavailable, and a
-								   permanently greyed control teaches the reader nothing about when it would apply. *@
-								@if (SelectedConversationIsArchived)
-								{
-									<button type="button"
-											class="pdchat-conversation-toolbar-btn"
-											title="Un-archive this conversation, returning it to the default list"
-											@onclick="UnarchiveSelectedConversationAsync">
-										Un-archive
-									</button>
-								}
-							</div>
-
-							@* One tab per OPEN conversation, using the library's own PDTabSet rather than a bespoke
-							   strip: a second tab implementation in the same component library would drift from the
-							   first within one release. Open is not the same as exists - the sidebar lists
-							   everything, tabs hold what the user is currently working on. *@
-							<PDTabSet @ref="ConversationTabSet"
-									  CssClass="pdchat-conversation-tabset"
-									  IsTabClosingEnabled="true"
-									  IsTabAdditionEnabled="true"
-									  IsTabRenamingEnabled="true"
-									  CreateTabPosition="CreateTabPosition.End"
-									  TabMinWidth="120px"
-									  TabMaxWidth="220px"
-									  OnTabSelected="OnConversationTabSelectedAsync"
-									  OnTabClosed="OnConversationTabClosedAsync"
-									  OnTabAdded="OnConversationTabAddedAsync"
-									  OnTabRenamed="OnConversationTabRenamedAsync">
-								@foreach (var open in _openConversations)
-								{
-									<PDTab @key="open.Id"
-										   Id="open.Id"
-										   Title="@open.DisplayName"
-										   CssClass="@(_unreadConversationIds.Contains(open.Id) ? "pdchat-conversation-tab-unread" : string.Empty)">
-										@* Only the active tab's content is rendered, so this is one transcript on
-										   screen at a time rather than one per open conversation. *@
-										<PDMessages @ref="MessagesComponent"
-													Messages="_messages"
-													CurrentInput="@_currentInput"
-													CurrentInputChanged="@((string v) => _currentInput = v)"
-													IsLive="@ChatService.IsLive"
-													CanSend="@CanSend"
-													IsImageInputOffered="@ChatService.IsImageInputOffered"
-													ImageBlockedReason="@ChatService.ImageInputBlockedReason"
-													Images="_pendingImages"
-													ImagesChanged="OnImagesChanged"
-													IsInputPermitted="@ChatService.IsInputPermitted"
-													InputDisabledMessage="@ChatService.InputDisabledMessage"
-													OnSendClicked="SendCurrentMessageAsync"
-													InputAccessories="InputAccessories"
-													InputFocusChanged="OnInputFocusChangedAsync"
-													IsInputAutoFocused="@(!IsVoiceModeOn)"
-													UserIconSelector="UserIconSelector"
-													UseFullWidthMessages="@ChatService.UseFullWidthMessages"
-													MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
-													ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
-													ShowMessageUserName="@ChatService.ShowMessageUserName"
-													ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
-													MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
-									</PDTab>
-								}
-							</PDTabSet>
-
-							@if (_openConversations.Count == 0)
-							{
-								@* An empty state offering a new conversation, rather than a blank pane. *@
-								<div class="pdchat-conversation-none-open">
-									<p>No conversation open.</p>
-									<button type="button" class="pdchat-conversation-retry" @onclick="NewConversationAsync">
-										Start a new conversation
-									</button>
-								</div>
-							}
-						</div>
 					</div>
 				}
-				else if (ChatService.DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
-				{
-					<PDSplitter Direction="@(SplitDirection.Horizontal)" GutterSize="6" CssClass="pdchat-splitter">
-						<PDSplitPanel Size="3" MinSize="200">
-							<div class="pdchat-canvas-flex">
-								<PDTabSet @ref="CanvasTabSet"
+				break;
+			default:
+				<div class="pdchat-window@(ChatService.DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
+					<div class="pdchat-header">
+						<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
+						@if (ChatService.IsClearPermitted && _messages.Count > 0)
+						{
+							<button type="button" class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat" aria-label="Clear Chat">
+								<i class="@Icons.Clear" aria-hidden="true"></i>
+							</button>
+						}
+						@* One pin: a corner chat docks to the side, and a side chat shows it pressed and unpins. *@
+						@if (ChatService.DockMode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
+						   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft or PDChatDockMode.Left or PDChatDockMode.Right)
+						{
+							var isPinned = ChatService.DockMode is PDChatDockMode.Left or PDChatDockMode.Right;
+							var pinTitle = isPinned ? "Unpin from Side" : "Dock to Side";
+							<button type="button"
+									class="pdchat-header-btn pdchat-pin-toggle@(isPinned ? " active" : string.Empty)"
+									@onclick="() => isPinned ? UnpinFromSideAsync() : DockToSideAsync()"
+									title="@pinTitle"
+									aria-label="@pinTitle"
+									aria-pressed="@(isPinned ? "true" : "false")">
+								<i class="@Icons.Pin" aria-hidden="true"></i>
+							</button>
+						}
+
+						@if (ChatService.IsMaximizePermitted)
+						{
+							var isFullScreen = ChatService.DockMode == PDChatDockMode.FullScreen;
+							<button type="button" class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(isFullScreen ? "Restore" : "Fullscreen")" aria-label="@(isFullScreen ? "Restore" : "Fullscreen")">
+								<i class="@(isFullScreen ? Icons.Restore : Icons.FullScreen)" aria-hidden="true"></i>
+							</button>
+						}
+						<button type="button" class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize" aria-label="Minimize"><i class="@Icons.Minimize" aria-hidden="true"></i></button>
+					</div>
+
+					@if (IsVoiceModeOn || VoiceError is not null)
+					{
+						<div class="@VoiceStatusCssClass" role="status" aria-live="polite">
+							@VoiceStatusText
+						</div>
+					}
+
+					@* Conversation history: full-screen only, and only when the host supplied a store to back it
+					   (issues #111 and #112). Takes precedence over the canvas layout below because both want the
+					   same space, and a conversation list with nowhere to open a conversation into is useless. *@
+					@if (ChatService.DockMode == PDChatDockMode.FullScreen && HasConversationHistory)
+					{
+						<div class="pdchat-conversation-layout">
+							@if (!_isConversationSidebarCollapsed)
+							{
+								<div class="pdchat-conversation-sidebar-pane">
+									<PDChatConversationSidebar @ref="ConversationSidebar"
+															   ConversationService="ConversationService!"
+															   SelectedConversationId="_selectedConversationId"
+															   OnConversationSelected="OpenConversationAsync"
+															   OnConversationsLoaded="OnConversationsLoadedAsync" />
+								</div>
+							}
+
+							<div class="pdchat-conversation-main">
+								<div class="pdchat-conversation-toolbar">
+									<button type="button"
+											class="pdchat-conversation-toolbar-btn"
+											title="@(_isConversationSidebarCollapsed ? "Show conversations" : "Hide conversations")"
+											@onclick="ToggleConversationSidebarAsync">
+										@(_isConversationSidebarCollapsed ? "▶" : "◀")
+									</button>
+									<button type="button"
+											class="pdchat-conversation-toolbar-btn"
+											title="@(_selectedConversationId is null ? "Select a conversation to archive it" : "Archive this conversation")"
+											disabled="@(_selectedConversationId is null)"
+											@onclick="ArchiveSelectedConversationAsync">
+										Archive
+									</button>
+
+									@* Hidden rather than disabled when the conversation is not archived: un-archiving
+									   something that was never archived is meaningless, not merely unavailable, and a
+									   permanently greyed control teaches the reader nothing about when it would apply. *@
+									@if (SelectedConversationIsArchived)
+									{
+										<button type="button"
+												class="pdchat-conversation-toolbar-btn"
+												title="Un-archive this conversation, returning it to the default list"
+												@onclick="UnarchiveSelectedConversationAsync">
+											Un-archive
+										</button>
+									}
+								</div>
+
+								@* One tab per OPEN conversation, using the library's own PDTabSet rather than a bespoke
+								   strip: a second tab implementation in the same component library would drift from the
+								   first within one release. Open is not the same as exists - the sidebar lists
+								   everything, tabs hold what the user is currently working on. *@
+								<PDTabSet @ref="ConversationTabSet"
+										  CssClass="pdchat-conversation-tabset"
 										  IsTabClosingEnabled="true"
 										  IsTabAdditionEnabled="true"
 										  IsTabRenamingEnabled="true"
-										  OnTabAdded="OnTabAdded">
-									</PDTabSet>
+										  CreateTabPosition="CreateTabPosition.End"
+										  TabMinWidth="120px"
+										  TabMaxWidth="220px"
+										  OnTabSelected="OnConversationTabSelectedAsync"
+										  OnTabClosed="OnConversationTabClosedAsync"
+										  OnTabAdded="OnConversationTabAddedAsync"
+										  OnTabRenamed="OnConversationTabRenamedAsync">
+									@foreach (var open in _openConversations)
+									{
+										<PDTab @key="open.Id"
+											   Id="open.Id"
+											   Title="@open.DisplayName"
+											   CssClass="@(_unreadConversationIds.Contains(open.Id) ? "pdchat-conversation-tab-unread" : string.Empty)">
+											@* Only the active tab's content is rendered, so this is one transcript on
+											   screen at a time rather than one per open conversation. *@
+											<PDMessages @ref="MessagesComponent"
+														Messages="_messages"
+														CurrentInput="@_currentInput"
+														CurrentInputChanged="@((string v) => _currentInput = v)"
+														IsLive="@ChatService.IsLive"
+														CanSend="@CanSend"
+														IsImageInputOffered="@ChatService.IsImageInputOffered"
+														ImageBlockedReason="@ChatService.ImageInputBlockedReason"
+														Images="_pendingImages"
+														ImagesChanged="OnImagesChanged"
+														IsInputPermitted="@ChatService.IsInputPermitted"
+														InputDisabledMessage="@ChatService.InputDisabledMessage"
+														OnSendClicked="SendCurrentMessageAsync"
+														InputAccessories="InputAccessories"
+														Icons="Icons"
+														InputFocusChanged="OnInputFocusChangedAsync"
+														IsInputAutoFocused="@(!IsVoiceModeOn)"
+														UserIconSelector="UserIconSelector"
+														UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+														MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+														ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+														ShowMessageUserName="@ChatService.ShowMessageUserName"
+														ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+														MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+										</PDTab>
+									}
+								</PDTabSet>
+
+								@if (_openConversations.Count == 0)
+								{
+									@* An empty state offering a new conversation, rather than a blank pane. *@
+									<div class="pdchat-conversation-none-open">
+										<p>No conversation open.</p>
+										<button type="button" class="pdchat-conversation-retry" @onclick="NewConversationAsync">
+											Start a new conversation
+										</button>
+									</div>
+								}
 							</div>
-						</PDSplitPanel>
-						<PDSplitPanel Size="2" MinSize="200">
-							<PDMessages @ref="MessagesComponent"
-										Messages="_messages"
-										CurrentInput="@_currentInput"
-										CurrentInputChanged="@((string v) => _currentInput = v)"
-										IsLive="@ChatService.IsLive"
-										CanSend="@CanSend"
-										IsImageInputOffered="@ChatService.IsImageInputOffered"
-										ImageBlockedReason="@ChatService.ImageInputBlockedReason"
-										Images="_pendingImages"
-										ImagesChanged="OnImagesChanged"
-										IsInputPermitted="@ChatService.IsInputPermitted"
-										InputDisabledMessage="@ChatService.InputDisabledMessage"
-										OnSendClicked="SendCurrentMessageAsync"
-										InputAccessories="InputAccessories"
-										InputFocusChanged="OnInputFocusChangedAsync"
-										IsInputAutoFocused="@(!IsVoiceModeOn)"
-										UserIconSelector="UserIconSelector"
-										UseFullWidthMessages="@ChatService.UseFullWidthMessages"
-										MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
-										ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
-										ShowMessageUserName="@ChatService.ShowMessageUserName"
-										ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
-										MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
-						</PDSplitPanel>
-					</PDSplitter>
-				}
-				else
-				{
-					<PDMessages @ref="MessagesComponent"
-								Messages="_messages"
-								CurrentInput="@_currentInput"
-								CurrentInputChanged="@((string v) => _currentInput = v)"
-								IsLive="@ChatService.IsLive"
-								CanSend="@CanSend"
-								IsImageInputOffered="@ChatService.IsImageInputOffered"
-								ImageBlockedReason="@ChatService.ImageInputBlockedReason"
-								Images="_pendingImages"
-								ImagesChanged="OnImagesChanged"
-								IsInputPermitted="@ChatService.IsInputPermitted"
-								InputDisabledMessage="@ChatService.InputDisabledMessage"
-								OnSendClicked="SendCurrentMessageAsync"
-								InputAccessories="InputAccessories"
-								InputFocusChanged="OnInputFocusChangedAsync"
-								IsInputAutoFocused="@(!IsVoiceModeOn)"
-								UserIconSelector="UserIconSelector"
-								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
-								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
-								ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
-								ShowMessageUserName="@ChatService.ShowMessageUserName"
-								ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
-								MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
-				}
-			</div>
-			break;
-	}
-</div>
+						</div>
+					}
+					else if (ChatService.DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
+					{
+						<PDSplitter Direction="@(SplitDirection.Horizontal)" GutterSize="6" CssClass="pdchat-splitter">
+							<PDSplitPanel Size="3" MinSize="200">
+								<div class="pdchat-canvas-flex">
+									<PDTabSet @ref="CanvasTabSet"
+											  IsTabClosingEnabled="true"
+											  IsTabAdditionEnabled="true"
+											  IsTabRenamingEnabled="true"
+											  OnTabAdded="OnTabAdded">
+										</PDTabSet>
+								</div>
+							</PDSplitPanel>
+							<PDSplitPanel Size="2" MinSize="200">
+								<PDMessages @ref="MessagesComponent"
+											Messages="_messages"
+											CurrentInput="@_currentInput"
+											CurrentInputChanged="@((string v) => _currentInput = v)"
+											IsLive="@ChatService.IsLive"
+											CanSend="@CanSend"
+											IsImageInputOffered="@ChatService.IsImageInputOffered"
+											ImageBlockedReason="@ChatService.ImageInputBlockedReason"
+											Images="_pendingImages"
+											ImagesChanged="OnImagesChanged"
+											IsInputPermitted="@ChatService.IsInputPermitted"
+											InputDisabledMessage="@ChatService.InputDisabledMessage"
+											OnSendClicked="SendCurrentMessageAsync"
+											InputAccessories="InputAccessories"
+											Icons="Icons"
+											InputFocusChanged="OnInputFocusChangedAsync"
+											IsInputAutoFocused="@(!IsVoiceModeOn)"
+											UserIconSelector="UserIconSelector"
+											UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+											MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+											ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+											ShowMessageUserName="@ChatService.ShowMessageUserName"
+											ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+											MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+							</PDSplitPanel>
+						</PDSplitter>
+					}
+					else
+					{
+						<PDMessages @ref="MessagesComponent"
+									Messages="_messages"
+									CurrentInput="@_currentInput"
+									CurrentInputChanged="@((string v) => _currentInput = v)"
+									IsLive="@ChatService.IsLive"
+									CanSend="@CanSend"
+									IsImageInputOffered="@ChatService.IsImageInputOffered"
+									ImageBlockedReason="@ChatService.ImageInputBlockedReason"
+									Images="_pendingImages"
+									ImagesChanged="OnImagesChanged"
+									IsInputPermitted="@ChatService.IsInputPermitted"
+									InputDisabledMessage="@ChatService.InputDisabledMessage"
+									OnSendClicked="SendCurrentMessageAsync"
+									InputAccessories="InputAccessories"
+									Icons="Icons"
+									InputFocusChanged="OnInputFocusChangedAsync"
+									IsInputAutoFocused="@(!IsVoiceModeOn)"
+									UserIconSelector="UserIconSelector"
+									UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+									MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+									ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+									ShowMessageUserName="@ChatService.ShowMessageUserName"
+									ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+									MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+					}
+				</div>
+				break;
+		}
+	</div>
 </CascadingValue>
 
 @code {
@@ -308,6 +311,10 @@
 				@if (SelectedAgent?.IconUrl is { } iconUrl)
 				{
 					<img class="pdchat-agent-icon" src="@iconUrl" alt="" />
+				}
+				else if (!string.IsNullOrWhiteSpace(Icons.Agent))
+				{
+					<i class="pdchat-toolbar-picker-icon @Icons.Agent" aria-hidden="true"></i>
 				}
 				<select @key="_agentPickerRevision" title="Who you are talking to" aria-label="Agent" @onchange="OnAgentSelected">
 					@foreach (var agent in ChatService.Agents!)
@@ -322,14 +329,14 @@
 				</select>
 			</label>
 		}
-		@if (ChatService.AnsweringModelName is { Length: > 0 } answeringModel)
-		{
-			<span class="pdchat-answering-model" title="@ChatService.AnsweringModelDescription">@answeringModel</span>
-		}
 		@if (IsModelPickerOffered)
 		{
 			<label class="pdchat-toolbar-picker pdchat-model-picker">
 				<span class="pdchat-toolbar-label">Model</span>
+				@if (!string.IsNullOrWhiteSpace(Icons.Model))
+				{
+					<i class="pdchat-toolbar-picker-icon @Icons.Model" aria-hidden="true"></i>
+				}
 				<select title="Which model answers" aria-label="Model" @onchange="OnModelSelected">
 					@foreach (var model in ChatService.Models!)
 					{
@@ -338,49 +345,76 @@
 				</select>
 			</label>
 		}
+		@if (ChatService.AnsweringModelName is { Length: > 0 } answeringModel)
+		{
+			<span class="pdchat-answering-model-badge">
+				<span class="pdchat-answering-model-prefix">answered by</span>
+				<span class="pdchat-answering-model" title="@ChatService.AnsweringModelDescription">@answeringModel</span>
+			</span>
+		}
 		<span class="pdchat-toolbar-spacer"></span>
-		<button type="button"
-				class="pdchat-toolbar-btn pdchat-mute-toggle"
-				@onclick="ToggleMuteAsync"
-				title="@MuteButtonTitle"
-				aria-label="@MuteButtonTitle"
-				aria-pressed="@(_isMuted ? "false" : "true")">@(_isMuted ? "🔕" : "🔔")</button>
+		<span class="pdchat-toolbar-group">
+			<button type="button"
+					class="pdchat-toolbar-btn pdchat-mute-toggle"
+					@onclick="ToggleMuteAsync"
+					title="@MuteButtonTitle"
+					aria-label="@MuteButtonTitle"
+					aria-pressed="@(_isMuted ? "false" : "true")"><i class="@(_isMuted ? Icons.SoundsOff : Icons.SoundsOn)" aria-hidden="true"></i></button>
+			@if (IsVoiceModeOffered)
+			{
+				<button type="button"
+						class="pdchat-toolbar-btn pdchat-read-aloud-toggle@(IsReadAloudOn ? " active" : string.Empty)"
+						@onclick="ToggleReadAloudAsync"
+						title="@ReadAloudButtonTitle"
+						aria-label="@ReadAloudButtonTitle"
+						aria-pressed="@(IsReadAloudOn ? "true" : "false")"><i class="@(IsReadAloudOn ? Icons.ReadAloudOn : Icons.ReadAloudOff)" aria-hidden="true"></i></button>
+			}
+		</span>
 		@if (IsVoiceModeOffered)
 		{
-			<button type="button"
-					class="pdchat-toolbar-btn pdchat-read-aloud-toggle@(IsReadAloudOn ? " active" : string.Empty)"
-					@onclick="ToggleReadAloudAsync"
-					title="@ReadAloudButtonTitle"
-					aria-label="@ReadAloudButtonTitle"
-					aria-pressed="@(IsReadAloudOn ? "true" : "false")">@(IsReadAloudOn ? "🔊" : "🔇")</button>
-			<label class="pdchat-toolbar-picker pdchat-voice-mode-picker">
-				<select title="How Voice Mode listens" aria-label="Voice mode" @onchange="OnVoiceModeSelectedAsync">
-					<option value="@MicOffValue" title="The microphone is off" selected="@(!IsVoiceModeOn)">Mic off</option>
-					<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Hal)">HAL</option>
-					<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Dictate)">Dictate</option>
-					@if (IsWakeModeOffered)
-					{
-						<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Wake)">@FirstWakePhrase</option>
-					}
-				</select>
-			</label>
-			<button type="button"
-					class="@VoiceButtonCssClass"
-					@onclick="ToggleVoiceModeAsync"
-					title="@VoiceButtonTitle"
-					aria-label="@VoiceButtonTitle"
-					aria-pressed="@(IsVoiceModeOn ? "true" : "false")">@switch (VoiceMode)
-				{
-					case PDChatVoiceMode.Hal:
-						<span class="pdchat-hal-eye" aria-hidden="true"></span>
-						break;
-					case PDChatVoiceMode.Wake:
-						<span aria-hidden="true">👂</span>
-						break;
-					default:
-						<span aria-hidden="true">🎙️</span>
-						break;
-				}</button>
+			@* One split control: the button starts and stops listening, the select picks how. *@
+			<span class="pdchat-toolbar-group pdchat-voice-split">
+				<button type="button"
+						class="@VoiceButtonCssClass"
+						@onclick="ToggleVoiceModeAsync"
+						title="@VoiceButtonTitle"
+						aria-label="@VoiceButtonTitle"
+						aria-pressed="@(IsVoiceModeOn ? "true" : "false")">@VoiceButtonGlyph</button>
+				<label class="pdchat-toolbar-picker pdchat-voice-mode-picker">
+					<select title="How Voice Mode listens" aria-label="Voice mode" @onchange="OnVoiceModeSelectedAsync">
+						<option value="@MicOffValue" title="The microphone is off" selected="@(!IsVoiceModeOn)">Mic off</option>
+						<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Hal)">HAL</option>
+						<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Dictate)">Dictate</option>
+						@if (IsWakeModeOffered)
+						{
+							<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Wake)">@FirstWakePhrase</option>
+						}
+					</select>
+				</label>
+			</span>
+		}
+	</text>;
+
+	private RenderFragment VoiceButtonGlyph => @<text>
+		@if (VoiceMode == PDChatVoiceMode.Hal)
+		{
+			<span class="pdchat-hal-eye" aria-hidden="true"></span>
+		}
+		else if (VoiceState == PDChatVoiceState.Starting)
+		{
+			<i class="@Icons.VoiceStarting" aria-hidden="true"></i>
+		}
+		else if (VoiceState == PDChatVoiceState.Speaking)
+		{
+			<span class="pdchat-voice-speaking-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+		}
+		else
+		{
+			<i class="@(VoiceMode == PDChatVoiceMode.Wake ? Icons.Wake : Icons.Dictate)" aria-hidden="true"></i>
+			@if (VoiceState == PDChatVoiceState.Paused)
+			{
+				<span class="pdchat-voice-paused-badge" aria-hidden="true"><i class="@Icons.VoicePaused"></i></span>
+			}
 		}
 	</text>;
 }

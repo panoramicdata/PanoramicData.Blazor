@@ -106,6 +106,11 @@ public partial class PDMessages : IChatInput
 	[Parameter] public RenderFragment? InputAccessories { get; set; }
 
 	/// <summary>
+	/// Gets or sets the CSS classes of the toolbar's icons. Font Awesome by default.
+	/// </summary>
+	[Parameter] public PDChatIcons Icons { get; set; } = new();
+
+	/// <summary>
 	/// An event callback that is invoked when the text box gains (<c>true</c>) or loses (<c>false</c>) focus.
 	/// </summary>
 	[Parameter] public EventCallback<bool> InputFocusChanged { get; set; }

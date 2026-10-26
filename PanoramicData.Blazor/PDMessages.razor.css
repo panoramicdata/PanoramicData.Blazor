@@ -71,7 +71,7 @@
 	display: flex;
 	align-items: center;
 	padding: 0 8px 8px;
-	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	background: var(--pd-chat-toolbar-bg, var(--pd-chat-secondary-bg, #f5f7fa));
 	flex-shrink: 0;
 	min-height: 0;
 }
@@ -98,27 +98,243 @@
 	box-shadow: 0 0 5px var(--pd-chat-focus-shadow, rgba(74, 144, 226, 0.4));
 }
 
-/* Host-supplied controls in a thin toolbar above the input, which keeps the full width. */
+/* Host-supplied controls in a thin toolbar above the input, which keeps the full width.
+   Each --_pdc-* value is the host's --pd-chat-* variable, set anywhere above, or the default after its comma. */
 .chat-input-accessories {
+	--_pdc-accent: var(--pd-chat-accent, var(--accent, var(--bs-primary, #0078d4)));
+	--_pdc-border: var(--pd-chat-toolbar-border, var(--pd-chat-border, #dee2e6));
+	--_pdc-gap: var(--pd-chat-toolbar-gap, 6px);
+	--_pdc-control-height: var(--pd-chat-control-height, 28px);
+	--_pdc-control-radius: var(--pd-chat-control-radius, 6px);
+	--_pdc-control-bg: var(--pd-chat-control-bg, var(--pd-chat-bg, #fff));
+	--_pdc-control-color: var(--pd-chat-control-color, var(--pd-chat-color, #212529));
+	--_pdc-control-border: var(--pd-chat-control-border, var(--pd-chat-border, #ced4da));
+	--_pdc-control-hover-bg: var(--pd-chat-control-hover-bg, rgba(128, 128, 128, 0.14));
+	--_pdc-control-active-color: var(--pd-chat-control-active-color, var(--pd-chat-color, #212529));
+	--_pdc-control-active-bg: var(--pd-chat-control-active-bg, rgba(128, 128, 128, 0.22));
+	--_pdc-icon-color: var(--pd-chat-icon-color, var(--pd-chat-muted-color, #6c757d));
+	--_pdc-icon-size: var(--pd-chat-icon-size, 0.95rem);
 	container-type: inline-size;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 4px;
+	gap: var(--_pdc-gap);
 	flex-shrink: 0;
 	min-width: 0;
 	margin-top: auto;
-	padding: 2px 6px;
-	font-size: 0.8rem;
-	background: var(--pd-chat-secondary-bg, #f5f7fa);
-	border-top: 1px solid var(--pd-chat-border, #dee2e6);
+	padding: var(--pd-chat-toolbar-padding, 5px 8px);
+	font-size: var(--pd-chat-toolbar-font-size, 0.8125rem);
+	background: var(--pd-chat-toolbar-bg, var(--pd-chat-secondary-bg, #f5f7fa));
+	border-top: 1px solid var(--_pdc-border);
 }
 
-/* Send ends the bar, after any host controls. A standard Bootstrap button; only layout is set here. */
-.chat-input-accessories .chat-send {
-	margin-left: auto;
-	padding: 0 8px;
+/* The toolbar's controls, whether rendered here, by PDChat or by a host's InputAccessories. */
+.chat-input-accessories ::deep .pdchat-toolbar-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--_pdc-control-height);
+	height: var(--_pdc-control-height);
+	padding: 0;
+	font-size: var(--_pdc-icon-size);
+	line-height: 1;
+	color: var(--_pdc-icon-color);
+	background: transparent;
+	border: 0;
+	border-radius: var(--_pdc-control-radius);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-btn:hover {
+	color: var(--_pdc-control-color);
+	background: var(--_pdc-control-hover-bg);
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-btn:focus-visible,
+.chat-input-accessories ::deep .pdchat-toolbar-picker:focus-within {
+	outline: 2px solid var(--_pdc-accent);
+	outline-offset: 1px;
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-btn.active {
+	color: var(--_pdc-control-active-color);
+	background: var(--_pdc-control-active-bg);
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-spacer {
+	flex: 1;
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-group {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
 	flex-shrink: 0;
+	gap: 2px;
+}
+
+/* A thin rule midway between neighbouring groups. */
+.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group {
+	margin-left: var(--_pdc-gap);
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: calc(-1 * var(--_pdc-gap) - 0.5px);
+	width: 1px;
+	height: 18px;
+	transform: translateY(-50%);
+	background: var(--_pdc-border);
+}
+
+/* A picker is its label and a native select drawn as one field. */
+.chat-input-accessories ::deep .pdchat-toolbar-picker {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	height: var(--_pdc-control-height);
+	margin: 0;
+	overflow: hidden;
+	color: var(--_pdc-control-color);
+	background: var(--_pdc-control-bg);
+	border: 1px solid var(--_pdc-control-border);
+	border-radius: var(--_pdc-control-radius);
+	cursor: pointer;
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-picker:hover {
+	background: linear-gradient(var(--_pdc-control-hover-bg), var(--_pdc-control-hover-bg)), var(--_pdc-control-bg);
+}
+
+/* Drawn in the text colour, in place of the select's own arrow, so it follows the theme. */
+.chat-input-accessories ::deep .pdchat-toolbar-picker::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	right: 10px;
+	width: 5px;
+	height: 5px;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: translateY(-70%) rotate(45deg);
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-label {
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	color: var(--pd-chat-muted-color, #6c757d);
+	background: var(--pd-chat-toolbar-bg, var(--pd-chat-secondary-bg, #f5f7fa));
+	border-right: 1px solid var(--_pdc-control-border);
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-picker-icon {
+	padding-left: 8px;
+	font-size: var(--_pdc-icon-size);
+	color: var(--_pdc-icon-color);
+}
+
+.chat-input-accessories ::deep .pdchat-toolbar-picker select {
+	appearance: none;
+	field-sizing: content;
+	max-width: 10rem;
+	height: 100%;
+	padding: 0 24px 0 6px;
+	font: inherit;
+	color: inherit;
+	background: transparent;
+	border: 0;
+	outline: none;
+	cursor: pointer;
+}
+
+/* Some browsers otherwise draw the options white on a dark theme. */
+.chat-input-accessories ::deep .pdchat-toolbar-picker option {
+	color: var(--pd-chat-color, #212529);
+	background: var(--pd-chat-bg, #fff);
+}
+
+/* Send ends the bar, after any host controls. Its colours beat the Bootstrap button class it keeps. */
+.chat-input-accessories .chat-send {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	flex-shrink: 0;
+	height: var(--_pdc-control-height);
+	margin-left: auto;
+	padding: 0 12px;
+	font-weight: 600;
+	color: var(--pd-chat-send-color, #fff);
+	background: var(--pd-chat-send-bg, var(--_pdc-accent));
+	border: 1px solid var(--pd-chat-send-bg, var(--_pdc-accent));
+	border-radius: var(--pd-chat-send-radius, var(--_pdc-control-radius));
+}
+
+.chat-input-accessories .chat-send:hover:not(:disabled) {
+	filter: brightness(1.1);
+}
+
+/* Keyboard focus only, in place of Bootstrap's glow, which older versions also show on click. */
+.chat-input-accessories .chat-send:focus {
+	box-shadow: none;
+}
+
+.chat-input-accessories .chat-send:focus-visible {
+	outline: 2px solid var(--_pdc-accent);
+	outline-offset: 1px;
+}
+
+.chat-input-accessories .chat-send:disabled {
+	opacity: 0.5;
+}
+
+/* Narrower than one row needs with every control shown, the pickers keep the first row and the tools start a
+   second, left-aligned, with Send alone on the right. The spacer becomes the line break. */
+@container (max-width: 860px) {
+	.chat-input-accessories ::deep .pdchat-toolbar-spacer {
+		flex-basis: 100%;
+		height: 0;
+	}
+
+	/* The break is a row of its own with a gap each side, so the row after it rises by one gap. */
+	.chat-input-accessories ::deep .pdchat-toolbar-spacer:not(:first-child) ~ * {
+		margin-top: calc(-1 * var(--_pdc-gap));
+	}
+
+	/* With nothing before it, a break would only leave an empty first row. */
+	.chat-input-accessories ::deep .pdchat-toolbar-spacer:first-child {
+		display: none;
+	}
+}
+
+/* A corner-docked chat is too narrow for the words; each control keeps its tooltip and accessible name. */
+@container (max-width: 420px) {
+	.chat-input-accessories ::deep .pdchat-toolbar-label,
+	.chat-input-accessories .chat-send-text {
+		display: none;
+	}
+
+	.chat-input-accessories .chat-send {
+		width: var(--_pdc-control-height);
+		padding: 0;
+	}
+
+	/* Groups can wrap here, and a rule would start the new row. */
+	.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group {
+		margin-left: 0;
+	}
+
+	.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group::before {
+		display: none;
+	}
 }
 
 /* Message shown in place of the input when input is not permitted (IsInputPermitted = false).

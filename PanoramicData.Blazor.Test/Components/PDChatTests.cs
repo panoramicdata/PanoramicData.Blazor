@@ -93,6 +93,11 @@ public partial class PDChatTests : BunitContext
 		where TComponent : IComponent
 		=> component.Find($".chat-input-accessories .pdchat-toolbar-btn[title='{title}']");
 
+	private static readonly PDChatIcons _defaultIcons = new();
+
+	// The class of the first icon inside the element, or null when there is none.
+	private static string? IconClass(IElement element) => element.QuerySelector("i")?.GetAttribute("class");
+
 	private static ChatMessage Message(string text, MessageType type = MessageType.Normal) => new()
 	{
 		Id = Guid.NewGuid(),
