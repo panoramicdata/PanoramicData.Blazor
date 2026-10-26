@@ -128,6 +128,64 @@ test.describe("PDChat: Mic off, model label and images", () => {
 	});
 });
 
+test.describe("PDChat: files the chat cannot take", () => {
+	test("picking more images than fit keeps the ones that fit and says why", async ({
+		page,
+	}) => {
+		await openChat(page);
+		const png = Buffer.from(pngBase64, "base64");
+
+		await page.locator(".pdchat-image-file-input").setInputFiles(
+			[1, 2, 3, 4, 5, 6].map((i) => ({
+				name: `picked${i}.png`,
+				mimeType: "image/png",
+				buffer: png,
+			})),
+		);
+
+		await expect(page.locator(".pdchat-image-thumb")).toHaveCount(5);
+		await expect(page.locator(".pdchat-image-notice")).toHaveText(
+			"A message can carry at most 5 images.",
+		);
+	});
+
+	test("a picked or dropped file that is not an image is refused with a notice", async ({
+		page,
+	}) => {
+		await openChat(page);
+
+		await page.locator(".pdchat-image-file-input").setInputFiles({
+			name: "notes.pdf",
+			mimeType: "application/pdf",
+			buffer: Buffer.from("%PDF-1.4"),
+		});
+		await expect(page.locator(".pdchat-image-thumb")).toHaveCount(0);
+		await expect(page.locator(".pdchat-image-notice")).toHaveText(
+			"Only images can be attached.",
+		);
+
+		// Left to the browser, a dropped file would open in the tab.
+		const url = page.url();
+		const handled = await page
+			.locator(".chat-input-container")
+			.evaluate((element) => {
+				const data = new DataTransfer();
+				data.items.add(
+					new File(["%PDF-1.4"], "dropped.pdf", { type: "application/pdf" }),
+				);
+				const drop = new DragEvent("drop", {
+					dataTransfer: data,
+					bubbles: true,
+					cancelable: true,
+				});
+				element.dispatchEvent(drop);
+				return drop.defaultPrevented;
+			});
+		expect(handled).toBe(true);
+		expect(page.url()).toBe(url);
+	});
+});
+
 test.describe("PDChat: screenshot of this tab", () => {
 	test("the screenshot button adds a numbered image of the tab", async ({
 		page,

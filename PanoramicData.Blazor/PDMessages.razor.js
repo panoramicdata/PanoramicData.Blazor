@@ -28,6 +28,32 @@ export function attachEnterHandler(textarea, dotNetRef) {
 	textarea.addEventListener("keydown", textarea._pdEnterHandler);
 }
 
+// Chrome counts a select focused with the mouse as :focus-visible, so the panel notes whether the user last pressed a
+// pointer or a key, and the pickers show their focus ring only after a key.
+export function attachFocusModality(textarea) {
+	const panel = textarea?.closest(".pdchat-panel-flex");
+	if (!panel) return;
+	detachFocusModality(textarea);
+	const onPointer = () => {
+		panel.dataset.pointerFocus = "true";
+	};
+	const onKey = () => {
+		delete panel.dataset.pointerFocus;
+	};
+	panel.addEventListener("pointerdown", onPointer, true);
+	panel.addEventListener("keydown", onKey, true);
+	textarea._pdFocusModality = { panel, onPointer, onKey };
+}
+
+export function detachFocusModality(textarea) {
+	const h = textarea?._pdFocusModality;
+	if (!h) return;
+	h.panel.removeEventListener("pointerdown", h.onPointer, true);
+	h.panel.removeEventListener("keydown", h.onKey, true);
+	delete h.panel.dataset.pointerFocus;
+	delete textarea._pdFocusModality;
+}
+
 export function detachEnterHandler(textarea) {
 	if (textarea && textarea._pdEnterHandler) {
 		textarea.removeEventListener("keydown", textarea._pdEnterHandler);
@@ -103,6 +129,8 @@ async function addImage(blob, name, dotNetRef) {
 	await sendImage(dotNetRef, image[0] || "image/png", image[1], name ?? null);
 }
 
+const onlyImagesMessage = "Only images can be attached.";
+
 function imageFiles(files) {
 	return Array.from(files ?? []).filter((f) => f.type.startsWith("image/"));
 }
@@ -131,12 +159,18 @@ export function attachImageHandlers(textarea, dotNetRef) {
 			e.preventDefault();
 		}
 	};
+	// A file drop is always handled here: left to the browser, a dropped file opens in the tab.
 	const onDrop = async (e) => {
-		const images = imageFiles(e.dataTransfer?.files);
-		if (images.length === 0) return;
+		const files = Array.from(e.dataTransfer?.files ?? []);
+		if (files.length === 0) return;
 		e.preventDefault();
+		const images = imageFiles(files);
 		for (const file of images) {
 			await addImage(file, file.name, dotNetRef);
+		}
+
+		if (images.length < files.length) {
+			await dotNetRef.invokeMethodAsync("OnImageError", onlyImagesMessage);
 		}
 	};
 	textarea.addEventListener("paste", onPaste);
@@ -171,20 +205,24 @@ export function openFilePicker(textarea) {
 	}
 }
 
-export async function readPickedFiles(textarea, dotNetRef, room) {
+// The notice goes after the images that fit, because adding an image clears it.
+export async function readPickedFiles(textarea, dotNetRef, room, max) {
 	const input = filePicker(textarea);
-	const files = imageFiles(input?.files);
+	const picked = Array.from(input?.files ?? []);
+	const files = imageFiles(picked);
 	const allowed = Math.max(room, 0);
 	if (input) input.value = "";
-	if (files.length > allowed) {
-		await dotNetRef.invokeMethodAsync(
-			"OnImageError",
-			"A message can carry at most 5 images.",
-		);
-	}
-
 	for (const file of files.slice(0, allowed)) {
 		await addImage(file, file.name, dotNetRef);
+	}
+
+	if (files.length < picked.length) {
+		await dotNetRef.invokeMethodAsync("OnImageError", onlyImagesMessage);
+	} else if (files.length > allowed) {
+		await dotNetRef.invokeMethodAsync(
+			"OnImageError",
+			`A message can carry at most ${max} images.`,
+		);
 	}
 }
 

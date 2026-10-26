@@ -261,6 +261,22 @@ public partial class PDChatTests
 		component.Find(".pdchat-image-notice").TextContent.Should().Contain("too large");
 	}
 
+	/// <summary>Verifies that picking files tells the browser how many images still fit, and the limit its notice names.</summary>
+	[Fact]
+	public async Task Picking_files_passes_the_room_left_and_the_limit()
+	{
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDMessages.razor.js");
+		module.Mode = JSRuntimeMode.Loose;
+		var component = RenderChat(new FakeChatService { IsImageInputOffered = true });
+		await AddImagesAsync(component, 2);
+
+		await component.Find(".pdchat-image-file-input").ChangeAsync(new ChangeEventArgs());
+
+		var call = module.Invocations["readPickedFiles"].Should().ContainSingle().Subject;
+		call.Arguments[2].Should().Be(PDMessages.MaxImages - 2);
+		call.Arguments[3].Should().Be(PDMessages.MaxImages);
+	}
+
 	private static async Task AddImagesAsync(IRenderedComponent<PDChat> component, int count)
 	{
 		var messages = component.FindComponent<PDMessages>();

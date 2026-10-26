@@ -81,6 +81,17 @@ public partial class PDChatTests
 		HeaderButton(component, "Dock to Side").GetAttribute("aria-pressed").Should().Be("false");
 	}
 
+	/// <summary>Verifies that a notice about the images carries the warning icon, and its text is unchanged.</summary>
+	[Fact]
+	public void An_image_notice_shows_the_warning_icon()
+	{
+		var component = RenderChat(new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." });
+
+		var notice = component.Find(".pdchat-image-notice");
+		IconClass(notice).Should().Be(_defaultIcons.Warning);
+		notice.TextContent.Should().Be("This model cannot take images.");
+	}
+
 	/// <summary>Verifies that an agent with no icon of its own shows the default agent icon instead.</summary>
 	[Fact]
 	public async Task An_agent_without_its_own_icon_shows_the_default_agent_icon()
