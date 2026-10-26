@@ -282,6 +282,7 @@ This component has no public parameters.
 | ConversationService | IChatConversationService? | Gets or sets an optional conversation history: the list of previous conversations that can be searched, opened and archived (issue #108). <c>null</c> - the default - means the host has no such store. |
 | ChatDockPosition | PDChatDockPosition | Gets or sets the dock position of the chat window. |
 | CollapsedIcon | string | Gets or sets the icon to display when the chat window is collapsed. |
+| Icons | PDChatIcons | Gets or sets the CSS classes of the header's and toolbar's icons. Font Awesome by default. |
 | UserIconSelector | Func<ChatMessage, string?>? | A function to select a user icon for a given message. |
 | PriorityIconSelector | Func<ChatMessage, string?>? | A function to select a priority icon for a given message. |
 | SoundSelector | Func<ChatMessage, string?>? | A function to select a sound to play for a given message. |
@@ -1461,6 +1462,7 @@ This component has no public parameters.
 | ShowMessageTimestamp | bool | Gets or sets whether to show the timestamp for each message. |
 | MessageTimestampFormat | string | Gets or sets the format for the message timestamp. |
 | InputAccessories | RenderFragment? | Gets or sets optional controls shown in the thin toolbar above the text box, before Send. The toolbar is shown even where input is not permitted, so a control such as notification sounds stays reachable. |
+| Icons | PDChatIcons | Gets or sets the CSS classes of the toolbar's icons. Font Awesome by default. |
 | InputFocusChanged | EventCallback<bool> | An event callback that is invoked when the text box gains (<c>true</c>) or loses (<c>false</c>) focus. |
 | IsInputAutoFocused | bool | Gets or sets whether the text box takes focus when first shown and after each send. Defaults to true. |
 

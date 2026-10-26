@@ -191,7 +191,7 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
-	/// Gets the name of the model that answered the latest turn, shown in the input toolbar after the agent picker, or
+	/// Gets the name of the model that answered the latest turn, shown in the input toolbar after the model picker, or
 	/// null (the default) to show nothing.
 	/// </summary>
 	string? AnsweringModelName => null;

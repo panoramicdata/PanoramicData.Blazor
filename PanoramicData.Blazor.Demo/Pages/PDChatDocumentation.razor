@@ -10,6 +10,7 @@
 			<tbody>
 				<tr><td><code>Messages</code></td><td><code>List&lt;ChatMessage&gt;</code></td><td>Messages to display</td></tr>
 				<tr><td><code>OnSend</code></td><td><code>EventCallback&lt;string&gt;</code></td><td>Fired when user sends message</td></tr>
+				<tr><td><code>Icons</code></td><td><code>PDChatIcons</code></td><td>The CSS classes of the header and toolbar icons. Font Awesome by default. See <a href="#icons-and-theming">Icons and theming</a>.</td></tr>
 			</tbody>
 		</table>
 	</section>
@@ -148,13 +149,14 @@
 				<tr><td><code>WakePhrases</code></td><td><code>IReadOnlyList&lt;string&gt;?</code></td><td><code>null</code> (off)</td><td>Phrases such as "Hey DumbBot" that wake a dormant microphone. Case and punctuation are ignored, and the phrase itself is never typed.</td></tr>
 				<tr><td><code>VoiceIdleTimeout</code></td><td><code>TimeSpan</code></td><td>10 seconds</td><td>How long the microphone may hear nothing before it goes dormant. Applies only with wake phrases.</td></tr>
 				<tr><td><code>VoiceMode</code></td><td><code>PDChatVoiceMode</code></td><td><code>Hal</code></td><td>The mode the user last chose: <code>Hal</code> listens at once and sends on a pause; <code>Dictate</code> listens only while the text box has focus and never sends by itself; <code>Wake</code> starts dormant and returns there after each exchange (offered only with wake phrases). The picker also has a first choice, "Mic off", that stops listening and releases the microphone without changing this value. Implement it to remember the choice per user.</td></tr>
-				<tr><td><code>AnsweringModelName</code> / <code>AnsweringModelDescription</code></td><td><code>string?</code></td><td><code>null</code> (nothing shown)</td><td>The model that answered the latest turn, shown in the toolbar after the agent picker, with the description as its tooltip.</td></tr>
+				<tr><td><code>AnsweringModelName</code> / <code>AnsweringModelDescription</code></td><td><code>string?</code></td><td><code>null</code> (nothing shown)</td><td>The model that answered the latest turn, shown as an "answered by" badge after the model picker, with the description as its tooltip.</td></tr>
 				<tr><td><code>IsImageInputOffered</code></td><td><code>bool</code></td><td><code>false</code></td><td>Offers images: Ctrl+V paste, drag and drop, an attach button and a screenshot button (this tab only). Images stack, numbered, above the text box (at most five), and go in <code>ChatMessage.Images</code>, shown full width in the message.</td></tr>
 				<tr><td><code>ImageInputBlockedReason</code></td><td><code>string?</code></td><td><code>null</code></td><td>When set, the images stay but Send is disabled and this is shown, for example because the selected model cannot take images.</td></tr>
 			</tbody>
 		</table>
 		<p>
-			The microphone button shows the mode as its icon (the HAL eye, a microphone, or an ear) and the state through
+			The microphone is one split control: the button starts and stops listening, and the select beside it picks
+			the mode. The button shows the mode as its icon (the HAL eye, a microphone, or an ear) and the state through
 			its colour and motion: listening, editing, thinking, speaking, dormant or paused. Its title says both in words.
 			In <code>Hal</code> and <code>Wake</code>, clicking in the text box switches to manual: dictation keeps
 			streaming into the box, Send submits, and the next pause sends again. A message's
@@ -169,5 +171,63 @@
 			<strong>Voice and Assistant</strong> settings on this page: the simulated microphone starts every other
 			utterance with "Hey DumbBot".
 		</p>
+		<p>
+			Narrower than about 860px, the toolbar uses two rows: the pickers, then the other controls on the left with
+			Send on the right. Narrower than 420px, as when docked to a corner, the picker labels and the word Send are
+			hidden; each control keeps its tooltip.
+		</p>
+	</section>
+	<section id="icons-and-theming">
+		<h2 class="doc-section">Icons and theming</h2>
+		<p>
+			The header and toolbar buttons use Font Awesome icons, which the library already needs. Each icon is a CSS
+			class on <code>PDChatIcons</code>, passed as the <code>Icons</code> parameter, so a host can use another
+			icon set or a Font Awesome Pro style, for example
+			<code>Icons="@@(new() { Send = "bi bi-send", Attach = "bi bi-paperclip" })"</code>. An empty class shows
+			no icon.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>PDChatIcons property</th><th>Default</th><th>Used for</th></tr></thead>
+			<tbody>
+				<tr><td><code>Agent</code></td><td><code>fas fa-robot</code></td><td>The agent picker, for an agent with no image of its own</td></tr>
+				<tr><td><code>Model</code></td><td><code>fas fa-microchip</code></td><td>The model picker</td></tr>
+				<tr><td><code>SoundsOn</code> / <code>SoundsOff</code></td><td><code>fas fa-bell</code> / <code>fas fa-bell-slash</code></td><td>Notification sounds</td></tr>
+				<tr><td><code>ReadAloudOn</code> / <code>ReadAloudOff</code></td><td><code>fas fa-volume-up</code> / <code>fas fa-volume-mute</code></td><td>Read answers aloud</td></tr>
+				<tr><td><code>Dictate</code> / <code>Wake</code></td><td><code>fas fa-microphone</code> / <code>fas fa-assistive-listening-systems</code></td><td>The microphone in Dictate and wake phrase modes. HAL shows its eye.</td></tr>
+				<tr><td><code>VoiceStarting</code> / <code>VoicePaused</code></td><td><code>fas fa-circle-notch fa-spin</code> / <code>fas fa-pause</code></td><td>The microphone while it opens, and the badge on it while dictation is paused</td></tr>
+				<tr><td><code>Attach</code> / <code>Screenshot</code></td><td><code>fas fa-paperclip</code> / <code>fas fa-camera</code></td><td>The image buttons</td></tr>
+				<tr><td><code>Send</code></td><td><code>fas fa-paper-plane</code></td><td>Send</td></tr>
+				<tr><td><code>Clear</code></td><td><code>fas fa-trash-alt</code></td><td>Clear chat, in the header</td></tr>
+				<tr><td><code>Pin</code></td><td><code>fas fa-thumbtack</code></td><td>Docks a corner chat to the side, and shows pressed while docked, when it unpins</td></tr>
+				<tr><td><code>FullScreen</code> / <code>Restore</code></td><td><code>fas fa-expand</code> / <code>fas fa-compress</code></td><td>Full screen, and leaving it</td></tr>
+				<tr><td><code>Minimize</code></td><td><code>fas fa-minus</code></td><td>Minimise</td></tr>
+			</tbody>
+		</table>
+		<p>
+			Colours and sizes are CSS variables. Each is read where it is used, so a host can set it on
+			<code>:root</code>, on a theme class or on <code>.pdchat-container</code>, and anything left unset keeps its
+			default. For example, <code>body.theme-lime { --pd-chat-send-color: #112100; }</code> gives Send dark text on
+			a light accent.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>--pd-chat-accent</code></td><td><code>--accent</code>, then <code>--bs-primary</code></td><td>The header, Send and the toolbar's focus rings</td></tr>
+				<tr><td><code>--pd-chat-header-color</code></td><td><code>#fff</code></td><td>Header text and buttons</td></tr>
+				<tr><td><code>--pd-chat-font-family</code></td><td><code>Arial, sans-serif</code></td><td>The chat's font</td></tr>
+				<tr><td><code>--pd-chat-toolbar-bg</code> / <code>-border</code></td><td><code>--pd-chat-secondary-bg</code> / <code>--pd-chat-border</code></td><td>The toolbar and the strip around the text box</td></tr>
+				<tr><td><code>--pd-chat-toolbar-padding</code> / <code>-gap</code> / <code>-font-size</code></td><td><code>5px 8px</code> / <code>6px</code> / <code>0.8125rem</code></td><td>Toolbar spacing and text size</td></tr>
+				<tr><td><code>--pd-chat-control-height</code> / <code>-radius</code></td><td><code>28px</code> / <code>6px</code></td><td>Every picker, button and Send</td></tr>
+				<tr><td><code>--pd-chat-control-bg</code> / <code>-color</code> / <code>-border</code></td><td><code>--pd-chat-bg</code> / <code>--pd-chat-color</code> / <code>--pd-chat-border</code></td><td>The picker fields</td></tr>
+				<tr><td><code>--pd-chat-control-hover-bg</code></td><td><code>rgba(128, 128, 128, 0.14)</code></td><td>Any control under the pointer</td></tr>
+				<tr><td><code>--pd-chat-control-active-color</code> / <code>-active-bg</code></td><td><code>--pd-chat-color</code> / <code>rgba(128, 128, 128, 0.22)</code></td><td>A toggle that is on, such as read aloud</td></tr>
+				<tr><td><code>--pd-chat-icon-color</code> / <code>-size</code></td><td><code>--pd-chat-muted-color</code> / <code>0.95rem</code></td><td>Toolbar icons</td></tr>
+				<tr><td><code>--pd-chat-badge-bg</code> / <code>-color</code></td><td><code>rgba(128, 128, 128, 0.16)</code> / <code>--pd-chat-muted-color</code></td><td>The "answered by" badge</td></tr>
+				<tr><td><code>--pd-chat-send-bg</code> / <code>-color</code> / <code>-radius</code></td><td><code>--pd-chat-accent</code> / <code>#fff</code> / <code>--pd-chat-control-radius</code></td><td>Send</td></tr>
+				<tr><td><code>--pd-chat-voice-listening</code></td><td><code>#dc3545</code></td><td>The microphone while listening, and its outline while dormant</td></tr>
+				<tr><td><code>--pd-chat-voice-thinking</code> / <code>-speaking</code> / <code>-editing</code></td><td><code>#6c757d</code> / <code>#0d6efd</code> / <code>#ffc107</code></td><td>The microphone in the other states</td></tr>
+				<tr><td><code>--pd-chat-voice-hal-bg</code></td><td><code>#111</code></td><td>The microphone behind the HAL eye</td></tr>
+			</tbody>
+		</table>
 	</section>
 </div>
