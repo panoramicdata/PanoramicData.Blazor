@@ -81,6 +81,12 @@ public partial class PDChat : JSModuleComponentBase
 	public string CollapsedIcon { get; set; } = "💬";
 
 	/// <summary>
+	/// Gets or sets the CSS classes of the header's and toolbar's icons. Font Awesome by default.
+	/// </summary>
+	[Parameter]
+	public PDChatIcons Icons { get; set; } = new();
+
+	/// <summary>
 	/// A function to select a user icon for a given message.
 	/// </summary>
 	[Parameter]

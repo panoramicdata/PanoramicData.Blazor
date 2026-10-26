@@ -24,7 +24,7 @@ public partial class PDChatTests
 		await InputToolbarButton(component, "Notification sounds: on").ClickAsync(new MouseEventArgs());
 
 		service.IsMuted.Should().BeTrue();
-		InputToolbarButton(component, "Notification sounds: off").TextContent.Should().Contain("🔕");
+		IconClass(InputToolbarButton(component, "Notification sounds: off")).Should().Be(_defaultIcons.SoundsOff);
 		toggles.Should().Be(1);
 	}
 

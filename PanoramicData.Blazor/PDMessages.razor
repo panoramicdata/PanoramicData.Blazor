@@ -24,13 +24,16 @@
 			@InputAccessories
 			@if (IsInputPermitted && IsImageInputOffered)
 			{
-				<button type="button" class="pdchat-toolbar-btn pdchat-image-attach" @onclick="OnAttachClickedAsync" title="Attach images" aria-label="Attach images">📎</button>
-				<button type="button" class="pdchat-toolbar-btn pdchat-image-screenshot" @onclick="OnScreenshotClickedAsync" title="Add a screenshot of this tab" aria-label="Add a screenshot of this tab">📷</button>
+				<span class="pdchat-toolbar-group pdchat-image-buttons">
+					<button type="button" class="pdchat-toolbar-btn pdchat-image-attach" @onclick="OnAttachClickedAsync" title="Attach images" aria-label="Attach images"><i class="@Icons.Attach" aria-hidden="true"></i></button>
+					<button type="button" class="pdchat-toolbar-btn pdchat-image-screenshot" @onclick="OnScreenshotClickedAsync" title="Add a screenshot of this tab" aria-label="Add a screenshot of this tab"><i class="@Icons.Screenshot" aria-hidden="true"></i></button>
+				</span>
 				<input type="file" class="pdchat-image-file-input" accept="image/*" multiple hidden @onchange="OnFilePickerChangedAsync" />
 			}
 			@if (IsInputPermitted)
 			{
-				<button class="btn btn-sm btn-secondary chat-send" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
+				@* The label keeps Send named when a narrow toolbar hides its text. *@
+				<button type="button" class="btn btn-sm btn-primary chat-send" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)" title="Send" aria-label="Send"><i class="@Icons.Send" aria-hidden="true"></i><span class="chat-send-text">Send</span></button>
 			}
 		</div>
 	}

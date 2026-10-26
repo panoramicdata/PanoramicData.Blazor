@@ -394,8 +394,9 @@ public partial class PDChatTests
 
 		service.IsMuted.Should().Be(muted);
 		((IChatService)service).IsReadAloudEnabled.Should().Be(readAloud);
-		component.Find(".pdchat-mute-toggle").TextContent.Should().Be(muted ? "🔕" : "🔔");
+		IconClass(component.Find(".pdchat-mute-toggle")).Should().Be(muted ? _defaultIcons.SoundsOff : _defaultIcons.SoundsOn);
 		component.Find(".pdchat-read-aloud-toggle").GetAttribute("aria-pressed").Should().Be(readAloud ? "true" : "false");
+		IconClass(component.Find(".pdchat-read-aloud-toggle")).Should().Be(readAloud ? _defaultIcons.ReadAloudOn : _defaultIcons.ReadAloudOff);
 	}
 
 	/// <summary>

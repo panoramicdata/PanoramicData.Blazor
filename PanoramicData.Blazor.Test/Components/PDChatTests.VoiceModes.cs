@@ -51,8 +51,8 @@ public partial class PDChatTests
 
 	/// <summary>Verifies that each mode has its own icon, so the mode never depends on colour alone.</summary>
 	[Theory]
-	[InlineData(PDChatVoiceMode.Dictate, "🎙️")]
-	[InlineData(PDChatVoiceMode.Wake, "👂")]
+	[InlineData(PDChatVoiceMode.Dictate, "fas fa-microphone")]
+	[InlineData(PDChatVoiceMode.Wake, "fas fa-assistive-listening-systems")]
 	public void Each_mode_has_its_own_icon(PDChatVoiceMode mode, string icon)
 	{
 		var service = WakeService();
@@ -60,7 +60,8 @@ public partial class PDChatTests
 
 		var toggle = RenderChat(service).Find(".pdchat-voice-toggle");
 
-		toggle.TextContent.Trim().Should().Be(icon);
+		IconClass(toggle).Should().Be(icon);
+		toggle.TextContent.Trim().Should().BeEmpty();
 		toggle.QuerySelector(".pdchat-hal-eye").Should().BeNull();
 	}
 

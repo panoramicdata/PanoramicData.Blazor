@@ -18,7 +18,7 @@
 .pdchat-container {
 	position: fixed;
 	z-index: 10000;
-	font-family: Arial, sans-serif;
+	font-family: var(--pd-chat-font-family, Arial, sans-serif);
 
 	/* Theme-aware surface colours. Alias onto the host's own Bootstrap variables (many host
 	   apps override these per custom theme class, and Bootstrap 5.3's native [data-bs-theme]
@@ -30,8 +30,9 @@
 	--pd-chat-muted-color: var(--bs-secondary-color, #6c757d);
 
 	/* Some host apps define --accent directly (not a --bs-* override) for their own brand
-	   colour per theme. Bootstrap's own --bs-primary is tried first for hosts with neither. */
-	--pd-chat-header-bg: var(--accent, var(--bs-primary, #0078d4));
+	   colour per theme. Bootstrap's own --bs-primary is tried first for hosts with neither.
+	   --pd-chat-accent, if a host sets it, also colours Send and the toolbar's focus rings. */
+	--pd-chat-header-bg: var(--pd-chat-accent, var(--accent, var(--bs-primary, #0078d4)));
 
 	/* Border and priority colours — DELIBERATELY plain static values, no color-mix() or any
 	   other CSS Color 4 function. Screenshot/rasterisation tools such as html2canvas run
@@ -476,7 +477,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 .pdchat-header {
 	background-color: var(--pd-chat-header-bg);
-	color: white;
+	color: var(--pd-chat-header-color, #fff);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -519,8 +520,8 @@ body:has(.pdchat-container.dock-fullscreen) {
 .pdchat-close {
 	background: none;
 	border: none;
-	color: white;
-	font-size: 18px;
+	color: inherit;
+	font-size: 0.95rem;
 	cursor: pointer;
 	padding: 8px;
 	border-radius: 4px;
@@ -537,65 +538,129 @@ body:has(.pdchat-container.dock-fullscreen) {
 	background: rgba(255,255,255,0.15);
 }
 
+/* Pressed while the chat is pinned to a side. */
+.pdchat-header-btn.active {
+	background: rgba(255,255,255,0.25);
+}
+
+/* Keyboard focus only: a clicked button keeps focus, and a ring then would only look stuck on. */
 .pdchat-header-btn:focus,
 .pdchat-close:focus {
-	outline: 2px solid #fff;
+	outline: none;
+}
+
+.pdchat-header-btn:focus-visible,
+.pdchat-close:focus-visible {
+	outline: 2px solid currentColor;
 	outline-offset: 1px;
 }
 
-/* Input toolbar: icon-only toggles (each titled) and compact pickers. */
-.pdchat-toolbar-btn {
-	padding: 1px 3px;
-	line-height: 1.4;
-	font-size: 0.85rem;
-	background: none;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	cursor: pointer;
-	opacity: 0.6;
+/* Input toolbar. The shared control styles are in PDMessages.razor.css, which owns the toolbar; these selectors
+   outrank them. Voice is one split control, the toggle then the mode select. */
+.chat-input-accessories .pdchat-toolbar-group.pdchat-voice-split {
+	gap: 0;
+	height: var(--_pdc-control-height, 28px);
+	background: var(--_pdc-control-bg, #fff);
+	border: 1px solid var(--_pdc-control-border, #ced4da);
+	border-radius: var(--_pdc-control-radius, 6px);
 }
 
-.pdchat-toolbar-btn:hover,
-.pdchat-toolbar-btn:focus-visible {
-	opacity: 1;
-	border-color: var(--pd-chat-border, #dee2e6);
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle {
+	position: relative;
+	width: calc(var(--_pdc-control-height, 28px) + 2px);
+	height: 100%;
+	border-radius: calc(var(--_pdc-control-radius, 6px) - 1px) 0 0 calc(var(--_pdc-control-radius, 6px) - 1px);
 }
 
-.pdchat-mute-toggle[aria-pressed="true"],
-.pdchat-toolbar-btn.active {
-	opacity: 1;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-mode-picker {
+	height: 100%;
+	color: var(--pd-chat-muted-color, #6c757d);
+	background: transparent;
+	border: 0;
+	border-left: 1px solid var(--_pdc-control-border, #ced4da);
+	border-radius: 0 calc(var(--_pdc-control-radius, 6px) - 1px) calc(var(--_pdc-control-radius, 6px) - 1px) 0;
 }
 
-.pdchat-voice-toggle.active {
-	background: #dc3545;
-	border-color: #dc3545;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-mode-picker select {
+	max-width: 7rem;
 }
 
 /* Issue #265: the icon shows the mode, and colour and motion the state; the title says both in words. */
-.pdchat-voice-toggle.active.pdchat-voice-state-thinking {
-	background: #6c757d;
-	border-color: #6c757d;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active {
+	color: #fff;
+	background: var(--pd-chat-voice-listening, #dc3545);
 }
 
-.pdchat-voice-toggle.active.pdchat-voice-state-speaking {
-	background: #0d6efd;
-	border-color: #0d6efd;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-state-thinking {
+	background: var(--pd-chat-voice-thinking, #6c757d);
 }
 
-.pdchat-voice-toggle.active.pdchat-voice-state-dormant,
-.pdchat-voice-toggle.active.pdchat-voice-state-paused {
-	background: none;
-	border: 1px dashed #dc3545;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-state-speaking {
+	background: var(--pd-chat-voice-speaking, #0d6efd);
 }
 
-.pdchat-voice-toggle.active.pdchat-voice-editing {
-	background: #ffc107;
-	border-color: #ffc107;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-state-dormant,
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-state-paused {
+	color: var(--pd-chat-voice-listening, #dc3545);
+	background: transparent;
+	outline: 1.5px dashed currentColor;
+	outline-offset: -4px;
 }
 
-.pdchat-voice-toggle.active.pdchat-voice-mode-hal {
-	background: #111;
-	border: 1px solid #111;
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-state-paused {
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-editing {
+	color: #212529;
+	background: var(--pd-chat-voice-editing, #ffc107);
+}
+
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active.pdchat-voice-mode-hal {
+	background: var(--pd-chat-voice-hal-bg, #111);
+}
+
+/* A ring pulses out from the control while it listens. */
+.chat-input-accessories .pdchat-voice-split:has(.pdchat-voice-state-listening)::after {
+	content: "";
+	position: absolute;
+	inset: -1px;
+	border: 2px solid var(--pd-chat-voice-listening, #dc3545);
+	border-radius: var(--_pdc-control-radius, 6px);
+	pointer-events: none;
+	animation: pdchat-voice-ring 1.8s ease-out infinite;
+}
+
+@keyframes pdchat-voice-ring {
+	from {
+		opacity: 0.75;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(1.18, 1.45);
+	}
+}
+
+.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.pdchat-voice-state-thinking::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 18px;
+	height: 18px;
+	margin: -9px 0 0 -9px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: pdchat-voice-spin 0.9s linear infinite;
+}
+
+@keyframes pdchat-voice-spin {
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .pdchat-hal-eye {
@@ -649,41 +714,65 @@ body:has(.pdchat-container.dock-fullscreen) {
 	}
 }
 
-.pdchat-toolbar-spacer {
-	flex: 1;
+/* Speaking: three bars in place of the icon. */
+.pdchat-voice-speaking-bars {
+	display: inline-flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 12px;
 }
 
-.pdchat-toolbar-picker {
-	display: flex;
-	flex-shrink: 0;
-	align-items: center;
-	gap: 4px;
-	margin: 0;
+.pdchat-voice-speaking-bars span {
+	width: 3px;
+	height: 100%;
+	border-radius: 1px;
+	background: currentColor;
+	transform-origin: bottom;
+	animation: pdchat-voice-bars 0.9s ease-in-out infinite;
 }
 
-.pdchat-toolbar-label {
-	color: var(--pd-chat-muted-color, #6c757d);
+.pdchat-voice-speaking-bars span:nth-child(2) {
+	animation-delay: -0.3s;
 }
 
-/* A corner-docked chat is too narrow for the words; each select keeps its tooltip and accessible name. */
-@container (max-width: 420px) {
-	.pdchat-toolbar-label {
-		display: none;
+.pdchat-voice-speaking-bars span:nth-child(3) {
+	animation-delay: -0.6s;
+}
+
+@keyframes pdchat-voice-bars {
+	0%, 100% {
+		transform: scaleY(0.35);
+	}
+
+	50% {
+		transform: scaleY(1);
 	}
 }
 
-.pdchat-toolbar-picker select {
-	field-sizing: content;
-	max-width: 10rem;
-	padding: 0 4px;
-	font-size: inherit;
-	color: var(--pd-chat-color, #212529);
+.pdchat-voice-paused-badge {
+	position: absolute;
+	right: 3px;
+	bottom: 3px;
+	display: grid;
+	place-items: center;
+	width: 11px;
+	height: 11px;
+	font-size: 0.42rem;
+	color: var(--pd-chat-muted-color, #6c757d);
 	background: var(--pd-chat-bg, #fff);
-	border: 1px solid var(--pd-chat-border, #ccc);
-	border-radius: 4px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px var(--_pdc-control-border, #ced4da);
 }
 
-.pdchat-toolbar-picker .pdchat-picker-action {
+@media (prefers-reduced-motion: reduce) {
+	.chat-input-accessories .pdchat-voice-split:has(.pdchat-voice-state-listening)::after,
+	.chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.pdchat-voice-state-thinking::after,
+	.pdchat-voice-speaking-bars span {
+		animation: none;
+	}
+}
+
+.pdchat-picker-action {
 	font-weight: 600;
 }
 
@@ -691,7 +780,42 @@ body:has(.pdchat-container.dock-fullscreen) {
 	width: 20px;
 	height: 20px;
 	flex-shrink: 0;
+	margin-left: 6px;
 	border-radius: 50%;
+}
+
+/* The model that answered the latest turn, after the pickers. It shrinks to 6rem before it wraps to a row alone. */
+.pdchat-answering-model-badge {
+	display: inline-flex;
+	flex: 1 1 6rem;
+	align-items: center;
+	gap: 4px;
+	min-width: 0;
+	max-width: max-content;
+	height: 22px;
+	padding: 0 9px;
+	overflow: hidden;
+	font-size: 0.75rem;
+	white-space: nowrap;
+	color: var(--pd-chat-badge-color, var(--pd-chat-muted-color, #6c757d));
+	background: var(--pd-chat-badge-bg, rgba(128, 128, 128, 0.16));
+	border-radius: 999px;
+	user-select: none;
+}
+
+.pdchat-answering-model {
+	min-width: 0;
+	max-width: 12rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-weight: 600;
+	color: var(--pd-chat-color, #212529);
+}
+
+@container (max-width: 420px) {
+	.pdchat-answering-model-prefix {
+		display: none;
+	}
 }
 .pdchat-voice-status {
 	padding: 6px 12px;
@@ -703,7 +827,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 .pdchat-voice-status.pdchat-voice-listening::before {
 	content: "● ";
-	color: #dc3545;
+	color: var(--pd-chat-voice-listening, #dc3545);
 }
 
 .pdchat-voice-status.pdchat-voice-dormant::before,
@@ -919,7 +1043,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 	max-width: 250px;
 	min-width: 200px;
 	z-index: 9999;
-	font-family: Arial, sans-serif;
+	font-family: var(--pd-chat-font-family, Arial, sans-serif);
 	font-size: 0.9em;
 	opacity: 0;
 	animation: slideIn 0.3s ease-out forwards;
@@ -1418,15 +1542,4 @@ body:has(.pdchat-container.dock-fullscreen) {
 	background: transparent;
 	color: inherit;
 	cursor: pointer;
-}
-
-/* The model that answered the latest turn, after the agent picker. */
-.pdchat-answering-model {
-	flex-shrink: 1;
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-size: 0.75rem;
-	color: var(--pd-chat-muted-color, #6c757d);
 }
