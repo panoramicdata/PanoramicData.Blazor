@@ -46,6 +46,9 @@ public sealed record PDChatIcons
 	/// <summary>Gets the Send button's icon.</summary>
 	public string Send { get; init; } = "fas fa-paper-plane";
 
+	/// <summary>Gets the icon beside a notice about the images, such as a screenshot that was not allowed.</summary>
+	public string Warning { get; init; } = "fas fa-exclamation-triangle";
+
 	/// <summary>Gets the header's clear chat button's icon.</summary>
 	public string Clear { get; init; } = "fas fa-trash-alt";
 

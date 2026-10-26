@@ -53,7 +53,7 @@
 				}
 				@if (ImageBlockedReason is not null || ImageNotice is not null)
 				{
-					<div class="pdchat-image-notice" role="alert">@(ImageBlockedReason ?? ImageNotice)</div>
+					<div class="pdchat-image-notice" role="alert"><i class="@Icons.Warning" aria-hidden="true"></i>@(ImageBlockedReason ?? ImageNotice)</div>
 				}
 			</div>
 		}

@@ -818,6 +818,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 	}
 }
 .pdchat-voice-status {
+	user-select: none;
 	padding: 6px 12px;
 	font-size: 13px;
 	border-bottom: 1px solid var(--pd-chat-border, #dee2e6);

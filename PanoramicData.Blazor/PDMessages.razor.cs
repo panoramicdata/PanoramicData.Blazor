@@ -276,7 +276,7 @@ public partial class PDMessages : IChatInput
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("readPickedFiles", InputRef, _dotNetRef, MaxImages - Images.Count);
+			await _module.InvokeVoidAsync("readPickedFiles", InputRef, _dotNetRef, MaxImages - Images.Count, MaxImages);
 		}
 	}
 

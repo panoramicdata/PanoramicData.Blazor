@@ -29,6 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      - PDChat: the toolbar's controls flow from the left and wrap onto another row only when they do not fit, with Send at the right end of its row (#276). The pickers show a focus ring only after keyboard use. The image strip above the text box matches the toolbar, its remove button shows on dark themes, and its notices carry a warning icon and cannot be selected. Picking more images than fit keeps the notice that says why, and a file that is not an image, picked or dropped, is refused with a notice instead of being ignored or opened in the tab.
       - PDChat: the input toolbar and header are restyled (#274). Font Awesome icons replace the emoji, set through the new PDChatIcons record on PDChat.Icons and PDMessages.Icons, so a host can use another icon set. Every picker and button is one height, the voice button and its mode select are one split control, the answering model is a badge after the model picker, and the header's dock and unpin buttons are one pin toggle. Narrower than 860px, the toolbar takes two rows with Send on the right. New --pd-chat-* CSS variables theme the toolbar, Send, the voice states and the header, and can be set on :root or a theme class. Send is now btn-primary rather than btn-secondary.
     </PackageReleaseNotes>
   </PropertyGroup>

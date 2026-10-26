@@ -151,8 +151,10 @@
 	background: var(--_pdc-control-hover-bg);
 }
 
+/* Keyboard focus only. A picker also checks data-pointer-focus, set by PDMessages.razor.js after a mouse or touch
+   press, because Chrome counts a select focused with the mouse as :focus-visible. */
 .chat-input-accessories ::deep .pdchat-toolbar-btn:focus-visible,
-.chat-input-accessories ::deep .pdchat-toolbar-picker:focus-within {
+.pdchat-panel-flex:not([data-pointer-focus]) .chat-input-accessories ::deep .pdchat-toolbar-picker:has(select:focus-visible) {
 	outline: 2px solid var(--_pdc-accent);
 	outline-offset: 1px;
 }
@@ -162,32 +164,14 @@
 	background: var(--_pdc-control-active-bg);
 }
 
-.chat-input-accessories ::deep .pdchat-toolbar-spacer {
-	flex: 1;
-}
-
+/* Controls flow from the left and wrap only when they do not fit, with Send at the right end of its row. Groups are
+   told apart by spacing alone, because a divider could start a wrapped row. */
 .chat-input-accessories ::deep .pdchat-toolbar-group {
 	position: relative;
 	display: inline-flex;
 	align-items: center;
 	flex-shrink: 0;
 	gap: 2px;
-}
-
-/* A thin rule midway between neighbouring groups. */
-.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group {
-	margin-left: var(--_pdc-gap);
-}
-
-.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: calc(-1 * var(--_pdc-gap) - 0.5px);
-	width: 1px;
-	height: 18px;
-	transform: translateY(-50%);
-	background: var(--_pdc-border);
 }
 
 /* A picker is its label and a native select drawn as one field. */
@@ -296,25 +280,6 @@
 	opacity: 0.5;
 }
 
-/* Narrower than one row needs with every control shown, the pickers keep the first row and the tools start a
-   second, left-aligned, with Send alone on the right. The spacer becomes the line break. */
-@container (max-width: 860px) {
-	.chat-input-accessories ::deep .pdchat-toolbar-spacer {
-		flex-basis: 100%;
-		height: 0;
-	}
-
-	/* The break is a row of its own with a gap each side, so the row after it rises by one gap. */
-	.chat-input-accessories ::deep .pdchat-toolbar-spacer:not(:first-child) ~ * {
-		margin-top: calc(-1 * var(--_pdc-gap));
-	}
-
-	/* With nothing before it, a break would only leave an empty first row. */
-	.chat-input-accessories ::deep .pdchat-toolbar-spacer:first-child {
-		display: none;
-	}
-}
-
 /* A corner-docked chat is too narrow for the words; each control keeps its tooltip and accessible name. */
 @container (max-width: 420px) {
 	.chat-input-accessories ::deep .pdchat-toolbar-label,
@@ -325,15 +290,6 @@
 	.chat-input-accessories .chat-send {
 		width: var(--_pdc-control-height);
 		padding: 0;
-	}
-
-	/* Groups can wrap here, and a rule would start the new row. */
-	.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group {
-		margin-left: 0;
-	}
-
-	.chat-input-accessories ::deep .pdchat-toolbar-group + .pdchat-toolbar-group::before {
-		display: none;
 	}
 }
 
@@ -350,6 +306,7 @@
 	color: var(--pd-chat-muted-color, #6c757d);
 	background: var(--pd-chat-secondary-bg, #f5f7fa);
 	border-top: 1px solid var(--pd-chat-border, #dee2e6);
+	user-select: none;
 }
 
 /* Under a toolbar, which already carries the border and the push to the bottom. */
@@ -361,13 +318,14 @@
 /* Scrollbar and focus-ring colours are theme-aware via --pd-chat-* variables above now.
    No prefers-color-scheme block needed. */
 
-/* Images waiting to be sent, stacked above the text box. */
+/* Images waiting to be sent, stacked above the text box on the toolbar's background. */
 .pdchat-image-strip {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-start;
-	gap: 6px;
-	padding: 6px 8px 0;
+	gap: 8px;
+	padding: 8px 8px 6px;
+	background: var(--pd-chat-toolbar-bg, var(--pd-chat-secondary-bg, #f5f7fa));
 }
 
 .pdchat-image-thumb {
@@ -381,7 +339,7 @@
 	width: auto;
 	max-width: 120px;
 	object-fit: cover;
-	border-radius: 4px;
+	border-radius: var(--pd-chat-control-radius, 6px);
 	border: 1px solid var(--pd-chat-border, #dee2e6);
 }
 
@@ -394,26 +352,45 @@
 	border-radius: 8px;
 	color: #fff;
 	background: rgba(0, 0, 0, 0.65);
+	user-select: none;
 }
 
 .pdchat-image-remove {
 	position: absolute;
-	top: -5px;
-	right: -5px;
-	width: 18px;
-	height: 18px;
+	top: -6px;
+	right: -6px;
+	display: grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
 	padding: 0;
-	line-height: 16px;
-	font-size: 0.8rem;
-	border-radius: 50%;
+	line-height: 1;
+	font-size: 0.85rem;
+	color: var(--pd-chat-color, #212529);
+	background: var(--pd-chat-bg, #fff);
 	border: 1px solid var(--pd-chat-border, #dee2e6);
-	color: var(--pd-chat-text-color, #212529);
-	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 	cursor: pointer;
 }
 
+.pdchat-image-remove:hover {
+	color: #fff;
+	background: var(--bs-danger, #dc3545);
+	border-color: var(--bs-danger, #dc3545);
+}
+
+.pdchat-image-remove:focus-visible {
+	outline: 2px solid var(--pd-chat-accent, var(--accent, var(--bs-primary, #0078d4)));
+	outline-offset: 1px;
+}
+
 .pdchat-image-notice {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 	flex-basis: 100%;
 	font-size: 0.8rem;
 	color: var(--bs-danger, #dc3545);
+	user-select: none;
 }
