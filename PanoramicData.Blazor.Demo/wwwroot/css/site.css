@@ -148,7 +148,8 @@ a, .btn-link {
 		top: 0;
 	}
 
-	.main > div {
+	/* The logo row only: the chat container beside it must reach the window's edge, and .content pads itself. */
+	.main > .top-row {
 		padding-left: 2rem !important;
 		padding-right: 1.5rem !important;
 	}
