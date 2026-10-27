@@ -19,6 +19,15 @@ public partial class PDChat
 	/// the ones the user is working on. Closing a tab removes it from here and from nowhere else - the
 	/// conversation is still in the sidebar, because there is no delete anywhere in this feature.
 	/// </remarks>
+	/// <summary>
+	/// Called with the id of the conversation the user chose before it is shown; returning false cancels the switch.
+	/// </summary>
+	/// <remarks>
+	/// Lets a host ask something first, for example whether the page behind the chat has unsaved changes. Not called for the conversation already shown. Null switches at once.
+	/// </remarks>
+	[Parameter]
+	public Func<Guid, Task<bool>>? ConversationChanging { get; set; }
+
 	private readonly List<ChatConversation> _openConversations = [];
 
 	/// <summary>
@@ -94,6 +103,11 @@ public partial class PDChat
 	/// </summary>
 	private async Task OpenConversationAsync(ChatConversation conversation)
 	{
+		if (!await CanChangeToAsync(conversation.Id))
+		{
+			return;
+		}
+
 		if (!_openConversations.Any(open => open.Id == conversation.Id))
 		{
 			_openConversations.Add(conversation);
@@ -137,11 +151,30 @@ public partial class PDChat
 	/// <summary>Handles the user clicking a tab.</summary>
 	private async Task OnConversationTabSelectedAsync(PDTab tab)
 	{
-		if (tab.Id != _selectedConversationId)
+		if (tab.Id == _selectedConversationId)
 		{
-			await SelectConversationAsync(tab.Id);
+			return;
 		}
+
+		if (!await CanChangeToAsync(tab.Id))
+		{
+			// The tab set has already moved to the refused tab, so put the selection back on the one still shown.
+			if (_selectedConversationId is { } shown)
+			{
+				_ = ConversationTabSet?.SelectTabById(shown);
+			}
+
+			return;
+		}
+
+		await SelectConversationAsync(tab.Id);
 	}
+
+	/// <summary>Asks the host whether the user may move to another conversation; true when there is no host check.</summary>
+	private async Task<bool> CanChangeToAsync(Guid conversationId)
+		=> ConversationChanging is null
+			|| conversationId == _selectedConversationId
+			|| await ConversationChanging(conversationId);
 
 	/// <summary>Handles the user closing a tab. Closing neither archives nor deletes.</summary>
 	private async Task OnConversationTabClosedAsync(PDTab tab) => await CloseConversationTabAsync(tab.Id);
