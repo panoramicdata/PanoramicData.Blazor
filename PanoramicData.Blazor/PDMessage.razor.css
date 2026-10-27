@@ -457,6 +457,25 @@
 	border-radius: 50%;
 }
 
+/* In the full-width layout the image fills the meta column, with the name and time beneath it. */
+.pdchat-message.full-width .pdchat-details {
+	width: 100%;
+}
+
+.pdchat-message.full-width .pdchat-author {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	gap: 2px;
+}
+
+.pdchat-message.full-width .pdchat-author-image {
+	width: var(--pd-chat-author-image-size, 100%);
+	height: auto;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+}
+
 /* Fit to the message width and scale with it as the chat is widened. */
 .pdchat-message-images {
 	display: flex;

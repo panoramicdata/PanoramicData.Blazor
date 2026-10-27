@@ -22,7 +22,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 		Name = "User",
 		IsUser = true,
 		IsHuman = true,
-		IsSupport = false
+		IsSupport = false,
+		ImageUrl = Services.DemoAvatars.UserImageUrl
 	};
 
 	private static string? GetUserIcon(ChatMessage chatMessage)

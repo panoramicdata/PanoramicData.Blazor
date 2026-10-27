@@ -231,7 +231,8 @@ public class DemoChatConversationService : IChatConversationService
 		// different names for the same person.
 		Name = "User",
 		IsUser = true,
-		IsHuman = true
+		IsHuman = true,
+		ImageUrl = DemoAvatars.UserImageUrl
 	};
 
 	/// <summary>
