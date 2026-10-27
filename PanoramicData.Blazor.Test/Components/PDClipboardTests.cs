@@ -1,12 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
-namespace PanoramicData.Blazor.Test;
+namespace PanoramicData.Blazor.Test.Components;
 
 /// <summary>
 /// Tests that <see cref="PDClipboard"/> writes its text to the clipboard when clicked and briefly shows
-/// the "copied" icon before returning to the "ready" icon.
+/// the "copied" icon, or the "failed" icon when the browser refuses, before returning to the "ready" icon.
 /// </summary>
 public class PDClipboardTests : BunitContext
 {
@@ -81,5 +82,31 @@ public class PDClipboardTests : BunitContext
 		iconStates[0].Should().Contain("copied-icon");
 		iconStates[^1].Should().Contain("fa-copy").And.NotContain("copied-icon");
 		component.Find("i.pdClipboard-button").ClassList.Should().Contain("fa-copy").And.NotContain("copied-icon");
+	}
+
+	/// <summary>
+	/// Verifies that a copy the browser refuses shows the failed icon and raises CopyFailed with the browser's
+	/// reason, instead of throwing out of the click handler and ending the circuit.
+	/// </summary>
+	[Fact]
+	public async Task A_refused_copy_shows_the_failed_icon_and_raises_CopyFailed_without_throwing()
+	{
+		const string reason = "Failed to execute 'writeText' on 'Clipboard': Document is not focused.";
+		JSInterop.SetupVoid("navigator.clipboard.writeText", _ => true).SetException(new JSException(reason));
+		string? raisedReason = null;
+		var component = Render<PDClipboard>(parameters => parameters
+			.Add(p => p.Text, "large-value")
+			.Add(p => p.CopyFailedCssClass, "failed-icon")
+			.Add(p => p.CopyFailed, r => raisedReason = r));
+
+		var iconStates = new List<string>();
+		component.OnMarkupUpdated += (_, _) => iconStates.Add(component.Find("i.pdClipboard-button").ClassName ?? string.Empty);
+
+		await component.InvokeAsync(() => component.Find("a").ClickAsync(new MouseEventArgs()));
+
+		raisedReason.Should().Be(reason);
+		iconStates.Should().HaveCountGreaterThanOrEqualTo(2);
+		iconStates[0].Should().Contain("failed-icon");
+		iconStates[^1].Should().Contain("fa-copy").And.NotContain("failed-icon");
 	}
 }

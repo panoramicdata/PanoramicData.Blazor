@@ -18,6 +18,16 @@ public partial class PDClipboard
 	[Parameter] public string ButtonTextCssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Raised with the browser's reason when it refuses to copy the text, for example because the page lost focus
+	/// </summary>
+	[Parameter] public EventCallback<string> CopyFailed { get; set; }
+
+	/// <summary>
+	/// CSS class to apply when the browser refuses to copy the text
+	/// </summary>
+	[Parameter] public string CopyFailedCssClass { get; set; } = "fas fa-times";
+
+	/// <summary>
 	/// General CSS Class to apply
 	/// </summary>
 	[Parameter] public string CssClass { get; set; } = string.Empty;
@@ -49,8 +59,18 @@ public partial class PDClipboard
 
 	private async Task CopyTextToClipboardAsync()
 	{
-		await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Text);
-		_buttonClass = TextCopiedCssClass;
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Text);
+			_buttonClass = TextCopiedCssClass;
+		}
+		catch (JSException exception)
+		{
+			// Unhandled, a refusal ends the whole circuit. A large text makes one likely: focus can move while it is sent.
+			_buttonClass = CopyFailedCssClass;
+			await CopyFailed.InvokeAsync(exception.Message);
+		}
+
 		StateHasChanged();
 		await Task.Delay(1000);
 		_buttonClass = ReadyToCopyCssClass;

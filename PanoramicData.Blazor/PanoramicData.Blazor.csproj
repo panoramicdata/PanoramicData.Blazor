@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: the toolbar's controls flow from the left and wrap onto another row only when they do not fit, with Send at the right end of its row (#276). The pickers show a focus ring only after keyboard use. The image strip above the text box matches the toolbar, its remove button shows on dark themes, and its notices carry a warning icon and cannot be selected. Picking more images than fit keeps the notice that says why, and a file that is not an image, picked or dropped, is refused with a notice instead of being ignored or opened in the tab.
+      - PDClipboard: a copy the browser refuses, for example because the page lost focus while a large text was still on its way, now shows a failure icon for a second and raises the new CopyFailed callback with the browser's reason, instead of ending the circuit (#280). The icon is set with the new CopyFailedCssClass, which defaults to fas fa-times.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
