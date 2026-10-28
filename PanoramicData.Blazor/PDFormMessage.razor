@@ -86,8 +86,9 @@
 							   min="@active.Scale.Minimum"
 							   max="@active.Scale.Maximum"
 							   step="1"
-							   value="@(_values.GetValueOrDefault(active.Id) ?? Midpoint(active.Scale))"
-							   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+							   @bind:get="_values.GetValueOrDefault(active.Id) ?? Midpoint(active.Scale)"
+							   @bind:set="value => _values[active.Id] = value ?? string.Empty"
+							   @bind:event="oninput" />
 
 						<div class="pdchat-form-scale-ends">
 							<span>@active.Scale.MinimumLabel</span>
@@ -108,8 +109,9 @@
 				case ChatFormAnswerKind.DateTime:
 					<input class="pdchat-form-text"
 						   type="@(active.IncludeTime ? "datetime-local" : "date")"
-						   value="@_values.GetValueOrDefault(active.Id)"
-						   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+						   @bind:get="_values.GetValueOrDefault(active.Id)"
+						   @bind:set="value => _values[active.Id] = value ?? string.Empty"
+						   @bind:event="oninput" />
 					break;
 
 				case ChatFormAnswerKind.Number:
@@ -119,8 +121,9 @@
 							   min="@active.Number?.Minimum"
 							   max="@active.Number?.Maximum"
 							   step="@(active.Number?.Step ?? 1)"
-							   value="@_values.GetValueOrDefault(active.Id)"
-							   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+							   @bind:get="_values.GetValueOrDefault(active.Id)"
+							   @bind:set="value => _values[active.Id] = value ?? string.Empty"
+							   @bind:event="oninput" />
 						@if (!string.IsNullOrWhiteSpace(active.Number?.Unit))
 						{
 							<span class="pdchat-form-unit">@active.Number.Unit</span>
@@ -176,8 +179,9 @@
 					{
 						<input class="pdchat-form-text"
 							   placeholder="Your answer"
-							   value="@TextValue(active)"
-							   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+							   @bind:get="TextValue(active)"
+							   @bind:set="value => _values[active.Id] = value ?? string.Empty"
+							   @bind:event="oninput" />
 					}
 					break;
 			}
@@ -209,8 +213,9 @@
 				{
 					<input class="pdchat-form-text"
 						   placeholder="Tell us more"
-						   value="@_otherText.GetValueOrDefault(active.Id)"
-						   @oninput="e => _otherText[active.Id] = e.Value?.ToString() ?? string.Empty" />
+						   @bind:get="_otherText.GetValueOrDefault(active.Id)"
+						   @bind:set="value => _otherText[active.Id] = value ?? string.Empty"
+						   @bind:event="oninput" />
 				}
 			}
 

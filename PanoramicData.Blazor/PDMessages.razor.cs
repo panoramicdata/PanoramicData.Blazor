@@ -323,11 +323,6 @@ public partial class PDMessages : IChatInput
 		await ScrollToBottomAsync();
 	}
 
-	private void OnInputChanged(ChangeEventArgs e)
-	{
-		_localInput = e.Value?.ToString() ?? string.Empty;
-	}
-
 	private async Task OnSendClickedInternal()
 	{
 		if (!CanSendLocal || !OnSendClicked.HasDelegate)

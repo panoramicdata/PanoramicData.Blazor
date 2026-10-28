@@ -55,7 +55,7 @@ public class PackagingGuardTests
 	/// <summary>
 	/// Walks up from the test binaries to the directory holding global.json.
 	/// </summary>
-	private static string RepositoryRoot
+	internal static string RepositoryRoot
 	{
 		get
 		{

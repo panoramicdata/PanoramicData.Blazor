@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDClipboard: a copy the browser refuses, for example because the page lost focus while a large text was still on its way, now shows a failure icon for a second and raises the new CopyFailed callback with the browser's reason, instead of ending the circuit (#280). The icon is set with the new CopyFailedCssClass, which defaults to fas fa-times.
+      - PDChat: typing into the chat box, a form's text answers or the conversation search no longer loses characters on a slow connection. Each box is now bound, so a render no longer writes the text of an earlier keystroke back over newer typing (#285).
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
