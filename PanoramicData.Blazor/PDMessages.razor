@@ -61,8 +61,8 @@
 			<textarea
 				@key="_inputKey"
 				@ref="InputRef"
-				value="@_localInput"
-				@oninput="OnInputChanged"
+				@bind="_localInput"
+				@bind:event="oninput"
 				@onfocus="() => SetInputFocusedAsync(true)"
 				@onblur="() => SetInputFocusedAsync(false)"
 				placeholder="Type a message..."

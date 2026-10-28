@@ -1,6 +1,3 @@
-using System.Globalization;
-using Microsoft.AspNetCore.Components;
-
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -84,9 +81,10 @@ public partial class PDChatConversationSidebar : ComponentBase, IDisposable
 		await SearchAsync();
 	}
 
-	private async Task OnSearchTextChangedAsync(ChangeEventArgs args)
+	// A missing value searches for everything.
+	private async Task SetSearchTextAsync(string? searchText)
 	{
-		_searchText = args.Value?.ToString() ?? string.Empty;
+		_searchText = searchText ?? string.Empty;
 		await DebouncedSearchAsync();
 	}
 
