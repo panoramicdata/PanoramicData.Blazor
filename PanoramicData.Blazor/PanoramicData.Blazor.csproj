@@ -29,6 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      - PDChat: a sender can carry an image (ChatMessageSender.ImageUrl), shown with each of its messages that has no image of its own, and in the full-width layout the author image fills the message's side column, with the name and time beneath it. Its size can be changed with --pd-chat-author-image-size (#284).
       - PDChat: typing into the chat box, a form's text answers or the conversation search no longer loses characters on a slow connection. Each box is now bound, so a render no longer writes the text of an earlier keystroke back over newer typing (#285).
     </PackageReleaseNotes>
   </PropertyGroup>
