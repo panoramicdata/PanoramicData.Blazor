@@ -100,6 +100,7 @@
 			<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(_resultsTab))">
 				<PDStudioResults @ref="ResultsRef"
 								 Content="@_resultsContent"
+								 ResultSet="@_resultSet"
 								 IsExecuting="@_isExecuting"
 								 ExecutionStatus="@_executionStatus"
 								 ShowStatusBar="@Options.ShowStatusBar"

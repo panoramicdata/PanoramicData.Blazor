@@ -20,12 +20,20 @@
 				}
 				<span class="status-text">@ExecutionStatus</span>
 			</div>
+			@if (ResultSet is not null && !IsExecuting)
+			{
+				<div class="pd-studio-results-summary">@Summary</div>
+			}
 		</div>
 	}
 
 	<!-- Results Content -->
 	<div class="pd-studio-results-content">
-		@if (string.IsNullOrWhiteSpace(Content))
+		@if (ResultSet is not null)
+		{
+			<PDStudioResultGrid ResultSet="@ResultSet" />
+		}
+		else if (string.IsNullOrWhiteSpace(Content))
 		{
 			<div class="pd-studio-results-placeholder">
 				<div class="text-muted text-center p-4">

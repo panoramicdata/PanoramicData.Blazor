@@ -14,6 +14,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private string _executionStatus = StudioExecutionStatus.Ready.ToDisplayString();
 	private string _resultsContent = string.Empty;
 	private string _currentCode = string.Empty;
+	private PDStudioResultSet? _resultSet;
+
+	/// <summary>
+	/// Gets the tabular results of the last execution, when the service returned them, for example to download.
+	/// </summary>
+	public PDStudioResultSet? ResultSet => _resultSet;
 
 	// Shortcut key for execute functionality
 	private readonly ShortcutKey _executeShortcut = ShortcutKey.Create("ctrl-enter");
@@ -425,6 +431,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private async Task ShowResultsAsync(string output)
 	{
 		_resultsContent = output;
+		_resultSet = null;
 		if (ResultsRef != null)
 		{
 			await ResultsRef.UpdateResults(output);
@@ -486,6 +493,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		await ClearResultsAsync();
 
+		if (studioService is IPDStudioResultSetService tabular
+			&& await tabular.ExecuteResultSetAsync(_currentCode, Options.Language, Options.ExecutionTimeoutSeconds, cancellationToken) is { } resultSet)
+		{
+			_resultSet = resultSet;
+			_executionStatus = StudioExecutionStatus.Complete.ToDisplayString();
+			await NotifyCodeExecutedAsync();
+			LogInformation(resultSet.Rows.Count == 1 ? "1 row returned" : "{0:N0} rows returned", resultSet.Rows.Count);
+			return;
+		}
+
 		var result = await studioService.ExecuteCodeAsync(
 			_currentCode,
 			Options.Language,
@@ -494,18 +511,23 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			cancellationToken);
 
 		await ShowResultsAsync(result);
+		await NotifyCodeExecutedAsync();
 
+		LogInformation("Code execution completed successfully");
+	}
+
+	private async Task NotifyCodeExecutedAsync()
+	{
 		if (OnCodeExecuted.HasDelegate)
 		{
 			await OnCodeExecuted.InvokeAsync(_currentCode);
 		}
-
-		LogInformation("Code execution completed successfully");
 	}
 
 	private async Task ClearResultsAsync()
 	{
 		_resultsContent = string.Empty;
+		_resultSet = null;
 		if (ResultsRef != null)
 		{
 			await ResultsRef.ClearResults();

@@ -1,0 +1,49 @@
+@namespace PanoramicData.Blazor
+@inherits PDComponentBase
+
+<div class="pd-studio-grid @CssClass">
+	<table>
+		<thead>
+			<tr>
+				<th class="pd-studio-grid-rownumber" scope="col">#</th>
+				@for (var i = 0; i < ResultSet.Columns.Count; i++)
+				{
+					var column = i;
+					<th scope="col" aria-sort="@AriaSort(column)">
+						<button type="button" class="pd-studio-grid-heading" @onclick="() => SortBy(column)">
+							<span class="pd-studio-grid-name">@ResultSet.Columns[column].Name<span class="pd-studio-grid-sort">@SortMark(column)</span></span>
+							<span class="pd-studio-grid-type">@ResultSet.Columns[column].TypeName</span>
+						</button>
+					</th>
+				}
+			</tr>
+		</thead>
+		<tbody>
+			@{ var rowNumber = 0; }
+			@foreach (var row in SortedRows)
+			{
+				rowNumber++;
+				<tr>
+					<td class="pd-studio-grid-rownumber">@rowNumber</td>
+					@foreach (var value in row)
+					{
+						@if (value is null or DBNull)
+						{
+							<td class="pd-studio-grid-null">NULL</td>
+						}
+						else
+						{
+							<td class="@(PDStudioResultSet.IsNumber(value) ? "pd-studio-grid-number" : null)">@PDStudioResultSet.FormatValue(value)</td>
+						}
+					}
+				</tr>
+			}
+			@if (ResultSet.Rows.Count == 0)
+			{
+				<tr>
+					<td class="pd-studio-grid-empty" colspan="@(ResultSet.Columns.Count + 1)">No rows</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
