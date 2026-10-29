@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Models;
+namespace PanoramicData.Blazor.Models;
 
 /// <summary>
 /// Configuration options for PDStudio component.
@@ -16,22 +16,22 @@ public class PDStudioOptions
 	public string Theme { get; set; } = "light";
 
 	/// <summary>
-	/// Gets or sets the splitter sizes for main split (Top panel vs Log panel).
+	/// Gets or sets the splitter sizes: the editor above, the Results and Messages tabs below.
 	/// </summary>
 	public double[] MainSplitSizes { get; set; } = [75.0, 25.0];
 
 	/// <summary>
-	/// Gets or sets the splitter sizes for top split (Editor vs Results).
+	/// No longer used: results are shown on a tab below the editor.
 	/// </summary>
 	public double[] TopSplitSizes { get; set; } = [50.0, 50.0];
 
 	/// <summary>
-	/// Gets or sets whether the logging panel is visible at initialization.
+	/// Gets or sets whether the Messages tab is shown. Messages are kept while it is hidden.
 	/// </summary>
 	public bool IsLoggingVisible { get; set; } = true;
 
 	/// <summary>
-	/// Gets or sets the default log level for the PDLog component.
+	/// Gets or sets the level the Messages tab starts filtered to; Debug and below show everything.
 	/// </summary>
 	public LogLevel DefaultLogLevel { get; set; } = LogLevel.Debug;
 
