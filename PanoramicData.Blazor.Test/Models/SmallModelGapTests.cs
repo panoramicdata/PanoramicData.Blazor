@@ -51,13 +51,13 @@ public class SmallModelGapTests
 		FileExplorerItem.GetNameFromPath(null).Should().BeEmpty();
 	}
 
-	/// <summary>Blank markdown renders to nothing, and markdown renders to HTML with the advanced extensions.</summary>
+	/// <summary>Blank markdown renders to nothing, and markdown renders to HTML with the chat extensions.</summary>
 	[Fact]
 	public void PartialMarkdown_ToHtml_RendersMarkdown()
 	{
 		PartialMarkdown.ToHtml(null).Should().BeEmpty();
 		PartialMarkdown.ToHtml("  ").Should().BeEmpty();
 		PartialMarkdown.ToHtml("**bold**").Should().Contain("<strong>bold</strong>");
-		PartialMarkdown.ToHtml("| a |\n|---|\n| 1 |").Should().Contain("<table>");
+		PartialMarkdown.ToHtml("| a |\n|---|\n| 1 |").Should().Contain("<table class=\"table\">");
 	}
 }

@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDCardDeck: a deck outside a PDCardDeckGroup now raises CardsReordered when the user changes its order, by dragging or with the keyboard, with the cards in their new order and DeckPosition set. KeyboardReorder (off by default) lets Alt+Up and Alt+Down move the selected cards one place, and DeleteRequested is raised by the Delete key with the selected cards, which the deck does not remove itself, so the host can ask first and then refresh. A deck takes keyboard focus only when one of these applies, so other decks add no tab stops (#287).
+      - PDChat: chat markdown is rendered safely. Raw HTML is shown as text, attribute blocks and media embeds are not applied, an image is shown as a link to its address rather than loaded, and a link keeps its address only when it is a web, mail or phone address. A streamed reply is rendered the same way, and applications can use the same rendering through ChatMarkdown.ToHtml.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
