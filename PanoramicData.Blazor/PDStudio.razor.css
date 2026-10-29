@@ -247,6 +247,7 @@
 }
 
 .pd-studio-tabs {
+	user-select: none;
 	flex: 0 0 auto;
 	display: flex;
 	gap: 0.25rem;

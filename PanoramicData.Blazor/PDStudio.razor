@@ -9,18 +9,18 @@
 			<div class="pd-studio-editor-wrapper">
 				@if (Options.ShowMenu || Options.ShowToolbar)
 				{
-					<PDToolbar ButtonSize="ButtonSizes.Small" CssClass="pd-studio-toolbar">
+					<PDToolbar ButtonSize="@Options.ButtonSize" CssClass="pd-studio-toolbar">
 
-						@if (Options.ShowMenu)
+						@if (Options.ShowToolbar)
 						{
-							<PDToolbarButton Key="new"
-											 Text="New"
-											 IconCssClass="fas fa-file"
-											 Click="OnNewClick" />
-							@if (CurrentExamples.Count > 0)
-							{
-								<PDToolbarDropdown Text="Examples" IconCssClass="fas fa-book-open" Items="@ExampleMenuItems()" Click="OnExampleClick" />
-							}
+							<PDToolbarButton Key="play"
+											 Text="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonText)"
+											 IconCssClass="@(_isExecuting ? "fas fa-stop" : "fas fa-play")"
+											 CssClass="@(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)"
+											 Size="@Options.ButtonSize"
+											 TextCssClass="@Options.ButtonTextCssClass"
+											 Click="OnPlayCancelClick"
+											 ShortcutKey="@_executeShortcut" />
 						}
 
 						@if (Options.ShowMenu && Options.ShowToolbar)
@@ -28,21 +28,29 @@
 							<PDToolbarSeparator />
 						}
 
-						@if (Options.ShowToolbar)
+						@if (Options.ShowMenu)
 						{
-							<PDToolbarButton Key="play"
-											 Text="@(_isExecuting ? "Cancel" : "Execute")"
-											 IconCssClass="@(_isExecuting ? "fas fa-stop" : "fas fa-play")"
-											 CssClass="@(_isExecuting ? "btn-danger" : "btn-success")"
-											 Click="OnPlayCancelClick"
-											 ShortcutKey="@_executeShortcut" />
-
-							@if (EditorToolbarContent != null)
+							<PDToolbarButton Key="new"
+											 Text="@Options.NewButtonText"
+											 IconCssClass="fas fa-file"
+											 CssClass="@Options.NewButtonCssClass"
+											 Size="@Options.ButtonSize"
+											 TextCssClass="@Options.ButtonTextCssClass"
+											 Click="OnNewClick" />
+							@if (CurrentExamples.Count > 0)
 							{
-								<PDToolbarSeparator />
-								@EditorToolbarContent
+								<PDToolbarDropdown Text="@Options.ExamplesButtonText"
+												   IconCssClass="fas fa-book-open"
+												   CssClass="@Options.ExamplesButtonCssClass"
+												   Size="@Options.ButtonSize"
+												   TextCssClass="@Options.ButtonTextCssClass"
+												   Items="@ExampleMenuItems()"
+												   Click="OnExampleClick" />
 							}
 						}
+
+						@* The host adds its own separator if it wants one *@
+						@EditorToolbarContent
 
 					</PDToolbar>
 				}
@@ -94,7 +102,9 @@
 								 Content="@_resultsContent"
 								 IsExecuting="@_isExecuting"
 								 ExecutionStatus="@_executionStatus"
-								 ShowStatusBar="@Options.ShowStatusBar" />
+								 ShowStatusBar="@Options.ShowStatusBar"
+								 IsDark="@Options.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase)"
+								 StyleSheet="@Options.ResultsStyleSheet" />
 			</div>
 
 			@if (Options.IsLoggingVisible)
