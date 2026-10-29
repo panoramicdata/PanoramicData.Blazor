@@ -68,6 +68,9 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	// A card dropped before the script's drop listener is in place would never reach the group's transformation.
 	private bool _canDrag;
 
+	// The card ids in order when a drag began, outside a group; null when no drag is waiting to be reported.
+	private List<Guid>? _orderAtDragStart;
+
 	/// <summary>Gets the injected logger for this component.</summary>
 	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
 
@@ -137,6 +140,14 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	/// </summary>
 	[Parameter]
 	public bool ShowLoadingElapsedTime { get; set; } = true;
+
+	/// <summary>
+	/// Raised by a deck outside a <see cref="PDCardDeckGroup{TCard}"/> when the user changes the order of its cards,
+	/// with the cards in their new order and each <see cref="ICard.DeckPosition"/> set. Inside a group, see
+	/// <see cref="PDCardDeckGroup{TCard}.Transformation"/> instead.
+	/// </summary>
+	[Parameter]
+	public EventCallback<IReadOnlyList<TCard>> CardsReordered { get; set; }
 
 	/// <summary>
 	/// The parent deck group that this deck belongs to, if any. This is used for migrating cards between decks.
@@ -253,7 +264,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	[JSInvokable]
 	public Task InitiateTransformAsync()
 		=> Parent?.InitiateTransformAsync()
-		?? Task.CompletedTask;
+		?? CompleteReorderAsync();
 
 
 	#region Card Called Events
@@ -297,6 +308,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
+		_orderAtDragStart = Parent is null ? [.. Cards.Select(deckCard => deckCard.Id)] : null;
 		ClearAnimationPositions();
 		Parent?.ClearAllSelectionExceptActive(this);
 		Parent?.SetSourceDeck(this);
@@ -313,9 +325,10 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		await InvokeAsync(StateHasChanged);
 	}
 
-	internal void OnDragEnd(DragEventArgs e, TCard card)
+	internal async Task OnDragEndAsync(DragEventArgs e, TCard card)
 	{
 		DragState.Reset();
+		await CompleteReorderAsync();
 		StateHasChanged();
 	}
 
@@ -607,6 +620,27 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 			var card = Cards[index];
 			card.DeckPosition = index;
 		}
+	}
+
+	// A drag ends with both the document's drop and the dragged card's dragend, in either order: the first reports it.
+	private async Task CompleteReorderAsync()
+	{
+		if (_orderAtDragStart is not { } orderAtDragStart)
+		{
+			return;
+		}
+
+		_orderAtDragStart = null;
+		if (!orderAtDragStart.SequenceEqual(Cards.Select(card => card.Id)))
+		{
+			await NotifyReorderedAsync();
+		}
+	}
+
+	private async Task NotifyReorderedAsync()
+	{
+		UpdateCardDeckPositions();
+		await CardsReordered.InvokeAsync([.. Cards]);
 	}
 
 	/// <summary>
