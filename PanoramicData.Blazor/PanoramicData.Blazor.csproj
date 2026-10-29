@@ -29,8 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: a sender can carry an image (ChatMessageSender.ImageUrl), shown with each of its messages that has no image of its own, and in the full-width layout the author image fills the message's side column, with the name and time beneath it. Its size can be changed with --pd-chat-author-image-size (#284).
-      - PDChat: typing into the chat box, a form's text answers or the conversation search no longer loses characters on a slow connection. Each box is now bound, so a render no longer writes the text of an earlier keystroke back over newer typing (#285).
+      - PDCardDeck: a deck outside a PDCardDeckGroup now raises CardsReordered when the user changes its order, by dragging or with the keyboard, with the cards in their new order and DeckPosition set. KeyboardReorder (off by default) lets Alt+Up and Alt+Down move the selected cards one place, and DeleteRequested is raised by the Delete key with the selected cards, which the deck does not remove itself, so the host can ask first and then refresh. A deck takes keyboard focus only when one of these applies, so other decks add no tab stops (#287).
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
