@@ -94,6 +94,10 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 	private static string ExampleKey(int index) => _examplePrefix + index.ToString(CultureInfo.InvariantCulture);
 
+	// Built afresh each render: a child PDMenuItem registers with its dropdown only once, so would not follow a language change.
+	private List<MenuItem> ExampleMenuItems()
+		=> [.. CurrentExamples.Select((e, i) => new MenuItem { Text = e.Name, Key = ExampleKey(i) })];
+
 	/// <summary>
 	/// Custom content for the editor toolbar.
 	/// </summary>

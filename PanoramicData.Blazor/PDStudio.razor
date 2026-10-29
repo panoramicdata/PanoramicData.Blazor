@@ -25,12 +25,7 @@
 													 Click="OnNewClick" />
 									@if (CurrentExamples.Count > 0)
 									{
-										<PDToolbarDropdown Text="Examples" IconCssClass="fas fa-book-open" Click="OnExampleClick">
-											@for (var i = 0; i < CurrentExamples.Count; i++)
-											{
-												<PDMenuItem Text="@CurrentExamples[i].Name" Key="@ExampleKey(i)" />
-											}
-										</PDToolbarDropdown>
+										<PDToolbarDropdown Text="Examples" IconCssClass="fas fa-book-open" Items="@ExampleMenuItems()" Click="OnExampleClick" />
 									}
 								}
 
