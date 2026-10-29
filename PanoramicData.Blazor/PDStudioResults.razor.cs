@@ -105,6 +105,38 @@ public partial class PDStudioResults : PDComponentBase
 	}
 
 	/// <summary>
+	/// Gets or sets tabular results, shown in a grid in place of <see cref="Content"/>.
+	/// </summary>
+	[Parameter] public PDStudioResultSet? ResultSet { get; set; }
+
+	private string Summary
+	{
+		get
+		{
+			var set = ResultSet!;
+			var parts = new List<string>
+			{
+				set.Rows.Count == 1 ? "1 row" : string.Format(CultureInfo.InvariantCulture, "{0:N0} rows", set.Rows.Count)
+			};
+			if (set.Duration is TimeSpan duration)
+			{
+				parts.Add(duration.TotalSeconds < 1
+					? string.Format(CultureInfo.InvariantCulture, "{0:N0} ms", duration.TotalMilliseconds)
+					: string.Format(CultureInfo.InvariantCulture, "{0:N1} s", duration.TotalSeconds));
+			}
+
+			if (set.IsTruncated)
+			{
+				parts.Add(set.RowLimit is int limit
+					? string.Format(CultureInfo.InvariantCulture, "limited to {0:N0} rows", limit)
+					: "more rows not shown");
+			}
+
+			return string.Join(", ", parts);
+		}
+	}
+
+	/// <summary>
 	/// Gets or sets whether the results are shown in dark colours. Ignored when <see cref="StyleSheet"/> is set.
 	/// </summary>
 	[Parameter] public bool IsDark { get; set; }

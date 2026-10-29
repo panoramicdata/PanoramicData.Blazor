@@ -131,7 +131,7 @@ public partial class PDStudioTests
 		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Be("2 * 3"));
 	}
 
-	private sealed class FakeStudioService : IPDStudioService
+	private sealed class FakeStudioService : IPDStudioResultSetService
 	{
 		private EventHandler<StudioExecutionEventArgs>? _executionEvent;
 
@@ -144,6 +144,19 @@ public partial class PDStudioTests
 		public List<(string Code, string Language, int Timeout)> Calls { get; } = [];
 
 		public string Result { get; set; } = "<p>Done</p>";
+
+		/// <summary>Tabular results to return; null makes the studio fall back to <see cref="Result"/>.</summary>
+		public PDStudioResultSet? ResultSet { get; set; }
+
+		public Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken cancellationToken)
+		{
+			if (ResultSet is not null)
+			{
+				Calls.Add((code, language, timeoutSeconds));
+			}
+
+			return Failure is not null && ResultSet is not null ? throw Failure : Task.FromResult(ResultSet);
+		}
 
 		public Exception? Failure { get; set; }
 
