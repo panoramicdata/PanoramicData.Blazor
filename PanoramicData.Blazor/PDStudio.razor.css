@@ -12,7 +12,10 @@
    --pd-studio-border-radius    panel corners
    --pd-studio-overlay-bg       the busy overlay over the editor
    --pd-studio-muted-color      timestamps, unselected tabs, debug messages (--bs-secondary)
-   --pd-studio-accent           the selected tab           (--bs-primary)
+   --pd-studio-accent           the selected tab           (--accent, then --bs-primary)
+   --pd-studio-tab-color        unselected tab text        (--pd-studio-muted-color)
+   --pd-studio-tab-active-color selected tab text          (--pd-studio-accent)
+   --pd-studio-tab-underline-color  selected tab underline (--pd-studio-tab-active-color)
    --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
    Messages use the status colours in PDStudioResults.razor.css: information takes the ready
    colour, warnings the warning colour and errors the error colour.
@@ -29,7 +32,10 @@
 	--_pds-border-radius: var(--pd-studio-border-radius, 0.25rem);
 	--_pds-overlay-bg: var(--pd-studio-overlay-bg, rgba(128, 128, 128, 0.35));
 	--_pds-muted-color: var(--pd-studio-muted-color, var(--bs-secondary, #6c757d));
-	--_pds-accent: var(--pd-studio-accent, var(--bs-primary, #0d6efd));
+	--_pds-accent: var(--pd-studio-accent, var(--accent, var(--bs-primary, #0d6efd)));
+	--_pds-tab-color: var(--pd-studio-tab-color, var(--_pds-muted-color));
+	--_pds-tab-active-color: var(--pd-studio-tab-active-color, var(--_pds-accent));
+	--_pds-tab-underline-color: var(--pd-studio-tab-underline-color, var(--_pds-tab-active-color));
 	--_pds-info-color: var(--pd-studio-status-ready-color, var(--bs-primary, #0d6efd));
 	--_pds-warning-color: var(--pd-studio-status-warning-color, var(--bs-warning, #ffc107));
 	--_pds-error-color: var(--pd-studio-status-error-color, var(--bs-danger, #dc3545));
@@ -254,7 +260,7 @@
 	border: none;
 	border-bottom: 2px solid transparent;
 	background: none;
-	color: var(--_pds-muted-color);
+	color: var(--_pds-tab-color);
 	font-size: 0.875rem;
 	display: flex;
 	align-items: center;
@@ -262,13 +268,16 @@
 }
 
 .pd-studio-tab.active {
-	color: var(--_pds-accent);
-	border-bottom-color: var(--_pds-accent);
+	color: var(--_pds-tab-active-color);
+	border-bottom-color: var(--_pds-tab-underline-color);
 	font-weight: 600;
 }
 
 .pd-studio-tab-badge {
-	padding: 0 0.4rem;
+	display: inline-flex;
+	align-items: center;
+	line-height: 1;
+	padding: 0.2rem 0.45rem;
 	border-radius: 999px;
 	font-size: 0.75rem;
 	font-weight: 400;
