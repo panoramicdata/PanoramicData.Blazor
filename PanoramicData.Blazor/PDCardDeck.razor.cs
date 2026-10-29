@@ -150,6 +150,19 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	public EventCallback<IReadOnlyList<TCard>> CardsReordered { get; set; }
 
 	/// <summary>
+	/// Whether, in a deck outside a <see cref="PDCardDeckGroup{TCard}"/>, Alt+Up and Alt+Down move the selected cards one
+	/// place, raising <see cref="CardsReordered"/>. Defaults to false.
+	/// </summary>
+	[Parameter]
+	public bool KeyboardReorder { get; set; }
+
+	/// <summary>
+	/// Raised when the user presses Delete with cards selected, with the selected cards. The deck removes nothing itself.
+	/// </summary>
+	[Parameter]
+	public EventCallback<IReadOnlyList<TCard>> DeleteRequested { get; set; }
+
+	/// <summary>
 	/// The parent deck group that this deck belongs to, if any. This is used for migrating cards between decks.
 	/// </summary>
 	[CascadingParameter]
@@ -172,7 +185,57 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 				async (MouseEventArgs _) => await RegisterDestination());
 		}
 
+		// The deck takes focus only when a key does something, so other decks add no tab stops.
+		if (CanReorderByKeyboard || DeleteRequested.HasDelegate)
+		{
+			dict.Add("tabindex", "0");
+			dict.Add("onkeydown", (KeyboardEventArgs e) => OnKeyDownAsync(e));
+		}
+
 		return dict;
+	}
+
+	private bool CanReorderByKeyboard => KeyboardReorder && Parent is null;
+
+	private async Task OnKeyDownAsync(KeyboardEventArgs args)
+	{
+		if (!IsEnabled || Selection.Count == 0)
+		{
+			return;
+		}
+
+		if (args.Key == "Delete" && DeleteRequested.HasDelegate)
+		{
+			await DeleteRequested.InvokeAsync([.. Selection]);
+		}
+		else if (args.AltKey && CanReorderByKeyboard && args.Key is "ArrowUp" or "ArrowDown")
+		{
+			await MoveSelectionAsync(args.Key == "ArrowUp" ? -1 : 1);
+		}
+	}
+
+	// Each selected card swaps with the card beside it, leading edge first, so a block moves together. Nothing moves
+	// once a selected card is at the end it is moving towards.
+	private async Task MoveSelectionAsync(int offset)
+	{
+		List<int> indexes = [.. Selection.Select(card => Cards.IndexOf(card)).Where(index => index >= 0).Order()];
+		if (indexes.Count == 0 || (offset < 0 ? indexes[0] == 0 : indexes[^1] == Cards.Count - 1))
+		{
+			return;
+		}
+
+		if (offset > 0)
+		{
+			indexes.Reverse();
+		}
+
+		foreach (var index in indexes)
+		{
+			(Cards[index], Cards[index + offset]) = (Cards[index + offset], Cards[index]);
+		}
+
+		await NotifyReorderedAsync();
+		StateHasChanged();
 	}
 
 	private string GetDeckCss()
