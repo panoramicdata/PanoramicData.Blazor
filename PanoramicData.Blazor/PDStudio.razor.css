@@ -17,6 +17,7 @@
    --pd-studio-tab-active-color selected tab text          (--pd-studio-accent)
    --pd-studio-tab-underline-color  selected tab underline (--pd-studio-tab-active-color)
    --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
+   --pd-studio-left-panel-width the host's left panel      (16rem)
    Messages use the status colours in PDStudioResults.razor.css: information takes the ready
    colour, warnings the warning colour and errors the error colour.
    ============================================== */
@@ -46,6 +47,60 @@
 	background-color: var(--_pds-bg);
 	color: var(--_pds-color);
 	overflow: hidden;
+}
+
+.pd-studio-body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+}
+
+.pd-studio-left-panel {
+	flex: 0 0 var(--pd-studio-left-panel-width, 16rem);
+	min-width: 0;
+	overflow: auto;
+	background-color: var(--_pds-panel-bg);
+	border-right: 1px solid var(--_pds-border-color);
+}
+
+.pd-studio-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.pd-studio-toolbar-end {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.pd-studio-footer {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.8125rem;
+	background-color: var(--_pds-toolbar-bg);
+	border-top: 1px solid var(--_pds-border-color);
+	color: var(--_pds-muted-color);
+	user-select: none;
+}
+
+@media (max-width: 768px) {
+	.pd-studio-body {
+		flex-direction: column;
+	}
+
+	.pd-studio-left-panel {
+		flex-basis: auto;
+		max-height: 12rem;
+		border-right: none;
+		border-bottom: 1px solid var(--_pds-border-color);
+	}
 }
 
 .pd-studio-toolbar {

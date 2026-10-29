@@ -111,12 +111,45 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	}
 
 	// A hidden Messages tab cannot stay selected.
-	private bool IsTabActive(string tab)
-		=> tab == (_activeTab == _messagesTab && !Options.IsLoggingVisible ? _resultsTab : _activeTab);
+	// A tab that is hidden or no longer offered cannot stay selected.
+	private string ActiveTab
+		=> (_activeTab == _messagesTab && Options.IsLoggingVisible)
+			|| OutputTabs.Any(t => t.Key == _activeTab)
+				? _activeTab
+				: _resultsTab;
+
+	private bool IsTabActive(string tab) => tab == ActiveTab;
 
 	private string TabCssClass(string tab) => IsTabActive(tab) ? "pd-studio-tab active" : "pd-studio-tab";
 
-	private void SelectTab(string tab) => _activeTab = tab;
+	/// <summary>
+	/// Shows a tab: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
+	/// </summary>
+	public void SelectTab(string key)
+	{
+		_activeTab = key;
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Gets or sets tabs shown after Results and Messages, such as a query plan or a chart.
+	/// </summary>
+	[Parameter] public IReadOnlyList<PDStudioOutputTab> OutputTabs { get; set; } = [];
+
+	/// <summary>
+	/// Gets or sets content shown in a panel to the left of the editor and its tabs, such as a schema browser.
+	/// </summary>
+	[Parameter] public RenderFragment? LeftPanelContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content placed at the right-hand end of the toolbar.
+	/// </summary>
+	[Parameter] public RenderFragment? ToolbarEndContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content shown in a bar along the bottom of the studio, such as the cursor position.
+	/// </summary>
+	[Parameter] public RenderFragment? FooterContent { get; set; }
 
 	private void OnMessageLevelChanged(ChangeEventArgs args)
 		=> _messageLevel = Enum.TryParse<LogLevel>(args.Value?.ToString(), out var level) ? level : LogLevel.Trace;

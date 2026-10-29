@@ -2,6 +2,12 @@
 @inherits PDComponentBase
 
 <div class="pd-studio @CssClass">
+	<div class="pd-studio-body">
+	@if (LeftPanelContent != null)
+	{
+		<div class="pd-studio-left-panel">@LeftPanelContent</div>
+	}
+	<div class="pd-studio-main">
 	<PDSplitter Direction="SplitDirection.Vertical">
 
 		<!-- Top: toolbar and editor -->
@@ -52,6 +58,11 @@
 						@* The host adds its own separator if it wants one *@
 						@EditorToolbarContent
 
+						@if (ToolbarEndContent != null)
+						{
+							<div class="pd-studio-toolbar-end">@ToolbarEndContent</div>
+						}
+
 					</PDToolbar>
 				}
 
@@ -95,6 +106,12 @@
 						}
 					</button>
 				}
+				@foreach (var tab in OutputTabs)
+				{
+					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@IsTabActive(tab.Key)" @onclick="() => SelectTab(tab.Key)">
+						@tab.Title
+					</button>
+				}
 			</div>
 
 			<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(_resultsTab))">
@@ -134,7 +151,21 @@
 					</div>
 				</div>
 			}
+
+			@foreach (var tab in OutputTabs)
+			{
+				<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(tab.Key))">
+					@tab.Content
+				</div>
+			}
 		</PDSplitPanel>
 
 	</PDSplitter>
+	</div>
+	</div>
+
+	@if (FooterContent != null)
+	{
+		<div class="pd-studio-footer">@FooterContent</div>
+	}
 </div>

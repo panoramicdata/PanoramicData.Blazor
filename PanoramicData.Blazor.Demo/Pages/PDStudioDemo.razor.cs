@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Demo.Services;
 
@@ -49,6 +49,11 @@ public partial class PDStudioDemo : IDisposable
 			""", "sql"),
 		new("Heading and paragraph", "<h1>Hello World</h1>\n<p>This is a sample HTML document.</p>", "html"),
 		new("Counting loop", "for (let i = 0; i < 5; i++) {\n  console.log('Count: ' + i);\n}", "javascript")
+	];
+
+	protected static IReadOnlyList<PDStudioOutputTab> OutputTabs { get; } =
+	[
+		new("about", "About", builder => builder.AddMarkupContent(0, "<p class='p-3 mb-0'>A tab added by the host page through OutputTabs.</p>"))
 	];
 
 	[Inject] private ILogger<PDStudioDemo> Logger { get; set; } = null!;

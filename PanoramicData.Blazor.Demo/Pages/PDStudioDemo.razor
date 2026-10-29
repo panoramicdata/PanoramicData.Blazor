@@ -1,7 +1,4 @@
 @page "/pdstudio"
-@using PanoramicData.Blazor.Demo.Services
-@using PanoramicData.Blazor.Models
-@using Microsoft.Extensions.Logging
 
 <h1>PDStudio - Multi-Language Development Environment</h1>
 
@@ -24,6 +21,7 @@
 					<PDStudio StudioService="@StudioService"
 							  Options="@StudioOptions"
 							  Examples="@Examples"
+							  OutputTabs="@OutputTabs"
 							  OnCodeExecuted="OnCodeExecuted"
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
@@ -41,12 +39,31 @@
 											 IconCssClass="fas fa-code"
 											 CssClass="btn-outline-secondary"
 											 Click="OnChangeLanguage" />
+
+						</EditorToolbarContent>
+
+						<ToolbarEndContent>
 							<PDToolbarButton Key="console"
 											 Text="@($"Console: {(StudioOptions.IsLoggingVisible ? "On" : "Off")}")"
 											 IconCssClass="fas fa-terminal"
 											 CssClass="btn-outline-secondary"
 											 Click="OnToggleConsoleClick" />
-						</EditorToolbarContent>
+						</ToolbarEndContent>
+
+						<LeftPanelContent>
+							<div class="p-2">
+								<div class="fw-semibold mb-1">Examples</div>
+								@foreach (var example in Examples.Where(e => e.IsFor(StudioOptions.Language)))
+								{
+									<div class="small">@example.Name</div>
+								}
+							</div>
+						</LeftPanelContent>
+
+						<FooterContent>
+							<span>Language: @StudioOptions.Language.ToUpperInvariant()</span>
+							<span>Theme: @StudioOptions.Theme</span>
+						</FooterContent>
 
 					</PDStudio>
 				</div>
