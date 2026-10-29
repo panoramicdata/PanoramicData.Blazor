@@ -24,6 +24,33 @@ public partial class PDStudioDemo : IDisposable
 		ExecutionTimeoutSeconds = 5 // Set shorter timeout for demo/testing
 	};
 
+	protected static IReadOnlyList<PDStudioExample> Examples { get; } =
+	[
+		new("Basic expressions", """
+			// Mathematical Operations
+			2 + 3 * 4
+
+			// Trigonometric Functions
+			Sin(Pi / 4) + Cos(Pi / 4)
+
+			// Conditional Logic
+			if(x > y, 'X is greater than Y', 'Y is greater than or equal to X')
+			""", "ncalc"),
+		new("Timeout (sleeps 10 seconds)", "sleep(10)", "ncalc"),
+		new("Syntax error", "1 +", "ncalc"),
+		new("Division by zero", "10 / 0", "ncalc"),
+		new("Customers in London", "SELECT * FROM customers WHERE city = 'London'", "sql"),
+		new("Spend by customer", """
+			SELECT c.name, SUM(o.total) AS total_spent
+			FROM customers c
+			JOIN orders o ON c.id = o.customer_id
+			GROUP BY c.id, c.name
+			ORDER BY total_spent DESC
+			""", "sql"),
+		new("Heading and paragraph", "<h1>Hello World</h1>\n<p>This is a sample HTML document.</p>", "html"),
+		new("Counting loop", "for (let i = 0; i < 5; i++) {\n  console.log('Count: ' + i);\n}", "javascript")
+	];
+
 	[Inject] private ILogger<PDStudioDemo> Logger { get; set; } = null!;
 	[Inject] private IServiceProvider ServiceProvider { get; set; } = null!;
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;

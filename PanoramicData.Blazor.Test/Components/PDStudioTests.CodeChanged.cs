@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -37,7 +39,7 @@ public partial class PDStudioTests
 		var studio = RenderStudioReporting(changes);
 		await TypeAsync(studio, "<p>Hi</p>");
 
-		await MenuAsync(studio, "File", "New");
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
 
 		changes.Should().Equal("<p>Hi</p>", string.Empty);
 		studio.Instance.Code.Should().BeEmpty();
@@ -50,10 +52,12 @@ public partial class PDStudioTests
 	public async Task CodeChanged_IsRaisedByLoadingAnExample()
 	{
 		var changes = new List<string>();
-		var studio = RenderStudioReporting(changes);
+		var studio = RenderStudio(more: p => p
+			.Add(x => x.CodeChanged, EventCallback.Factory.Create<string>(this, changes.Add))
+			.Add(x => x.Examples, [new PDStudioExample("Greeting", "<p>Hello</p>")]));
 
-		await MenuAsync(studio, "File", "LoadExample1");
+		await MenuAsync(studio, "Examples", "example-0");
 
-		changes.Should().ContainSingle().Which.Should().NotBeNullOrWhiteSpace();
+		changes.Should().Equal("<p>Hello</p>");
 	}
 }
