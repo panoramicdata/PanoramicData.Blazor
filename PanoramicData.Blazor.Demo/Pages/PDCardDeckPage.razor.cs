@@ -9,12 +9,16 @@ public partial class PDCardDeckPage
 	private readonly ListDataProviderService<Todo> _todoList2 = new();
 	private readonly ListDataProviderService<Todo> _todoList3 = new();
 	private readonly ListDataProviderService<Todo> _todoList4 = new();
+	private readonly ListDataProviderService<Todo> _todoList5 = new();
 
 
 	protected PDCardDeck<Todo> CardDeck1 { get; set; } = new();
 	protected PDCardDeck<Todo> CardDeck2 { get; set; } = new();
 	protected PDCardDeck<Todo> CardDeck3 { get; set; } = new();
 	protected PDCardDeck<Todo> CardDeck4 { get; set; } = new();
+	protected PDCardDeck<Todo> CardDeck5 { get; set; } = new();
+	protected PDConfirm DeleteConfirm { get; set; } = null!;
+	protected bool ConfirmDelete { get; set; } = true;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -52,6 +56,31 @@ public partial class PDCardDeckPage
 			new Todo{Title = "Extinguish Shed Fire",Description =  "a description", Priority = Priority.Blocker},
 		]
 			);
+
+		_todoList5.List.AddRange([
+			new Todo{Title = "Book holiday", Description = "a description"},
+			new Todo{Title = "Do weekly shop", Description = "a description"},
+			new Todo{Title = "Put up shelf", Description = "a description"},
+			new Todo{Title = "Get a haircut", Description = "a description"},
+			new Todo{Title = "Walk the dog", Description = "a description"} ]
+			);
+	}
+
+	// The cards are the list's own items, so their new DeckPosition values are already saved.
+	protected void OnCardsReordered(IReadOnlyList<Todo> cards)
+		=> EventManager?.Add(new Event("CardsReordered", new EventArgument("List", ConvertToString(cards))));
+
+	protected async Task OnDeleteRequestedAsync(IReadOnlyList<Todo> cards)
+	{
+		var message = cards.Count == 1 ? $"Delete \"{cards[0].Title}\"?" : $"Delete these {cards.Count} cards?";
+		if (ConfirmDelete && await DeleteConfirm.ShowAndWaitResultAsync(message) != PDConfirm.Outcomes.Yes)
+		{
+			return;
+		}
+
+		_todoList5.List.RemoveAll(cards.Contains);
+		EventManager?.Add(new Event("DeleteRequested", new EventArgument("List", ConvertToString(cards))));
+		await CardDeck5.RefreshAsync();
 	}
 
 	protected void OnSelect(MouseEventArgs args, PDCardDeck<Todo> cardDeck)
