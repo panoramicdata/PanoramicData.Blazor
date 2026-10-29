@@ -1,4 +1,4 @@
-﻿@page "/pdstudio"
+@page "/pdstudio"
 @using PanoramicData.Blazor.Demo.Services
 @using PanoramicData.Blazor.Models
 @using Microsoft.Extensions.Logging
@@ -23,6 +23,7 @@
 				<div class="pd-studio-demo-container">
 					<PDStudio StudioService="@StudioService"
 							  Options="@StudioOptions"
+							  Examples="@Examples"
 							  OnCodeExecuted="OnCodeExecuted"
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
@@ -132,7 +133,7 @@
 							<li><strong>Monaco Editor</strong>: Advanced code editor with IntelliSense</li>
 							<li><strong>Syntax Highlighting</strong>: Custom themes for NCalc, SQL, and more</li>
 							<li><strong>Auto-Completion</strong>: Context-aware suggestions and function signatures</li>
-							<li><strong>File Menu</strong>: New, Load Examples, Language switching</li>
+							<li><strong>New and Examples</strong>: clear the editor, or load an example for the current language</li>
 							<li><strong>Execution Control</strong>: Run/Cancel with progress and timeout</li>
 							<li><strong>Results Panel</strong>: Safe HTML output with real-time updates</li>
 							<li><strong>Console Logging</strong>: Debug information with toggleable visibility</li>

@@ -1,4 +1,4 @@
-﻿using PanoramicData.Blazor.Models.Monaco;
+using PanoramicData.Blazor.Models.Monaco;
 
 namespace PanoramicData.Blazor;
 
@@ -82,6 +82,17 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// </summary>
 	[Parameter]
 	public IDataProviderService<GraphData>? DataProvider { get; set; }
+
+	/// <summary>
+	/// Gets or sets the examples offered on the Examples menu; those for another language are left out.
+	/// </summary>
+	[Parameter] public IReadOnlyList<PDStudioExample> Examples { get; set; } = [];
+
+	private const string _examplePrefix = "example-";
+
+	private List<PDStudioExample> CurrentExamples => [.. Examples.Where(e => e.IsFor(Options.Language))];
+
+	private static string ExampleKey(int index) => _examplePrefix + index.ToString(CultureInfo.InvariantCulture);
 
 	/// <summary>
 	/// Custom content for the editor toolbar.
@@ -425,169 +436,25 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		LogInformation("New document created");
 	}
 
-	private async Task OnLoadExample1()
+	private async Task OnExampleClick(string key)
 	{
-		var example = GetExample1();
-		_currentCode = example;
-		await CodeChanged.InvokeAsync(example);
+		var examples = CurrentExamples;
+		if (!key.StartsWith(_examplePrefix, StringComparison.Ordinal)
+			|| !int.TryParse(key.AsSpan(_examplePrefix.Length), NumberStyles.None, CultureInfo.InvariantCulture, out var index)
+			|| index >= examples.Count)
+		{
+			return;
+		}
+
+		var example = examples[index];
+		_currentCode = example.Code;
+		await CodeChanged.InvokeAsync(example.Code);
 		if (EditorRef != null)
 		{
-			await EditorRef.SetMonacoValueAsync(example);
+			await EditorRef.SetMonacoValueAsync(example.Code);
 		}
 
-		LogInformation("Example 1 loaded");
-	}
-
-	private async Task OnLoadExample2()
-	{
-		var example = GetExample2();
-		_currentCode = example;
-		await CodeChanged.InvokeAsync(example);
-		if (EditorRef != null)
-		{
-			await EditorRef.SetMonacoValueAsync(example);
-		}
-
-		LogInformation("Example 2 loaded");
-	}
-
-	private async Task OnOpenClick()
-	{
-		// Future implementation
-		LogInformation("Open clicked (not implemented)");
-		await Task.CompletedTask;
-	}
-
-	private async Task OnSaveClick()
-	{
-		// Future implementation
-		LogInformation("Save clicked (not implemented)");
-		await Task.CompletedTask;
-	}
-
-	private async Task SetLogLevel(LogLevel logLevel)
-	{
-		Options.DefaultLogLevel = logLevel;
-		LogInformation("Log level changed to {0}", logLevel);
-		StateHasChanged();
-		await Task.CompletedTask;
-	}
-
-	// Handles a click on an item of the File menu; a key that names no item does nothing.
-	private async Task OnFileMenuClick(string key)
-	{
-		switch (key)
-		{
-			case "New":
-				await OnNewClick();
-				break;
-			case "LoadExample1":
-				await OnLoadExample1();
-				break;
-			case "LoadExample2":
-				await OnLoadExample2();
-				break;
-			case "Open":
-				await OnOpenClick();
-				break;
-			case "Save":
-				await OnSaveClick();
-				break;
-			default:
-				// Not a File menu item: nothing to do.
-				break;
-		}
-	}
-
-	private async Task OnLoggingMenuClick(string key)
-	{
-		LogLevel logLevel = key switch
-		{
-			"Debug" => LogLevel.Debug,
-			"Info" => LogLevel.Information,
-			"Warning" => LogLevel.Warning,
-			"Error" => LogLevel.Error,
-			_ => LogLevel.Information
-		};
-
-		await SetLogLevel(logLevel);
-	}
-
-	private string GetExample1()
-	{
-		return Options.Language.ToLowerInvariant() switch
-		{
-			"ncalc" => @"// Basic NCalc Expression Examples
-
-// Mathematical Operations
-2 + 3 * 4
-
-// Using Built-in Variables
-Pi * 2
-
-// Trigonometric Functions
-Sin(Pi / 4) + Cos(Pi / 4)
-
-// Conditional Logic
-if(x > y, 'X is greater than Y', 'Y is greater than or equal to X')
-
-// Square Root with Variables
-Sqrt(x * y)",
-
-			"sql" or "mssql" => "SELECT * FROM customers WHERE city = 'London'",
-			"html" => "<h1>Hello World</h1>\n<p>This is a sample HTML document.</p>",
-			"javascript" => "console.log('Hello World!');\nfor(let i = 0; i < 5; i++) {\n  console.log('Count: ' + i);\n}",
-			_ => $"<h2>Example 1 for {Options.Language}</h2>\n<p>This is a sample {Options.Language} example.</p>"
-		};
-	}
-
-	private string GetExample2()
-	{
-		return Options.Language.ToLowerInvariant() switch
-		{
-			"ncalc" => @"// Test Error Scenarios (Choose one to test)
-
-// 1. TIMEOUT TEST - Will timeout after 5 seconds
-// sleep(10)
-
-// 2. INVALID CODE TEST - Syntax error
-// 1 +
-
-// 3. RUNTIME ERROR TEST - Division by zero
-// 10 / 0
-
-// 4. VALID COMPLEX EXPRESSION - Advanced example
-if(Hour(Now) < 12,
-   'Good Morning! Pi = ' + Pi,
-   if(Hour(Now) < 18,
-      'Good Afternoon! E = ' + E,
-      'Good Evening! Today is ' + Today))
-
-// Uncomment one of the test cases above to try different error scenarios",
-
-			"sql" or "mssql" => @"SELECT c.name, SUM(o.total) as total_spent
-FROM customers c
-JOIN orders o ON c.id = o.customer_id
-GROUP BY c.id, c.name
-ORDER BY total_spent DESC",
-			"html" => @"<div class=""container"">
-  <h1>Sample Table</h1>
-  <table border=""1"">
-    <tr><th>Name</th><th>Value</th></tr>
-    <tr><td>Item 1</td><td>100</td></tr>
-    <tr><td>Item 2</td><td>200</td></tr>
-  </table>
-</div>",
-			"javascript" => @"function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-for(let i = 0; i < 10; i++) {
-  console.log(`fibonacci(${i}) = ${fibonacci(i)}`);
-}",
-			_ => $"<h2>Example 2 for {Options.Language}</h2>\n<p>This is a more complex {Options.Language} example.</p>\n<pre>Sample code block</pre>"
-		};
+		LogInformation("Example loaded: {0}", example.Name);
 	}
 
 	/// <summary>

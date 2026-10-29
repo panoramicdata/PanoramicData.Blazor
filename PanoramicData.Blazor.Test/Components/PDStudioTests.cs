@@ -43,8 +43,11 @@ public partial class PDStudioTests : BunitContext
 		return studio.InvokeAsync(() => editor.ValueChanged.InvokeAsync(code));
 	}
 
+	private static AngleSharp.Dom.IElement ToolbarButton(IRenderedComponent<PDStudio> studio, string key)
+		=> studio.FindComponents<PDToolbarButton>().Single(b => b.Instance.Key == key).Find("button.pdtoolbarbutton");
+
 	private static AngleSharp.Dom.IElement PlayButton(IRenderedComponent<PDStudio> studio)
-		=> studio.Find("button.pdtoolbarbutton");
+		=> ToolbarButton(studio, "play");
 
 	private static string Status(IRenderedComponent<PDStudio> studio)
 		=> studio.Find(".pd-studio-results-status .status-text").TextContent;
@@ -71,15 +74,16 @@ public partial class PDStudioTests : BunitContext
 	}
 
 	/// <summary>
-	/// Verifies the default layout: both menus, the Execute button, a ready results panel and a log.
+	/// Verifies the default layout: New and Execute but no Examples menu without examples, a ready results panel and a log.
 	/// </summary>
 	[Fact]
-	public void Layout_HasMenusExecuteResultsAndLog()
+	public void Layout_HasNewExecuteResultsAndLog()
 	{
 		var studio = RenderStudio(more: p => p.Add(x => x.CssClass, "my-studio"));
 
 		studio.Find(".pd-studio").ClassList.Should().Contain("my-studio");
-		studio.FindComponents<PDToolbarDropdown>().Select(d => d.Instance.Text).Should().Equal("File", "Logging");
+		studio.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("new", "play");
+		studio.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
 		studio.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
 		PlayButton(studio).TextContent.Should().Contain("Execute");
 		PlayButton(studio).ClassList.Should().Contain("btn-success");
@@ -97,7 +101,7 @@ public partial class PDStudioTests : BunitContext
 			new PDStudioOptions { ShowMenu = false, IsLoggingVisible = false, ShowStatusBar = false },
 			p => p.Add(x => x.EditorToolbarContent, b => b.AddMarkupContent(0, "<span class=\"extra\">Extra</span>")));
 
-		withoutMenu.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
+		withoutMenu.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play");
 		withoutMenu.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
 		withoutMenu.Find(".pd-studio-toolbar .extra").TextContent.Should().Be("Extra");
 		withoutMenu.FindComponents<PDLog>().Should().BeEmpty();
@@ -105,8 +109,7 @@ public partial class PDStudioTests : BunitContext
 		withoutMenu.FindAll(".pd-studio-results-status").Should().BeEmpty();
 
 		var withoutToolbar = RenderStudio(new PDStudioOptions { ShowToolbar = false });
-		withoutToolbar.FindComponents<PDToolbarDropdown>().Should().HaveCount(2);
-		withoutToolbar.FindAll("button.pdtoolbarbutton").Should().BeEmpty();
+		withoutToolbar.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("new");
 
 		var neither = RenderStudio(new PDStudioOptions { ShowToolbar = false, ShowMenu = false });
 		neither.FindAll(".pd-studio-toolbar").Should().BeEmpty();

@@ -2,93 +2,83 @@ using AwesomeAssertions;
 using BlazorMonaco.Editor;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test.Components;
 
 /// <summary>
-/// Menu and editor tests for <see cref="PDStudio"/>.
+/// Examples, New and editor tests for <see cref="PDStudio"/>.
 /// </summary>
 public partial class PDStudioTests
 {
-	/// <summary>
-	/// Verifies that the examples on the File menu load code suited to the studio's language.
-	/// </summary>
-	[Theory]
-	[InlineData("sql", "LoadExample1", "SELECT * FROM customers")]
-	[InlineData("mssql", "LoadExample2", "GROUP BY c.id")]
-	[InlineData("ncalc", "LoadExample1", "Basic NCalc Expression Examples")]
-	[InlineData("ncalc", "LoadExample2", "Test Error Scenarios")]
-	[InlineData("html", "LoadExample1", "<h1>Hello World</h1>")]
-	[InlineData("html", "LoadExample2", "Sample Table")]
-	[InlineData("javascript", "LoadExample1", "console.log('Hello World!')")]
-	[InlineData("javascript", "LoadExample2", "function fibonacci")]
-	[InlineData("python", "LoadExample1", "Example 1 for python")]
-	[InlineData("python", "LoadExample2", "Example 2 for python")]
-	public async Task FileMenu_ExamplesSuitTheLanguage(string language, string example, string expected)
-	{
-		var studio = RenderStudio(new PDStudioOptions { Language = language });
+	private static readonly PDStudioExample[] _examples =
+	[
+		new("Any language", "-- shared"),
+		new("SQL only", "SELECT 1", "sql"),
+		new("NCalc only", "1 + 1", "ncalc")
+	];
 
-		await MenuAsync(studio, "File", example);
+	/// <summary>
+	/// Verifies that the Examples menu offers only the examples for the studio's language, and loads the chosen one.
+	/// </summary>
+	[Fact]
+	public async Task ExamplesMenu_OffersTheLanguagesExamplesAndLoadsTheChosenOne()
+	{
+		var studio = RenderStudio(new PDStudioOptions { Language = "SQL" }, p => p.Add(x => x.Examples, _examples));
+
+		studio.FindComponents<PDMenuItem>().Select(m => m.Instance.Text).Should().Equal("Any language", "SQL only");
+
+		await MenuAsync(studio, "Examples", "example-1");
 		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
-		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Contain(expected));
+		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Be("SELECT 1"));
+		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("Example loaded: SQL only"));
+	}
+
+	/// <summary>
+	/// Verifies that there is no Examples menu when none of the examples is for the studio's language.
+	/// </summary>
+	[Fact]
+	public void ExamplesMenu_NoneForTheLanguage_IsLeftOut()
+	{
+		var studio = RenderStudio(new PDStudioOptions { Language = "html" }, p => p.Add(x => x.Examples, _examples[1..]));
+
+		studio.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that a key naming no example changes nothing.
+	/// </summary>
+	[Theory]
+	[InlineData("example-9")]
+	[InlineData("example-x")]
+	[InlineData("other")]
+	public async Task ExamplesMenu_UnknownKey_ChangesNothing(string key)
+	{
+		var studio = RenderStudio(new PDStudioOptions { Language = "sql" }, p => p.Add(x => x.Examples, _examples));
+		await TypeAsync(studio, "SELECT 2");
+
+		await MenuAsync(studio, "Examples", key);
+
+		studio.Instance.Code.Should().Be("SELECT 2");
 	}
 
 	/// <summary>
 	/// Verifies that New clears the code and results, so there is then nothing to execute.
 	/// </summary>
 	[Fact]
-	public async Task FileMenu_New_ClearsTheCode()
+	public async Task New_ClearsTheCode()
 	{
 		var studio = RenderStudio();
 		await TypeAsync(studio, "<p>Hi</p>");
 
-		await MenuAsync(studio, "File", "New");
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
 		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		_service.Calls.Should().BeEmpty();
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("New document created"));
 		studio.FindAll(".pd-studio-results-placeholder").Should().ContainSingle();
 	}
-
-	/// <summary>
-	/// Verifies that Open and Save, not yet implemented, only log that they were chosen, and unknown keys do nothing.
-	/// </summary>
-	[Fact]
-	public async Task FileMenu_OpenAndSave_OnlyLog()
-	{
-		var studio = RenderStudio();
-
-		await MenuAsync(studio, "File", "Open");
-		await MenuAsync(studio, "File", "Save");
-		await MenuAsync(studio, "File", "Unknown");
-
-		studio.WaitForAssertion(() => LogMessages(studio).Should()
-			.Equal("Open clicked (not implemented)", "Save clicked (not implemented)"));
-	}
-
-	/// <summary>
-	/// Verifies that the Logging menu sets the studio's default log level, treating unknown keys as Information.
-	/// </summary>
-	[Theory]
-	[InlineData("Debug", LogLevel.Debug)]
-	[InlineData("Info", LogLevel.Information)]
-	[InlineData("Warning", LogLevel.Warning)]
-	[InlineData("Error", LogLevel.Error)]
-	[InlineData("Verbose", LogLevel.Information)]
-	public async Task LoggingMenu_SetsTheLogLevel(string key, LogLevel expected)
-	{
-		var options = new PDStudioOptions { DefaultLogLevel = LogLevel.Critical };
-		var studio = RenderStudio(options);
-
-		await MenuAsync(studio, "Logging", key);
-
-		options.DefaultLogLevel.Should().Be(expected);
-		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain($"Log level changed to {expected}"));
-	}
-
 	/// <summary>
 	/// Verifies that the editor is configured with the studio's defaults, then the caller's own adjustments.
 	/// </summary>
