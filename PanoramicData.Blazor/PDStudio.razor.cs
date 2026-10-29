@@ -66,10 +66,84 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		_onGlobalKeyDown = (_, keyboardInfo) => OnGlobalKeyDown(keyboardInfo);
 	}
 
+	private const string _resultsTab = "results";
+	private const string _messagesTab = "messages";
+	private const int _maxMessages = 1000;
+
+	private readonly List<PDStudioMessage> _messages = [];
+	private string _activeTab = _resultsTab;
+	private LogLevel? _messageLevel;
+	private string MessageSearch { get; set; } = string.Empty;
+
 	/// <summary>
-	/// Gets the PDLog component reference for logging integration; set by the markup's <c>@ref</c>.
+	/// Gets the messages recorded so far, oldest first, whether or not the Messages tab is shown.
 	/// </summary>
-	public PDLog? LogComponent { get; internal set; }
+	public IReadOnlyList<PDStudioMessage> Messages => _messages;
+
+	// The filter starts at the options' level; Debug and below show everything.
+	private LogLevel MessageLevel => _messageLevel ?? (Options.DefaultLogLevel <= LogLevel.Debug ? LogLevel.Trace : Options.DefaultLogLevel);
+
+	private string MessageLevelValue => MessageLevel.ToString();
+
+	private IEnumerable<PDStudioMessage> FilteredMessages => _messages.Where(m =>
+		m.Level >= MessageLevel
+		&& (MessageSearch.Length == 0 || m.Text.Contains(MessageSearch, StringComparison.OrdinalIgnoreCase)));
+
+	private string MessagesBadgeCssClass => _messages.Any(m => m.Level >= LogLevel.Error)
+		? "pd-studio-tab-badge pd-studio-tab-badge-error"
+		: "pd-studio-tab-badge";
+
+	private string MessagesBadgeText
+	{
+		get
+		{
+			var errors = _messages.Count(m => m.Level >= LogLevel.Error);
+			return errors > 0
+				? string.Format(CultureInfo.InvariantCulture, errors == 1 ? "{0} error" : "{0} errors", errors)
+				: _messages.Count.ToString(CultureInfo.InvariantCulture);
+		}
+	}
+
+	// A hidden Messages tab cannot stay selected.
+	private bool IsTabActive(string tab)
+		=> tab == (_activeTab == _messagesTab && !Options.IsLoggingVisible ? _resultsTab : _activeTab);
+
+	private string TabCssClass(string tab) => IsTabActive(tab) ? "pd-studio-tab active" : "pd-studio-tab";
+
+	private void SelectTab(string tab) => _activeTab = tab;
+
+	private void OnMessageLevelChanged(ChangeEventArgs args)
+		=> _messageLevel = Enum.TryParse<LogLevel>(args.Value?.ToString(), out var level) ? level : LogLevel.Trace;
+
+	/// <summary>
+	/// Removes every recorded message.
+	/// </summary>
+	public void ClearMessages() => _messages.Clear();
+
+	private static string LevelCssClass(LogLevel level) => level switch
+	{
+		>= LogLevel.Error => "level-error",
+		LogLevel.Warning => "level-warning",
+		LogLevel.Information => "level-information",
+		_ => "level-debug"
+	};
+
+	private static string LevelIcon(LogLevel level) => level switch
+	{
+		>= LogLevel.Error => "fas fa-times-circle",
+		LogLevel.Warning => "fas fa-exclamation-triangle",
+		LogLevel.Information => "fas fa-info-circle",
+		_ => "fas fa-bug"
+	};
+
+	private static string LevelName(LogLevel level) => level switch
+	{
+		LogLevel.Critical => "Critical",
+		LogLevel.Error => "Error",
+		LogLevel.Warning => "Warning",
+		LogLevel.Information => "Info",
+		_ => "Debug"
+	};
 
 	/// <summary>Gets or sets the code editor; set by the markup's <c>@ref</c>.</summary>
 	internal PDMonacoEditor? EditorRef { get; set; }
@@ -196,7 +270,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 				_ = Task.Run(async () =>
 				{
 					await Task.Delay(500); // Wait for Monaco to fully initialize
-					await EditorRef.DisableKeyBindingAsync(13, ctrlKey: true);
+					await RunOnEditorAsync(e => e.DisableKeyBindingAsync(13, ctrlKey: true), "disable Ctrl+Enter");
 				});
 			}
 		}
@@ -224,17 +298,48 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		if (_executeShortcut.IsMatch(keyboardInfo.Key, keyboardInfo.Code, keyboardInfo.AltKey, keyboardInfo.CtrlKey, keyboardInfo.ShiftKey))
 		{
 			// Trigger execution asynchronously
-			InvokeAsync(async () => await OnPlayCancelClick());
+			InvokeAsync(() => RunSafelyAsync(OnPlayCancelClick, "run the code"));
 		}
 	}
 
 	private void OnStudioExecutionEvent(object? sender, StudioExecutionEventArgs e)
 	{
-		InvokeAsync(async () =>
+		InvokeAsync(() => RunSafelyAsync(async () =>
 		{
 			await ApplyExecutionEventAsync(e);
 			StateHasChanged();
-		});
+		}, "show the service's progress"));
+	}
+
+	// Event handlers run outside any caller's try/catch, so a failure is logged rather than allowed to take the host down.
+	private async Task RunSafelyAsync(Func<Task> action, string what)
+	{
+		try
+		{
+			await action();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "PDStudio could not {What}", what);
+		}
+	}
+
+	// Editor calls go through JavaScript, which fails once the browser has gone.
+	private async Task RunOnEditorAsync(Func<PDMonacoEditor, Task> action, string what)
+	{
+		if (EditorRef is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await action(EditorRef);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "PDStudio could not {What} in the editor", what);
+		}
 	}
 
 	private async Task ApplyExecutionEventAsync(StudioExecutionEventArgs e)
@@ -430,10 +535,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		_currentCode = string.Empty;
 		await CodeChanged.InvokeAsync(_currentCode);
-		if (EditorRef != null)
-		{
-			await EditorRef.SetMonacoValueAsync(string.Empty);
-		}
+		await RunOnEditorAsync(e => e.SetMonacoValueAsync(string.Empty), "clear the code");
 
 		await ClearResultsAsync();
 
@@ -453,26 +555,29 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		var example = examples[index];
 		_currentCode = example.Code;
 		await CodeChanged.InvokeAsync(example.Code);
-		if (EditorRef != null)
-		{
-			await EditorRef.SetMonacoValueAsync(example.Code);
-		}
+		await RunOnEditorAsync(e => e.SetMonacoValueAsync(example.Code), "load the example");
 
 		LogInformation("Example loaded: {0}", example.Name);
 	}
 
 	/// <summary>
-	/// Logs a message to both the standard logger and the PDLog component.
+	/// Logs a message to the standard logger and the Messages tab.
 	/// </summary>
 	private void LogToComponent(LogLevel level, string message, params object[] args)
 	{
-		// Log to standard logger
-#pragma warning disable CA2254 // Logging wrapper intentionally forwards variable message templates
-		Logger.Log(level, message, args);
-#pragma warning restore CA2254
+		// Without arguments the message is plain text, such as a service's status, and may contain braces.
+		var text = args.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message, args);
+		if (Logger.IsEnabled(level))
+		{
+			Logger.Log(level, "{Message}", text);
+		}
 
-		// Also log to PDLog component if available
-		LogComponent?.Log(level, default, message, null, (msg, _) => string.Format(CultureInfo.InvariantCulture, msg, args));
+		if (_messages.Count >= _maxMessages)
+		{
+			_messages.RemoveAt(0);
+		}
+
+		_messages.Add(new PDStudioMessage(DateTime.UtcNow, level, text));
 	}
 
 	/// <summary>
@@ -497,10 +602,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// </summary>
 	public async Task RefreshEditorLayoutAsync()
 	{
-		if (EditorRef != null)
-		{
-			await EditorRef.ForceLayoutUpdateAsync();
-		}
+		await RunOnEditorAsync(e => e.ForceLayoutUpdateAsync(), "refresh the layout");
 	}
 
 	/// <inheritdoc />
@@ -517,8 +619,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		// Unregister the shortcut key
 		GlobalEventService.UnregisterShortcutKey(_executeShortcut);
 
-		_cancellationTokenSource?.Cancel();
-		_cancellationTokenSource?.Dispose();
+		try
+		{
+			_cancellationTokenSource?.Cancel();
+			_cancellationTokenSource?.Dispose();
+		}
+		catch (Exception ex)
+		{
+			// Cancelling runs the execution's own callbacks, and disposal must not fail because of them.
+			Logger.LogWarning(ex, "PDStudio could not cancel its execution while being disposed");
+		}
 
 		GC.SuppressFinalize(this);
 	}

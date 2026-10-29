@@ -1,4 +1,4 @@
-﻿.cursor-pointer {
+.cursor-pointer {
   cursor: pointer;
 }
 
@@ -166,6 +166,11 @@
 
 .pdsplitter .gutter-horizontal {
   cursor: col-resize;
+}
+
+/* PDStudio themes its own splitter bars */
+.pd-studio .pdsplitter > .gutter {
+  background-color: var(--pd-studio-gutter-bg, var(--bs-tertiary-bg, #eee));
 }
 
 /* PDFilePreview - the preview content is MarkupString */

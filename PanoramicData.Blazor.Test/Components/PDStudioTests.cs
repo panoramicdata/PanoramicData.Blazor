@@ -53,7 +53,7 @@ public partial class PDStudioTests : BunitContext
 		=> studio.Find(".pd-studio-results-status .status-text").TextContent;
 
 	private static List<string> LogMessages(IRenderedComponent<PDStudio> studio)
-		=> [.. studio.FindAll(".log-message").Select(m => m.TextContent)];
+		=> [.. studio.FindAll(".pd-studio-message-text").Select(m => m.TextContent)];
 
 	private static Task MenuAsync(IRenderedComponent<PDStudio> studio, string menu, string key)
 	{
@@ -61,23 +61,14 @@ public partial class PDStudioTests : BunitContext
 		return studio.InvokeAsync(() => dropdown.Click.InvokeAsync(key));
 	}
 
-	/// <summary>
-	/// Verifies a hidden log leaves a classed placeholder with no inline style, so a host's CSS can restyle it.
-	/// </summary>
-	[Fact]
-	public void Layout_LogHidden_PlaceholderHasNoInlineStyle()
-	{
-		var studio = RenderStudio(new PDStudioOptions { IsLoggingVisible = false });
-
-		studio.FindAll(".pd-log").Should().BeEmpty();
-		studio.Find(".pd-studio-log-hidden").HasAttribute("style").Should().BeFalse();
-	}
+	private static List<string> Tabs(IRenderedComponent<PDStudio> studio)
+		=> [.. studio.FindAll(".pd-studio-tab").Select(t => t.FirstChild!.TextContent.Trim())];
 
 	/// <summary>
-	/// Verifies the default layout: New and Execute but no Examples menu without examples, a ready results panel and a log.
+	/// Verifies the default layout: New and Execute but no Examples menu without examples, a ready results panel, and Results and Messages tabs.
 	/// </summary>
 	[Fact]
-	public void Layout_HasNewExecuteResultsAndLog()
+	public void Layout_HasNewExecuteAndResultsAndMessagesTabs()
 	{
 		var studio = RenderStudio(more: p => p.Add(x => x.CssClass, "my-studio"));
 
@@ -88,7 +79,7 @@ public partial class PDStudioTests : BunitContext
 		PlayButton(studio).TextContent.Should().Contain("Execute");
 		PlayButton(studio).ClassList.Should().Contain("btn-success");
 		Status(studio).Should().Be("Ready");
-		studio.Instance.LogComponent.Should().NotBeNull();
+		Tabs(studio).Should().Equal("Results", "Messages");
 	}
 
 	/// <summary>
@@ -104,8 +95,7 @@ public partial class PDStudioTests : BunitContext
 		withoutMenu.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play");
 		withoutMenu.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
 		withoutMenu.Find(".pd-studio-toolbar .extra").TextContent.Should().Be("Extra");
-		withoutMenu.FindComponents<PDLog>().Should().BeEmpty();
-		withoutMenu.Instance.LogComponent.Should().BeNull();
+		Tabs(withoutMenu).Should().Equal("Results");
 		withoutMenu.FindAll(".pd-studio-results-status").Should().BeEmpty();
 
 		var withoutToolbar = RenderStudio(new PDStudioOptions { ShowToolbar = false });

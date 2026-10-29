@@ -11,6 +11,11 @@
    --pd-studio-border-color     every border and separator
    --pd-studio-border-radius    panel corners
    --pd-studio-overlay-bg       the busy overlay over the editor
+   --pd-studio-muted-color      timestamps, unselected tabs, debug messages (--bs-secondary)
+   --pd-studio-accent           the selected tab           (--bs-primary)
+   --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
+   Messages use the status colours in PDStudioResults.razor.css: information takes the ready
+   colour, warnings the warning colour and errors the error colour.
    ============================================== */
 
 .pd-studio {
@@ -23,6 +28,11 @@
 	--_pds-border-color: var(--pd-studio-border-color, var(--bs-border-color, #dee2e6));
 	--_pds-border-radius: var(--pd-studio-border-radius, 0.25rem);
 	--_pds-overlay-bg: var(--pd-studio-overlay-bg, rgba(128, 128, 128, 0.35));
+	--_pds-muted-color: var(--pd-studio-muted-color, var(--bs-secondary, #6c757d));
+	--_pds-accent: var(--pd-studio-accent, var(--bs-primary, #0d6efd));
+	--_pds-info-color: var(--pd-studio-status-ready-color, var(--bs-primary, #0d6efd));
+	--_pds-warning-color: var(--pd-studio-status-warning-color, var(--bs-warning, #ffc107));
+	--_pds-error-color: var(--pd-studio-status-error-color, var(--bs-danger, #dc3545));
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -223,13 +233,136 @@
 	min-height: 0;
 }
 
-.pd-studio .pd-log {
-	border-top: 1px solid var(--_pds-border-color);
+/* Results and Messages tabs */
+.pd-studio .pd-split-panel.pd-studio-output-panel {
 	background-color: var(--_pds-panel-bg);
-	color: var(--_pds-color);
+	border: 1px solid var(--_pds-border-color);
+	border-radius: var(--_pds-border-radius);
 }
 
-/* The log pane while the log is hidden */
-.pd-studio-log-hidden {
+.pd-studio-tabs {
+	flex: 0 0 auto;
+	display: flex;
+	gap: 0.25rem;
+	padding: 0 0.5rem;
+	background-color: var(--_pds-toolbar-bg);
+	border-bottom: 1px solid var(--_pds-border-color);
+}
+
+.pd-studio-tab {
+	padding: 0.4rem 0.75rem;
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: none;
+	color: var(--_pds-muted-color);
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.pd-studio-tab.active {
+	color: var(--_pds-accent);
+	border-bottom-color: var(--_pds-accent);
+	font-weight: 600;
+}
+
+.pd-studio-tab-badge {
+	padding: 0 0.4rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 400;
+	background-color: var(--_pds-panel-bg);
+	color: var(--_pds-color);
+	border: 1px solid var(--_pds-border-color);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-error {
+	color: var(--_pds-error-color);
+	border-color: var(--_pds-error-color);
+}
+
+.pd-studio-tab-panel {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.pd-studio-tab-panel[hidden] {
 	display: none;
+}
+
+.pd-studio-tab-panel .pd-studio-results {
+	border: none;
+	border-radius: 0;
+}
+
+.pd-studio-messages-toolbar {
+	flex: 0 0 auto;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 0.4rem 0.5rem;
+	border-bottom: 1px solid var(--_pds-border-color);
+}
+
+.pd-studio-messages-level {
+	width: auto;
+}
+
+.pd-studio-messages-search {
+	width: 14rem;
+	max-width: 100%;
+}
+
+.pd-studio-messages-list {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	padding: 0.25rem 0;
+	font-size: 0.8125rem;
+}
+
+.pd-studio-message {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	padding: 0.15rem 0.75rem;
+}
+
+.pd-studio-message-time {
+	color: var(--_pds-muted-color);
+	font-variant-numeric: tabular-nums;
+}
+
+.pd-studio-message-level {
+	width: 4.5rem;
+	flex-shrink: 0;
+	font-weight: 600;
+}
+
+.pd-studio-message-text {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.pd-studio-message.level-debug i,
+.pd-studio-message.level-debug .pd-studio-message-level {
+	color: var(--_pds-muted-color);
+}
+
+.pd-studio-message.level-information i,
+.pd-studio-message.level-information .pd-studio-message-level {
+	color: var(--_pds-info-color);
+}
+
+.pd-studio-message.level-warning i,
+.pd-studio-message.level-warning .pd-studio-message-level {
+	color: var(--_pds-warning-color);
+}
+
+.pd-studio-message.level-error i,
+.pd-studio-message.level-error .pd-studio-message-level {
+	color: var(--_pds-error-color);
 }
