@@ -26,13 +26,31 @@ public partial class PDStudioTests
 	{
 		var studio = RenderStudio(new PDStudioOptions { Language = "SQL" }, p => p.Add(x => x.Examples, _examples));
 
-		studio.FindComponents<PDMenuItem>().Select(m => m.Instance.Text).Should().Equal("Any language", "SQL only");
+		ExampleNames(studio).Should().Equal("Any language", "SQL only");
 
 		await MenuAsync(studio, "Examples", "example-1");
 		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Be("SELECT 1"));
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("Example loaded: SQL only"));
+	}
+
+	private static List<string> ExampleNames(IRenderedComponent<PDStudio> studio)
+		=> [.. studio.FindAll(".pddropdownmenuitem").Select(r => r.TextContent.Trim())];
+
+	/// <summary>
+	/// Verifies that the Examples menu follows a change of language after it has been shown.
+	/// </summary>
+	[Fact]
+	public void ExamplesMenu_FollowsALanguageChange()
+	{
+		var options = new PDStudioOptions { Language = "ncalc" };
+		var studio = RenderStudio(options, p => p.Add(x => x.Examples, _examples));
+
+		options.Language = "sql";
+		studio.Render(p => p.Add(x => x.Options, options));
+
+		ExampleNames(studio).Should().Equal("Any language", "SQL only");
 	}
 
 	/// <summary>
