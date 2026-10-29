@@ -5,6 +5,8 @@
 		<p>
 			<code>PDCardDeck</code> shows a deck of cards loaded through a data function.
 			Cards can be selected and dragged to reorder them and, inside a <code>PDCardDeckGroup</code>, moved between decks.
+			A deck on its own reports a new order through <code>CardsReordered</code>, and can also be reordered with
+			Alt+Up and Alt+Down.
 		</p>
 	</section>
 
@@ -47,6 +49,9 @@
 				<tr><td><code>ShowLoadingIcon</code></td><td><code>bool</code></td><td>Whether a deck outside a group shows a loading icon while its cards load. Defaults to true</td></tr>
 				<tr><td><code>LoadingMessage</code></td><td><code>string</code></td><td>The message shown with the loading icon. Defaults to "Loading Data..."</td></tr>
 				<tr><td><code>ShowLoadingElapsedTime</code></td><td><code>bool</code></td><td>Whether the loading icon shows how many seconds the cards have been loading. Defaults to true</td></tr>
+				<tr><td><code>CardsReordered</code></td><td><code>EventCallback&lt;IReadOnlyList&lt;TCard&gt;&gt;</code></td><td>Raised by a deck outside a group when the user changes the order, by dragging or with the keyboard, with the cards in their new order and each <code>DeckPosition</code> set. In a group, use the group's <code>Transformation</code></td></tr>
+				<tr><td><code>KeyboardReorder</code></td><td><code>bool</code></td><td>Whether, in a deck outside a group, Alt+Up and Alt+Down move the selected cards one place. Cards are selected by clicking, so turn on <code>MultipleSelection</code> too. Defaults to false</td></tr>
+				<tr><td><code>DeleteRequested</code></td><td><code>EventCallback&lt;IReadOnlyList&lt;TCard&gt;&gt;</code></td><td>Raised when the user presses Delete with cards selected, with the selected cards. The deck removes nothing itself: the handler can ask first, for example with <code>PDConfirm</code>, then remove them from the data and call <code>RefreshAsync</code></td></tr>
 			</tbody>
 		</table>
 	</section>

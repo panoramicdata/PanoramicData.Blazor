@@ -239,6 +239,9 @@ This component has no public parameters.
 | ShowLoadingIcon | bool | Whether a deck outside a group shows a loading icon while its cards load. Defaults to true. A deck in a group never shows one: see <see cref="PDCardDeckGroup{TCard}.ShowLoadingIcon"/>. |
 | LoadingMessage | string | The message shown with the loading icon. Defaults to <see cref="PDCardDeckLoadingIcon.DefaultMessage"/>. |
 | ShowLoadingElapsedTime | bool | Whether the loading icon shows how many seconds the cards have been loading. Defaults to true. |
+| CardsReordered | EventCallback<IReadOnlyList<TCard>> | Raised by a deck outside a <see cref="PDCardDeckGroup{TCard}"/> when the user changes the order of its cards, with the cards in their new order and each <see cref="ICard.DeckPosition"/> set. Inside a group, see <see cref="PDCardDeckGroup{TCard}.Transformation"/> instead. |
+| KeyboardReorder | bool | Whether, in a deck outside a <see cref="PDCardDeckGroup{TCard}"/>, Alt+Up and Alt+Down move the selected cards one place, raising <see cref="CardsReordered"/>. Defaults to false. |
+| DeleteRequested | EventCallback<IReadOnlyList<TCard>> | Raised when the user presses Delete with cards selected, with the selected cards. The deck removes nothing itself. |
 
 ---
 

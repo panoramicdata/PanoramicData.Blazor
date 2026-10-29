@@ -83,6 +83,30 @@
 		</CardTemplate>
 	</PDCardDeck>
 
+	<hr />
+
+	<div>
+		<p>Example 5: Saving the Order, with the Keyboard</p>
+		<p class="text-muted small">
+			Drag a card, or click one and press Alt+Up or Alt+Down. Delete removes the selected cards.
+			Each new order and each deletion is listed under Events.
+		</p>
+		<div class="form-check mb-2">
+			<input class="form-check-input" type="checkbox" id="carddeck-confirm-delete" @bind="ConfirmDelete" />
+			<label class="form-check-label" for="carddeck-confirm-delete">Show a confirm dialog before deleting</label>
+		</div>
+	</div>
+
+	<PDConfirm @ref="DeleteConfirm" Title="Delete" YesText="Delete" NoText="Cancel" />
+
+	<PDCardDeck @ref="CardDeck5"
+				TCard="Todo"
+				MultipleSelection="true"
+				KeyboardReorder="true"
+				CardsReordered="OnCardsReordered"
+				DeleteRequested="OnDeleteRequestedAsync"
+				DataFunction="() => FetchData(_todoList5 , default)" />
+
 	<EventView />
 
 	</ChildContent>
