@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor;
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// Component for displaying execution results in PDStudio.
@@ -105,6 +105,45 @@ public partial class PDStudioResults : PDComponentBase
 	}
 
 	/// <summary>
+	/// Gets or sets whether the results are shown in dark colours. Ignored when <see cref="StyleSheet"/> is set.
+	/// </summary>
+	[Parameter] public bool IsDark { get; set; }
+
+	/// <summary>
+	/// Gets or sets the CSS for the results document, replacing the built-in light and dark styles.
+	/// The results are shown in a sandboxed frame, so the host page's own styles never reach them.
+	/// </summary>
+	[Parameter] public string? StyleSheet { get; set; }
+
+	private const string _colours = """
+		body { --text: #212529; --border: #dee2e6; --head-bg: #f1f3f5; --code-bg: #f8f9fa;
+			--error: #842029; --error-bg: #f8d7da; --success: #0f5132; --success-bg: #d1e7dd; --info: #055160; --info-bg: #cff4fc; }
+		""";
+
+	private const string _darkColours = """
+		body { --text: #dee2e6; --border: #3a3f4b; --head-bg: #2b303b; --code-bg: #1f232b;
+			--error: #ffb4ab; --error-bg: #3a1d20; --success: #9be3b5; --success-bg: #16301f; --info: #9ad7ff; --info-bg: #14283a; }
+		""";
+
+	private const string _layout = """
+		body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 1rem; line-height: 1.5; color: var(--text); background: transparent; }
+		table { border-collapse: collapse; width: 100%; margin: 0 0 0.75rem; }
+		th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+		th { background-color: var(--head-bg); font-weight: bold; }
+		pre { background-color: var(--code-bg); border: 1px solid var(--border); border-radius: 0.25rem; padding: 1rem; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+		.error, .success, .info { border-radius: 0.25rem; padding: 0.75rem; margin: 0 0 0.75rem; user-select: none; }
+		body > :last-child { margin-bottom: 0; }
+		.error { color: var(--error); background-color: var(--error-bg); }
+		.success { color: var(--success); background-color: var(--success-bg); }
+		.info { color: var(--info); background-color: var(--info-bg); }
+		""";
+
+	// Without a matching color-scheme the browser paints the frame white inside a dark page.
+	private string ColourScheme => StyleSheet is null && IsDark ? "dark" : "light";
+
+	private string EffectiveStyleSheet => StyleSheet ?? (IsDark ? _darkColours : _colours) + _layout;
+
+	/// <summary>
 	/// Gets safe HTML content for iframe display. Only rendered when there is content to show.
 	/// </summary>
 	/// <returns>Safe HTML content wrapped in a basic HTML document.</returns>
@@ -115,16 +154,10 @@ public partial class PDStudioResults : PDComponentBase
 		<head>
 		    <meta charset="utf-8">
 		    <meta name="viewport" content="width=device-width, initial-scale=1">
+		    <meta name="color-scheme" content="{{ColourScheme}}">
 		    <title>Results</title>
 		    <style>
-		        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 1rem; line-height: 1.5; color: #333; }
-		        table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-		        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-		        th { background-color: #f5f5f5; font-weight: bold; }
-		        pre { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 0.25rem; padding: 1rem; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
-		        .error { color: #dc3545; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 0.25rem; padding: 0.75rem; margin: 1rem 0; }
-		        .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 0.25rem; padding: 0.75rem; margin: 1rem 0; }
-		        .info { color: #0c5460; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 0.25rem; padding: 0.75rem; margin: 1rem 0; }
+		{{EffectiveStyleSheet}}
 		    </style>
 		</head>
 		<body>

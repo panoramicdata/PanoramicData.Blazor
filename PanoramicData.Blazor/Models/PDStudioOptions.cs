@@ -63,6 +63,61 @@ public class PDStudioOptions
 	public int ExecutionTimeoutSeconds { get; set; } = 30;
 
 	/// <summary>
+	/// Gets or sets the size of the toolbar's buttons.
+	/// </summary>
+	public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Small;
+
+	/// <summary>
+	/// Gets or sets the CSS class on each toolbar button's text, which sets the gap after its icon.
+	/// </summary>
+	public string ButtonTextCssClass { get; set; } = "ps-2";
+
+	/// <summary>
+	/// Gets or sets the Execute button's text.
+	/// </summary>
+	public string ExecuteButtonText { get; set; } = "Execute";
+
+	/// <summary>
+	/// Gets or sets the Execute button's CSS class.
+	/// </summary>
+	public string ExecuteButtonCssClass { get; set; } = "btn-success";
+
+	/// <summary>
+	/// Gets or sets the text the Execute button shows while code runs.
+	/// </summary>
+	public string CancelButtonText { get; set; } = "Cancel";
+
+	/// <summary>
+	/// Gets or sets the CSS class the Execute button has while code runs.
+	/// </summary>
+	public string CancelButtonCssClass { get; set; } = "btn-danger";
+
+	/// <summary>
+	/// Gets or sets the New button's text.
+	/// </summary>
+	public string NewButtonText { get; set; } = "New";
+
+	/// <summary>
+	/// Gets or sets the New button's CSS class.
+	/// </summary>
+	public string NewButtonCssClass { get; set; } = "btn-secondary";
+
+	/// <summary>
+	/// Gets or sets the Examples menu's text.
+	/// </summary>
+	public string ExamplesButtonText { get; set; } = "Examples";
+
+	/// <summary>
+	/// Gets or sets the Examples menu's CSS class.
+	/// </summary>
+	public string ExamplesButtonCssClass { get; set; } = "btn-secondary";
+
+	/// <summary>
+	/// Gets or sets the CSS for the results document, replacing the built-in styles, which are dark when
+	/// <see cref="Theme"/> contains "dark". The results are shown in a sandboxed frame the page's styles never reach.
+	/// </summary>
+	public string? ResultsStyleSheet { get; set; }
+	/// <summary>
 	/// Gets or sets custom properties for extensibility.
 	/// </summary>
 	public Dictionary<string, object> CustomProperties { get; set; } = [];

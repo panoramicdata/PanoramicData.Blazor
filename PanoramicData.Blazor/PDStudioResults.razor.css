@@ -3,8 +3,8 @@
    Shares PDStudio's --pd-studio-* properties (see PDStudio.razor.css), plus one colour per
    status, used for the status icon and text:
 
-   --pd-studio-status-ready-color      (--bs-primary)
-   --pd-studio-status-executing-color  (--bs-info)
+   --pd-studio-status-ready-color      (--bs-secondary)
+   --pd-studio-status-executing-color  (--bs-secondary)
    --pd-studio-status-success-color    (--bs-success)
    --pd-studio-status-warning-color    timeout, invalid code (--bs-warning)
    --pd-studio-status-error-color      errors (--bs-danger)
@@ -30,11 +30,11 @@
 }
 
 .pd-studio-results.status-ready {
-	--_pds-status-color: var(--pd-studio-status-ready-color, var(--bs-primary, #0d6efd));
+	--_pds-status-color: var(--pd-studio-status-ready-color, var(--bs-secondary, #6c757d));
 }
 
 .pd-studio-results.status-executing {
-	--_pds-status-color: var(--pd-studio-status-executing-color, var(--bs-info, #0dcaf0));
+	--_pds-status-color: var(--pd-studio-status-executing-color, var(--bs-secondary, #6c757d));
 }
 
 .pd-studio-results.status-complete {
@@ -65,6 +65,7 @@
 	align-items: center;
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
+	user-select: none;
 }
 
 .pd-studio-results-status .status-text {
@@ -100,6 +101,15 @@
 	border: none;
 	background-color: var(--_pds-panel-bg);
 	flex: 1;
+}
+
+/* Matches the document inside, which keeps the frame transparent */
+.pd-studio-results-iframe.scheme-light {
+	color-scheme: light;
+}
+
+.pd-studio-results-iframe.scheme-dark {
+	color-scheme: dark;
 }
 
 @media (max-width: 768px) {

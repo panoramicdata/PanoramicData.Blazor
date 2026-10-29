@@ -73,7 +73,7 @@ public partial class PDStudioTests : BunitContext
 		var studio = RenderStudio(more: p => p.Add(x => x.CssClass, "my-studio"));
 
 		studio.Find(".pd-studio").ClassList.Should().Contain("my-studio");
-		studio.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("new", "play");
+		studio.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play", "new");
 		studio.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
 		studio.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
 		PlayButton(studio).TextContent.Should().Contain("Execute");
@@ -83,7 +83,7 @@ public partial class PDStudioTests : BunitContext
 	}
 
 	/// <summary>
-	/// Verifies that the menu, toolbar and log can each be left out, and custom toolbar content is added after a separator.
+	/// Verifies that the menu, toolbar and log can each be left out, and custom toolbar content is added with no separator of its own.
 	/// </summary>
 	[Fact]
 	public void Layout_PartsCanBeLeftOutOrAdded()
@@ -93,7 +93,7 @@ public partial class PDStudioTests : BunitContext
 			p => p.Add(x => x.EditorToolbarContent, b => b.AddMarkupContent(0, "<span class=\"extra\">Extra</span>")));
 
 		withoutMenu.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play");
-		withoutMenu.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
+		withoutMenu.FindComponents<PDToolbarSeparator>().Should().BeEmpty();
 		withoutMenu.Find(".pd-studio-toolbar .extra").TextContent.Should().Be("Extra");
 		Tabs(withoutMenu).Should().Equal("Results");
 		withoutMenu.FindAll(".pd-studio-results-status").Should().BeEmpty();
