@@ -59,6 +59,18 @@ public partial class PDStudioTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies a hidden log leaves a classed placeholder with no inline style, so a host's CSS can restyle it.
+	/// </summary>
+	[Fact]
+	public void Layout_LogHidden_PlaceholderHasNoInlineStyle()
+	{
+		var studio = RenderStudio(new PDStudioOptions { IsLoggingVisible = false });
+
+		studio.FindAll(".pd-log").Should().BeEmpty();
+		studio.Find(".pd-studio-log-hidden").HasAttribute("style").Should().BeFalse();
+	}
+
+	/// <summary>
 	/// Verifies the default layout: both menus, the Execute button, a ready results panel and a log.
 	/// </summary>
 	[Fact]

@@ -1,16 +1,64 @@
-﻿.pd-studio-results {
+﻿/* ==============================================
+   PDStudioResults
+   Shares PDStudio's --pd-studio-* properties (see PDStudio.razor.css), plus one colour per
+   status, used for the status icon and text:
+
+   --pd-studio-status-ready-color      (--bs-primary)
+   --pd-studio-status-executing-color  (--bs-info)
+   --pd-studio-status-success-color    (--bs-success)
+   --pd-studio-status-warning-color    timeout, invalid code (--bs-warning)
+   --pd-studio-status-error-color      errors (--bs-danger)
+   --pd-studio-status-muted-color      cancelled, unknown (--bs-secondary)
+   ============================================== */
+
+.pd-studio-results {
+	--_pds-color: var(--pd-studio-color, var(--bs-body-color, #212529));
+	--_pds-panel-bg: var(--pd-studio-panel-bg, var(--bs-body-bg, #fff));
+	--_pds-toolbar-bg: var(--pd-studio-toolbar-bg, var(--bs-tertiary-bg, #f8f9fa));
+	--_pds-border-color: var(--pd-studio-border-color, var(--bs-border-color, #dee2e6));
+	--_pds-border-radius: var(--pd-studio-border-radius, 0.25rem);
+	--_pds-overlay-bg: var(--pd-studio-overlay-bg, rgba(128, 128, 128, 0.35));
+	--_pds-status-color: var(--_pds-color);
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background-color: var(--bs-white);
-	border: 1px solid var(--bs-border-color);
-	border-radius: 0.25rem;
+	background-color: var(--_pds-panel-bg);
+	color: var(--_pds-color);
+	border: 1px solid var(--_pds-border-color);
+	border-radius: var(--_pds-border-radius);
 	overflow: hidden;
 }
 
+.pd-studio-results.status-ready {
+	--_pds-status-color: var(--pd-studio-status-ready-color, var(--bs-primary, #0d6efd));
+}
+
+.pd-studio-results.status-executing {
+	--_pds-status-color: var(--pd-studio-status-executing-color, var(--bs-info, #0dcaf0));
+}
+
+.pd-studio-results.status-complete {
+	--_pds-status-color: var(--pd-studio-status-success-color, var(--bs-success, #198754));
+}
+
+.pd-studio-results.status-timeout,
+.pd-studio-results.status-invalid {
+	--_pds-status-color: var(--pd-studio-status-warning-color, var(--bs-warning, #ffc107));
+}
+
+.pd-studio-results.status-runtime-error,
+.pd-studio-results.status-error {
+	--_pds-status-color: var(--pd-studio-status-error-color, var(--bs-danger, #dc3545));
+}
+
+.pd-studio-results.status-cancelled,
+.pd-studio-results.status-unknown {
+	--_pds-status-color: var(--pd-studio-status-muted-color, var(--bs-secondary, #6c757d));
+}
+
 .pd-studio-results-status {
-	background-color: var(--bs-light);
-	border-bottom: 1px solid var(--bs-border-color);
+	background-color: var(--_pds-toolbar-bg);
+	border-bottom: 1px solid var(--_pds-border-color);
 	padding: 0.5rem 0.75rem;
 	min-height: 2.5rem;
 	display: flex;
@@ -19,14 +67,15 @@
 	transition: all 0.2s ease;
 }
 
-	.pd-studio-results-status .status-text {
-		color: var(--bs-secondary);
-		font-weight: 500;
-	}
+.pd-studio-results-status .status-text {
+	color: var(--_pds-status-color);
+	font-weight: 500;
+}
 
-	.pd-studio-results-status i {
-		font-size: 0.875rem;
-	}
+.pd-studio-results-status i {
+	font-size: 0.875rem;
+	color: var(--_pds-status-color);
+}
 
 .pd-studio-results-content {
 	flex: 1;
@@ -41,160 +90,18 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: var(--bs-body-bg);
+	background-color: var(--_pds-panel-bg);
 }
 
+/* The sandboxed frame gets none of the host's styles, so it shows on the panel's own background */
 .pd-studio-results-iframe {
 	width: 100%;
 	height: 100%;
 	border: none;
-	background-color: white;
+	background-color: var(--_pds-panel-bg);
 	flex: 1;
 }
 
-/* Status-specific styling */
-
-/* Ready state - neutral blue */
-.pd-studio-results.status-ready .pd-studio-results-status {
-	background-color: var(--bs-primary-bg-subtle);
-	border-color: var(--bs-primary-border-subtle);
-}
-
-.pd-studio-results.status-ready .pd-studio-results-status i {
-	color: var(--bs-primary);
-}
-
-.pd-studio-results.status-ready .pd-studio-results-status .status-text {
-	color: var(--bs-primary-text-emphasis);
-}
-
-/* Executing state - animated blue */
-.pd-studio-results.status-executing .pd-studio-results-status {
-	background-color: var(--bs-info-bg-subtle);
-	border-color: var(--bs-info-border-subtle);
-}
-
-.pd-studio-results.status-executing .pd-studio-results-status .status-text {
-	color: var(--bs-info-text-emphasis);
-}
-
-/* Complete state - success green */
-.pd-studio-results.status-complete .pd-studio-results-status {
-	background-color: var(--bs-success-bg-subtle);
-	border-color: var(--bs-success-border-subtle);
-}
-
-.pd-studio-results.status-complete .pd-studio-results-status i {
-	color: var(--bs-success);
-}
-
-.pd-studio-results.status-complete .pd-studio-results-status .status-text {
-	color: var(--bs-success-text-emphasis);
-}
-
-/* Timeout state - warning orange */
-.pd-studio-results.status-timeout .pd-studio-results-status {
-	background-color: var(--bs-warning-bg-subtle);
-	border-color: var(--bs-warning-border-subtle);
-}
-
-.pd-studio-results.status-timeout .pd-studio-results-status i {
-	color: var(--bs-warning);
-}
-
-.pd-studio-results.status-timeout .pd-studio-results-status .status-text {
-	color: var(--bs-warning-text-emphasis);
-}
-
-/* Cancelled state - secondary gray */
-.pd-studio-results.status-cancelled .pd-studio-results-status {
-	background-color: var(--bs-secondary-bg-subtle);
-	border-color: var(--bs-secondary-border-subtle);
-}
-
-.pd-studio-results.status-cancelled .pd-studio-results-status i {
-	color: var(--bs-secondary);
-}
-
-.pd-studio-results.status-cancelled .pd-studio-results-status .status-text {
-	color: var(--bs-secondary-text-emphasis);
-}
-
-/* Invalid code state - warning triangle */
-.pd-studio-results.status-invalid .pd-studio-results-status {
-	background-color: var(--bs-warning-bg-subtle);
-	border-color: var(--bs-warning-border-subtle);
-}
-
-.pd-studio-results.status-invalid .pd-studio-results-status i {
-	color: var(--bs-warning);
-}
-
-.pd-studio-results.status-invalid .pd-studio-results-status .status-text {
-	color: var(--bs-warning-text-emphasis);
-}
-
-/* Runtime error state - danger red */
-.pd-studio-results.status-runtime-error .pd-studio-results-status {
-	background-color: var(--bs-danger-bg-subtle);
-	border-color: var(--bs-danger-border-subtle);
-}
-
-.pd-studio-results.status-runtime-error .pd-studio-results-status i {
-	color: var(--bs-danger);
-}
-
-.pd-studio-results.status-runtime-error .pd-studio-results-status .status-text {
-	color: var(--bs-danger-text-emphasis);
-}
-
-/* General error state - danger red */
-.pd-studio-results.status-error .pd-studio-results-status {
-	background-color: var(--bs-danger-bg-subtle);
-	border-color: var(--bs-danger-border-subtle);
-}
-
-.pd-studio-results.status-error .pd-studio-results-status i {
-	color: var(--bs-danger);
-}
-
-.pd-studio-results.status-error .pd-studio-results-status .status-text {
-	color: var(--bs-danger-text-emphasis);
-}
-
-/* Unknown state - muted */
-.pd-studio-results.status-unknown .pd-studio-results-status {
-	background-color: var(--bs-secondary-bg-subtle);
-	border-color: var(--bs-secondary-border-subtle);
-}
-
-.pd-studio-results.status-unknown .pd-studio-results-status i {
-	color: var(--bs-secondary);
-}
-
-.pd-studio-results.status-unknown .pd-studio-results-status .status-text {
-	color: var(--bs-secondary-text-emphasis);
-}
-
-/* Dark theme support */
-.pd-studio-results.theme-dark {
-	background-color: var(--bs-dark);
-	border-color: var(--bs-secondary);
-	color: var(--bs-light);
-}
-
-	.pd-studio-results.theme-dark .pd-studio-results-status {
-		background-color: var(--bs-secondary);
-		border-color: var(--bs-border-color-translucent);
-		color: var(--bs-light);
-	}
-
-	.pd-studio-results.theme-dark .pd-studio-results-placeholder {
-		background-color: var(--bs-dark);
-		color: var(--bs-light);
-	}
-
-/* Responsive design */
 @media (max-width: 768px) {
 	.pd-studio-results-status {
 		padding: 0.375rem 0.5rem;
@@ -207,26 +114,21 @@
 	}
 }
 
-/* Loading state */
 .pd-studio-results.loading {
 	opacity: 0.7;
 }
 
-	.pd-studio-results.loading .pd-studio-results-content::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: rgba(255, 255, 255, 0.8);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1;
-	}
+.pd-studio-results.loading .pd-studio-results-content::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-color: var(--_pds-overlay-bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
+}
 
-/* Animation for status changes */
 .pd-studio-results-status i.fa-spinner {
 	animation: spin 1s linear infinite;
 }
@@ -241,7 +143,6 @@
 	}
 }
 
-/* Icon pulse animation for important states */
 .pd-studio-results.status-timeout .pd-studio-results-status i,
 .pd-studio-results.status-error .pd-studio-results-status i,
 .pd-studio-results.status-runtime-error .pd-studio-results-status i {
