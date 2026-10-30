@@ -82,9 +82,11 @@ public partial class PDStudioTests
 		_service.Block = true;
 		await TypeAsync(studio, "sleep(10)");
 
+		PlayButton(studio).ClassList.Should().Contain("pd-studio-execute");
+
 		var running = PlayButton(studio).ClickAsync(new());
 		studio.WaitForAssertion(() => PlayButton(studio).TextContent.Should().Contain("Cancel"));
-		PlayButton(studio).ClassList.Should().Contain("btn-danger");
+		PlayButton(studio).ClassList.Should().Contain("btn-danger").And.Contain("pd-studio-execute");
 		studio.FindAll(".pd-studio-editor-overlay").Should().ContainSingle();
 
 		await PlayButton(studio).ClickAsync(new());

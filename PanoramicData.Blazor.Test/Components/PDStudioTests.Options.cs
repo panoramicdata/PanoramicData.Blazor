@@ -31,7 +31,7 @@ public partial class PDStudioTests
 
 		var play = studio.FindComponents<PDToolbarButton>().Single(b => b.Instance.Key == "play").Instance;
 		play.Text.Should().Be("Run");
-		play.CssClass.Should().Be("btn-primary");
+		play.CssClass.Should().Be("pd-studio-execute btn-primary");
 		play.Size.Should().Be(ButtonSizes.Large);
 		play.TextCssClass.Should().Be("ps-3");
 

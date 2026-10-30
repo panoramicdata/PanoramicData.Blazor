@@ -182,6 +182,11 @@
   border-left-color: var(--pd-studio-separator-color, var(--bs-secondary, #6c757d));
 }
 
+/* Execute becomes Cancel while code runs; one width for both stops the rest of the toolbar shifting */
+.pd-studio .pdtoolbarbutton.pd-studio-execute {
+	min-width: var(--pd-studio-execute-min-width, 5.5rem);
+}
+
 /* Inside PDStudio the editor needs no border of its own: the studio's panel draws one */
 .pd-studio .pd-studio-editor-container .pd-monacoeditor {
   border: none;
