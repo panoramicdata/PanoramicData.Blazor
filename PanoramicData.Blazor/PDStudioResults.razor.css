@@ -1,4 +1,4 @@
-﻿/* ==============================================
+/* ==============================================
    PDStudioResults
    Shares PDStudio's --pd-studio-* properties (see PDStudio.razor.css), plus one colour per
    status, used for the status icon and text:
@@ -9,13 +9,14 @@
    --pd-studio-status-warning-color    timeout, invalid code (--bs-warning)
    --pd-studio-status-error-color      errors (--bs-danger)
    --pd-studio-status-muted-color      cancelled, unknown (--bs-secondary)
+   --pd-studio-status-text-color       the status words  (--pd-studio-color)
    ============================================== */
 
 .pd-studio-results {
 	--_pds-color: var(--pd-studio-color, var(--bs-body-color, #212529));
 	--_pds-panel-bg: var(--pd-studio-panel-bg, var(--bs-body-bg, #fff));
 	--_pds-toolbar-bg: var(--pd-studio-toolbar-bg, var(--bs-tertiary-bg, #f8f9fa));
-	--_pds-border-color: var(--pd-studio-border-color, var(--bs-border-color, #dee2e6));
+	--_pds-border-color: var(--pd-studio-border-color, var(--bs-border-color, rgba(128, 128, 128, 0.35)));
 	--_pds-border-radius: var(--pd-studio-border-radius, 0.25rem);
 	--_pds-overlay-bg: var(--pd-studio-overlay-bg, rgba(128, 128, 128, 0.35));
 	--_pds-status-color: var(--_pds-color);
@@ -68,8 +69,9 @@
 	user-select: none;
 }
 
+/* Only the icon takes the status colour; the words stay readable */
 .pd-studio-results-status .status-text {
-	color: var(--_pds-status-color);
+	color: var(--pd-studio-status-text-color, var(--_pds-color));
 	font-weight: 500;
 }
 
@@ -93,6 +95,7 @@
 }
 
 .pd-studio-results-placeholder {
+	user-select: none;
 	flex: 1;
 	display: flex;
 	align-items: center;

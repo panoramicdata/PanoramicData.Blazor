@@ -1,8 +1,13 @@
 /* The Monaco container is BlazorMonaco's markup, so its height is set in wwwroot/css/main.scss. */
 
 .pd-monacoeditor {
-	border: 1px solid silver;
+	border: 1px solid var(--pd-monaco-border-color, silver);
 	display: grid;
 	grid-template-columns: minmax(0, auto);
 	height: 100%;
+}
+
+.pd-monacoeditor-unavailable {
+	padding: 1rem;
+	color: var(--bs-secondary, #6c757d);
 }

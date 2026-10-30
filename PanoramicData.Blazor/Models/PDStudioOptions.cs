@@ -93,6 +93,21 @@ public class PDStudioOptions
 	public string CancelButtonCssClass { get; set; } = "btn-danger";
 
 	/// <summary>
+	/// Gets or sets an icon shown before the Results tab's title, such as "fas fa-table"; null for none.
+	/// </summary>
+	public string? ResultsTabIconCssClass { get; set; }
+
+	/// <summary>
+	/// Gets or sets an icon shown before the Messages tab's title, such as "fas fa-list"; null for none.
+	/// </summary>
+	public string? MessagesTabIconCssClass { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the New button is shown, for example false when the host has its own File menu.
+	/// </summary>
+	public bool ShowNewButton { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the New button's text.
 	/// </summary>
 	public string NewButtonText { get; set; } = "New";
@@ -117,6 +132,40 @@ public class PDStudioOptions
 	/// <see cref="Theme"/> contains "dark". The results are shown in a sandboxed frame the page's styles never reach.
 	/// </summary>
 	public string? ResultsStyleSheet { get; set; }
+
+	/// <summary>Gets or sets the Execute button's icon.</summary>
+	public string ExecuteButtonIconCssClass { get; set; } = "fas fa-play";
+
+	/// <summary>Gets or sets the Execute button's tooltip; null uses its text. The shortcut is added either way.</summary>
+	public string? ExecuteButtonToolTip { get; set; }
+
+	/// <summary>Gets or sets the icon the Execute button shows while code runs.</summary>
+	public string CancelButtonIconCssClass { get; set; } = "fas fa-stop";
+
+	/// <summary>Gets or sets the New button's icon.</summary>
+	public string NewButtonIconCssClass { get; set; } = "fas fa-file";
+
+	/// <summary>Gets or sets the Examples menu's icon.</summary>
+	public string ExamplesButtonIconCssClass { get; set; } = "fas fa-book-open";
+
+	/// <summary>Gets or sets the Results tab's title.</summary>
+	public string ResultsTabTitle { get; set; } = "Results";
+
+	/// <summary>Gets or sets the Results tab's tooltip; null for none.</summary>
+	public string? ResultsTabToolTip { get; set; }
+
+	/// <summary>Gets or sets the Messages tab's title.</summary>
+	public string MessagesTabTitle { get; set; } = "Messages";
+
+	/// <summary>Gets or sets the Messages tab's tooltip; null for none.</summary>
+	public string? MessagesTabToolTip { get; set; }
+
+	/// <summary>Gets or sets the text shown in the results before anything has run.</summary>
+	public string ResultsPlaceholderText { get; set; } = "Execute code to see results here";
+
+	/// <summary>Gets or sets how many messages are kept; the oldest are dropped first.</summary>
+	public int MaxMessages { get; set; } = 1000;
+
 	/// <summary>
 	/// Gets or sets custom properties for extensibility.
 	/// </summary>

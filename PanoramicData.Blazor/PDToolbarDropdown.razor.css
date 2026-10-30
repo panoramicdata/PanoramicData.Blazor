@@ -1,9 +1,21 @@
 ﻿/* The toolbar button is PDDropDown markup, so its styles live in wwwroot/css/main.scss. */
 
 .pddropdownmenuitem {
-	padding: .25rem .50rem;
 	cursor: pointer;
 	transition: background-color 0.15s ease-in-out;
+}
+
+/* Padding goes on the cells: a table row ignores it */
+.pddropdownmenuitem > td {
+	padding: 0.3rem 0.75rem;
+}
+
+.pddropdownmenuitem > td + td {
+	padding-left: 0;
+}
+
+.pddropdownmenuitem-icon {
+	margin-right: 0.5rem;
 }
 
 .pddropdownmenuitem.disabled {

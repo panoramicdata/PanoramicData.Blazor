@@ -29,6 +29,7 @@ public class PDMonacoEditorTests : BunitContext
 	{
 		JSInterop.Mode = JSRuntimeMode.Loose;
 		_module = JSInterop.SetupModule(ModulePath);
+		_module.Setup<bool>("waitForMonaco", _ => true).SetResult(true);
 		JSInterop.Setup<TextModel>(invocation => invocation.Identifier.EndsWith("getInstanceModel", StringComparison.Ordinal))
 			.SetResult(new TextModel { Id = "model-1", Uri = "inmemory://model/1" });
 	}
@@ -237,12 +238,50 @@ public class PDMonacoEditorTests : BunitContext
 	public void A_theme_change_updates_the_editor_once()
 	{
 		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "vs"));
+		var atStartUp = UpdateOptionsCalls();
 
 		component.Render(parameters => parameters.Add(p => p.Theme, "vs-dark"));
 		component.Render(parameters => parameters.Add(p => p.Theme, "vs-dark"));
 
-		JSInterop.Invocations.Count(i => i.Identifier == "blazorMonaco.editor.updateOptions").Should().Be(1);
+		UpdateOptionsCalls().Should().Be(atStartUp + 1);
 	}
+
+	/// <summary>Custom languages, and the themes a host defines with them, are set up before the editor is created,
+	/// so a custom theme exists when the editor asks for it.</summary>
+	[Fact]
+	public void Custom_languages_are_set_up_before_the_editor_is_created()
+	{
+		_module.Setup<bool>("registerLanguage", _ => true).SetResult(true);
+		var createdBeforeLanguage = true;
+
+		Render<PDMonacoEditor>(parameters => parameters
+			.Add(p => p.RegisterLanguages, languages => languages.Add(new Language { Id = "sql" }))
+			.Add(p => p.InitializeLanguageAsync, _ =>
+			{
+				createdBeforeLanguage = JSInterop.Invocations.Any(i => i.Identifier == "blazorMonaco.editor.create");
+				return Task.CompletedTask;
+			}));
+
+		createdBeforeLanguage.Should().BeFalse();
+		JSInterop.VerifyInvoke("blazorMonaco.editor.create");
+	}
+
+	/// <summary>If monaco never loads the editor is not created, which would throw where nothing can catch it, and a
+	/// message says so instead.</summary>
+	[Fact]
+	public void When_monaco_never_loads_the_editor_is_not_created()
+	{
+		using var context = new BunitContext();
+		context.JSInterop.Mode = JSRuntimeMode.Loose;
+		context.JSInterop.SetupModule(ModulePath).Setup<bool>("waitForMonaco", _ => true).SetResult(false);
+
+		var component = context.Render<PDMonacoEditor>();
+
+		component.Find(".pd-monacoeditor-unavailable").TextContent.Should().Contain("could not be loaded");
+		context.JSInterop.Invocations.Should().NotContain(i => i.Identifier == "blazorMonaco.editor.create");
+	}
+
+	private int UpdateOptionsCalls() => JSInterop.Invocations.Count(i => i.Identifier == "blazorMonaco.editor.updateOptions");
 
 	/// <summary>A JavaScript failure while applying a theme is swallowed.</summary>
 	[Fact]

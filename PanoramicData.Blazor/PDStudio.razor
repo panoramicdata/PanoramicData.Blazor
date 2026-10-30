@@ -1,7 +1,7 @@
 @namespace PanoramicData.Blazor
 @inherits PDComponentBase
 
-<div class="pd-studio @CssClass">
+<div class="pd-studio @(LeftPanelContent != null ? "pd-studio-with-left-panel" : null) @CssClass">
 	<div class="pd-studio-body">
 	@if (LeftPanelContent != null)
 	{
@@ -17,36 +17,42 @@
 				{
 					<PDToolbar ButtonSize="@Options.ButtonSize" CssClass="pd-studio-toolbar">
 
+						@ToolbarStartContent
+
 						@if (Options.ShowToolbar)
 						{
 							<PDToolbarButton Key="play"
 											 Text="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonText)"
-											 IconCssClass="@(_isExecuting ? "fas fa-stop" : "fas fa-play")"
+											 IconCssClass="@(_isExecuting ? Options.CancelButtonIconCssClass : Options.ExecuteButtonIconCssClass)"
 											 CssClass="@(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)"
 											 Size="@Options.ButtonSize"
 											 TextCssClass="@Options.ButtonTextCssClass"
+											 ToolTip="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonToolTip ?? Options.ExecuteButtonText)"
 											 Click="OnPlayCancelClick"
 											 ShortcutKey="@_executeShortcut" />
 						}
 
-						@if (Options.ShowMenu && Options.ShowToolbar)
+						@if (Options.ShowToolbar && HasMenuButtons)
 						{
 							<PDToolbarSeparator />
 						}
 
 						@if (Options.ShowMenu)
 						{
-							<PDToolbarButton Key="new"
-											 Text="@Options.NewButtonText"
-											 IconCssClass="fas fa-file"
-											 CssClass="@Options.NewButtonCssClass"
-											 Size="@Options.ButtonSize"
-											 TextCssClass="@Options.ButtonTextCssClass"
-											 Click="OnNewClick" />
+							@if (Options.ShowNewButton)
+							{
+								<PDToolbarButton Key="new"
+												 Text="@Options.NewButtonText"
+												 IconCssClass="@Options.NewButtonIconCssClass"
+												 CssClass="@Options.NewButtonCssClass"
+												 Size="@Options.ButtonSize"
+												 TextCssClass="@Options.ButtonTextCssClass"
+												 Click="OnNewClick" />
+							}
 							@if (CurrentExamples.Count > 0)
 							{
 								<PDToolbarDropdown Text="@Options.ExamplesButtonText"
-												   IconCssClass="fas fa-book-open"
+												   IconCssClass="@Options.ExamplesButtonIconCssClass"
 												   CssClass="@Options.ExamplesButtonCssClass"
 												   Size="@Options.ButtonSize"
 												   TextCssClass="@Options.ButtonTextCssClass"
@@ -93,13 +99,15 @@
 		<!-- Bottom: Results and Messages tabs -->
 		<PDSplitPanel Size="@((int)Options.MainSplitSizes[1])" CssClass="pd-studio-output-panel">
 			<div class="pd-studio-tabs" role="tablist">
-				<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@IsTabActive(_resultsTab)" @onclick="() => SelectTab(_resultsTab)">
-					Results
+				<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@IsTabActive(_resultsTab)" title="@Options.ResultsTabToolTip" @onclick="() => SelectTab(_resultsTab)">
+					@Options.ResultsTabTitle
+					@if (!string.IsNullOrWhiteSpace(Options.ResultsTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.ResultsTabIconCssClass)" aria-hidden="true"></i> }
 				</button>
 				@if (Options.IsLoggingVisible)
 				{
-					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@IsTabActive(_messagesTab)" @onclick="() => SelectTab(_messagesTab)">
-						Messages
+					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@IsTabActive(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
+						@Options.MessagesTabTitle
+						@if (!string.IsNullOrWhiteSpace(Options.MessagesTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.MessagesTabIconCssClass)" aria-hidden="true"></i> }
 						@if (_messages.Count > 0)
 						{
 							<span class="@MessagesBadgeCssClass">@MessagesBadgeText</span>
@@ -108,8 +116,9 @@
 				}
 				@foreach (var tab in OutputTabs)
 				{
-					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@IsTabActive(tab.Key)" @onclick="() => SelectTab(tab.Key)">
+					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@IsTabActive(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
 						@tab.Title
+						@if (!string.IsNullOrWhiteSpace(tab.IconCssClass)) { <i class="pd-studio-tab-icon @(tab.IconCssClass)" aria-hidden="true"></i> }
 					</button>
 				}
 			</div>
@@ -122,7 +131,8 @@
 								 ExecutionStatus="@_executionStatus"
 								 ShowStatusBar="@Options.ShowStatusBar"
 								 IsDark="@Options.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase)"
-								 StyleSheet="@Options.ResultsStyleSheet" />
+								 StyleSheet="@Options.ResultsStyleSheet"
+								 PlaceholderText="@Options.ResultsPlaceholderText" />
 			</div>
 
 			@if (Options.IsLoggingVisible)

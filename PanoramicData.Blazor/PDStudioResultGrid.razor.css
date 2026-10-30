@@ -9,7 +9,7 @@
 
 .pd-studio-grid {
 	--_pdg-color: var(--pd-studio-color, var(--bs-body-color, #212529));
-	--_pdg-border: var(--pd-studio-border-color, var(--bs-border-color, #dee2e6));
+	--_pdg-border: var(--pd-studio-border-color, var(--bs-border-color, rgba(128, 128, 128, 0.35)));
 	--_pdg-muted: var(--pd-studio-muted-color, var(--bs-secondary, #6c757d));
 	--_pdg-head-bg: var(--pd-studio-grid-head-bg, var(--pd-studio-toolbar-bg, var(--bs-tertiary-bg, #f8f9fa)));
 	--_pdg-stripe-bg: var(--pd-studio-grid-stripe-bg, var(--bs-tertiary-bg, #f8f9fa));
