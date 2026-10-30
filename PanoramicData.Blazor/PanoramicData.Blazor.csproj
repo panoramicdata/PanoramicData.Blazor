@@ -29,8 +29,9 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDMonacoEditor: a theme chosen while the editor is still being created, such as a dark theme read as the page loads, is now applied once the editor is ready, rather than lost and leaving the editor light.
-      - PDToolbarDropdown: a menu where no item has an icon no longer indents its items.
+      - PDStudio: a successful run is shown on the Messages tab as Success with a green tick, apart from plain information. PDStudioMessage.IsSuccess marks it; the colour is --pd-studio-status-success-color.
+      - PDStudio: the completion message gives the time taken, matching the results status bar, such as "3 rows returned in 142 ms". PDStudioResultSet.RowCountText and DurationText give the same wording to hosts.
+      - PDStudio: the Messages tab says "No messages match the filter" when a filter hides every message, and "No messages" when there are none.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
