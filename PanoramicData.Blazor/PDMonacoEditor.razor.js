@@ -28,6 +28,24 @@ function getMonaco() {
 	return window.monaco;
 }
 
+// Resolves true once the monaco global exists, or false after the timeout. editor.main.js is an AMD bundle, so
+// monaco is only defined once the loader has fetched its remaining parts, which a fast reload can beat.
+export function waitForMonaco(timeoutMs) {
+	return new Promise((resolve) => {
+		const started = Date.now();
+		const check = () => {
+			if (getMonaco()) {
+				resolve(true);
+			} else if (Date.now() - started >= timeoutMs) {
+				resolve(false);
+			} else {
+				setTimeout(check, 50);
+			}
+		};
+		check();
+	});
+}
+
 export function initialize(objRef) {
 	if (objRef) {
 		_objRef = objRef;

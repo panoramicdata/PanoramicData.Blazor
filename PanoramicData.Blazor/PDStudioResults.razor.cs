@@ -105,6 +105,11 @@ public partial class PDStudioResults : PDComponentBase
 	}
 
 	/// <summary>
+	/// Gets or sets the text shown before anything has run.
+	/// </summary>
+	[Parameter] public string PlaceholderText { get; set; } = "Execute code to see results here";
+
+	/// <summary>
 	/// Gets or sets tabular results, shown in a grid in place of <see cref="Content"/>.
 	/// </summary>
 	[Parameter] public PDStudioResultSet? ResultSet { get; set; }

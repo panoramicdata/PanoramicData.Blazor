@@ -17,11 +17,22 @@
 		<!-- PDStudio Component with fixed height -->
 		<div class="row">
 			<div class="col-12">
+				@if (UseCustomColours)
+				{
+					<style>
+						.pd-studio-demo-container {
+							--pd-studio-separator-color: @SeparatorColour;
+							--pd-studio-border-color: @BorderColour;
+							--pd-studio-accent: @AccentColour;
+						}
+					</style>
+				}
 				<div class="pd-studio-demo-container">
-					<PDStudio StudioService="@StudioService"
+					<PDStudio @ref="_studio"
+							  StudioService="@StudioService"
 							  Options="@StudioOptions"
 							  Examples="@Examples"
-							  OutputTabs="@OutputTabs"
+							  OutputTabs="@(ShowAboutTab ? OutputTabs : [])"
 							  OnCodeExecuted="OnCodeExecuted"
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
@@ -31,41 +42,106 @@
 							  InitializeLanguageAsync="InitializeLanguageAsync"
 							  UpdateMethodCacheAsync="(_, _, _) => UpdateMethodCacheAsync()">
 
-						<!-- Custom toolbar content -->
+						<ToolbarStartContent>
+							@if (ShowFileMenu)
+							{
+								<PDToolbarDropdown Text="File"
+												   IconCssClass="fas fa-folder"
+												   Size="@StudioOptions.ButtonSize"
+												   TextCssClass="ps-2"
+												   Items="@FileMenuItems"
+												   Click="OnFileMenuClick" />
+								<PDToolbarSeparator />
+							}
+						</ToolbarStartContent>
+
 						<EditorToolbarContent>
 							<PDToolbarSeparator />
 							<PDToolbarButton Key="language"
 											 Text="@($"Language: {StudioOptions.Language.ToUpper()}")"
 											 IconCssClass="fas fa-code"
-											 CssClass="btn-outline-secondary"
+											 Size="@StudioOptions.ButtonSize"
+											 TextCssClass="ps-2"
 											 Click="OnChangeLanguage" />
-
 						</EditorToolbarContent>
 
 						<ToolbarEndContent>
-							<PDToolbarButton Key="console"
-											 Text="@($"Console: {(StudioOptions.IsLoggingVisible ? "On" : "Off")}")"
-											 IconCssClass="fas fa-terminal"
-											 CssClass="btn-outline-secondary"
-											 Click="OnToggleConsoleClick" />
+							@if (ShowEndContent)
+							{
+								<span class="small text-secondary">Toolbar end slot</span>
+							}
 						</ToolbarEndContent>
 
 						<LeftPanelContent>
-							<div class="p-2">
-								<div class="fw-semibold mb-1">Examples</div>
-								@foreach (var example in Examples.Where(e => e.IsFor(StudioOptions.Language)))
-								{
-									<div class="small">@example.Name</div>
-								}
-							</div>
+							@if (ShowLeftPanel)
+							{
+								<div class="p-2">
+									<div class="fw-semibold mb-1">Insert an example</div>
+									@foreach (var example in Examples.Where(e => e.IsFor(StudioOptions.Language)))
+									{
+										<button type="button" class="btn btn-link btn-sm d-block p-0 text-start" @onclick="() => InsertExampleAsync(example)">@example.Name</button>
+									}
+								</div>
+							}
 						</LeftPanelContent>
 
 						<FooterContent>
-							<span>Language: @StudioOptions.Language.ToUpperInvariant()</span>
-							<span>Theme: @StudioOptions.Theme</span>
+							@if (ShowFooter)
+							{
+								<span>Language: @StudioOptions.Language.ToUpperInvariant()</span>
+								<span>Theme: @StudioOptions.Theme</span>
+							}
 						</FooterContent>
 
 					</PDStudio>
+				</div>
+			</div>
+		</div>
+
+		<!-- Options: try each customisation -->
+		<div class="row mt-3">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h6 class="mb-0">Options</h6>
+					</div>
+					<div class="card-body small">
+						<div class="row g-3">
+							<div class="col-md-3">
+								<div class="fw-semibold mb-1">Toolbar</div>
+								<div class="form-check"><input id="optToolbar" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowToolbar" /><label class="form-check-label" for="optToolbar">Execute (ShowToolbar)</label></div>
+								<div class="form-check"><input id="optMenu" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowMenu" /><label class="form-check-label" for="optMenu">New and Examples (ShowMenu)</label></div>
+								<div class="form-check"><input id="optNew" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowNewButton" /><label class="form-check-label" for="optNew">New (ShowNewButton)</label></div>
+								<label class="form-label mt-2 mb-1" for="optSize">Button size</label>
+								<select id="optSize" class="form-select form-select-sm" @bind="StudioOptions.ButtonSize">
+									<option value="@ButtonSizes.Small">Small</option>
+									<option value="@ButtonSizes.Medium">Medium</option>
+									<option value="@ButtonSizes.Large">Large</option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<div class="fw-semibold mb-1">Host slots</div>
+								<div class="form-check"><input id="optFile" class="form-check-input" type="checkbox" @bind="ShowFileMenu" /><label class="form-check-label" for="optFile">File menu (ToolbarStartContent)</label></div>
+								<div class="form-check"><input id="optEnd" class="form-check-input" type="checkbox" @bind="ShowEndContent" /><label class="form-check-label" for="optEnd">ToolbarEndContent</label></div>
+								<div class="form-check"><input id="optLeft" class="form-check-input" type="checkbox" @bind="ShowLeftPanel" /><label class="form-check-label" for="optLeft">LeftPanelContent</label></div>
+								<div class="form-check"><input id="optFooter" class="form-check-input" type="checkbox" @bind="ShowFooter" /><label class="form-check-label" for="optFooter">FooterContent</label></div>
+								<div class="form-check"><input id="optAbout" class="form-check-input" type="checkbox" @bind="ShowAboutTab" /><label class="form-check-label" for="optAbout">About tab (OutputTabs)</label></div>
+							</div>
+							<div class="col-md-3">
+								<div class="fw-semibold mb-1">Output</div>
+								<div class="form-check"><input id="optMessages" class="form-check-input" type="checkbox" @bind="StudioOptions.IsLoggingVisible" /><label class="form-check-label" for="optMessages">Messages tab (IsLoggingVisible)</label></div>
+								<div class="form-check"><input id="optStatus" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowStatusBar" /><label class="form-check-label" for="optStatus">Status bar (ShowStatusBar)</label></div>
+								<div class="form-check"><input id="optDark" class="form-check-input" type="checkbox" @bind="DarkEditor" /><label class="form-check-label" for="optDark">Dark editor (Theme: @StudioOptions.Theme)</label></div>
+							</div>
+							<div class="col-md-3">
+								<div class="fw-semibold mb-1">Colours</div>
+								<div class="form-check mb-1"><input id="optColours" class="form-check-input" type="checkbox" @bind="UseCustomColours" /><label class="form-check-label" for="optColours">Override --pd-studio-* colours</label></div>
+								<label class="d-flex align-items-center gap-2 mb-1"><input type="color" @bind="SeparatorColour" disabled="@(!UseCustomColours)" />--pd-studio-separator-color</label>
+								<label class="d-flex align-items-center gap-2 mb-1"><input type="color" @bind="BorderColour" disabled="@(!UseCustomColours)" />--pd-studio-border-color</label>
+								<label class="d-flex align-items-center gap-2"><input type="color" @bind="AccentColour" disabled="@(!UseCustomColours)" />--pd-studio-accent</label>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

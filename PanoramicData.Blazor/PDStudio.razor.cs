@@ -74,7 +74,6 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 	private const string _resultsTab = "results";
 	private const string _messagesTab = "messages";
-	private const int _maxMessages = 1000;
 
 	private readonly List<PDStudioMessage> _messages = [];
 	private string _activeTab = _resultsTab;
@@ -145,6 +144,14 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// Gets or sets content placed at the right-hand end of the toolbar.
 	/// </summary>
 	[Parameter] public RenderFragment? ToolbarEndContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content placed at the start of the toolbar, before Execute, such as a File menu.
+	/// </summary>
+	[Parameter] public RenderFragment? ToolbarStartContent { get; set; }
+
+	// The separator after Execute only when something follows it from the menu.
+	private bool HasMenuButtons => Options.ShowMenu && (Options.ShowNewButton || CurrentExamples.Count > 0);
 
 	/// <summary>
 	/// Gets or sets content shown in a bar along the bottom of the studio, such as the cursor position.
@@ -585,13 +592,28 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		await CodeChanged.InvokeAsync(code);
 	}
 
+	/// <summary>
+	/// Replaces the code in the editor, for example with a file the host has opened.
+	/// </summary>
+	public async Task SetCodeAsync(string code)
+	{
+		_currentCode = code;
+		await CodeChanged.InvokeAsync(code);
+		await RunOnEditorAsync(e => e.SetMonacoValueAsync(code), "set the code");
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Inserts text at the editor's cursor, replacing any selection, for example a table name the user picked.
+	/// The editor then reports the new code through <see cref="CodeChanged"/>.
+	/// </summary>
+	public Task InsertTextAsync(string text)
+		=> RunOnEditorAsync(e => e.InsertTextAsync(text), "insert text");
+
 	// Menu event handlers
 	private async Task OnNewClick()
 	{
-		_currentCode = string.Empty;
-		await CodeChanged.InvokeAsync(_currentCode);
-		await RunOnEditorAsync(e => e.SetMonacoValueAsync(string.Empty), "clear the code");
-
+		await SetCodeAsync(string.Empty);
 		await ClearResultsAsync();
 
 		LogInformation("New document created");
@@ -608,9 +630,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		}
 
 		var example = examples[index];
-		_currentCode = example.Code;
-		await CodeChanged.InvokeAsync(example.Code);
-		await RunOnEditorAsync(e => e.SetMonacoValueAsync(example.Code), "load the example");
+		await SetCodeAsync(example.Code);
 
 		LogInformation("Example loaded: {0}", example.Name);
 	}
@@ -627,7 +647,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			Logger.Log(level, "{Message}", text);
 		}
 
-		if (_messages.Count >= _maxMessages)
+		while (_messages.Count >= Math.Max(1, Options.MaxMessages))
 		{
 			_messages.RemoveAt(0);
 		}

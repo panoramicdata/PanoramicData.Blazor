@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Demo.Services;
+using System.Globalization;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
@@ -21,7 +22,11 @@ public partial class PDStudioDemo : IDisposable
 		TopSplitSizes = [50.0, 50.0],
 		MainSplitSizes = [75.0, 25.0],
 		IsEditingEnabledDuringExecution = true,
-		ExecutionTimeoutSeconds = 5 // Set shorter timeout for demo/testing
+		ExecutionTimeoutSeconds = 5, // Set shorter timeout for demo/testing
+		ResultsTabIconCssClass = "fas fa-table",
+		MessagesTabIconCssClass = "fas fa-list",
+		ResultsTabToolTip = "What the code returned",
+		MessagesTabToolTip = "What happened while it ran"
 	};
 
 	protected static IReadOnlyList<PDStudioExample> Examples { get; } =
@@ -53,7 +58,7 @@ public partial class PDStudioDemo : IDisposable
 
 	protected static IReadOnlyList<PDStudioOutputTab> OutputTabs { get; } =
 	[
-		new("about", "About", builder => builder.AddMarkupContent(0, "<p class='p-3 mb-0'>A tab added by the host page through OutputTabs.</p>"))
+		new("about", "About", builder => builder.AddMarkupContent(0, "<p class='p-3 mb-0'>A tab added by the host page through OutputTabs.</p>"), "fas fa-info-circle", "A tab the host page adds")
 	];
 
 	[Inject] private ILogger<PDStudioDemo> Logger { get; set; } = null!;
@@ -126,13 +131,51 @@ public partial class PDStudioDemo : IDisposable
 		await Task.CompletedTask;
 	}
 
-	private async Task OnToggleConsoleClick()
+	// The demo's Options card: each switches one PDStudio option or host slot.
+	private bool ShowFileMenu { get; set; } = true;
+	private bool ShowEndContent { get; set; } = true;
+	private bool ShowLeftPanel { get; set; } = true;
+	private bool ShowFooter { get; set; } = true;
+	private bool ShowAboutTab { get; set; } = true;
+	private bool UseCustomColours { get; set; }
+	private string SeparatorColour { get; set; } = "#6c757d";
+	private string BorderColour { get; set; } = "#444444";
+	private string AccentColour { get; set; } = "#e83e8c";
+
+	private bool DarkEditor
 	{
-		StudioOptions.IsLoggingVisible = !StudioOptions.IsLoggingVisible;
-		AddEvent("Settings", $"Console {(StudioOptions.IsLoggingVisible ? "shown" : "hidden")}");
-		StateHasChanged();
-		await Task.CompletedTask;
+		get => StudioOptions.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase);
+		set => UpdateThemeBasedOnPreference(value);
 	}
+
+	private static List<MenuItem> FileMenuItems { get; } =
+	[
+		new() { Key = "sample", Text = "Load the first example", IconCssClass = "fas fa-fw fa-folder-open" },
+		new() { Key = "time", Text = "Insert the time at the cursor", IconCssClass = "fas fa-fw fa-clock" }
+	];
+
+	private PDStudio? _studio;
+
+	// SetCodeAsync replaces the code, as opening a file would; InsertTextAsync adds at the cursor.
+	private async Task OnFileMenuClick(string key)
+	{
+		if (_studio is null)
+		{
+			return;
+		}
+
+		if (key == "sample")
+		{
+			await _studio.SetCodeAsync(Examples.FirstOrDefault(e => e.IsFor(StudioOptions.Language))?.Code ?? string.Empty);
+		}
+		else if (key == "time")
+		{
+			await _studio.InsertTextAsync(DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
+		}
+	}
+
+	private Task InsertExampleAsync(PDStudioExample example)
+		=> _studio?.InsertTextAsync(example.Code) ?? Task.CompletedTask;
 
 	private void AddEvent(string eventType, string description)
 	{

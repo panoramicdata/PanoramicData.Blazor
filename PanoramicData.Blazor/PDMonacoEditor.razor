@@ -1,9 +1,16 @@
 ﻿<div class="pd-monacoeditor">
-	<StandaloneCodeEditor @ref="_monacoEditor"
-						  CssClass="resizable"
-						  ConstructionOptions="_ => GetOptions()"
-						  Id="@Id"
-						  OnDidChangeCursorSelection="OnMonacoEditorSelectionChangeAsync"
-						  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
-                          OnDidChangeModelContent="OnMonacoEditorContentChangedAsync" />
+	@if (_isMonacoReady)
+	{
+		<StandaloneCodeEditor @ref="_monacoEditor"
+							  CssClass="resizable"
+							  ConstructionOptions="_ => GetOptions()"
+							  Id="@Id"
+							  OnDidChangeCursorSelection="OnMonacoEditorSelectionChangeAsync"
+							  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
+							  OnDidChangeModelContent="OnMonacoEditorContentChangedAsync" />
+	}
+	else if (_monacoFailedToLoad)
+	{
+		<div class="pd-monacoeditor-unavailable">The code editor could not be loaded. Refresh the page to try again.</div>
+	}
 </div>
