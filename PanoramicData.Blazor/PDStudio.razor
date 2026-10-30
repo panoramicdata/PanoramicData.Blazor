@@ -24,7 +24,7 @@
 							<PDToolbarButton Key="play"
 											 Text="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonText)"
 											 IconCssClass="@(_isExecuting ? Options.CancelButtonIconCssClass : Options.ExecuteButtonIconCssClass)"
-											 CssClass="@(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)"
+											 CssClass="@($"pd-studio-execute {(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}")"
 											 Size="@Options.ButtonSize"
 											 TextCssClass="@Options.ButtonTextCssClass"
 											 ToolTip="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonToolTip ?? Options.ExecuteButtonText)"

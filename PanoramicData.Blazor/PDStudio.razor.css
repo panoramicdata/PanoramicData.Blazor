@@ -20,7 +20,8 @@
    --pd-studio-left-panel-width the host's left panel      (16rem)
    --pd-studio-toolbar-padding  around the toolbar         (0.375rem 0, so Execute lines up with the editor)
    --pd-studio-separator-color  toolbar separators         (--bs-secondary)
-   The toolbar and its separators are PDToolbar markup, so those two are applied in wwwroot/css/main.scss.
+   --pd-studio-execute-min-width  Execute and Cancel, one width so the toolbar does not shift (5.5rem)
+   The toolbar, its separators and Execute are PDToolbar markup, so those three are applied in wwwroot/css/main.scss.
    Messages use the status colours in PDStudioResults.razor.css: information takes the ready
    colour, successes the success colour, warnings the warning colour and errors the error colour.
    ============================================== */
