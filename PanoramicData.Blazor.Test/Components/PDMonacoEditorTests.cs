@@ -235,9 +235,10 @@ public class PDMonacoEditorTests : BunitContext
 
 	/// <summary>A theme change after the editor exists is applied to it once, and an unchanged theme is not re-sent.</summary>
 	[Fact]
-	public void A_theme_change_updates_the_editor_once()
+	public async Task A_theme_change_updates_the_editor_once()
 	{
 		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "vs"));
+		await EditorCreatedAsync(component);
 		var atStartUp = UpdateOptionsCalls();
 
 		component.Render(parameters => parameters.Add(p => p.Theme, "vs-dark"));
@@ -245,6 +246,40 @@ public class PDMonacoEditorTests : BunitContext
 
 		UpdateOptionsCalls().Should().Be(atStartUp + 1);
 	}
+
+	/// <summary>A theme that arrives while the browser is still creating the editor is applied once it exists,
+	/// rather than sent to an editor that is not there yet and then never sent again.</summary>
+	[Fact]
+	public void A_theme_set_while_the_editor_is_being_created_is_applied_once_it_exists()
+	{
+		// The browser has not finished creating the editor until this completes.
+		var create = JSInterop.SetupVoid("blazorMonaco.editor.create", _ => true);
+		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "sql-light"));
+
+		component.Render(parameters => parameters.Add(p => p.Theme, "sql-dark"));
+		UpdateOptionsCalls().Should().Be(0);
+
+		create.SetVoidResult();
+
+		component.WaitForAssertion(() => JSInterop.Invocations
+			.Where(i => i.Identifier == "blazorMonaco.editor.updateOptions")
+			.Should().ContainSingle().Which.Arguments[1]!.ToString().Should().Contain("sql-dark"));
+	}
+
+	/// <summary>A theme the editor was created with is not sent to it again.</summary>
+	[Fact]
+	public async Task The_creation_theme_is_not_sent_again()
+	{
+		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "vs-dark"));
+
+		await EditorCreatedAsync(component);
+
+		UpdateOptionsCalls().Should().Be(0);
+	}
+
+	// BlazorMonaco raises OnDidInit once the browser has created the editor.
+	private static Task EditorCreatedAsync(IRenderedComponent<PDMonacoEditor> component)
+		=> component.InvokeAsync(() => component.FindComponent<StandaloneCodeEditor>().Instance.OnDidInit.InvokeAsync());
 
 	/// <summary>Custom languages, and the themes a host defines with them, are set up before the editor is created,
 	/// so a custom theme exists when the editor asks for it.</summary>
@@ -285,14 +320,16 @@ public class PDMonacoEditorTests : BunitContext
 
 	/// <summary>A JavaScript failure while applying a theme is swallowed.</summary>
 	[Fact]
-	public void A_theme_update_failure_is_ignored()
+	public async Task A_theme_update_failure_is_ignored()
 	{
 		JSInterop.SetupVoid("blazorMonaco.editor.updateOptions", _ => true).SetException(new JSException("gone"));
 		var component = Render<PDMonacoEditor>();
+		await EditorCreatedAsync(component);
 
 		var act = () => component.Render(parameters => parameters.Add(p => p.Theme, "hc-black"));
 
 		act.Should().NotThrow();
+		UpdateOptionsCalls().Should().Be(1);
 	}
 
 	/// <summary>After disposal the commands and reads do nothing.</summary>

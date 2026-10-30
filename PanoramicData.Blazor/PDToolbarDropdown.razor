@@ -31,7 +31,10 @@
                             @if (string.IsNullOrWhiteSpace(item.Content))
                             {
                                 <td class="text-nowrap">
-                                    <span class="pddropdownmenuitem-icon @(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
+                                    @if (HasIcons)
+                                    {
+                                        <span class="pddropdownmenuitem-icon @(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
+                                    }
                                     <span class="text-nowrap @(item.ShortcutKey.HasValue ? "" : " pe-1")">@item.Text.GetShortcutMarkup()</span>
                                 </td>
                                 <td class="text-nowrap text-muted small mw-100-px text-right">

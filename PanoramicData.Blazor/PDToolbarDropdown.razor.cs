@@ -82,6 +82,9 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 	/// </summary>
 	[Parameter] public List<MenuItem> Items { get; set; } = [];
 
+	// Icons keep the menu's text aligned only when some item has one; otherwise the space is just an indent.
+	private bool HasIcons => Items.Any(item => item.IsVisible && !item.IsSeparator && !string.IsNullOrWhiteSpace(item.IconCssClass));
+
 	/// <summary>
 	/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 	/// </summary>
