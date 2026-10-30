@@ -29,9 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDStudio: a successful run is shown on the Messages tab as Success with a green tick, apart from plain information. PDStudioMessage.IsSuccess marks it; the colour is --pd-studio-status-success-color.
-      - PDStudio: the completion message gives the time taken, matching the results status bar, such as "3 rows returned in 142 ms". PDStudioResultSet.RowCountText and DurationText give the same wording to hosts.
-      - PDStudio: the Messages tab says "No messages match the filter" when a filter hides every message, and "No messages" when there are none.
+      - PDStudio: Execute and Cancel now share one width, so the rest of the toolbar no longer shifts while code runs. The width is 5.5rem by default and set by --pd-studio-execute-min-width.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
