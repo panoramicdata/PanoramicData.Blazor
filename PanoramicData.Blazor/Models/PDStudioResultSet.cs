@@ -20,6 +20,19 @@ public class PDStudioResultSet
 	/// <summary>Gets how long the code took to run, when known.</summary>
 	public TimeSpan? Duration { get; init; }
 
+	/// <summary>Gets the number of rows as text, such as "1 row" or "1,250 rows".</summary>
+	public string RowCountText => Rows.Count == 1
+		? "1 row"
+		: string.Format(CultureInfo.InvariantCulture, "{0:N0} rows", Rows.Count);
+
+	/// <summary>Gets how long the code took to run as text, such as "142 ms" or "3.4 s", or null when not known.</summary>
+	public string? DurationText => Duration switch
+	{
+		null => null,
+		{ TotalSeconds: < 1 } d => string.Format(CultureInfo.InvariantCulture, "{0:N0} ms", d.TotalMilliseconds),
+		var d => string.Format(CultureInfo.InvariantCulture, "{0:N1} s", d.Value.TotalSeconds)
+	};
+
 	/// <summary>
 	/// Gets the results as CSV, with a heading row; values are quoted when they need to be.
 	/// </summary>

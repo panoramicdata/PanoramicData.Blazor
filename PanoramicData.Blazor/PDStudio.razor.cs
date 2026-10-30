@@ -166,28 +166,28 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// </summary>
 	public void ClearMessages() => _messages.Clear();
 
-	private static string LevelCssClass(LogLevel level) => level switch
+	private static string LevelCssClass(PDStudioMessage message) => message.Level switch
 	{
 		>= LogLevel.Error => "level-error",
 		LogLevel.Warning => "level-warning",
-		LogLevel.Information => "level-information",
+		LogLevel.Information => message.IsSuccess ? "level-success" : "level-information",
 		_ => "level-debug"
 	};
 
-	private static string LevelIcon(LogLevel level) => level switch
+	private static string LevelIcon(PDStudioMessage message) => message.Level switch
 	{
 		>= LogLevel.Error => "fas fa-times-circle",
 		LogLevel.Warning => "fas fa-exclamation-triangle",
-		LogLevel.Information => "fas fa-info-circle",
+		LogLevel.Information => message.IsSuccess ? "fas fa-check-circle" : "fas fa-info-circle",
 		_ => "fas fa-bug"
 	};
 
-	private static string LevelName(LogLevel level) => level switch
+	private static string LevelName(PDStudioMessage message) => message.Level switch
 	{
 		LogLevel.Critical => "Critical",
 		LogLevel.Error => "Error",
 		LogLevel.Warning => "Warning",
-		LogLevel.Information => "Info",
+		LogLevel.Information => message.IsSuccess ? "Success" : "Info",
 		_ => "Debug"
 	};
 
@@ -454,7 +454,14 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		_executionStatus = e.EventType == StudioExecutionEventType.Completed ?
 			StudioExecutionStatus.Complete.ToDisplayString() :
 			StudioExecutionStatus.Cancelled.ToDisplayString();
-		LogInformation("Execution {0}: {1}", e.EventType, e.Status);
+		if (e.EventType == StudioExecutionEventType.Completed)
+		{
+			LogSuccess($"Execution Completed: {e.Status}");
+		}
+		else
+		{
+			LogInformation("Execution {0}: {1}", e.EventType, e.Status);
+		}
 
 		await NotifyExecutionStateChangedAsync();
 	}
@@ -539,7 +546,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_resultSet = resultSet;
 			_executionStatus = StudioExecutionStatus.Complete.ToDisplayString();
 			await NotifyCodeExecutedAsync();
-			LogInformation(resultSet.Rows.Count == 1 ? "1 row returned" : "{0:N0} rows returned", resultSet.Rows.Count);
+			LogSuccess(resultSet.DurationText is { } duration
+				? $"{resultSet.RowCountText} returned in {duration}"
+				: $"{resultSet.RowCountText} returned");
 			return;
 		}
 
@@ -553,7 +562,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		await ShowResultsAsync(result);
 		await NotifyCodeExecutedAsync();
 
-		LogInformation("Code execution completed successfully");
+		LogSuccess("Code execution completed successfully");
 	}
 
 	private async Task NotifyCodeExecutedAsync()
@@ -641,7 +650,14 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private void LogToComponent(LogLevel level, string message, params object[] args)
 	{
 		// Without arguments the message is plain text, such as a service's status, and may contain braces.
-		var text = args.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message, args);
+		AddMessage(level, args.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message, args), false);
+	}
+
+	// A successful outcome: Information to the logger and the level filter, styled as a success on the tab.
+	private void LogSuccess(string text) => AddMessage(LogLevel.Information, text, true);
+
+	private void AddMessage(LogLevel level, string text, bool isSuccess)
+	{
 		if (Logger.IsEnabled(level))
 		{
 			Logger.Log(level, "{Message}", text);
@@ -652,7 +668,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_messages.RemoveAt(0);
 		}
 
-		_messages.Add(new PDStudioMessage(DateTime.UtcNow, level, text));
+		_messages.Add(new PDStudioMessage(DateTime.UtcNow, level, text) { IsSuccess = isSuccess });
 	}
 
 	/// <summary>

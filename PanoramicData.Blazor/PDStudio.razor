@@ -149,14 +149,19 @@
 						<button type="button" class="btn btn-sm btn-secondary pd-studio-messages-clear" @onclick="ClearMessages">Clear</button>
 					</div>
 					<div class="pd-studio-messages-list">
-						@foreach (var message in FilteredMessages)
+						@{ var shown = FilteredMessages.ToList(); }
+						@foreach (var message in shown)
 						{
-							<div class="pd-studio-message @LevelCssClass(message.Level)">
+							<div class="pd-studio-message @LevelCssClass(message)">
 								<span class="pd-studio-message-time">@message.Timestamp.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
-								<i class="@LevelIcon(message.Level)" aria-hidden="true"></i>
-								<span class="pd-studio-message-level">@LevelName(message.Level)</span>
+								<i class="@LevelIcon(message)" aria-hidden="true"></i>
+								<span class="pd-studio-message-level">@LevelName(message)</span>
 								<span class="pd-studio-message-text">@message.Text</span>
 							</div>
+						}
+						@if (shown.Count == 0)
+						{
+							<div class="pd-studio-messages-empty">@(_messages.Count == 0 ? "No messages" : "No messages match the filter")</div>
 						}
 					</div>
 				</div>
