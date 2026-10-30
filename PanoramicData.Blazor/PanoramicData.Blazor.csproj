@@ -29,9 +29,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDMonacoEditor: reloading a page no longer ends the circuit. The editor waits for Monaco to finish loading before it is created, and says so if Monaco never loads. Custom languages and themes are set up before the editor is created, so a custom theme applies from the start. Calls made after the browser has gone no longer throw into the host. New InsertTextAsync inserts at the cursor, and a value set before the editor exists is kept. The border colour follows --pd-monaco-border-color.
-      - PDStudio: new SetCodeAsync and InsertTextAsync, a ToolbarStartContent slot before Execute (for a File menu), and ShowNewButton. Execute lines up with the editor, separators and borders use quieter colours that suit light and dark themes, and the editor no longer shows a border of its own. New options set tab titles, tooltips and icons, button icons, the Execute tooltip, the results placeholder and how many messages are kept. Only the status icon takes the status colour.
-      - PDToolbarDropdown: menu items have proper padding and a gap after each icon, so every toolbar menu has more room.
+      - PDMonacoEditor: a theme chosen while the editor is still being created, such as a dark theme read as the page loads, is now applied once the editor is ready, rather than lost and leaving the editor light.
+      - PDToolbarDropdown: a menu where no item has an icon no longer indents its items.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
