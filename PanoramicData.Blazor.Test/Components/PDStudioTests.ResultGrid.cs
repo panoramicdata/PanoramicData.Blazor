@@ -56,7 +56,43 @@ public partial class PDStudioTests
 		studio.Find(".pd-studio-results-summary").TextContent.Should().Be("3 rows, 142 ms, limited to 3 rows");
 		Status(studio).Should().Be("Complete");
 		studio.Instance.ResultSet.Should().BeSameAs(_service.ResultSet);
-		LogMessages(studio).Should().Contain("3 rows returned");
+		LogMessages(studio).Should().Contain("3 rows returned in 142 ms");
+	}
+
+	/// <summary>
+	/// Verifies that only NULL is muted: zero, false and an empty string are values and keep the normal style.
+	/// </summary>
+	[Fact]
+	public async Task ResultGrid_MutesOnlyNull()
+	{
+		_service.ResultSet = new PDStudioResultSet
+		{
+			Columns = [new("count", "integer"), new("enabled", "boolean"), new("note", "text"), new("seen", "timestamp")],
+			Rows = [[0, false, "", null]]
+		};
+		var studio = RenderStudio();
+		await TypeAsync(studio, "SELECT 0, false, '', NULL");
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+		studio.WaitForAssertion(() => studio.FindAll(".pd-studio-grid").Should().ContainSingle());
+
+		var cells = studio.FindAll(".pd-studio-grid tbody td").Skip(1).ToList();
+		cells.Select(c => c.TextContent).Should().Equal("0", "False", "", "NULL");
+		cells.Select(c => c.ClassList.Contains("pd-studio-grid-null")).Should().Equal(false, false, false, true);
+	}
+
+	/// <summary>
+	/// Verifies that a query returning no rows still reports how long it took.
+	/// </summary>
+	[Fact]
+	public async Task ResultGrid_NoRows_StillShowsTheTimeTaken()
+	{
+		_service.ResultSet = new PDStudioResultSet { Columns = [new("id", "bigint")], Duration = TimeSpan.FromSeconds(2.4) };
+		var studio = RenderStudio();
+		await TypeAsync(studio, "SELECT id FROM nothing");
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+
+		studio.WaitForAssertion(() => studio.Find(".pd-studio-results-summary").TextContent.Should().Be("0 rows, 2.4 s"));
+		LogMessages(studio).Should().Contain("0 rows returned in 2.4 s");
 	}
 
 	/// <summary>

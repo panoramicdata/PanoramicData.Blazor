@@ -22,7 +22,7 @@
    --pd-studio-separator-color  toolbar separators         (--bs-secondary)
    The toolbar and its separators are PDToolbar markup, so those two are applied in wwwroot/css/main.scss.
    Messages use the status colours in PDStudioResults.razor.css: information takes the ready
-   colour, warnings the warning colour and errors the error colour.
+   colour, successes the success colour, warnings the warning colour and errors the error colour.
    ============================================== */
 
 .pd-studio {
@@ -41,6 +41,7 @@
 	--_pds-tab-active-color: var(--pd-studio-tab-active-color, var(--_pds-accent));
 	--_pds-tab-underline-color: var(--pd-studio-tab-underline-color, var(--_pds-tab-active-color));
 	--_pds-info-color: var(--pd-studio-status-ready-color, var(--bs-primary, #0d6efd));
+	--_pds-success-color: var(--pd-studio-status-success-color, var(--bs-success, #198754));
 	--_pds-warning-color: var(--pd-studio-status-warning-color, var(--bs-warning, #ffc107));
 	--_pds-error-color: var(--pd-studio-status-error-color, var(--bs-danger, #dc3545));
 	display: flex;
@@ -305,6 +306,17 @@
 .pd-studio-message.level-information i,
 .pd-studio-message.level-information .pd-studio-message-level {
 	color: var(--_pds-info-color);
+}
+
+.pd-studio-message.level-success i,
+.pd-studio-message.level-success .pd-studio-message-level {
+	color: var(--_pds-success-color);
+}
+
+.pd-studio-messages-empty {
+	padding: 0.5rem 0.75rem;
+	color: var(--_pds-muted-color);
+	font-style: italic;
 }
 
 .pd-studio-message.level-warning i,

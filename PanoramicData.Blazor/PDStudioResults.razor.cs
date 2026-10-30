@@ -119,15 +119,10 @@ public partial class PDStudioResults : PDComponentBase
 		get
 		{
 			var set = ResultSet!;
-			var parts = new List<string>
+			var parts = new List<string> { set.RowCountText };
+			if (set.DurationText is { } duration)
 			{
-				set.Rows.Count == 1 ? "1 row" : string.Format(CultureInfo.InvariantCulture, "{0:N0} rows", set.Rows.Count)
-			};
-			if (set.Duration is TimeSpan duration)
-			{
-				parts.Add(duration.TotalSeconds < 1
-					? string.Format(CultureInfo.InvariantCulture, "{0:N0} ms", duration.TotalMilliseconds)
-					: string.Format(CultureInfo.InvariantCulture, "{0:N1} s", duration.TotalSeconds));
+				parts.Add(duration);
 			}
 
 			if (set.IsTruncated)

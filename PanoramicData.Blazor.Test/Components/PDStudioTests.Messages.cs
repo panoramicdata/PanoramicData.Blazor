@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Models;
 
@@ -66,6 +67,72 @@ public partial class PDStudioTests
 		studio.Instance.Messages.Should().BeEmpty();
 		LogMessages(studio).Should().BeEmpty();
 		studio.FindAll(".pd-studio-tab-badge").Should().BeEmpty();
+		studio.Find(".pd-studio-messages-empty").TextContent.Should().Be("No messages");
+	}
+
+	/// <summary>
+	/// Verifies that Clear on an empty list does nothing, and that messages after a clear start a fresh list.
+	/// </summary>
+	[Fact]
+	public async Task Messages_AfterClear_StartAFreshList()
+	{
+		var studio = RenderStudio();
+
+		studio.Find(".pd-studio-messages-clear").Click();
+		studio.Instance.Messages.Should().BeEmpty();
+
+		await LogAsync(studio, LogLevel.Information, "Before");
+		studio.Find(".pd-studio-messages-clear").Click();
+		await LogAsync(studio, LogLevel.Warning, "After");
+
+		LogMessages(studio).Should().Equal("After");
+		studio.FindAll(".pd-studio-messages-empty").Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that a filter matching nothing says so, unlike an empty list, and clearing it brings them back.
+	/// </summary>
+	[Fact]
+	public async Task Messages_FilterMatchingNothing_SaysSo()
+	{
+		var studio = RenderStudio();
+		await LogAsync(studio, LogLevel.Information, "First run");
+		await LogAsync(studio, LogLevel.Information, "Second run");
+
+		studio.Find(".pd-studio-messages-search").Input("RUN");
+		LogMessages(studio).Should().Equal("First run", "Second run");
+
+		studio.Find(".pd-studio-messages-search").Input("nowhere");
+		LogMessages(studio).Should().BeEmpty();
+		studio.Find(".pd-studio-messages-empty").TextContent.Should().Be("No messages match the filter");
+
+		studio.Find(".pd-studio-messages-search").Input(string.Empty);
+		LogMessages(studio).Should().Equal("First run", "Second run");
+	}
+
+	/// <summary>
+	/// Verifies that a successful run is styled as a success, apart from plain information and from errors.
+	/// </summary>
+	[Fact]
+	public async Task Messages_SuccessInformationAndErrors_AreStyledApart()
+	{
+		_service.ResultSet = Devices();
+		var studio = RenderStudio();
+		await LogAsync(studio, LogLevel.Information, "Connected");
+		await TypeAsync(studio, "SELECT * FROM devices");
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+		await LogAsync(studio, LogLevel.Error, "Relation missing");
+
+		studio.WaitForAssertion(() => studio.FindAll(".pd-studio-message").Should().HaveCount(3));
+		var styles = studio.FindAll(".pd-studio-message").Select(m => (
+			Css: m.ClassList.First(c => c.StartsWith("level-", StringComparison.Ordinal)),
+			Icon: m.QuerySelector("i")!.ClassName,
+			Level: m.QuerySelector(".pd-studio-message-level")!.TextContent));
+		styles.Should().Equal(
+			("level-information", "fas fa-info-circle", "Info"),
+			("level-success", "fas fa-check-circle", "Success"),
+			("level-error", "fas fa-times-circle", "Error"));
+		studio.Instance.Messages[1].IsSuccess.Should().BeTrue();
 	}
 
 	/// <summary>

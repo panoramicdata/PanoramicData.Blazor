@@ -6,4 +6,8 @@ namespace PanoramicData.Blazor.Models;
 /// <param name="Timestamp">When the message was recorded, in UTC.</param>
 /// <param name="Level">The message's severity.</param>
 /// <param name="Text">The message, shown as plain text.</param>
-public record PDStudioMessage(DateTime Timestamp, LogLevel Level, string Text);
+public record PDStudioMessage(DateTime Timestamp, LogLevel Level, string Text)
+{
+	/// <summary>Gets whether the message reports a successful outcome, which is styled apart from other information.</summary>
+	public bool IsSuccess { get; init; }
+}
