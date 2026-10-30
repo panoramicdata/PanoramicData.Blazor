@@ -5,6 +5,7 @@
 							  CssClass="resizable"
 							  ConstructionOptions="_ => GetOptions()"
 							  Id="@Id"
+							  OnDidInit="OnMonacoEditorInitAsync"
 							  OnDidChangeCursorSelection="OnMonacoEditorSelectionChangeAsync"
 							  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
 							  OnDidChangeModelContent="OnMonacoEditorContentChangedAsync" />

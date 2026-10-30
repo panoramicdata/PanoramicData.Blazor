@@ -63,6 +63,21 @@ public class PDToolbarDropdownTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that items keep an icon space, blank where an item has none, so text lines up when any item has an
+	/// icon, and that a menu with no icons at all has no icon space, which would only indent the text.
+	/// </summary>
+	[Fact]
+	public void IconSpace_IsKeptOnlyWhenSomeItemHasAnIcon()
+	{
+		var withIcons = RenderDropdown(StandardItems());
+		withIcons.FindAll(".pddropdownmenuitem-icon").Should().HaveCount(3);
+		withIcons.FindAll(".pddropdownmenuitem-icon.fa-fw").Should().HaveCount(2);
+
+		var withoutIcons = RenderDropdown([new MenuItem { Key = "a", Text = "Tables you can query" }, new MenuItem { Key = "b", Text = "Devices" }]);
+		withoutIcons.FindAll(".pddropdownmenuitem-icon").Should().BeEmpty();
+	}
+
+	/// <summary>
 	/// Verifies that clicking an item raises its key, or its text without accelerator markers when it has no key.
 	/// </summary>
 	[Fact]

@@ -24,6 +24,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	private bool _isMonacoReady;
 	private bool _monacoFailedToLoad;
 	private string? _pendingValue;
+	private bool _isEditorInitialised;
 
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used to initialize and interact with Monaco.
@@ -210,6 +211,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			Value = _pendingValue ?? Value
 		};
 		InitializeOptions?.Invoke(options);
+
+		// The theme the editor is created with
+		_theme = options.Theme ?? string.Empty;
 		return options;
 	}
 
@@ -351,29 +355,32 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <summary>
 	/// Applies parameter-driven updates such as theme changes to the underlying editor.
 	/// </summary>
-	protected override async Task OnParametersSetAsync()
+	protected override Task OnParametersSetAsync() => ApplyThemeAsync();
+
+	// A theme can only reach the editor once BlazorMonaco has created it in the browser (OnDidInit), so one that
+	// arrives earlier is applied then; and it counts as applied only when the update succeeded, so it is retried.
+	private async Task ApplyThemeAsync()
 	{
+		if (string.IsNullOrEmpty(Theme) || Theme == _theme || !_isEditorInitialised || _monacoEditor is null)
+		{
+			return;
+		}
+
 		try
 		{
-			if (_monacoEditor != null)
-			{
-				// Always update the theme if it has changed, even if it's being set for the first time
-				if (!string.IsNullOrEmpty(Theme) && Theme != _theme)
-				{
-					_theme = Theme;
-					await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = _theme });
-				}
-			}
-			else if (!string.IsNullOrEmpty(Theme))
-			{
-				// Store the theme even if the editor isn't initialized yet
-				_theme = Theme;
-			}
+			await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = Theme });
+			_theme = Theme;
 		}
 		catch (Exception ex) when (IsBrowserUnavailable(ex))
 		{
 			// See IsBrowserUnavailable.
 		}
+	}
+
+	private Task OnMonacoEditorInitAsync()
+	{
+		_isEditorInitialised = true;
+		return ApplyThemeAsync();
 	}
 
 	/// <summary>
