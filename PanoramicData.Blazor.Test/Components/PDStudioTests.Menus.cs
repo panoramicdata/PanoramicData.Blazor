@@ -112,8 +112,20 @@ public partial class PDStudioTests
 		options.AutomaticLayout.Should().BeTrue();
 		options.ScrollBeyondLastLine.Should().BeFalse();
 		options.Minimap!.Enabled.Should().BeFalse();
+		options.Padding!.Top.Should().Be(6);
 		options.Folding.Should().BeTrue();
 		options.WordWrap.Should().Be("off");
+	}
+
+	/// <summary>
+	/// Verifies that the bar between the editor and the output is 4 pixels unless the options say otherwise.
+	/// </summary>
+	[Fact]
+	public void GutterSize_DefaultsTo4_AndFollowsTheOptions()
+	{
+		RenderStudio().FindComponent<PDSplitter>().Instance.GutterSize.Should().Be(4);
+
+		RenderStudio(new PDStudioOptions { GutterSize = 10 }).FindComponent<PDSplitter>().Instance.GutterSize.Should().Be(10);
 	}
 
 	/// <summary>

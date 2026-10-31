@@ -100,6 +100,11 @@ public class PDStudioOptions
 	public bool ShowCancelButton { get; set; }
 
 	/// <summary>
+	/// Gets or sets the height in pixels of the bar between the editor and the output, which is dragged to resize them.
+	/// </summary>
+	public int GutterSize { get; set; } = 4;
+
+	/// <summary>
 	/// Gets or sets an icon shown before the Results tab's title, such as "fas fa-table"; null for none.
 	/// </summary>
 	public string? ResultsTabIconCssClass { get; set; }

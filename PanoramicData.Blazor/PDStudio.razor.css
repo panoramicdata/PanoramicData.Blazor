@@ -19,6 +19,7 @@
    --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
    --pd-studio-left-panel-width the host's left panel      (16rem)
    --pd-studio-toolbar-padding  around the toolbar         (0.375rem 0, so Execute lines up with the editor)
+   --pd-studio-toolbar-border-bottom  the line under the toolbar (1px solid the border colour; none for no line)
    --pd-studio-separator-color  toolbar separators         (--bs-secondary)
    --pd-studio-execute-min-width  Execute and Cancel, one width so the toolbar does not shift (5.5rem)
    The toolbar, its separators and Execute are PDToolbar markup, so those three are applied in wwwroot/css/main.scss.

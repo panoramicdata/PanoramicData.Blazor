@@ -291,6 +291,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		options.WordWrap = "on";
 		options.Minimap = new EditorMinimapOptions { Enabled = false };
 
+		// Room between the line under the toolbar and the first line of code
+		options.Padding = new EditorPaddingOptions { Top = 6 };
+
 		// Enable IntelliSense and syntax highlighting features by default
 		options.LineNumbers = "on";
 		options.Suggest = new SuggestOptions
