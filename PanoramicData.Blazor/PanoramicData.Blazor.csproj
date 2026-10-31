@@ -29,7 +29,9 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDStudio: Execute and Cancel now share one width, so the rest of the toolbar no longer shifts while code runs. The width is 5.5rem by default and set by --pd-studio-execute-min-width.
+      - PDToolbarGroup: a new toolbar component that joins the items inside it into one group of buttons, with a thin divider between them (--pd-toolbar-group-divider-color).
+      - PDStudio: the toolbar is in two groups, Execute and New, and ExecuteGroupContent and MenuGroupContent add the host's own buttons to them. The separator between the groups is gone, and wrapped toolbar rows now line up on the left.
+      - PDStudio: PDStudioOptions.ShowCancelButton makes Cancel a button of its own after Execute, enabled only while code runs. It is off by default, so Execute still turns into Cancel unless a page asks for it.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
