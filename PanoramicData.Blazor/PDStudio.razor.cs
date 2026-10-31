@@ -54,9 +54,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	public string Code => _currentCode;
 
 	/// <summary>
-	/// Event callback for when execution state changes.
+	/// Event callback for when execution state changes: true when a run starts, false when it ends, however it ends.
 	/// </summary>
 	[Parameter] public EventCallback<bool> OnExecutionStateChanged { get; set; }
+
+	// The state last given to OnExecutionStateChanged, so each change is reported once.
+	private bool? _reportedExecuting;
 
 	/// <summary>
 	/// Event callback for when logging visibility changes.
@@ -489,8 +492,15 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		await NotifyExecutionStateChangedAsync();
 	}
 
+	// A run can end through a service event and then through ExecuteCode's finally; both report, so only a change counts.
 	private async Task NotifyExecutionStateChangedAsync()
 	{
+		if (_reportedExecuting == _isExecuting)
+		{
+			return;
+		}
+
+		_reportedExecuting = _isExecuting;
 		if (OnExecutionStateChanged.HasDelegate)
 		{
 			await OnExecutionStateChanged.InvokeAsync(_isExecuting);
@@ -554,6 +564,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_isExecuting = false;
 			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
+			await NotifyExecutionStateChangedAsync();
 			StateHasChanged();
 		}
 	}
