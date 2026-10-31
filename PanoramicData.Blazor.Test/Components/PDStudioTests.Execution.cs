@@ -33,7 +33,7 @@ public partial class PDStudioTests
 
 		studio.WaitForAssertion(() => executed.Should().Equal("SELECT 1"));
 		_service.Calls.Should().Equal(("SELECT 1", "sql", 7));
-		states.Should().Equal(true);
+		studio.WaitForAssertion(() => states.Should().Equal(true, false));
 		studio.Find("iframe.pd-studio-results-iframe").GetAttribute("srcdoc").Should().Contain("<p>42 rows</p>");
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("Code execution completed successfully"));
 	}
@@ -194,7 +194,15 @@ public partial class PDStudioTests
 			}
 
 			cancellationToken.ThrowIfCancellationRequested();
+			if (RaiseCompletedOnFinish)
+			{
+				Raise(new StudioExecutionEventArgs { EventType = StudioExecutionEventType.Completed, Status = "done" });
+			}
+
 			return Failure is null ? Result : throw Failure;
 		}
+
+		/// <summary>Raises a Completed event as the run finishes, as a service that reports its own progress does.</summary>
+		public bool RaiseCompletedOnFinish { get; set; }
 	}
 }
