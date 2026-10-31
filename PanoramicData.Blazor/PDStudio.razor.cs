@@ -150,8 +150,28 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// </summary>
 	[Parameter] public RenderFragment? ToolbarStartContent { get; set; }
 
-	// The separator after Execute only when something follows it from the menu.
-	private bool HasMenuButtons => Options.ShowMenu && (Options.ShowNewButton || CurrentExamples.Count > 0);
+	/// <summary>
+	/// Gets or sets toolbar items grouped with Execute, after it and before Cancel when
+	/// <see cref="PDStudioOptions.ShowCancelButton"/> is set, such as an Explain button.
+	/// </summary>
+	[Parameter] public RenderFragment? ExecuteGroupContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets toolbar items grouped with New and Examples, after them, such as a Restore button.
+	/// </summary>
+	[Parameter] public RenderFragment? MenuGroupContent { get; set; }
+
+	// The menu group only when something is in it.
+	private bool HasMenuButtons
+		=> (Options.ShowMenu && (Options.ShowNewButton || CurrentExamples.Count > 0)) || MenuGroupContent != null;
+
+	// Without a Cancel button of its own, Execute turns into Cancel while code runs.
+	private bool IsPlayCancel => _isExecuting && !Options.ShowCancelButton;
+
+	// One width for Execute and Cancel only matters when the one button is both.
+	private string PlayCssClass => Options.ShowCancelButton
+		? Options.ExecuteButtonCssClass
+		: $"pd-studio-execute {(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}";
 
 	/// <summary>
 	/// Gets or sets content shown in a bar along the bottom of the studio, such as the cursor position.

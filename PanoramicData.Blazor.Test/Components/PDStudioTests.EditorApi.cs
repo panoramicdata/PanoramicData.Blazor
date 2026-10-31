@@ -44,20 +44,20 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
-	/// Verifies that New can be left out, and that no separator is left dangling after Execute when nothing follows it.
+	/// Verifies that New can be left out, leaving no empty group, and that Examples alone still makes the group.
 	/// </summary>
 	[Fact]
-	public void ShowNewButton_False_LeavesOutNewAndItsSeparator()
+	public void ShowNewButton_False_LeavesOutNewAndItsEmptyGroup()
 	{
 		var withoutNew = RenderStudio(new PDStudioOptions { ShowNewButton = false });
 
 		withoutNew.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play");
-		withoutNew.FindComponents<PDToolbarSeparator>().Should().BeEmpty();
+		withoutNew.FindAll(".pd-studio-menu-group").Should().BeEmpty();
 
 		var withExamples = RenderStudio(new PDStudioOptions { ShowNewButton = false, Language = "sql" },
 			p => p.Add(x => x.Examples, [new PDStudioExample("One", "SELECT 1")]));
 
-		withExamples.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
+		withExamples.FindAll(".pd-studio-menu-group").Should().ContainSingle();
 		withExamples.FindComponents<PDToolbarDropdown>().Should().ContainSingle();
 	}
 }

@@ -178,6 +178,16 @@
 	padding: var(--pd-studio-toolbar-padding, 0.375rem var(--_pds-toolbar-padding-x, 0));
 }
 
+/* Spacing from the gap, not each item's padding, so a wrapped row starts level with the first */
+.pd-studio .pdtoolbar.pd-studio-toolbar {
+	column-gap: 0.75rem;
+}
+
+.pd-studio .pdtoolbar.pd-studio-toolbar > .pdtoolbaritem {
+	padding-left: 0;
+	padding-right: 0;
+}
+
 .pd-studio .pdtoolbar.pd-studio-toolbar .pdts-bar {
 	border-left-color: var(--pd-studio-separator-color, var(--bs-secondary, #6c757d));
 }
@@ -835,6 +845,25 @@
 	border-radius: var(--bs-border-radius, 0.375rem); /* Rounded corners */
 	height: 100%; /* Ensures that buttons WITHOUT text are the same height as those with text */
 	white-space: nowrap;
+}
+
+/* PDToolbarGroup - its items' buttons meet edge to edge, with rounded outer corners only */
+.pdtoolbar .pdtoolbargroup > .pdtoolbaritem {
+	padding: 0;
+}
+
+/* .btn rather than .pdtoolbarbutton, which PDToolbarDropdown's button does not have. The divider keeps
+   buttons of one colour apart; set --pd-toolbar-group-divider-color to change it. */
+.pdtoolbar .pdtoolbargroup > .pdtoolbaritem:not(:first-child) .btn {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	margin-left: calc(var(--bs-border-width, 1px) * -1);
+	border-left-color: var(--pd-toolbar-group-divider-color, rgba(0, 0, 0, 0.3));
+}
+
+.pdtoolbar .pdtoolbargroup > .pdtoolbaritem:not(:last-child) .btn {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 /* Mobile is already handled by wrapping - adjust for smaller screens */

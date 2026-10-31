@@ -75,7 +75,7 @@ public partial class PDStudioTests : BunitContext
 		studio.Find(".pd-studio").ClassList.Should().Contain("my-studio");
 		studio.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play", "new");
 		studio.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
-		studio.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
+		studio.FindComponents<PDToolbarSeparator>().Should().BeEmpty("the groups mark the sections, and a separator wraps badly");
 		PlayButton(studio).TextContent.Should().Contain("Execute");
 		PlayButton(studio).ClassList.Should().Contain("btn-success");
 		Status(studio).Should().Be("Ready");
