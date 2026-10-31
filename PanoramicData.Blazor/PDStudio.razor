@@ -8,7 +8,7 @@
 		<div class="pd-studio-left-panel">@LeftPanelContent</div>
 	}
 	<div class="pd-studio-main">
-	<PDSplitter Direction="SplitDirection.Vertical">
+	<PDSplitter Direction="SplitDirection.Vertical" GutterSize="@Options.GutterSize">
 
 		<!-- Top: toolbar and editor -->
 		<PDSplitPanel Size="@((int)Options.MainSplitSizes[0])" CssClass="pd-studio-editor-panel">

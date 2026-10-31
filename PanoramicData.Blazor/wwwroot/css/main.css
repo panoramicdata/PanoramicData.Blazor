@@ -176,6 +176,7 @@
 /* PDStudio's toolbar and its separators are PDToolbar markup, so they are styled here */
 .pd-studio .pdtoolbar.pd-studio-toolbar {
   padding: var(--pd-studio-toolbar-padding, 0.375rem var(--_pds-toolbar-padding-x, 0));
+  border-bottom: var(--pd-studio-toolbar-border-bottom, 1px solid var(--_pds-border-color));
 }
 
 /* Spacing from the gap, not each item's padding, so a wrapped row starts level with the first */
