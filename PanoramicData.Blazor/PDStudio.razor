@@ -21,44 +21,59 @@
 
 						@if (Options.ShowToolbar)
 						{
-							<PDToolbarButton Key="play"
-											 Text="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonText)"
-											 IconCssClass="@(_isExecuting ? Options.CancelButtonIconCssClass : Options.ExecuteButtonIconCssClass)"
-											 CssClass="@($"pd-studio-execute {(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}")"
-											 Size="@Options.ButtonSize"
-											 TextCssClass="@Options.ButtonTextCssClass"
-											 ToolTip="@(_isExecuting ? Options.CancelButtonText : Options.ExecuteButtonToolTip ?? Options.ExecuteButtonText)"
-											 Click="OnPlayCancelClick"
-											 ShortcutKey="@_executeShortcut" />
-						}
-
-						@if (Options.ShowToolbar && HasMenuButtons)
-						{
-							<PDToolbarSeparator />
-						}
-
-						@if (Options.ShowMenu)
-						{
-							@if (Options.ShowNewButton)
-							{
-								<PDToolbarButton Key="new"
-												 Text="@Options.NewButtonText"
-												 IconCssClass="@Options.NewButtonIconCssClass"
-												 CssClass="@Options.NewButtonCssClass"
+							<PDToolbarGroup ItemCssClass="pd-studio-execute-group" Label="@Options.ExecuteButtonText">
+								<PDToolbarButton Key="play"
+												 Text="@(IsPlayCancel ? Options.CancelButtonText : Options.ExecuteButtonText)"
+												 IconCssClass="@(IsPlayCancel ? Options.CancelButtonIconCssClass : Options.ExecuteButtonIconCssClass)"
+												 CssClass="@PlayCssClass"
 												 Size="@Options.ButtonSize"
 												 TextCssClass="@Options.ButtonTextCssClass"
-												 Click="OnNewClick" />
-							}
-							@if (CurrentExamples.Count > 0)
-							{
-								<PDToolbarDropdown Text="@Options.ExamplesButtonText"
-												   IconCssClass="@Options.ExamplesButtonIconCssClass"
-												   CssClass="@Options.ExamplesButtonCssClass"
-												   Size="@Options.ButtonSize"
-												   TextCssClass="@Options.ButtonTextCssClass"
-												   Items="@ExampleMenuItems()"
-												   Click="OnExampleClick" />
-							}
+												 ToolTip="@(IsPlayCancel ? Options.CancelButtonText : Options.ExecuteButtonToolTip ?? Options.ExecuteButtonText)"
+												 IsEnabled="@(!(Options.ShowCancelButton && _isExecuting))"
+												 Click="OnPlayCancelClick"
+												 ShortcutKey="@_executeShortcut" />
+								@ExecuteGroupContent
+								@if (Options.ShowCancelButton)
+								{
+									<PDToolbarButton Key="cancel"
+													 Text="@Options.CancelButtonText"
+													 IconCssClass="@Options.CancelButtonIconCssClass"
+													 CssClass="@Options.CancelButtonCssClass"
+													 Size="@Options.ButtonSize"
+													 TextCssClass="@Options.ButtonTextCssClass"
+													 ToolTip="@Options.CancelButtonText"
+													 IsEnabled="@_isExecuting"
+													 Click="CancelExecution" />
+								}
+							</PDToolbarGroup>
+						}
+
+						@* No separator between the groups: a separator wrapping on its own leaves a gap in a narrow toolbar *@
+						@if (HasMenuButtons)
+						{
+							<PDToolbarGroup ItemCssClass="pd-studio-menu-group" Label="@Options.NewButtonText">
+								@if (Options.ShowMenu && Options.ShowNewButton)
+								{
+									<PDToolbarButton Key="new"
+													 Text="@Options.NewButtonText"
+													 IconCssClass="@Options.NewButtonIconCssClass"
+													 CssClass="@Options.NewButtonCssClass"
+													 Size="@Options.ButtonSize"
+													 TextCssClass="@Options.ButtonTextCssClass"
+													 Click="OnNewClick" />
+								}
+								@if (Options.ShowMenu && CurrentExamples.Count > 0)
+								{
+									<PDToolbarDropdown Text="@Options.ExamplesButtonText"
+													   IconCssClass="@Options.ExamplesButtonIconCssClass"
+													   CssClass="@Options.ExamplesButtonCssClass"
+													   Size="@Options.ButtonSize"
+													   TextCssClass="@Options.ButtonTextCssClass"
+													   Items="@ExampleMenuItems()"
+													   Click="OnExampleClick" />
+								}
+								@MenuGroupContent
+							</PDToolbarGroup>
 						}
 
 						@* The host adds its own separator if it wants one *@

@@ -51,12 +51,34 @@
 												   TextCssClass="ps-2"
 												   Items="@FileMenuItems"
 												   Click="OnFileMenuClick" />
-								<PDToolbarSeparator />
 							}
 						</ToolbarStartContent>
 
+						<ExecuteGroupContent>
+							@if (ShowExecuteGroupButton)
+							{
+								<PDToolbarButton Key="check"
+												 Text="Check"
+												 IconCssClass="fas fa-spell-check"
+												 Size="@StudioOptions.ButtonSize"
+												 TextCssClass="ps-2"
+												 Click="@(() => AddEvent("Check", "The host's button in the Execute group was clicked"))" />
+							}
+						</ExecuteGroupContent>
+
+						<MenuGroupContent>
+							@if (ShowMenuGroupButton)
+							{
+								<PDToolbarButton Key="restore"
+												 Text="Restore"
+												 IconCssClass="fas fa-history"
+												 Size="@StudioOptions.ButtonSize"
+												 TextCssClass="ps-2"
+												 Click="@(() => AddEvent("Restore", "The host's button in the New group was clicked"))" />
+							}
+						</MenuGroupContent>
+
 						<EditorToolbarContent>
-							<PDToolbarSeparator />
 							<PDToolbarButton Key="language"
 											 Text="@($"Language: {StudioOptions.Language.ToUpper()}")"
 											 IconCssClass="fas fa-code"
@@ -112,6 +134,7 @@
 								<div class="form-check"><input id="optToolbar" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowToolbar" /><label class="form-check-label" for="optToolbar">Execute (ShowToolbar)</label></div>
 								<div class="form-check"><input id="optMenu" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowMenu" /><label class="form-check-label" for="optMenu">New and Examples (ShowMenu)</label></div>
 								<div class="form-check"><input id="optNew" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowNewButton" /><label class="form-check-label" for="optNew">New (ShowNewButton)</label></div>
+								<div class="form-check"><input id="optCancel" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowCancelButton" /><label class="form-check-label" for="optCancel">Cancel of its own (ShowCancelButton)</label></div>
 								<label class="form-label mt-2 mb-1" for="optSize">Button size</label>
 								<select id="optSize" class="form-select form-select-sm" @bind="StudioOptions.ButtonSize">
 									<option value="@ButtonSizes.Small">Small</option>
@@ -122,6 +145,8 @@
 							<div class="col-md-3">
 								<div class="fw-semibold mb-1">Host slots</div>
 								<div class="form-check"><input id="optFile" class="form-check-input" type="checkbox" @bind="ShowFileMenu" /><label class="form-check-label" for="optFile">File menu (ToolbarStartContent)</label></div>
+								<div class="form-check"><input id="optExecuteGroup" class="form-check-input" type="checkbox" @bind="ShowExecuteGroupButton" /><label class="form-check-label" for="optExecuteGroup">Check (ExecuteGroupContent)</label></div>
+								<div class="form-check"><input id="optMenuGroup" class="form-check-input" type="checkbox" @bind="ShowMenuGroupButton" /><label class="form-check-label" for="optMenuGroup">Restore (MenuGroupContent)</label></div>
 								<div class="form-check"><input id="optEnd" class="form-check-input" type="checkbox" @bind="ShowEndContent" /><label class="form-check-label" for="optEnd">ToolbarEndContent</label></div>
 								<div class="form-check"><input id="optLeft" class="form-check-input" type="checkbox" @bind="ShowLeftPanel" /><label class="form-check-label" for="optLeft">LeftPanelContent</label></div>
 								<div class="form-check"><input id="optFooter" class="form-check-input" type="checkbox" @bind="ShowFooter" /><label class="form-check-label" for="optFooter">FooterContent</label></div>

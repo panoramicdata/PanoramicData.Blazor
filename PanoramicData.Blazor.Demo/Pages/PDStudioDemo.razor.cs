@@ -137,6 +137,8 @@ public partial class PDStudioDemo : IDisposable
 	private bool ShowLeftPanel { get; set; } = true;
 	private bool ShowFooter { get; set; } = true;
 	private bool ShowAboutTab { get; set; } = true;
+	private bool ShowExecuteGroupButton { get; set; } = true;
+	private bool ShowMenuGroupButton { get; set; } = true;
 	private bool UseCustomColours { get; set; }
 	private string SeparatorColour { get; set; } = "#6c757d";
 	private string BorderColour { get; set; } = "#444444";

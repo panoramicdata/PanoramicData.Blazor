@@ -83,14 +83,21 @@ public class PDStudioOptions
 	public string ExecuteButtonCssClass { get; set; } = "btn-success";
 
 	/// <summary>
-	/// Gets or sets the text the Execute button shows while code runs.
+	/// Gets or sets Cancel's text, which the Execute button shows while code runs, or the Cancel button when
+	/// <see cref="ShowCancelButton"/> is set.
 	/// </summary>
 	public string CancelButtonText { get; set; } = "Cancel";
 
 	/// <summary>
-	/// Gets or sets the CSS class the Execute button has while code runs.
+	/// Gets or sets Cancel's CSS class, as for <see cref="CancelButtonText"/>.
 	/// </summary>
 	public string CancelButtonCssClass { get; set; } = "btn-danger";
+
+	/// <summary>
+	/// Gets or sets whether Cancel is a button of its own, after Execute and enabled only while code runs, so the
+	/// toolbar keeps its shape; false makes Execute turn into Cancel while code runs.
+	/// </summary>
+	public bool ShowCancelButton { get; set; }
 
 	/// <summary>
 	/// Gets or sets an icon shown before the Results tab's title, such as "fas fa-table"; null for none.
@@ -139,7 +146,7 @@ public class PDStudioOptions
 	/// <summary>Gets or sets the Execute button's tooltip; null uses its text. The shortcut is added either way.</summary>
 	public string? ExecuteButtonToolTip { get; set; }
 
-	/// <summary>Gets or sets the icon the Execute button shows while code runs.</summary>
+	/// <summary>Gets or sets Cancel's icon, as for <see cref="CancelButtonText"/>.</summary>
 	public string CancelButtonIconCssClass { get; set; } = "fas fa-stop";
 
 	/// <summary>Gets or sets the New button's icon.</summary>
