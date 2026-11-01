@@ -97,6 +97,43 @@ public partial class PDStudioTests
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("New document created"));
 		studio.FindAll(".pd-studio-results-placeholder").Should().ContainSingle();
 	}
+
+	/// <summary>
+	/// Verifies that New asks first when the host wants it to, and keeps the code when the answer is no.
+	/// </summary>
+	[Fact]
+	public async Task New_WhenTheHostSaysNo_KeepsTheCode()
+	{
+		var asked = 0;
+		var studio = RenderStudio(more: p => p.Add(x => x.ConfirmNewAsync, () =>
+		{
+			asked++;
+			return Task.FromResult(false);
+		}));
+		await TypeAsync(studio, "SELECT 1");
+
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
+
+		asked.Should().Be(1);
+		studio.Instance.Code.Should().Be("SELECT 1");
+		LogMessages(studio).Should().NotContain("New document created");
+	}
+
+	/// <summary>
+	/// Verifies that New clears the code once the host agrees.
+	/// </summary>
+	[Fact]
+	public async Task New_WhenTheHostSaysYes_ClearsTheCode()
+	{
+		var studio = RenderStudio(more: p => p.Add(x => x.ConfirmNewAsync, () => Task.FromResult(true)));
+		await TypeAsync(studio, "SELECT 1");
+
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
+
+		studio.Instance.Code.Should().BeEmpty();
+		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("New document created"));
+	}
+
 	/// <summary>
 	/// Verifies that the editor is configured with the studio's defaults, then the caller's own adjustments.
 	/// </summary>

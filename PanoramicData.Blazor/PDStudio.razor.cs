@@ -49,6 +49,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public EventCallback<string> CodeChanged { get; set; }
 
 	/// <summary>
+	/// Called when New is clicked, before anything is cleared: return false to keep the code and results,
+	/// for example when the user chooses to keep unsaved changes.
+	/// </summary>
+	[Parameter] public Func<Task<bool>>? ConfirmNewAsync { get; set; }
+
+	/// <summary>
 	/// Gets the code currently in the editor.
 	/// </summary>
 	public string Code => _currentCode;
@@ -656,6 +662,11 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	// Menu event handlers
 	private async Task OnNewClick()
 	{
+		if (ConfirmNewAsync is not null && !await ConfirmNewAsync())
+		{
+			return;
+		}
+
 		await SetCodeAsync(string.Empty);
 		await ClearResultsAsync();
 
