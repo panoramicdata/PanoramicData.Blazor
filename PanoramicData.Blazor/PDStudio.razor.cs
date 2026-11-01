@@ -67,6 +67,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	// The state last given to OnExecutionStateChanged, so each change is reported once.
 	private bool? _reportedExecuting;
 
+	// The service whose running state and status the studio last took.
+	private IPDStudioService? _stateTakenFrom;
+
 	/// <summary>
 	/// Event callback for when logging visibility changes.
 	/// </summary>
@@ -360,9 +363,11 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
-		// Update execution state if service is available
-		if (StudioService != null)
+		// A service's state is taken once, when it is given: taking it on every render would let a host re-rendering
+		// after a run replace the studio's own status, such as Cancelled, with the service's.
+		if (StudioService != null && !ReferenceEquals(StudioService, _stateTakenFrom))
 		{
+			_stateTakenFrom = StudioService;
 			_isExecuting = StudioService.IsExecuting;
 			_executionStatus = StudioService.CurrentStatus.ToDisplayString();
 		}

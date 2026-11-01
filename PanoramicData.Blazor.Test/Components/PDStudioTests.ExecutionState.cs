@@ -52,6 +52,28 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
+	/// Verifies that the host re-rendering after a run, as it does when told the run has ended, keeps the studio's own
+	/// status rather than taking the service's again, which a service that raises no events never updates.
+	/// </summary>
+	[Fact]
+	public async Task Status_AfterACancelledRun_SurvivesTheHostReRendering()
+	{
+		var studio = RenderStudio();
+		_service.Block = true;
+		await TypeAsync(studio, "sleep(10)");
+
+		var running = PlayButton(studio).ClickAsync(new());
+		studio.WaitForAssertion(() => PlayButton(studio).TextContent.Should().Contain("Cancel"));
+		await PlayButton(studio).ClickAsync(new());
+		await running;
+		studio.WaitForAssertion(() => Status(studio).Should().Be("Cancelled"));
+
+		studio.Render(p => p.Add(x => x.Options, studio.Instance.Options));
+
+		Status(studio).Should().Be("Cancelled");
+	}
+
+	/// <summary>
 	/// Verifies that a run the service also reports as completed is reported as ended only once.
 	/// </summary>
 	[Fact]
