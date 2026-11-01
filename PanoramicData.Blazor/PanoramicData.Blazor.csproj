@@ -29,8 +29,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDStudio: a line under the toolbar separates it from the editor (--pd-studio-toolbar-border-bottom), and the editor has a little room above the first line of code.
-      - PDStudio: PDStudioOptions.GutterSize sets the bar between the editor and the output, now 4px by default instead of 10px.
+      - PDStudio: ConfirmNewAsync lets the host ask before New clears the editor, and keep the code and results by returning false.
+      - PDStudio: OnExecutionStateChanged reports false at the end of every run, including runs returning a result set, cancelled runs and failed runs, once per change.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
