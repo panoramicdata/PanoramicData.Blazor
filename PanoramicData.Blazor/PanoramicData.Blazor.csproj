@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDStudio: a host re-rendering after a run keeps the studio's own status, such as Cancelled, instead of taking the service's again.
+      - PDStudio: NewAsync is public, so a host that offers New in its own menu can ask first and clear the code and results, as the New button does.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
