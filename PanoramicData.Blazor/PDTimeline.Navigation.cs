@@ -203,6 +203,13 @@ public partial class PDTimeline
 		_loading = true;
 		_refreshCancellationToken = new CancellationTokenSource();
 		var points = await dataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
+
+		// Cleared after the fetch, not before, so a slow provider never shows an empty chart.
+		if (force)
+		{
+			RemoveCachedRange(start, end);
+		}
+
 		foreach (var point in points)
 		{
 			point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
@@ -211,6 +218,17 @@ public partial class PDTimeline
 
 		_loading = false;
 		await Refreshed.InvokeAsync(null).ConfigureAwait(true);
+	}
+
+	/// <summary>Drops cached points in the range, so a period the provider no longer returns is drawn empty.</summary>
+	private void RemoveCachedRange(DateTime start, DateTime end)
+	{
+		var first = Scale.PeriodsBetween(RoundedMinDateTime, start, false);
+		var last = Scale.PeriodsBetween(RoundedMinDateTime, end, true);
+		foreach (var key in _dataPoints.Keys.Where(k => k >= first && k < last).ToList())
+		{
+			_dataPoints.Remove(key);
+		}
 	}
 
 	private (DateTime Start, DateTime End) GetQueryRange()

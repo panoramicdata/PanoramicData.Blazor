@@ -9,6 +9,24 @@ public partial class PDTimelinePage
 	private readonly TimelineOptions _timelineOptions = CreateTimelineOptions();
 	protected bool MoreDataAvailable { get; set; }
 
+	protected bool ShowMaxValue
+	{
+		get => _timelineOptions.YAxis.ShowMaxValue;
+		set => _timelineOptions.YAxis.ShowMaxValue = value;
+	}
+
+	protected bool ShowGridLines
+	{
+		get => _timelineOptions.YAxis.ShowGridLines;
+		set => _timelineOptions.YAxis.ShowGridLines = value;
+	}
+
+	protected int GridLineCount
+	{
+		get => _timelineOptions.YAxis.GridLineCount;
+		set => _timelineOptions.YAxis.GridLineCount = Math.Clamp(value, 1, 20);
+	}
+
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	private static TimelineOptions CreateTimelineOptions() => new()
