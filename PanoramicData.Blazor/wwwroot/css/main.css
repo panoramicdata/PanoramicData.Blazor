@@ -407,6 +407,24 @@
   box-shadow: none !important;
 }
 
+/* Below 768px a chat docked to the side is too narrow for its own header, so it covers the page as Fullscreen does. */
+@media (max-width: 767px) {
+  .pdchat-container-wrapper.pdchat-container-wrapper:not(.pdchat-split-inactive) .pdchat-chat-panel {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 10000 !important;
+  }
+  .pdchat-container-wrapper.pdchat-container-wrapper:not(.pdchat-split-inactive) .pdchat-content-panel {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+  .pdchat-container-wrapper.pdchat-container-wrapper:not(.pdchat-split-inactive) .pdchat-container-splitter > .gutter {
+    display: none !important;
+  }
+}
+
 /* PDList */
 .pd-list .filter input {
   border-top-right-radius: 0 !important;
