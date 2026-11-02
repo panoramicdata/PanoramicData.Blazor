@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: docked to the side on a screen narrower than 768px, the chat covers the page as Fullscreen does, so its header buttons, Minimize included, and its message box fit on a phone.
+      - PDTimeline: a forced refresh now redraws every bar from the data provider, so a chart whose data is filtered follows the filter at once instead of after the next zoom. New TimelineYAxisOptions ShowMaxValue and ShowGridLines label the Y-axis maximum and draw faint gridlines at round values; both are off by default.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
