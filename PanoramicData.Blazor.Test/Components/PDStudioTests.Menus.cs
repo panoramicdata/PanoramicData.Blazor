@@ -135,6 +135,46 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
+	/// Verifies that a host offering New in its own menu, with the button hidden, gets the button's behaviour:
+	/// it asks first, then clears the code and the results.
+	/// </summary>
+	[Fact]
+	public async Task NewAsync_WithTheButtonHidden_AsksThenClearsTheCodeAndResults()
+	{
+		var asked = 0;
+		var studio = RenderStudio(new PDStudioOptions { ShowNewButton = false }, p => p.Add(x => x.ConfirmNewAsync, () =>
+		{
+			asked++;
+			return Task.FromResult(true);
+		}));
+		_service.Result = "<p>42 rows</p>";
+		await TypeAsync(studio, "SELECT 1");
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+		studio.WaitForAssertion(() => studio.FindAll("iframe.pd-studio-results-iframe").Should().ContainSingle());
+
+		await studio.InvokeAsync(studio.Instance.NewAsync);
+
+		studio.FindComponents<PDToolbarButton>().Should().NotContain(b => b.Instance.Key == "new");
+		asked.Should().Be(1);
+		studio.Instance.Code.Should().BeEmpty();
+		studio.WaitForAssertion(() => studio.FindAll(".pd-studio-results-placeholder").Should().ContainSingle());
+	}
+
+	/// <summary>
+	/// Verifies that New called by the host keeps the code when the host's confirmation says no.
+	/// </summary>
+	[Fact]
+	public async Task NewAsync_WhenTheHostSaysNo_KeepsTheCode()
+	{
+		var studio = RenderStudio(more: p => p.Add(x => x.ConfirmNewAsync, () => Task.FromResult(false)));
+		await TypeAsync(studio, "SELECT 1");
+
+		await studio.InvokeAsync(studio.Instance.NewAsync);
+
+		studio.Instance.Code.Should().Be("SELECT 1");
+	}
+
+	/// <summary>
 	/// Verifies that the editor is configured with the studio's defaults, then the caller's own adjustments.
 	/// </summary>
 	[Fact]

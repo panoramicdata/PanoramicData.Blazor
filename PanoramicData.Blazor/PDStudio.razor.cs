@@ -664,8 +664,11 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	public Task InsertTextAsync(string text)
 		=> RunOnEditorAsync(e => e.InsertTextAsync(text), "insert text");
 
-	// Menu event handlers
-	private async Task OnNewClick()
+	/// <summary>
+	/// Does what the New button does: asks <see cref="ConfirmNewAsync"/> first, then clears the code and results.
+	/// For a host that offers New in its own menu, with <see cref="PDStudioOptions.ShowNewButton"/> off.
+	/// </summary>
+	public async Task NewAsync()
 	{
 		if (ConfirmNewAsync is not null && !await ConfirmNewAsync())
 		{
