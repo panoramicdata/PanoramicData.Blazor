@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// </summary>
 public partial class PDTimelineTests
 {
-	private static TimelineOptions YAxis(TimelineYAxisOptions yAxis) => new() { YAxis = yAxis };
+	private static TimelineOptions WithYAxis(TimelineYAxisOptions yAxis) => new() { YAxis = yAxis };
 
 	/// <summary>
 	/// Verifies that a forced refresh draws the provider's new values, including a period it no longer returns,
@@ -73,7 +73,7 @@ public partial class PDTimelineTests
 		_data.Add(new DataPoint { StartTime = Day(3), SeriesValues = [9] });
 
 		var timeline = RenderTimeline(p => p
-			.Add(x => x.Options, YAxis(new TimelineYAxisOptions { ShowMaxValue = true }))
+			.Add(x => x.Options, WithYAxis(new TimelineYAxisOptions { ShowMaxValue = true }))
 			.Add(x => x.YValueTransform, Math.Sqrt));
 
 		// sqrt(3) + sqrt(4) = 3.73 is taller than sqrt(9) = 3, so the label is that bar's total, 7
@@ -88,7 +88,7 @@ public partial class PDTimelineTests
 	{
 		_data.Add(new DataPoint { StartTime = Day(2), SeriesValues = [3] });
 
-		var timeline = RenderTimeline(p => p.Add(x => x.Options, YAxis(new TimelineYAxisOptions { ShowMaxValue = true, MaxValue = 50 })));
+		var timeline = RenderTimeline(p => p.Add(x => x.Options, WithYAxis(new TimelineYAxisOptions { ShowMaxValue = true, MaxValue = 50 })));
 
 		timeline.Find(".tl-max-value text").TextContent.Should().Be("50");
 	}
@@ -99,7 +99,7 @@ public partial class PDTimelineTests
 	[Fact]
 	public void EmptyChart_DrawsNoLabelOrGridLines()
 	{
-		var timeline = RenderTimeline(p => p.Add(x => x.Options, YAxis(new TimelineYAxisOptions { ShowMaxValue = true, ShowGridLines = true })));
+		var timeline = RenderTimeline(p => p.Add(x => x.Options, WithYAxis(new TimelineYAxisOptions { ShowMaxValue = true, ShowGridLines = true })));
 
 		timeline.FindAll(".tl-max-value").Should().BeEmpty();
 		timeline.FindAll("line.tl-grid-line").Should().BeEmpty();
@@ -113,7 +113,7 @@ public partial class PDTimelineTests
 	{
 		_data.Add(new DataPoint { StartTime = Day(2), SeriesValues = [8] });
 
-		var timeline = RenderTimeline(p => p.Add(x => x.Options, YAxis(new TimelineYAxisOptions { ShowGridLines = true, GridLineColour = "pink" })));
+		var timeline = RenderTimeline(p => p.Add(x => x.Options, WithYAxis(new TimelineYAxisOptions { ShowGridLines = true, GridLineColour = "pink" })));
 
 		// a maximum of 8 in 4 lines is a step of 2: 2, 4 and 6, on a 100-pixel plot
 		var lines = timeline.FindAll("line.tl-grid-line");
@@ -131,7 +131,7 @@ public partial class PDTimelineTests
 	[InlineData(23, 4, new double[] { 10, 20 })]
 	[InlineData(100, 4, new double[] { 50 })]
 	[InlineData(100, 10, new double[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 })]
-	[InlineData(0.9, 3, new double[] { 0.5 })]
+	[InlineData(0.9, 3, new[] { 0.5 })]
 	[InlineData(0, 4, new double[0])]
 	[InlineData(-5, 4, new double[0])]
 	[InlineData(10, 0, new double[0])]
