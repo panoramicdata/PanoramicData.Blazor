@@ -101,6 +101,13 @@ public partial class PDStudioDemo : IDisposable
 		await Task.CompletedTask;
 	}
 
+	private void OnResultRowClick(PDStudioResultRowClickEventArgs e)
+	{
+		var first = e.Columns.Count == 0 ? "row" : $"{e.Columns[0].Name} = {PDStudioResultSet.FormatValue(e.Values[0])}";
+		AddEvent("Results", $"Row {e.RowIndex + 1} clicked ({first})");
+		StateHasChanged();
+	}
+
 	private async Task OnLoggingVisibilityChanged(bool isVisible)
 	{
 		AddEvent("UI", isVisible ? "Console shown" : "Console hidden");

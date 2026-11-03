@@ -13,20 +13,54 @@ public partial class PDStudioResultGrid : PDComponentBase
 	/// </summary>
 	[Parameter, EditorRequired] public PDStudioResultSet ResultSet { get; set; } = new();
 
-	private IEnumerable<object?[]> SortedRows
+	/// <summary>
+	/// Event callback for when the user clicks a row, or presses Enter on one. While it is bound, rows show a
+	/// pointer and a hover highlight and can be focused.
+	/// </summary>
+	[Parameter] public EventCallback<PDStudioResultRowClickEventArgs> OnRowClick { get; set; }
+
+	// Each row with its index in ResultSet.Rows, which is what a click reports whatever the sort order.
+	private IEnumerable<(int Index, object?[] Row)> SortedRows
 	{
 		get
 		{
+			var rows = ResultSet.Rows.Select((row, index) => (index, row));
 			if (_sortColumn is not int column)
 			{
-				return ResultSet.Rows;
+				return rows;
 			}
 
 			return _sortDescending
-				? ResultSet.Rows.OrderByDescending(r => r[column], ValueComparer.Instance)
-				: ResultSet.Rows.OrderBy(r => r[column], ValueComparer.Instance);
+				? rows.OrderByDescending(r => r.row[column], ValueComparer.Instance)
+				: rows.OrderBy(r => r.row[column], ValueComparer.Instance);
 		}
 	}
+
+	// Null when nothing is bound, so an unbound row renders exactly as a plain <tr>.
+	private Dictionary<string, object>? RowAttributes(int index, object?[] row)
+	{
+		if (!OnRowClick.HasDelegate)
+		{
+			return null;
+		}
+
+		return new()
+		{
+			["class"] = "pd-studio-grid-clickable",
+			["tabindex"] = "0",
+			["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => RaiseRowClickAsync(index, row)),
+			["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, e => OnRowKeyDownAsync(e, index, row))
+		};
+	}
+
+	// Plain Enter only: Ctrl+Enter is PDStudio's Execute shortcut.
+	private Task OnRowKeyDownAsync(KeyboardEventArgs e, int index, object?[] row)
+		=> e is { Key: "Enter", CtrlKey: false, AltKey: false, ShiftKey: false, MetaKey: false, Repeat: false }
+			? RaiseRowClickAsync(index, row)
+			: Task.CompletedTask;
+
+	private Task RaiseRowClickAsync(int index, object?[] row)
+		=> OnRowClick.InvokeAsync(new PDStudioResultRowClickEventArgs(index, row, ResultSet.Columns));
 
 	/// <inheritdoc />
 	protected override void OnParametersSet()

@@ -31,7 +31,7 @@
 	<div class="pd-studio-results-content">
 		@if (ResultSet is not null)
 		{
-			<PDStudioResultGrid ResultSet="@ResultSet" />
+			<PDStudioResultGrid ResultSet="@ResultSet" OnRowClick="@OnResultRowClick" />
 		}
 		else if (string.IsNullOrWhiteSpace(Content))
 		{

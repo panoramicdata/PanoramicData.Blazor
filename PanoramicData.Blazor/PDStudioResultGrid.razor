@@ -20,10 +20,10 @@
 		</thead>
 		<tbody>
 			@{ var rowNumber = 0; }
-			@foreach (var row in SortedRows)
+			@foreach (var (index, row) in SortedRows)
 			{
 				rowNumber++;
-				<tr>
+				<tr @attributes="RowAttributes(index, row)">
 					<td class="pd-studio-grid-rownumber">@rowNumber</td>
 					@foreach (var value in row)
 					{

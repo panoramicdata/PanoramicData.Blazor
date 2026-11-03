@@ -28,10 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>
-      - PDFormBody: each field's hidden screen-reader label now stays inside its field, so a long form inside a scrolling panel no longer makes the whole page scroll.
-      - Also released in 10.0.491: PDFormMessage keeps each multi-line answer's own text when moving between questions, and its Next and Submit buttons fit on one line. PDChat bubble messages stay readable in a dark theme, through the new --pd-chat-bubble-bot-bg and --pd-chat-bubble-user-bg colours.
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>PDStudio: new OnResultRowClick callback raises the row index, values and columns when a result grid row is clicked or Enter is pressed on it.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
