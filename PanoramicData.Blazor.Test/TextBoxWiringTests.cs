@@ -47,6 +47,25 @@ public partial class TextBoxWiringTests
 			});
 	}
 
+	/// <summary>
+	/// No unbound text area is given its text as its content, which the browser ignores once someone has typed in it.
+	/// </summary>
+	[Fact]
+	public void NoUnboundTextArea_IsGivenItsTextAsContent()
+	{
+		var textAreas = new List<string>();
+
+		foreach (var path in Directory.EnumerateFiles(Path.Combine(PackagingGuardTests.RepositoryRoot, "PanoramicData.Blazor"), "*.razor", SearchOption.AllDirectories))
+		{
+			var text = File.ReadAllText(path);
+			textAreas.AddRange(TextAreaWithContentRegex().Matches(text)
+				.Where(match => !match.Groups["tag"].Value.Contains("@bind", StringComparison.Ordinal))
+				.Select(match => $"{Path.GetFileName(path)}:{text[..match.Index].Count(character => character == '\n') + 1}"));
+		}
+
+		textAreas.Should().BeEmpty();
+	}
+
 	// Every input or textarea in the library whose value the server sets and whose oninput handler it also takes.
 	private static List<(string File, int Line)> OneWayTextBoxes()
 	{
@@ -71,6 +90,9 @@ public partial class TextBoxWiringTests
 	// Quoted attribute values may hold ">", as in a lambda handler.
 	[GeneratedRegex("""<(input|textarea)\b(?:[^>"]|"[^"]*")*>""", RegexOptions.Singleline)]
 	private static partial Regex TextBoxTagRegex();
+
+	[GeneratedRegex("""(?<tag><textarea\b(?:[^>"]|"[^"]*")*>)\s*[^<\s]""", RegexOptions.Singleline)]
+	private static partial Regex TextAreaWithContentRegex();
 
 	[GeneratedRegex("""(?<![-\w])value\s*=\s*"?@""")]
 	private static partial Regex ServerValueRegex();
