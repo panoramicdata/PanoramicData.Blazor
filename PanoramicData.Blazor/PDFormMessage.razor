@@ -173,7 +173,9 @@
 						<textarea class="pdchat-form-text pdchat-form-textarea"
 								  rows="5"
 								  placeholder="Your answer"
-								  @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty">@TextValue(active)</textarea>
+								  @bind:get="TextValue(active)"
+								  @bind:set="value => _values[active.Id] = value ?? string.Empty"
+								  @bind:event="oninput"></textarea>
 					}
 					else
 					{
