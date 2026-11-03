@@ -377,7 +377,7 @@
 							</button>
 						</div>
 						<div class="col-6">
-							<button class="btn btn-info btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_infoText, MessageType.Normal)">
+							<button class="btn btn-info btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_infoText, MessageType.Information)">
 								<i class="fas fa-info-circle me-1"></i>Info
 							</button>
 						</div>
@@ -392,12 +392,12 @@
 							</button>
 						</div>
 						<div class="col-6">
-							<button class="btn btn-dark btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_criticalText, MessageType.Critical)">
+							<button class="btn btn-critical btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_criticalText, MessageType.Critical)">
 								<i class="fas fa-fire me-1"></i>Critical
 							</button>
 						</div>
 						<div class="col-6">
-							<button class="btn btn-success btn-sm w-100 mb-2" @onclick="SendTypingMessage">
+							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="SendTypingMessage">
 								<i class="fas fa-keyboard me-1"></i>Typing
 							</button>
 						</div>

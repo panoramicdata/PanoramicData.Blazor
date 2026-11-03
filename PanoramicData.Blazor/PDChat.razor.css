@@ -54,6 +54,8 @@
 	--pd-chat-success-bg: #d1e7dd;
 	--pd-chat-typing-border: #6c757d;
 	--pd-chat-typing-bg: #f8f9fa;
+	--pd-chat-bubble-bot-bg: #e6f0ff;
+	--pd-chat-bubble-user-bg: #d6fcd6;
 	--pd-chat-focus-shadow: rgba(0, 120, 212, 0.4);
 
 	/* Spacing/sizing — not theme-aliased (no host convention to inherit from), just plain
@@ -87,6 +89,8 @@ body.theme-orange .pdchat-container {
 	--pd-chat-success-bg: #1a3d2e;
 	--pd-chat-typing-border: #6c757d;
 	--pd-chat-typing-bg: #2c3034;
+	--pd-chat-bubble-bot-bg: #1e3047;
+	--pd-chat-bubble-user-bg: #1f3a29;
 	--pd-chat-focus-shadow: rgba(91, 164, 252, 0.4);
 }
 
@@ -113,6 +117,8 @@ body.theme-orange .pdchat-container {
 		--pd-chat-success-bg: #1a3d2e;
 		--pd-chat-typing-border: #6c757d;
 		--pd-chat-typing-bg: #2c3034;
+		--pd-chat-bubble-bot-bg: #1e3047;
+		--pd-chat-bubble-user-bg: #1f3a29;
 		--pd-chat-focus-shadow: rgba(91, 164, 252, 0.4);
 	}
 }
