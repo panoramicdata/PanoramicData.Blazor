@@ -5,6 +5,7 @@
    --pd-studio-grid-head-bg     heading row               (--pd-studio-toolbar-bg)
    --pd-studio-grid-stripe-bg   every other row           (--bs-tertiary-bg)
    --pd-studio-grid-null-color  NULL values               (--pd-studio-muted-color)
+   --pd-studio-grid-hover-bg    clickable row under the pointer or focused (--bs-secondary-bg)
    ============================================== */
 
 .pd-studio-grid {
@@ -14,6 +15,7 @@
 	--_pdg-head-bg: var(--pd-studio-grid-head-bg, var(--pd-studio-toolbar-bg, var(--bs-tertiary-bg, #f8f9fa)));
 	--_pdg-stripe-bg: var(--pd-studio-grid-stripe-bg, var(--bs-tertiary-bg, #f8f9fa));
 	--_pdg-null: var(--pd-studio-grid-null-color, var(--_pdg-muted));
+	--_pdg-hover-bg: var(--pd-studio-grid-hover-bg, var(--bs-secondary-bg, #e9ecef));
 	flex: 1;
 	min-height: 0;
 	overflow: auto;
@@ -69,6 +71,21 @@
 
 .pd-studio-grid tbody tr:nth-child(even) {
 	background-color: var(--_pdg-stripe-bg);
+}
+
+/* Only when the host handles row clicks. */
+.pd-studio-grid tbody tr.pd-studio-grid-clickable {
+	cursor: pointer;
+}
+
+.pd-studio-grid tbody tr.pd-studio-grid-clickable:hover,
+.pd-studio-grid tbody tr.pd-studio-grid-clickable:focus-visible {
+	background-color: var(--_pdg-hover-bg);
+}
+
+.pd-studio-grid tbody tr.pd-studio-grid-clickable:focus-visible {
+	outline: 2px solid var(--bs-focus-ring-color, rgba(13, 110, 253, 0.25));
+	outline-offset: -2px;
 }
 
 .pd-studio-grid .pd-studio-grid-rownumber {

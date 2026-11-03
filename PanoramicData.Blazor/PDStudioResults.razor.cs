@@ -114,6 +114,11 @@ public partial class PDStudioResults : PDComponentBase
 	/// </summary>
 	[Parameter] public PDStudioResultSet? ResultSet { get; set; }
 
+	/// <summary>
+	/// Event callback for when the user clicks a row of the <see cref="ResultSet"/> grid, or presses Enter on one.
+	/// </summary>
+	[Parameter] public EventCallback<PDStudioResultRowClickEventArgs> OnResultRowClick { get; set; }
+
 	private string Summary
 	{
 		get

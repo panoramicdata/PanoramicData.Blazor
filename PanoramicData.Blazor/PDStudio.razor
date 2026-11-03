@@ -147,7 +147,8 @@
 								 ShowStatusBar="@Options.ShowStatusBar"
 								 IsDark="@Options.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase)"
 								 StyleSheet="@Options.ResultsStyleSheet"
-								 PlaceholderText="@Options.ResultsPlaceholderText" />
+								 PlaceholderText="@Options.ResultsPlaceholderText"
+								 OnResultRowClick="@OnResultRowClick" />
 			</div>
 
 			@if (Options.IsLoggingVisible)

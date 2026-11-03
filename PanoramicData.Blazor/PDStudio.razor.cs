@@ -76,6 +76,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public EventCallback<bool> OnLoggingVisibilityChanged { get; set; }
 
 	/// <summary>
+	/// Event callback for when the user clicks a result grid row, or presses Enter on one. While it is bound,
+	/// rows show a pointer and a hover highlight and can be focused.
+	/// </summary>
+	[Parameter] public EventCallback<PDStudioResultRowClickEventArgs> OnResultRowClick { get; set; }
+
+	/// <summary>
 	/// Initializes a new instance of the <see cref="PDStudio"/> class.
 	/// </summary>
 	public PDStudio()
