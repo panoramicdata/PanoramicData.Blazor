@@ -53,8 +53,11 @@ public partial class PDStudioResultGrid : PDComponentBase
 		};
 	}
 
+	// Plain Enter only: Ctrl+Enter is PDStudio's Execute shortcut.
 	private Task OnRowKeyDownAsync(KeyboardEventArgs e, int index, object?[] row)
-		=> e.Key == "Enter" ? RaiseRowClickAsync(index, row) : Task.CompletedTask;
+		=> e is { Key: "Enter", CtrlKey: false, AltKey: false, ShiftKey: false, MetaKey: false, Repeat: false }
+			? RaiseRowClickAsync(index, row)
+			: Task.CompletedTask;
 
 	private Task RaiseRowClickAsync(int index, object?[] row)
 		=> OnRowClick.InvokeAsync(new PDStudioResultRowClickEventArgs(index, row, ResultSet.Columns));

@@ -78,7 +78,7 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
-	/// Verifies that Enter on a focused row raises the event and other keys do not.
+	/// Verifies that plain Enter on a focused row raises the event, while other keys and Ctrl+Enter (Execute) do not.
 	/// </summary>
 	[Fact]
 	public async Task ResultRowClick_EnterKey_RaisesTheRow()
@@ -86,6 +86,7 @@ public partial class PDStudioTests
 		var studio = await RunDevicesWithRowClickAsync();
 
 		BodyRows(studio)[2].KeyDown(new KeyboardEventArgs { Key = "a" });
+		BodyRows(studio)[2].KeyDown(new KeyboardEventArgs { Key = "Enter", CtrlKey = true });
 		_rowClicks.Should().BeEmpty();
 
 		BodyRows(studio)[2].KeyDown(new KeyboardEventArgs { Key = "Enter" });
