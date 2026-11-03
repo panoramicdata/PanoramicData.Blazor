@@ -195,7 +195,7 @@
 }
 
 .pdchat-message.bubble.user {
-    background: #d6fcd6;
+    background: var(--pd-chat-bubble-user-bg, #d6fcd6);
     align-self: flex-end;
     border-top-right-radius: 8px;
     border-top-left-radius: 16px;
@@ -204,7 +204,7 @@
 }
 
 .pdchat-message.bubble.bot {
-    background: #e6f0ff;
+    background: var(--pd-chat-bubble-bot-bg, #e6f0ff);
     align-self: flex-start;
     border-top-left-radius: 8px;
     border-top-right-radius: 16px;
