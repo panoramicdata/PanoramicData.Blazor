@@ -2,6 +2,11 @@
 	width: 100%;
 }
 
+/* A host's sr-only makes each field's hidden label absolute; unless the field is positioned, the label escapes a scrolling panel and stretches the page. */
+.pd-form-field {
+	position: relative;
+}
+
 /* BS5 alert-* classes only define CSS variables; without .alert they are not applied.
    Apply colour and background directly so dark mode works without touching layout.
    !important needed to override .input-group-text's own color/background-color rules. */
