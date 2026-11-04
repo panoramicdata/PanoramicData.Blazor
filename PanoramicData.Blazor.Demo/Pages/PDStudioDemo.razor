@@ -38,6 +38,7 @@
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
 							  OnResultRowClick="OnResultRowClick"
+							  ActiveTabChanged="@(key => AddEvent("Tab", $"The {key} tab is showing (ActiveTabChanged)"))"
 							  InitializeMonacoOptions="InitializeMonacoOptions"
 							  InitializeMethodCache="InitializeMethodCache"
 							  RegisterLanguages="RegisterLanguages"

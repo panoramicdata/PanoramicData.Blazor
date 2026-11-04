@@ -130,6 +130,21 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	// A tab that is hidden or no longer offered cannot stay selected: the first tab shown is, instead.
 	private string ActiveTab => IsTabShown(_activeTab) ? _activeTab : FirstShownTab();
 
+	/// <summary>
+	/// Gets the key of the tab showing: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
+	/// </summary>
+	public string ActiveTabKey => ActiveTab;
+
+	/// <summary>
+	/// Raised with the key of the tab showing, once it first shows and whenever it changes, whether by a click,
+	/// <see cref="SelectTab(string)"/>, or because the tab that was showing has gone. A host can use it to render a
+	/// costly tab's content only while that tab shows.
+	/// </summary>
+	[Parameter] public EventCallback<string> ActiveTabChanged { get; set; }
+
+	// The tab last given to ActiveTabChanged
+	private string? _reportedTab;
+
 	private bool IsTabShown(string key) => key switch
 	{
 		_resultsTab => Options.ShowResultsTab,
@@ -396,6 +411,13 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		}
 
 		_editorContentShown = EditorContent is not null;
+
+		// Checked after each render, so a tab that changes because the one showing has gone is reported too
+		if (ActiveTab != _reportedTab)
+		{
+			_reportedTab = ActiveTab;
+			await ActiveTabChanged.InvokeAsync(_reportedTab);
+		}
 
 		// Logging integration is handled through direct method calls
 		await base.OnAfterRenderAsync(firstRender);
