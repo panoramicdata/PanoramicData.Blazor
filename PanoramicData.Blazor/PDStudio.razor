@@ -121,14 +121,14 @@
 			<div class="pd-studio-tabs" role="tablist">
 				@if (Options.ShowResultsTab)
 				{
-					<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@IsTabActive(_resultsTab)" title="@Options.ResultsTabToolTip" @onclick="() => SelectTab(_resultsTab)">
+					<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@AriaSelected(_resultsTab)" title="@Options.ResultsTabToolTip" @onclick="() => SelectTab(_resultsTab)">
 						@Options.ResultsTabTitle
 						@if (!string.IsNullOrWhiteSpace(Options.ResultsTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.ResultsTabIconCssClass)" aria-hidden="true"></i> }
 					</button>
 				}
 				@if (Options.IsLoggingVisible)
 				{
-					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@IsTabActive(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
+					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@AriaSelected(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
 						@Options.MessagesTabTitle
 						@if (!string.IsNullOrWhiteSpace(Options.MessagesTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.MessagesTabIconCssClass)" aria-hidden="true"></i> }
 						@if (_messages.Count > 0)
@@ -139,7 +139,7 @@
 				}
 				@foreach (var tab in OutputTabs)
 				{
-					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@IsTabActive(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
+					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@AriaSelected(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
 						@tab.Title
 						@if (!string.IsNullOrWhiteSpace(tab.IconCssClass)) { <i class="pd-studio-tab-icon @(tab.IconCssClass)" aria-hidden="true"></i> }
 						@if (tab.Badge is { } badge)

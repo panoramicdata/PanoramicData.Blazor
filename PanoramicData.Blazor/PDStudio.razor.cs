@@ -181,6 +181,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 	private string TabCssClass(string tab) => IsTabActive(tab) ? "pd-studio-tab active" : "pd-studio-tab";
 
+	// Text, as a bool renders the attribute bare when true and leaves it out when false
+	private string AriaSelected(string tab) => IsTabActive(tab) ? "true" : "false";
+
 	/// <summary>
 	/// Shows a tab: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
 	/// </summary>

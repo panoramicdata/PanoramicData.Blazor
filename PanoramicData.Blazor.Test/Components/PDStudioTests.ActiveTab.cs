@@ -63,6 +63,21 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
+	/// Verifies that each tab says whether it is selected, as "true" or "false", and follows the selection.
+	/// </summary>
+	[Fact]
+	public async Task Tabs_SayWhetherTheyAreSelected_AsTrueOrFalse()
+	{
+		var studio = RenderStudio(more: p => p.Add(x => x.OutputTabs, _planTab));
+
+		studio.FindAll("[role='tab']").Select(tab => tab.GetAttribute("aria-selected")).Should().Equal("true", "false", "false");
+
+		await studio.InvokeAsync(() => studio.Instance.SelectTab("plan"));
+
+		studio.FindAll("[role='tab']").Select(tab => tab.GetAttribute("aria-selected")).Should().Equal("false", "false", "true");
+	}
+
+	/// <summary>
 	/// Verifies that with the Results tab turned off, the first tab reported is Messages.
 	/// </summary>
 	[Fact]
