@@ -31,6 +31,12 @@ public class PDStudioOptions
 	public bool IsLoggingVisible { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets whether the Results tab is shown, for a host that shows its output somewhere else. Results are
+	/// still taken while it is hidden, and the first tab shown is selected instead.
+	/// </summary>
+	public bool ShowResultsTab { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the level the Messages tab starts filtered to; Debug and below show everything.
 	/// </summary>
 	public LogLevel DefaultLogLevel { get; set; } = LogLevel.Debug;

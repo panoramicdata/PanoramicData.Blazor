@@ -126,6 +126,20 @@
 /* The editor and its Monaco containers are other components' markup, so the rules that size them and
    remove the editor's own border live in wwwroot/css/main.scss. */
 
+.pd-studio-editor-container[hidden] {
+	display: none;
+}
+
+/* A host's content in place of the code editor, sized as the editor is */
+.pd-studio-editor-content {
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
 .pd-studio-editor-overlay {
 	position: absolute;
 	inset: 0;

@@ -144,6 +144,7 @@ public partial class PDStudioDemo : IDisposable
 	private bool ShowLeftPanel { get; set; } = true;
 	private bool ShowFooter { get; set; } = true;
 	private bool ShowAboutTab { get; set; } = true;
+	private bool ShowEditorContent { get; set; }
 	private bool ShowExecuteGroupButton { get; set; } = true;
 	private bool ShowMenuGroupButton { get; set; } = true;
 	private bool UseCustomColours { get; set; }

@@ -1741,6 +1741,7 @@ No code-behind file found for this component.
 | OnLoggingVisibilityChanged | EventCallback<bool> | Event callback for when logging visibility changes. |
 | DataProvider | IDataProviderService<GraphData>? | Gets or sets the data provider for the graph data. |
 | EditorToolbarContent | RenderFragment? | Custom content for the editor toolbar. |
+| EditorContent | RenderFragment? | Gets or sets content shown in place of the code editor, such as another kind of editor; null shows the code editor. The code editor stays in the page, hidden, so its code and undo history are still there when this is cleared. Give it as an attribute, as content written between the tags is never null. |
 | InitializeMonacoOptions | Action<StandaloneEditorConstructionOptions>? | Gets or sets a callback to initialize Monaco editor options. |
 | InitializeMethodCache | Action<MethodCache>? | Gets or sets a callback to initialize the method cache for language completions. |
 | RegisterLanguages | Action<List<Language>>? | Gets or sets a callback to register custom languages for Monaco editor. |

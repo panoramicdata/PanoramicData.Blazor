@@ -33,6 +33,7 @@
 							  Options="@StudioOptions"
 							  Examples="@Examples"
 							  OutputTabs="@(ShowAboutTab ? OutputTabs : [])"
+							  EditorContent="@(ShowEditorContent ? EditorContentDemo : null)"
 							  OnCodeExecuted="OnCodeExecuted"
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
@@ -152,9 +153,11 @@
 								<div class="form-check"><input id="optLeft" class="form-check-input" type="checkbox" @bind="ShowLeftPanel" /><label class="form-check-label" for="optLeft">LeftPanelContent</label></div>
 								<div class="form-check"><input id="optFooter" class="form-check-input" type="checkbox" @bind="ShowFooter" /><label class="form-check-label" for="optFooter">FooterContent</label></div>
 								<div class="form-check"><input id="optAbout" class="form-check-input" type="checkbox" @bind="ShowAboutTab" /><label class="form-check-label" for="optAbout">About tab (OutputTabs)</label></div>
+								<div class="form-check"><input id="optEditorContent" class="form-check-input" type="checkbox" @bind="ShowEditorContent" /><label class="form-check-label" for="optEditorContent">In place of the editor (EditorContent)</label></div>
 							</div>
 							<div class="col-md-3">
 								<div class="fw-semibold mb-1">Output</div>
+								<div class="form-check"><input id="optResults" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowResultsTab" /><label class="form-check-label" for="optResults">Results tab (ShowResultsTab)</label></div>
 								<div class="form-check"><input id="optMessages" class="form-check-input" type="checkbox" @bind="StudioOptions.IsLoggingVisible" /><label class="form-check-label" for="optMessages">Messages tab (IsLoggingVisible)</label></div>
 								<div class="form-check"><input id="optStatus" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowStatusBar" /><label class="form-check-label" for="optStatus">Status bar (ShowStatusBar)</label></div>
 								<div class="form-check"><input id="optDark" class="form-check-input" type="checkbox" @bind="DarkEditor" /><label class="form-check-label" for="optDark">Dark editor (Theme: @StudioOptions.Theme)</label></div>
@@ -289,3 +292,14 @@
 	</div>
 
 </DemoSourceView>
+
+@code {
+	// Given as an attribute, not as child content: the code editor is hidden whenever EditorContent is not null
+	private RenderFragment EditorContentDemo => @<div class="p-3">
+		<div class="fw-semibold mb-1">EditorContent</div>
+		<p class="small mb-0">
+			The host's own content, here in place of the code editor. The code editor is hidden, not removed,
+			so its @(_studio?.Code.Length ?? 0) characters of code are still there when this is turned off.
+		</p>
+	</div>;
+}

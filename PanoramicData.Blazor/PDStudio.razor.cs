@@ -127,13 +127,30 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		}
 	}
 
-	// A hidden Messages tab cannot stay selected.
-	// A tab that is hidden or no longer offered cannot stay selected.
-	private string ActiveTab
-		=> (_activeTab == _messagesTab && Options.IsLoggingVisible)
-			|| OutputTabs.Any(t => t.Key == _activeTab)
-				? _activeTab
-				: _resultsTab;
+	// A tab that is hidden or no longer offered cannot stay selected: the first tab shown is, instead.
+	private string ActiveTab => IsTabShown(_activeTab) ? _activeTab : FirstShownTab();
+
+	private bool IsTabShown(string key) => key switch
+	{
+		_resultsTab => Options.ShowResultsTab,
+		_messagesTab => Options.IsLoggingVisible,
+		_ => OutputTabs.Any(t => t.Key == key)
+	};
+
+	private string FirstShownTab()
+	{
+		if (Options.ShowResultsTab)
+		{
+			return _resultsTab;
+		}
+
+		if (Options.IsLoggingVisible)
+		{
+			return _messagesTab;
+		}
+
+		return OutputTabs.Count > 0 ? OutputTabs[0].Key : _resultsTab;
+	}
 
 	private bool IsTabActive(string tab) => tab == ActiveTab;
 
@@ -262,6 +279,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public RenderFragment? EditorToolbarContent { get; set; }
 
 	/// <summary>
+	/// Gets or sets content shown in place of the code editor, such as another kind of editor; null shows the code
+	/// editor. The code editor stays in the page, hidden, so its code and undo history are still there when this is
+	/// cleared. Give it as an attribute, as content written between the tags is never null.
+	/// </summary>
+	[Parameter] public RenderFragment? EditorContent { get; set; }
+
+	// Whether the last render showed EditorContent, so the code editor can be laid out again once it is back
+	private bool _editorContentShown;
+
+	/// <summary>
 	/// Gets or sets a callback to initialize Monaco editor options.
 	/// </summary>
 	[Parameter] public Action<StandaloneEditorConstructionOptions>? InitializeMonacoOptions { get; set; }
@@ -361,6 +388,14 @@ public partial class PDStudio : PDComponentBase, IDisposable
 				});
 			}
 		}
+
+		// Hidden, the code editor had no size to lay out to
+		if (_editorContentShown && EditorContent is null)
+		{
+			await RefreshEditorLayoutAsync();
+		}
+
+		_editorContentShown = EditorContent is not null;
 
 		// Logging integration is handled through direct method calls
 		await base.OnAfterRenderAsync(firstRender);
