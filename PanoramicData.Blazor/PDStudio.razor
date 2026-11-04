@@ -142,6 +142,17 @@
 					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@IsTabActive(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
 						@tab.Title
 						@if (!string.IsNullOrWhiteSpace(tab.IconCssClass)) { <i class="pd-studio-tab-icon @(tab.IconCssClass)" aria-hidden="true"></i> }
+						@if (tab.Badge is { } badge)
+						{
+							@if (string.IsNullOrEmpty(badge.Text))
+							{
+								<span class="@BadgeCssClass(badge)" title="@badge.ToolTip" role="img" aria-label="@badge.ToolTip"></span>
+							}
+							else
+							{
+								<span class="@BadgeCssClass(badge)" title="@badge.ToolTip">@badge.Text</span>
+							}
+						}
 					</button>
 				}
 			</div>

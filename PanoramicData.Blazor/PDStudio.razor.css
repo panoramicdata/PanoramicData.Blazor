@@ -244,6 +244,34 @@
 	border: 1px solid var(--_pds-border-color);
 }
 
+/* A badge with no text: a small dot in its kind's colour, muted when it has none */
+.pd-studio-tab-badge.pd-studio-tab-badge-dot {
+	width: 0.5rem;
+	height: 0.5rem;
+	padding: 0;
+	border: none;
+	color: var(--_pds-muted-color);
+	background-color: currentColor;
+	/* Level with the middle of the lowercase letters, which the eye centres on, rather than the line's middle */
+	position: relative;
+	top: var(--pd-studio-tab-dot-offset, 0.15em);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-info {
+	color: var(--_pds-info-color);
+	border-color: var(--_pds-info-color);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-success {
+	color: var(--_pds-success-color);
+	border-color: var(--_pds-success-color);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-warning {
+	color: var(--_pds-warning-color);
+	border-color: var(--_pds-warning-color);
+}
+
 .pd-studio-tab-badge.pd-studio-tab-badge-error {
 	color: var(--_pds-error-color);
 	border-color: var(--_pds-error-color);

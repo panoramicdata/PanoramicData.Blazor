@@ -116,6 +116,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		? "pd-studio-tab-badge pd-studio-tab-badge-error"
 		: "pd-studio-tab-badge";
 
+	// The kind sets the colour; with no text the badge is a dot
+	private static string BadgeCssClass(PDStudioTabBadge badge)
+		=> string.Join(' ', new[]
+		{
+			"pd-studio-tab-badge",
+			string.IsNullOrEmpty(badge.Text) ? "pd-studio-tab-badge-dot" : null,
+			badge.Kind == PDStudioTabBadgeKind.Neutral ? null : $"pd-studio-tab-badge-{badge.Kind.ToString().ToLowerInvariant()}",
+			badge.CssClass
+		}.Where(cssClass => !string.IsNullOrWhiteSpace(cssClass)));
+
 	private string MessagesBadgeText
 	{
 		get

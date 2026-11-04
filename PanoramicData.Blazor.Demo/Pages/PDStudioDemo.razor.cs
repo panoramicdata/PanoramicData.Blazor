@@ -56,10 +56,23 @@ public partial class PDStudioDemo : IDisposable
 		new("Counting loop", "for (let i = 0; i < 5; i++) {\n  console.log('Count: ' + i);\n}", "javascript")
 	];
 
-	protected static IReadOnlyList<PDStudioOutputTab> OutputTabs { get; } =
-	[
-		new("about", "About", builder => builder.AddMarkupContent(0, "<p class='p-3 mb-0'>A tab added by the host page through OutputTabs.</p>"), "fas fa-info-circle", "A tab the host page adds")
-	];
+	private static readonly PDStudioOutputTab _aboutTab =
+		new("about", "About", builder => builder.AddMarkupContent(0, "<p class='p-3 mb-0'>A tab added by the host page through OutputTabs.</p>"), "fas fa-info-circle", "A tab the host page adds");
+
+	// The badges the demo offers on its About tab, by the option's value
+	private static readonly Dictionary<string, PDStudioTabBadge?> _aboutBadges = new()
+	{
+		["none"] = null,
+		["count"] = new PDStudioTabBadge("3") { ToolTip = "A count" },
+		["warning"] = new PDStudioTabBadge("2") { Kind = PDStudioTabBadgeKind.Warning, ToolTip = "2 warnings" },
+		["info-dot"] = new PDStudioTabBadge { Kind = PDStudioTabBadgeKind.Info, ToolTip = "Running" },
+		["error-dot"] = new PDStudioTabBadge { Kind = PDStudioTabBadgeKind.Error, ToolTip = "Something went wrong" }
+	};
+
+	private string AboutBadge { get; set; } = "none";
+
+	// Given afresh with its badge, as a tab's badge changes by giving the studio the tab again
+	protected IReadOnlyList<PDStudioOutputTab> OutputTabs => [_aboutTab with { Badge = _aboutBadges[AboutBadge] }];
 
 	[Inject] private ILogger<PDStudioDemo> Logger { get; set; } = null!;
 	[Inject] private IServiceProvider ServiceProvider { get; set; } = null!;

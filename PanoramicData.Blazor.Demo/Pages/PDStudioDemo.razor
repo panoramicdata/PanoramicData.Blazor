@@ -154,6 +154,14 @@
 								<div class="form-check"><input id="optLeft" class="form-check-input" type="checkbox" @bind="ShowLeftPanel" /><label class="form-check-label" for="optLeft">LeftPanelContent</label></div>
 								<div class="form-check"><input id="optFooter" class="form-check-input" type="checkbox" @bind="ShowFooter" /><label class="form-check-label" for="optFooter">FooterContent</label></div>
 								<div class="form-check"><input id="optAbout" class="form-check-input" type="checkbox" @bind="ShowAboutTab" /><label class="form-check-label" for="optAbout">About tab (OutputTabs)</label></div>
+								<label class="form-label mt-1 mb-1" for="optAboutBadge">About tab's badge (PDStudioOutputTab.Badge)</label>
+								<select id="optAboutBadge" class="form-select form-select-sm" @bind="AboutBadge">
+									<option value="none">None</option>
+									<option value="count">A count</option>
+									<option value="warning">Warnings</option>
+									<option value="info-dot">An info dot</option>
+									<option value="error-dot">An error dot</option>
+								</select>
 								<div class="form-check"><input id="optEditorContent" class="form-check-input" type="checkbox" @bind="ShowEditorContent" /><label class="form-check-label" for="optEditorContent">In place of the editor (EditorContent)</label></div>
 							</div>
 							<div class="col-md-3">
