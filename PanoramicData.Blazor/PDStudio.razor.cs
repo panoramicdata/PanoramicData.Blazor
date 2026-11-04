@@ -404,23 +404,32 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			}
 		}
 
-		// Hidden, the code editor had no size to lay out to
+		await RelayOutEditorIfBackAsync();
+		await ReportActiveTabAsync();
+
+		// Logging integration is handled through direct method calls
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	// Hidden, the code editor had no size to lay out to
+	private async Task RelayOutEditorIfBackAsync()
+	{
 		if (_editorContentShown && EditorContent is null)
 		{
 			await RefreshEditorLayoutAsync();
 		}
 
 		_editorContentShown = EditorContent is not null;
+	}
 
-		// Checked after each render, so a tab that changes because the one showing has gone is reported too
+	// Checked after each render, so a tab that changes because the one showing has gone is reported too
+	private async Task ReportActiveTabAsync()
+	{
 		if (ActiveTab != _reportedTab)
 		{
 			_reportedTab = ActiveTab;
 			await ActiveTabChanged.InvokeAsync(_reportedTab);
 		}
-
-		// Logging integration is handled through direct method calls
-		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	/// <inheritdoc />
@@ -801,6 +810,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private void LogError(string message, params object[] args)
 	{
 		LogToComponent(LogLevel.Error, message, args);
+	}
+
+	/// <summary>
+	/// Changes the code editor's options while the studio is open, such as its tab size or whether it suggests as you
+	/// type. Options given before the editor has started are applied once it has.
+	/// </summary>
+	public Task UpdateEditorOptionsAsync(EditorUpdateOptions options)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return RunOnEditorAsync(e => e.UpdateOptions(options), "update its options");
 	}
 
 	/// <summary>

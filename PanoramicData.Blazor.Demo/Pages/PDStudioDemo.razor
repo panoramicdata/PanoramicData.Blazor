@@ -162,6 +162,15 @@
 								<div class="form-check"><input id="optMessages" class="form-check-input" type="checkbox" @bind="StudioOptions.IsLoggingVisible" /><label class="form-check-label" for="optMessages">Messages tab (IsLoggingVisible)</label></div>
 								<div class="form-check"><input id="optStatus" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowStatusBar" /><label class="form-check-label" for="optStatus">Status bar (ShowStatusBar)</label></div>
 								<div class="form-check"><input id="optDark" class="form-check-input" type="checkbox" @bind="DarkEditor" /><label class="form-check-label" for="optDark">Dark editor (Theme: @StudioOptions.Theme)</label></div>
+								<div class="fw-semibold mt-2 mb-1">Editor (UpdateEditorOptionsAsync)</div>
+								<div class="form-check"><input id="optReadOnly" class="form-check-input" type="checkbox" checked="@EditorReadOnly" @onchange="OnEditorReadOnlyChanged" /><label class="form-check-label" for="optReadOnly">Read only</label></div>
+								<label class="form-label mt-1 mb-1" for="optTabSize">Tab size</label>
+								<select id="optTabSize" class="form-select form-select-sm" @onchange="OnEditorTabSizeChanged">
+									@foreach (var size in new[] { 2, 4, 8 })
+									{
+										<option value="@size" selected="@(EditorTabSize == size)">@size</option>
+									}
+								</select>
 							</div>
 							<div class="col-md-3">
 								<div class="fw-semibold mb-1">Colours</div>
