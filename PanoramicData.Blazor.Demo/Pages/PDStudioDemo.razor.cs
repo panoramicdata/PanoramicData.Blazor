@@ -158,6 +158,14 @@ public partial class PDStudioDemo : IDisposable
 	private bool ShowFooter { get; set; } = true;
 	private bool ShowAboutTab { get; set; } = true;
 	private bool ShowEditorContent { get; set; }
+	private bool ShowExecuteMenu { get; set; }
+
+	// A menu joined to Execute, as a split button
+	private List<MenuItem> ExecuteMenuItems { get; } =
+	[
+		new() { Key = "fast", Text = "Run fast", IconCssClass = "fas fa-bolt" },
+		new() { Key = "thorough", Text = "Run thoroughly", IconCssClass = "fas fa-magnifying-glass" }
+	];
 	private bool ShowExecuteGroupButton { get; set; } = true;
 	private bool ShowMenuGroupButton { get; set; } = true;
 	private bool UseCustomColours { get; set; }

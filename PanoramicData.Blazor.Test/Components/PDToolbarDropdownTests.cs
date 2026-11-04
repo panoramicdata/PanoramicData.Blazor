@@ -34,6 +34,12 @@ public class PDToolbarDropdownTests : BunitContext
 			configure?.Invoke(parameters);
 		});
 
+	/// <summary>Verifies that the dropdown's tooltip reaches its button.</summary>
+	[Fact]
+	public void The_tooltip_is_shown_on_the_button()
+		=> RenderDropdown(StandardItems(), p => p.Add(x => x.ToolTip, "Open or save files"))
+			.Find("button.dropdown-toggle").GetAttribute("title").Should().Be("Open or save files");
+
 	private static List<MenuItem> StandardItems() =>
 	[
 		new MenuItem { Key = "open", Text = "Open", IconCssClass = "fas fa-folder", ShortcutKey = ShortcutKey.Create("ctrl-o") },

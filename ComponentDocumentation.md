@@ -1744,6 +1744,9 @@ No code-behind file found for this component.
 | ActiveTabChanged | EventCallback<string> | Raised with the key of the tab showing, once it first shows and whenever it changes, whether by a click, SelectTab(string), or because the tab that was showing has gone. A host can use it to render a costly tab's content only while that tab shows. |
 | *UpdateEditorOptionsAsync(EditorUpdateOptions)* | Method | Changes the code editor's options while the studio is open, such as its tab size or whether it suggests as you type. Options given before the editor has started are applied once it has. |
 | *OutputTabs[].Badge* | PDStudioTabBadge? | A badge shown after a host tab's title: a short text such as a count, or a dot when it has none, coloured by its Kind (Neutral, Info, Success, Warning, Error) with an optional CssClass and ToolTip. To change it, give the studio the tab again with `with { Badge = ... }`. |
+| ExecuteMenuItems | List<MenuItem>? | Gets or sets a menu joined to Execute as a split button, such as options for the run; null or empty for none. |
+| ExecuteMenuClick | EventCallback<string> | Raised with the key of the item chosen on ExecuteMenuItems. |
+| ExecuteMenuToolTip | string? | Gets or sets the tooltip of the menu joined to Execute, such as the options it holds; null for none. |
 | EditorContent | RenderFragment? | Gets or sets content shown in place of the code editor, such as another kind of editor; null shows the code editor. The code editor stays in the page, hidden, so its code and undo history are still there when this is cleared. Give it as an attribute, as content written between the tags is never null. |
 | InitializeMonacoOptions | Action<StandaloneEditorConstructionOptions>? | Gets or sets a callback to initialize Monaco editor options. |
 | InitializeMethodCache | Action<MethodCache>? | Gets or sets a callback to initialize the method cache for language completions. |

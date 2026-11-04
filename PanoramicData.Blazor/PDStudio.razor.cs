@@ -220,6 +220,25 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public RenderFragment? ExecuteGroupContent { get; set; }
 
 	/// <summary>
+	/// Gets or sets a menu joined to Execute as a split button, such as options for the run; null or empty for none.
+	/// </summary>
+	[Parameter] public List<MenuItem>? ExecuteMenuItems { get; set; }
+
+	/// <summary>
+	/// Raised with the key of the item chosen on <see cref="ExecuteMenuItems"/>.
+	/// </summary>
+	[Parameter] public EventCallback<string> ExecuteMenuClick { get; set; }
+
+	/// <summary>
+	/// Gets or sets the tooltip of the menu joined to Execute, such as the options it holds; null for none.
+	/// </summary>
+	[Parameter] public string? ExecuteMenuToolTip { get; set; }
+
+	// The menu takes Execute's colour, which is Cancel's while Execute is Cancel
+	private string ExecuteMenuCssClass
+		=> $"pd-studio-execute-menu {(IsPlayCancel ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}";
+
+	/// <summary>
 	/// Gets or sets toolbar items grouped with New and Examples, after them, such as a Restore button.
 	/// </summary>
 	[Parameter] public RenderFragment? MenuGroupContent { get; set; }

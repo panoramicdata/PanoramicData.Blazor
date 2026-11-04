@@ -32,6 +32,15 @@
 												 IsEnabled="@(!(Options.ShowCancelButton && _isExecuting))"
 												 Click="OnPlayCancelClick"
 												 ShortcutKey="@_executeShortcut" />
+								@if (ExecuteMenuItems is { Count: > 0 })
+								{
+									<PDToolbarDropdown Key="execute-menu"
+													   CssClass="@ExecuteMenuCssClass"
+													   Size="@Options.ButtonSize"
+													   ToolTip="@(ExecuteMenuToolTip ?? string.Empty)"
+													   Items="@ExecuteMenuItems"
+													   Click="ExecuteMenuClick" />
+								}
 								@ExecuteGroupContent
 								@if (Options.ShowCancelButton)
 								{

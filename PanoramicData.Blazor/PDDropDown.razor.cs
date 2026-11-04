@@ -139,6 +139,10 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[Parameter]
 	public bool ShowCaret { get; set; } = true;
 
+	// Beside an icon or text the caret keeps its gap; alone it has none, and is as tall as a text would be
+	private string CaretCssClass
+		=> $"{(string.IsNullOrWhiteSpace(IconCssClass) && string.IsNullOrWhiteSpace(Text) ? "pd-dropdown-caret-only" : "ms-2")} fas {(_shown ? "fa-angle-up" : "fa-angle-down")}";
+
 	/// <summary>
 	/// Gets or sets whether to show the dropdown on mouse enter.
 	/// </summary>

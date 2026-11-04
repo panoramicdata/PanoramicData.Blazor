@@ -34,6 +34,9 @@
 							  Examples="@Examples"
 							  OutputTabs="@(ShowAboutTab ? OutputTabs : [])"
 							  EditorContent="@(ShowEditorContent ? EditorContentDemo : null)"
+							  ExecuteMenuItems="@(ShowExecuteMenu ? ExecuteMenuItems : null)"
+							  ExecuteMenuToolTip="Run options"
+							  ExecuteMenuClick="@(key => AddEvent("Execute menu", $"{key} was chosen (ExecuteMenuClick)"))"
 							  OnCodeExecuted="OnCodeExecuted"
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
@@ -138,6 +141,7 @@
 								<div class="form-check"><input id="optMenu" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowMenu" /><label class="form-check-label" for="optMenu">New and Examples (ShowMenu)</label></div>
 								<div class="form-check"><input id="optNew" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowNewButton" /><label class="form-check-label" for="optNew">New (ShowNewButton)</label></div>
 								<div class="form-check"><input id="optCancel" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowCancelButton" /><label class="form-check-label" for="optCancel">Cancel of its own (ShowCancelButton)</label></div>
+								<div class="form-check"><input id="optExecuteMenu" class="form-check-input" type="checkbox" @bind="ShowExecuteMenu" /><label class="form-check-label" for="optExecuteMenu">Menu joined to Execute (ExecuteMenuItems)</label></div>
 								<label class="form-label mt-2 mb-1" for="optSize">Button size</label>
 								<select id="optSize" class="form-select form-select-sm" @bind="StudioOptions.ButtonSize">
 									<option value="@ButtonSizes.Small">Small</option>

@@ -126,6 +126,13 @@
 /* The editor and its Monaco containers are other components' markup, so the rules that size them and
    remove the editor's own border live in wwwroot/css/main.scss. */
 
+/* Execute's menu: a narrow caret joined to Execute, as a split button, with a thin line between them */
+.pd-studio ::deep .dropdown-toggle.pd-studio-execute-menu {
+	padding-left: var(--pd-studio-execute-menu-padding-x, 0.35rem);
+	padding-right: var(--pd-studio-execute-menu-padding-x, 0.35rem);
+	border-left: 1px solid var(--pd-studio-execute-menu-divider-color, rgba(255, 255, 255, 0.35));
+}
+
 .pd-studio-editor-container[hidden] {
 	display: none;
 }
