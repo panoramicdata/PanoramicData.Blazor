@@ -32,6 +32,15 @@
 												 IsEnabled="@(!(Options.ShowCancelButton && _isExecuting))"
 												 Click="OnPlayCancelClick"
 												 ShortcutKey="@_executeShortcut" />
+								@if (ExecuteMenuItems is { Count: > 0 })
+								{
+									<PDToolbarDropdown Key="execute-menu"
+													   CssClass="@ExecuteMenuCssClass"
+													   Size="@Options.ButtonSize"
+													   ToolTip="@(ExecuteMenuToolTip ?? string.Empty)"
+													   Items="@ExecuteMenuItems"
+													   Click="ExecuteMenuClick" />
+								}
 								@ExecuteGroupContent
 								@if (Options.ShowCancelButton)
 								{
@@ -87,7 +96,7 @@
 					</PDToolbar>
 				}
 
-				<div class="pd-studio-editor-container">
+				<div class="pd-studio-editor-container" hidden="@(EditorContent is not null)">
 					<PDMonacoEditor @ref="EditorRef"
 									Language="@Options.Language"
 									Theme="@Options.Theme"
@@ -108,19 +117,27 @@
 						</div>
 					}
 				</div>
+
+				@if (EditorContent is not null)
+				{
+					<div class="pd-studio-editor-content">@EditorContent</div>
+				}
 			</div>
 		</PDSplitPanel>
 
 		<!-- Bottom: Results and Messages tabs -->
 		<PDSplitPanel Size="@((int)Options.MainSplitSizes[1])" CssClass="pd-studio-output-panel">
 			<div class="pd-studio-tabs" role="tablist">
-				<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@IsTabActive(_resultsTab)" title="@Options.ResultsTabToolTip" @onclick="() => SelectTab(_resultsTab)">
-					@Options.ResultsTabTitle
-					@if (!string.IsNullOrWhiteSpace(Options.ResultsTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.ResultsTabIconCssClass)" aria-hidden="true"></i> }
-				</button>
+				@if (Options.ShowResultsTab)
+				{
+					<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@AriaSelected(_resultsTab)" title="@Options.ResultsTabToolTip" @onclick="() => SelectTab(_resultsTab)">
+						@Options.ResultsTabTitle
+						@if (!string.IsNullOrWhiteSpace(Options.ResultsTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.ResultsTabIconCssClass)" aria-hidden="true"></i> }
+					</button>
+				}
 				@if (Options.IsLoggingVisible)
 				{
-					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@IsTabActive(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
+					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@AriaSelected(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
 						@Options.MessagesTabTitle
 						@if (!string.IsNullOrWhiteSpace(Options.MessagesTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.MessagesTabIconCssClass)" aria-hidden="true"></i> }
 						@if (_messages.Count > 0)
@@ -131,25 +148,39 @@
 				}
 				@foreach (var tab in OutputTabs)
 				{
-					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@IsTabActive(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
+					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@AriaSelected(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
 						@tab.Title
 						@if (!string.IsNullOrWhiteSpace(tab.IconCssClass)) { <i class="pd-studio-tab-icon @(tab.IconCssClass)" aria-hidden="true"></i> }
+						@if (tab.Badge is { } badge)
+						{
+							@if (string.IsNullOrEmpty(badge.Text))
+							{
+								<span class="@BadgeCssClass(badge)" title="@badge.ToolTip" role="img" aria-label="@badge.ToolTip"></span>
+							}
+							else
+							{
+								<span class="@BadgeCssClass(badge)" title="@badge.ToolTip">@badge.Text</span>
+							}
+						}
 					</button>
 				}
 			</div>
 
-			<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(_resultsTab))">
-				<PDStudioResults @ref="ResultsRef"
-								 Content="@_resultsContent"
-								 ResultSet="@_resultSet"
-								 IsExecuting="@_isExecuting"
-								 ExecutionStatus="@_executionStatus"
-								 ShowStatusBar="@Options.ShowStatusBar"
-								 IsDark="@Options.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase)"
-								 StyleSheet="@Options.ResultsStyleSheet"
-								 PlaceholderText="@Options.ResultsPlaceholderText"
-								 OnResultRowClick="@OnResultRowClick" />
-			</div>
+			@if (Options.ShowResultsTab)
+			{
+				<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(_resultsTab))">
+					<PDStudioResults @ref="ResultsRef"
+									 Content="@_resultsContent"
+									 ResultSet="@_resultSet"
+									 IsExecuting="@_isExecuting"
+									 ExecutionStatus="@_executionStatus"
+									 ShowStatusBar="@Options.ShowStatusBar"
+									 IsDark="@Options.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase)"
+									 StyleSheet="@Options.ResultsStyleSheet"
+									 PlaceholderText="@Options.ResultsPlaceholderText"
+									 OnResultRowClick="@OnResultRowClick" />
+				</div>
+			}
 
 			@if (Options.IsLoggingVisible)
 			{

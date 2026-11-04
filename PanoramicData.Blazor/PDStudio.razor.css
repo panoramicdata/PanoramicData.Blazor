@@ -126,6 +126,27 @@
 /* The editor and its Monaco containers are other components' markup, so the rules that size them and
    remove the editor's own border live in wwwroot/css/main.scss. */
 
+/* Execute's menu: a narrow caret joined to Execute, as a split button, with a thin line between them */
+.pd-studio ::deep .dropdown-toggle.pd-studio-execute-menu {
+	padding-left: var(--pd-studio-execute-menu-padding-x, 0.35rem);
+	padding-right: var(--pd-studio-execute-menu-padding-x, 0.35rem);
+	border-left: 1px solid var(--pd-studio-execute-menu-divider-color, rgba(255, 255, 255, 0.35));
+}
+
+.pd-studio-editor-container[hidden] {
+	display: none;
+}
+
+/* A host's content in place of the code editor, sized as the editor is */
+.pd-studio-editor-content {
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
 .pd-studio-editor-overlay {
 	position: absolute;
 	inset: 0;
@@ -228,6 +249,34 @@
 	background-color: var(--_pds-panel-bg);
 	color: var(--_pds-color);
 	border: 1px solid var(--_pds-border-color);
+}
+
+/* A badge with no text: a small dot in its kind's colour, muted when it has none */
+.pd-studio-tab-badge.pd-studio-tab-badge-dot {
+	width: 0.5rem;
+	height: 0.5rem;
+	padding: 0;
+	border: none;
+	color: var(--_pds-muted-color);
+	background-color: currentColor;
+	/* Level with the middle of the lowercase letters, which the eye centres on, rather than the line's middle */
+	position: relative;
+	top: var(--pd-studio-tab-dot-offset, 0.15em);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-info {
+	color: var(--_pds-info-color);
+	border-color: var(--_pds-info-color);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-success {
+	color: var(--_pds-success-color);
+	border-color: var(--_pds-success-color);
+}
+
+.pd-studio-tab-badge.pd-studio-tab-badge-warning {
+	color: var(--_pds-warning-color);
+	border-color: var(--_pds-warning-color);
 }
 
 .pd-studio-tab-badge.pd-studio-tab-badge-error {

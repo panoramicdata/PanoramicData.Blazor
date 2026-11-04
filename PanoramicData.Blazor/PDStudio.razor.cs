@@ -116,6 +116,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		? "pd-studio-tab-badge pd-studio-tab-badge-error"
 		: "pd-studio-tab-badge";
 
+	// The kind sets the colour; with no text the badge is a dot
+	private static string BadgeCssClass(PDStudioTabBadge badge)
+		=> string.Join(' ', new[]
+		{
+			"pd-studio-tab-badge",
+			string.IsNullOrEmpty(badge.Text) ? "pd-studio-tab-badge-dot" : null,
+			badge.Kind == PDStudioTabBadgeKind.Neutral ? null : $"pd-studio-tab-badge-{badge.Kind.ToString().ToLowerInvariant()}",
+			badge.CssClass
+		}.Where(cssClass => !string.IsNullOrWhiteSpace(cssClass)));
+
 	private string MessagesBadgeText
 	{
 		get
@@ -127,17 +137,52 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		}
 	}
 
-	// A hidden Messages tab cannot stay selected.
-	// A tab that is hidden or no longer offered cannot stay selected.
-	private string ActiveTab
-		=> (_activeTab == _messagesTab && Options.IsLoggingVisible)
-			|| OutputTabs.Any(t => t.Key == _activeTab)
-				? _activeTab
-				: _resultsTab;
+	// A tab that is hidden or no longer offered cannot stay selected: the first tab shown is, instead.
+	private string ActiveTab => IsTabShown(_activeTab) ? _activeTab : FirstShownTab();
+
+	/// <summary>
+	/// Gets the key of the tab showing: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
+	/// </summary>
+	public string ActiveTabKey => ActiveTab;
+
+	/// <summary>
+	/// Raised with the key of the tab showing, once it first shows and whenever it changes, whether by a click,
+	/// <see cref="SelectTab(string)"/>, or because the tab that was showing has gone. A host can use it to render a
+	/// costly tab's content only while that tab shows.
+	/// </summary>
+	[Parameter] public EventCallback<string> ActiveTabChanged { get; set; }
+
+	// The tab last given to ActiveTabChanged
+	private string? _reportedTab;
+
+	private bool IsTabShown(string key) => key switch
+	{
+		_resultsTab => Options.ShowResultsTab,
+		_messagesTab => Options.IsLoggingVisible,
+		_ => OutputTabs.Any(t => t.Key == key)
+	};
+
+	private string FirstShownTab()
+	{
+		if (Options.ShowResultsTab)
+		{
+			return _resultsTab;
+		}
+
+		if (Options.IsLoggingVisible)
+		{
+			return _messagesTab;
+		}
+
+		return OutputTabs.Count > 0 ? OutputTabs[0].Key : _resultsTab;
+	}
 
 	private bool IsTabActive(string tab) => tab == ActiveTab;
 
 	private string TabCssClass(string tab) => IsTabActive(tab) ? "pd-studio-tab active" : "pd-studio-tab";
+
+	// Text, as a bool renders the attribute bare when true and leaves it out when false
+	private string AriaSelected(string tab) => IsTabActive(tab) ? "true" : "false";
 
 	/// <summary>
 	/// Shows a tab: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
@@ -173,6 +218,25 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// <see cref="PDStudioOptions.ShowCancelButton"/> is set, such as an Explain button.
 	/// </summary>
 	[Parameter] public RenderFragment? ExecuteGroupContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets a menu joined to Execute as a split button, such as options for the run; null or empty for none.
+	/// </summary>
+	[Parameter] public List<MenuItem>? ExecuteMenuItems { get; set; }
+
+	/// <summary>
+	/// Raised with the key of the item chosen on <see cref="ExecuteMenuItems"/>.
+	/// </summary>
+	[Parameter] public EventCallback<string> ExecuteMenuClick { get; set; }
+
+	/// <summary>
+	/// Gets or sets the tooltip of the menu joined to Execute, such as the options it holds; null for none.
+	/// </summary>
+	[Parameter] public string? ExecuteMenuToolTip { get; set; }
+
+	// The menu takes Execute's colour, which is Cancel's while Execute is Cancel
+	private string ExecuteMenuCssClass
+		=> $"pd-studio-execute-menu {(IsPlayCancel ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}";
 
 	/// <summary>
 	/// Gets or sets toolbar items grouped with New and Examples, after them, such as a Restore button.
@@ -260,6 +324,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// Custom content for the editor toolbar.
 	/// </summary>
 	[Parameter] public RenderFragment? EditorToolbarContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content shown in place of the code editor, such as another kind of editor; null shows the code
+	/// editor. The code editor stays in the page, hidden, so its code and undo history are still there when this is
+	/// cleared. Give it as an attribute, as content written between the tags is never null.
+	/// </summary>
+	[Parameter] public RenderFragment? EditorContent { get; set; }
+
+	// Whether the last render showed EditorContent, so the code editor can be laid out again once it is back
+	private bool _editorContentShown;
 
 	/// <summary>
 	/// Gets or sets a callback to initialize Monaco editor options.
@@ -362,8 +436,32 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			}
 		}
 
+		await RelayOutEditorIfBackAsync();
+		await ReportActiveTabAsync();
+
 		// Logging integration is handled through direct method calls
 		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	// Hidden, the code editor had no size to lay out to
+	private async Task RelayOutEditorIfBackAsync()
+	{
+		if (_editorContentShown && EditorContent is null)
+		{
+			await RefreshEditorLayoutAsync();
+		}
+
+		_editorContentShown = EditorContent is not null;
+	}
+
+	// Checked after each render, so a tab that changes because the one showing has gone is reported too
+	private async Task ReportActiveTabAsync()
+	{
+		if (ActiveTab != _reportedTab)
+		{
+			_reportedTab = ActiveTab;
+			await ActiveTabChanged.InvokeAsync(_reportedTab);
+		}
 	}
 
 	/// <inheritdoc />
@@ -744,6 +842,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private void LogError(string message, params object[] args)
 	{
 		LogToComponent(LogLevel.Error, message, args);
+	}
+
+	/// <summary>
+	/// Changes the code editor's options while the studio is open, such as its tab size or whether it suggests as you
+	/// type. Options given before the editor has started are applied once it has.
+	/// </summary>
+	public Task UpdateEditorOptionsAsync(EditorUpdateOptions options)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return RunOnEditorAsync(e => e.UpdateOptions(options), "update its options");
 	}
 
 	/// <summary>

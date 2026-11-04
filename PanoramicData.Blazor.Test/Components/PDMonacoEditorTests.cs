@@ -266,6 +266,37 @@ public class PDMonacoEditorTests : BunitContext
 			.Should().ContainSingle().Which.Arguments[1]!.ToString().Should().Contain("sql-dark"));
 	}
 
+	/// <summary>Options given while the browser is still creating the editor are sent again once it exists, so they are
+	/// not lost to an editor that was not there yet.</summary>
+	[Fact]
+	public async Task Options_given_while_the_editor_is_being_created_are_applied_once_it_exists()
+	{
+		var create = JSInterop.SetupVoid("blazorMonaco.editor.create", _ => true);
+		var component = Render<PDMonacoEditor>();
+		await component.InvokeAsync(() => component.Instance.UpdateOptions(new EditorUpdateOptions { ReadOnly = true }));
+		var beforeCreation = UpdateOptionsCalls();
+
+		create.SetVoidResult();
+
+		component.WaitForAssertion(() => UpdateOptionsCalls().Should().Be(beforeCreation + 1));
+		JSInterop.Invocations.Last(i => i.Identifier == "blazorMonaco.editor.updateOptions")
+			.Arguments[1]!.ToString().Should().Contain("\"readOnly\":true");
+	}
+
+	/// <summary>Options given once the editor exists are sent once, and not again.</summary>
+	[Fact]
+	public async Task Options_given_once_the_editor_exists_are_sent_once()
+	{
+		var component = Render<PDMonacoEditor>();
+		await EditorCreatedAsync(component);
+		var atStartUp = UpdateOptionsCalls();
+
+		await component.InvokeAsync(() => component.Instance.UpdateOptions(new EditorUpdateOptions { ReadOnly = true }));
+		await EditorCreatedAsync(component);
+
+		UpdateOptionsCalls().Should().Be(atStartUp + 1);
+	}
+
 	/// <summary>A theme the editor was created with is not sent to it again.</summary>
 	[Fact]
 	public async Task The_creation_theme_is_not_sent_again()

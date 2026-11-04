@@ -26,6 +26,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	private string? _pendingValue;
 	private bool _isEditorInitialised;
 
+	// Options given before the browser had created the editor, which it may not have received
+	private readonly List<EditorUpdateOptions> _pendingOptions = [];
+
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used to initialize and interact with Monaco.
 	/// </summary>
@@ -377,10 +380,18 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
-	private Task OnMonacoEditorInitAsync()
+	private async Task OnMonacoEditorInitAsync()
 	{
 		_isEditorInitialised = true;
-		return ApplyThemeAsync();
+
+		var pending = _pendingOptions.ToList();
+		_pendingOptions.Clear();
+		foreach (var options in pending)
+		{
+			await RunOnEditorAsync(editor => editor.UpdateOptions(options)).ConfigureAwait(true);
+		}
+
+		await ApplyThemeAsync().ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -444,11 +455,19 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		=> RunOnEditorAsync(editor => editor.SetSelection(selection, source));
 
 	/// <summary>
-	/// Updates editor options on the live Monaco instance.
+	/// Updates editor options on the live Monaco instance. Options given before the browser has created the editor
+	/// are applied again once it has.
 	/// </summary>
 	/// <param name="options">The option values to apply.</param>
 	public Task UpdateOptions(EditorUpdateOptions options)
-		=> RunOnEditorAsync(editor => editor.UpdateOptions(options));
+	{
+		if (!_isEditorInitialised)
+		{
+			_pendingOptions.Add(options);
+		}
+
+		return RunOnEditorAsync(editor => editor.UpdateOptions(options));
+	}
 
 	/// <summary>
 	/// Forces the Monaco editor to recalculate its layout.

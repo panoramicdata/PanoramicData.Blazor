@@ -33,10 +33,15 @@
 							  Options="@StudioOptions"
 							  Examples="@Examples"
 							  OutputTabs="@(ShowAboutTab ? OutputTabs : [])"
+							  EditorContent="@(ShowEditorContent ? EditorContentDemo : null)"
+							  ExecuteMenuItems="@(ShowExecuteMenu ? ExecuteMenuItems : null)"
+							  ExecuteMenuToolTip="Run options"
+							  ExecuteMenuClick="@(key => AddEvent("Execute menu", $"{key} was chosen (ExecuteMenuClick)"))"
 							  OnCodeExecuted="OnCodeExecuted"
 							  OnExecutionStateChanged="OnExecutionStateChanged"
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
 							  OnResultRowClick="OnResultRowClick"
+							  ActiveTabChanged="@(key => AddEvent("Tab", $"The {key} tab is showing (ActiveTabChanged)"))"
 							  InitializeMonacoOptions="InitializeMonacoOptions"
 							  InitializeMethodCache="InitializeMethodCache"
 							  RegisterLanguages="RegisterLanguages"
@@ -136,6 +141,7 @@
 								<div class="form-check"><input id="optMenu" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowMenu" /><label class="form-check-label" for="optMenu">New and Examples (ShowMenu)</label></div>
 								<div class="form-check"><input id="optNew" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowNewButton" /><label class="form-check-label" for="optNew">New (ShowNewButton)</label></div>
 								<div class="form-check"><input id="optCancel" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowCancelButton" /><label class="form-check-label" for="optCancel">Cancel of its own (ShowCancelButton)</label></div>
+								<div class="form-check"><input id="optExecuteMenu" class="form-check-input" type="checkbox" @bind="ShowExecuteMenu" /><label class="form-check-label" for="optExecuteMenu">Menu joined to Execute (ExecuteMenuItems)</label></div>
 								<label class="form-label mt-2 mb-1" for="optSize">Button size</label>
 								<select id="optSize" class="form-select form-select-sm" @bind="StudioOptions.ButtonSize">
 									<option value="@ButtonSizes.Small">Small</option>
@@ -152,12 +158,31 @@
 								<div class="form-check"><input id="optLeft" class="form-check-input" type="checkbox" @bind="ShowLeftPanel" /><label class="form-check-label" for="optLeft">LeftPanelContent</label></div>
 								<div class="form-check"><input id="optFooter" class="form-check-input" type="checkbox" @bind="ShowFooter" /><label class="form-check-label" for="optFooter">FooterContent</label></div>
 								<div class="form-check"><input id="optAbout" class="form-check-input" type="checkbox" @bind="ShowAboutTab" /><label class="form-check-label" for="optAbout">About tab (OutputTabs)</label></div>
+								<label class="form-label mt-1 mb-1" for="optAboutBadge">About tab's badge (PDStudioOutputTab.Badge)</label>
+								<select id="optAboutBadge" class="form-select form-select-sm" @bind="AboutBadge">
+									<option value="none">None</option>
+									<option value="count">A count</option>
+									<option value="warning">Warnings</option>
+									<option value="info-dot">An info dot</option>
+									<option value="error-dot">An error dot</option>
+								</select>
+								<div class="form-check"><input id="optEditorContent" class="form-check-input" type="checkbox" @bind="ShowEditorContent" /><label class="form-check-label" for="optEditorContent">In place of the editor (EditorContent)</label></div>
 							</div>
 							<div class="col-md-3">
 								<div class="fw-semibold mb-1">Output</div>
+								<div class="form-check"><input id="optResults" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowResultsTab" /><label class="form-check-label" for="optResults">Results tab (ShowResultsTab)</label></div>
 								<div class="form-check"><input id="optMessages" class="form-check-input" type="checkbox" @bind="StudioOptions.IsLoggingVisible" /><label class="form-check-label" for="optMessages">Messages tab (IsLoggingVisible)</label></div>
 								<div class="form-check"><input id="optStatus" class="form-check-input" type="checkbox" @bind="StudioOptions.ShowStatusBar" /><label class="form-check-label" for="optStatus">Status bar (ShowStatusBar)</label></div>
 								<div class="form-check"><input id="optDark" class="form-check-input" type="checkbox" @bind="DarkEditor" /><label class="form-check-label" for="optDark">Dark editor (Theme: @StudioOptions.Theme)</label></div>
+								<div class="fw-semibold mt-2 mb-1">Editor (UpdateEditorOptionsAsync)</div>
+								<div class="form-check"><input id="optReadOnly" class="form-check-input" type="checkbox" checked="@EditorReadOnly" @onchange="OnEditorReadOnlyChanged" /><label class="form-check-label" for="optReadOnly">Read only</label></div>
+								<label class="form-label mt-1 mb-1" for="optTabSize">Tab size</label>
+								<select id="optTabSize" class="form-select form-select-sm" @onchange="OnEditorTabSizeChanged">
+									@foreach (var size in new[] { 2, 4, 8 })
+									{
+										<option value="@size" selected="@(EditorTabSize == size)">@size</option>
+									}
+								</select>
 							</div>
 							<div class="col-md-3">
 								<div class="fw-semibold mb-1">Colours</div>
@@ -289,3 +314,14 @@
 	</div>
 
 </DemoSourceView>
+
+@code {
+	// Given as an attribute, not as child content: the code editor is hidden whenever EditorContent is not null
+	private RenderFragment EditorContentDemo => @<div class="p-3">
+		<div class="fw-semibold mb-1">EditorContent</div>
+		<p class="small mb-0">
+			The host's own content, here in place of the code editor. The code editor is hidden, not removed,
+			so its @(_studio?.Code.Length ?? 0) characters of code are still there when this is turned off.
+		</p>
+	</div>;
+}
