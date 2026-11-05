@@ -20,6 +20,23 @@ public partial class PDStudioTests
 		}));
 
 	/// <summary>
+	/// Verifies that the level list and filter box take the host's classes when it gives some, and only their own
+	/// otherwise.
+	/// </summary>
+	[Fact]
+	public void Messages_FilterControls_TakeTheHostsClasses()
+	{
+		var plain = RenderStudio();
+		plain.Find(".pd-studio-messages-level").ClassList.Should().NotContain("border");
+		plain.Find(".pd-studio-messages-search").ClassList.Should().NotContain("border");
+
+		var bordered = RenderStudio(new PDStudioOptions { MessagesFilterCssClass = "border" });
+
+		bordered.Find(".pd-studio-messages-level").ClassList.Should().Contain("border");
+		bordered.Find(".pd-studio-messages-search").ClassList.Should().Contain("border");
+	}
+
+	/// <summary>
 	/// Verifies that a service message holding braces is shown as written rather than failing as a format string.
 	/// </summary>
 	[Fact]

@@ -845,12 +845,17 @@
   flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
-/* Ensure dropdown toggles have proper styling */
+/* Ensure dropdown toggles have proper styling. No gap between the parts: a label after an icon is spaced as a
+   PDToolbarButton's is, so a host's text class such as ps-2 spaces both alike, and the caret keeps its own margin */
 .pdtoolbar .pdtoolbaritem .dropdown-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--pd-toolbar-dropdown-gap, 0);
   border-radius: var(--bs-border-radius, 0.375rem); /* Rounded corners */
+}
+
+.pdtoolbar .pdtoolbaritem .dropdown-toggle > .icon + span {
+  padding-left: var(--pd-toolbar-dropdown-label-gap, 0.25rem);
 }
 
 /* Ensure dropdown menus overflow properly */

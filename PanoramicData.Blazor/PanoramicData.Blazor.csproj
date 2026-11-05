@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDStudio: OnResultRowClick raises a clicked result row; EditorContent shows a host's own editor in place of the code editor; ShowResultsTab can leave out the Results tab; ActiveTabChanged and ActiveTabKey tell which tab is showing; UpdateEditorOptionsAsync changes the code editor's options while open; host tabs can show a badge; ExecuteMenuItems joins a menu to Execute as a split button; tabs say aria-selected true or false. PDMonacoEditor applies options given before it starts. PDDropDown: a caret on its own has no gap and a text's height. PDToolbarDropdown shows its ToolTip.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDStudio: Ctrl+Enter runs without also adding a line in the editor; the Execute menu caret is disabled with Execute while a run is going; MessagesFilterCssClass adds classes to the Messages tab's level list and filter box. PDMonacoEditor: DisableKeyBindingAsync now stops the editor's own command for the key, and keys disabled before the editor exists are applied once it does. PDToolbarDropdown: the gap between icon, label and caret matches PDToolbarButton, set with --pd-toolbar-dropdown-gap and --pd-toolbar-dropdown-label-gap.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

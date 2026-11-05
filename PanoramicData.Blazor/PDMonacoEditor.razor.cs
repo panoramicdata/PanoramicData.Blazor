@@ -29,6 +29,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	// Options given before the browser had created the editor, which it may not have received
 	private readonly List<EditorUpdateOptions> _pendingOptions = [];
 
+	// Key bindings disabled so far, given to the editor again once the browser has created it, as Monaco may not
+	// have loaded when they were first asked for
+	private readonly HashSet<(int KeyCode, bool CtrlKey, bool AltKey, bool ShiftKey)> _disabledKeys = [];
+
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used to initialize and interact with Monaco.
 	/// </summary>
@@ -391,6 +395,11 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			await RunOnEditorAsync(editor => editor.UpdateOptions(options)).ConfigureAwait(true);
 		}
 
+		foreach (var (keyCode, ctrlKey, altKey, shiftKey) in _disabledKeys.ToList())
+		{
+			await RunOnModuleAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey).ConfigureAwait(true);
+		}
+
 		await ApplyThemeAsync().ConfigureAwait(true);
 	}
 
@@ -498,14 +507,18 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	public Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey) => DisableKeyBindingAsync(keyCode, ctrlKey, altKey, false);
 
 	/// <summary>
-	/// Disables a specific key binding combination in the Monaco editor.
+	/// Disables a specific key binding combination in the Monaco editor. The key still reaches the page, so a shortcut
+	/// such as PDStudio's Ctrl+Enter works from inside the editor. Asked before the editor exists, it is applied once it does.
 	/// </summary>
 	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
 	/// <param name="ctrlKey">Whether Ctrl key is required</param>
 	/// <param name="altKey">Whether Alt key is required</param>
 	/// <param name="shiftKey">Whether Shift key is required</param>
 	public Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
-		=> RunOnModuleAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
+	{
+		_disabledKeys.Add((keyCode, ctrlKey, altKey, shiftKey));
+		return RunOnModuleAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
+	}
 
 	/// <summary>
 	/// Enables a previously disabled key binding combination in the Monaco editor.
@@ -536,7 +549,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <param name="altKey">Whether Alt key is required</param>
 	/// <param name="shiftKey">Whether Shift key is required</param>
 	public Task EnableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
-		=> RunOnModuleAsync("enableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
+	{
+		_disabledKeys.Remove((keyCode, ctrlKey, altKey, shiftKey));
+		return RunOnModuleAsync("enableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
+	}
 
 	#region IAsyncDisposable
 

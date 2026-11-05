@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using BlazorMonaco;
 using BlazorMonaco.Editor;
-using BlazorMonaco.Languages;
 using Bunit;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models.Monaco;
@@ -311,6 +310,24 @@ public class PDMonacoEditorTests : BunitContext
 	// BlazorMonaco raises OnDidInit once the browser has created the editor.
 	private static Task EditorCreatedAsync(IRenderedComponent<PDMonacoEditor> component)
 		=> component.InvokeAsync(() => component.FindComponent<StandaloneCodeEditor>().Instance.OnDidInit.InvokeAsync());
+
+	/// <summary>A key disabled before Monaco has created the editor is given to it again once it has, as the first
+	/// request can reach a page where Monaco has not loaded; a key enabled again since is not.</summary>
+	[Fact]
+	public async Task Keys_disabled_before_the_editor_exists_are_given_to_it_once_it_does()
+	{
+		var component = Render<PDMonacoEditor>();
+		var editor = component.Instance;
+		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(13, ctrlKey: true));
+		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(9));
+		await component.InvokeAsync(() => editor.EnableKeyBindingAsync(9));
+
+		await EditorCreatedAsync(component);
+
+		_module.Invocations["disableKeyBinding"].Select(i => i.Arguments).Should().BeEquivalentTo(
+			[new object[] { 13, true, false, false }, new object[] { 9, false, false, false }, new object[] { 13, true, false, false }],
+			options => options.WithStrictOrdering());
+	}
 
 	/// <summary>Custom languages, and the themes a host defines with them, are set up before the editor is created,
 	/// so a custom theme exists when the editor asks for it.</summary>
