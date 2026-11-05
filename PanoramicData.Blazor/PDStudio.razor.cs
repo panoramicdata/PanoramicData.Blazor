@@ -235,6 +235,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public string? ExecuteMenuToolTip { get; set; }
 
 	// The menu takes Execute's colour, which is Cancel's while Execute is Cancel
+	// Execute gives way to its own Cancel button while running, and its menu goes with it
+	private bool IsPlayEnabled => !(Options.ShowCancelButton && _isExecuting);
+
 	private string ExecuteMenuCssClass
 		=> $"pd-studio-execute-menu {(IsPlayCancel ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}";
 
@@ -425,15 +428,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			// Register the Ctrl+Enter shortcut for execution
 			GlobalEventService.RegisterShortcutKey(_executeShortcut);
 
-			// Disable Ctrl+Enter in Monaco editor to prevent conflicts (with delay to ensure initialization)
-			if (EditorRef != null)
-			{
-				_ = Task.Run(async () =>
-				{
-					await Task.Delay(500); // Wait for Monaco to fully initialize
-					await RunOnEditorAsync(e => e.DisableKeyBindingAsync(13, ctrlKey: true), "disable Ctrl+Enter");
-				});
-			}
+			// Ctrl+Enter runs the code, so the editor's own (Insert Line Below) is turned off; the editor applies it
+			// once Monaco has created it
+			await RunOnEditorAsync(e => e.DisableKeyBindingAsync(13, ctrlKey: true), "disable Ctrl+Enter");
 		}
 
 		await RelayOutEditorIfBackAsync();

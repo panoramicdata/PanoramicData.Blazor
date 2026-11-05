@@ -133,6 +133,24 @@ public partial class PDStudioTests
 		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Be("2 * 3"));
 	}
 
+	/// <summary>
+	/// Verifies that Ctrl+Enter is taken from the editor, whose own is Insert Line Below, as soon as the editor exists,
+	/// rather than after a guessed delay that a slowly loading Monaco could outlast.
+	/// </summary>
+	[Fact]
+	public async Task CtrlEnter_IsTakenFromTheEditor_OnceItExists()
+	{
+		ComponentFactories.Clear();
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js");
+		module.Setup<bool>("waitForMonaco", _ => true).SetResult(true);
+		var studio = RenderStudio();
+		studio.WaitForState(() => studio.FindComponents<BlazorMonaco.Editor.StandaloneCodeEditor>().Count > 0);
+
+		await studio.InvokeAsync(() => studio.FindComponent<BlazorMonaco.Editor.StandaloneCodeEditor>().Instance.OnDidInit.InvokeAsync());
+
+		module.Invocations["disableKeyBinding"].Select(i => i.Arguments).Should().ContainEquivalentOf(new object[] { 13, true, false, false });
+	}
+
 	private sealed class FakeStudioService : IPDStudioResultSetService
 	{
 		private EventHandler<StudioExecutionEventArgs>? _executionEvent;

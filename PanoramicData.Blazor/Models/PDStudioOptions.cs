@@ -178,6 +178,12 @@ public class PDStudioOptions
 	/// <summary>Gets or sets the Messages tab's tooltip; null for none.</summary>
 	public string? MessagesTabToolTip { get; set; }
 
+	/// <summary>
+	/// Gets or sets classes added to the Messages tab's level list and filter box, such as "border" where a host's theme
+	/// draws form controls without one; null for none.
+	/// </summary>
+	public string? MessagesFilterCssClass { get; set; }
+
 	/// <summary>Gets or sets the text shown in the results before anything has run.</summary>
 	public string ResultsPlaceholderText { get; set; } = "Execute code to see results here";
 

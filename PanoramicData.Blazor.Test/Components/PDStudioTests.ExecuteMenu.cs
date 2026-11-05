@@ -80,6 +80,27 @@ public partial class PDStudioTests
 		studio.WaitForAssertion(() => studio.Find("button.pd-studio-execute-menu").ClassList.Should().Contain("btn-success"));
 	}
 
+	/// <summary>
+	/// Verifies that while Execute is disabled, as it is during a run when Cancel has its own button, its menu is too,
+	/// so the caret does not stay in Execute's colour beside a greyed Execute.
+	/// </summary>
+	[Fact]
+	public async Task ExecuteMenu_IsDisabledWithExecute_WhileCancelHasItsOwnButton()
+	{
+		var studio = RenderStudio(new PDStudioOptions { ShowCancelButton = true }, p => p.Add(x => x.ExecuteMenuItems, RunOptions()));
+		_service.Block = true;
+		await TypeAsync(studio, "sleep(10)");
+		studio.Find("button.pd-studio-execute-menu").HasAttribute("disabled").Should().BeFalse();
+
+		var running = PlayButton(studio).ClickAsync(new MouseEventArgs());
+		studio.WaitForAssertion(() => PlayButton(studio).HasAttribute("disabled").Should().BeTrue());
+		studio.Find("button.pd-studio-execute-menu").HasAttribute("disabled").Should().BeTrue();
+
+		await ToolbarButton(studio, "cancel").ClickAsync(new MouseEventArgs());
+		await running;
+		studio.WaitForAssertion(() => studio.Find("button.pd-studio-execute-menu").HasAttribute("disabled").Should().BeFalse());
+	}
+
 	private static List<string> ButtonTexts(AngleSharp.Dom.IElement element)
 		=> [.. element.QuerySelectorAll("button").Select(button => button.TextContent.Trim())];
 }

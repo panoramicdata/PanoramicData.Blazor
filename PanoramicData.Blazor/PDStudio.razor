@@ -29,7 +29,7 @@
 												 Size="@Options.ButtonSize"
 												 TextCssClass="@Options.ButtonTextCssClass"
 												 ToolTip="@(IsPlayCancel ? Options.CancelButtonText : Options.ExecuteButtonToolTip ?? Options.ExecuteButtonText)"
-												 IsEnabled="@(!(Options.ShowCancelButton && _isExecuting))"
+												 IsEnabled="@IsPlayEnabled"
 												 Click="OnPlayCancelClick"
 												 ShortcutKey="@_executeShortcut" />
 								@if (ExecuteMenuItems is { Count: > 0 })
@@ -38,6 +38,7 @@
 													   CssClass="@ExecuteMenuCssClass"
 													   Size="@Options.ButtonSize"
 													   ToolTip="@(ExecuteMenuToolTip ?? string.Empty)"
+													   IsEnabled="@IsPlayEnabled"
 													   Items="@ExecuteMenuItems"
 													   Click="ExecuteMenuClick" />
 								}
@@ -186,13 +187,13 @@
 			{
 				<div class="pd-studio-tab-panel pd-studio-messages" role="tabpanel" hidden="@(!IsTabActive(_messagesTab))">
 					<div class="pd-studio-messages-toolbar">
-						<select class="form-select form-select-sm pd-studio-messages-level" aria-label="Message level" value="@MessageLevelValue" @onchange="OnMessageLevelChanged">
+						<select class="form-select form-select-sm pd-studio-messages-level @Options.MessagesFilterCssClass" aria-label="Message level" value="@MessageLevelValue" @onchange="OnMessageLevelChanged">
 							<option value="@LogLevel.Trace">All levels</option>
 							<option value="@LogLevel.Information">Information and above</option>
 							<option value="@LogLevel.Warning">Warnings and errors</option>
 							<option value="@LogLevel.Error">Errors</option>
 						</select>
-						<input type="search" class="form-control form-control-sm pd-studio-messages-search" placeholder="Filter messages" aria-label="Filter messages" @bind="MessageSearch" @bind:event="oninput" />
+						<input type="search" class="form-control form-control-sm pd-studio-messages-search @Options.MessagesFilterCssClass" placeholder="Filter messages" aria-label="Filter messages" @bind="MessageSearch" @bind:event="oninput" />
 						<button type="button" class="btn btn-sm btn-secondary pd-studio-messages-clear" @onclick="ClearMessages">Clear</button>
 					</div>
 					<div class="pd-studio-messages-list">
