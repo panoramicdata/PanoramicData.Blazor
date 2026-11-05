@@ -433,7 +433,8 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Inserts text at the cursor, replacing any selected text, and returns focus to the editor.
+	/// Inserts text at the cursor, replacing any selected text, leaves the cursor at its end, as typing does, and
+	/// returns focus to the editor.
 	/// </summary>
 	/// <param name="text">The text to insert.</param>
 	public Task InsertTextAsync(string text)
@@ -444,10 +445,29 @@ public partial class PDMonacoEditor : IAsyncDisposable
 				await editor.ExecuteEdits(
 					"pd-monaco-editor",
 					[new IdentifiedSingleEditOperation { Range = selection, Text = text, ForceMoveMarkers = true }],
-					[]);
+					[CursorAfter(selection, text)]);
 				await editor.Focus();
 			}
 		});
+
+	/// <summary>Gets where the cursor goes once <paramref name="text"/> replaces <paramref name="selection"/>: at its end.</summary>
+	internal static Selection CursorAfter(Range selection, string text)
+	{
+		var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+		var line = selection.StartLineNumber + lines.Length - 1;
+		var column = (lines.Length == 1 ? selection.StartColumn : 1) + lines[^1].Length;
+		return new Selection
+		{
+			SelectionStartLineNumber = line,
+			SelectionStartColumn = column,
+			PositionLineNumber = line,
+			PositionColumn = column,
+			StartLineNumber = line,
+			StartColumn = column,
+			EndLineNumber = line,
+			EndColumn = column
+		};
+	}
 
 	/// <summary>
 	/// Sets the editor selection.

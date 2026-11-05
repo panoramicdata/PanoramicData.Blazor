@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDStudio: --pd-studio-left-panel-bg colours the host's left panel on its own, so it can be tinted apart from the editor; unset, it follows --pd-studio-panel-bg as before.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDMonacoEditor and PDStudio: InsertTextAsync leaves the cursor at the end of the inserted text, as typing does, so a second insert follows the first instead of landing before it.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

@@ -172,6 +172,22 @@ public class PDMonacoEditorTests : BunitContext
 		received.Should().BeSameAs(selection);
 	}
 
+	/// <summary>Inserted text leaves the cursor at its end, as typing it would, on whichever line it ends.</summary>
+	[Theory]
+	[InlineData("[Calculate: value=1]", 3, 25)]
+	[InlineData("", 3, 5)]
+	[InlineData("line one\nline two", 4, 9)]
+	[InlineData("one\r\ntwo\r\n", 5, 1)]
+	public void Inserted_text_leaves_the_cursor_at_its_end(string text, int line, int column)
+	{
+		var selected = new Selection { StartLineNumber = 3, StartColumn = 5, EndLineNumber = 4, EndColumn = 2 };
+
+		var cursor = PDMonacoEditor.CursorAfter(selected, text);
+
+		(cursor.PositionLineNumber, cursor.PositionColumn).Should().Be((line, column));
+		(cursor.SelectionStartLineNumber, cursor.SelectionStartColumn).Should().Be((line, column), "nothing is left selected");
+	}
+
 	/// <summary>The value, a range of it and the selection are read from the editor.</summary>
 	[Fact]
 	public async Task Values_and_selection_are_read_from_the_editor()
