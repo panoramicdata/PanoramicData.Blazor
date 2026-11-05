@@ -18,6 +18,7 @@
    --pd-studio-tab-underline-color  selected tab underline (--pd-studio-tab-active-color)
    --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
    --pd-studio-left-panel-width the host's left panel      (16rem)
+   --pd-studio-left-panel-bg    the host's left panel      (--pd-studio-panel-bg)
    --pd-studio-toolbar-padding  around the toolbar         (0.375rem 0, so Execute lines up with the editor)
    --pd-studio-toolbar-border-bottom  the line under the toolbar (1px solid the border colour; none for no line)
    --pd-studio-separator-color  toolbar separators         (--bs-secondary)
@@ -33,6 +34,7 @@
 	--_pds-bg: var(--pd-studio-bg, var(--bs-body-bg, #fff));
 	--_pds-color: var(--pd-studio-color, var(--bs-body-color, #212529));
 	--_pds-panel-bg: var(--pd-studio-panel-bg, var(--bs-body-bg, #fff));
+	--_pds-left-panel-bg: var(--pd-studio-left-panel-bg, var(--_pds-panel-bg));
 	--_pds-toolbar-bg: var(--pd-studio-toolbar-bg, var(--bs-tertiary-bg, #f8f9fa));
 	--_pds-border-color: var(--pd-studio-border-color, var(--bs-border-color, rgba(128, 128, 128, 0.35)));
 	--_pds-border-radius: var(--pd-studio-border-radius, 0.25rem);
@@ -65,7 +67,7 @@
 	flex: 0 0 var(--pd-studio-left-panel-width, 16rem);
 	min-width: 0;
 	overflow: auto;
-	background-color: var(--_pds-panel-bg);
+	background-color: var(--_pds-left-panel-bg);
 	border-right: 1px solid var(--_pds-border-color);
 }
 

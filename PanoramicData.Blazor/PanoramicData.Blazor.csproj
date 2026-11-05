@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDStudio: Ctrl+Enter runs without also adding a line in the editor; the Execute menu caret is disabled with Execute while a run is going; MessagesFilterCssClass adds classes to the Messages tab's level list and filter box. PDMonacoEditor: DisableKeyBindingAsync now stops the editor's own command for the key, and keys disabled before the editor exists are applied once it does. PDToolbarDropdown: the gap between icon, label and caret matches PDToolbarButton, set with --pd-toolbar-dropdown-gap and --pd-toolbar-dropdown-label-gap.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDStudio: --pd-studio-left-panel-bg colours the host's left panel on its own, so it can be tinted apart from the editor; unset, it follows --pd-studio-panel-bg as before.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
