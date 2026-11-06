@@ -336,6 +336,15 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// </summary>
 	[Parameter] public RenderFragment? EditorContent { get; set; }
 
+	/// <summary>
+	/// Gets or sets what Execute runs while <see cref="EditorContent"/> shows, such as the text of the host's own editor;
+	/// null runs the code editor's code, as it does while the code editor shows.
+	/// </summary>
+	[Parameter] public Func<string>? EditorContentCode { get; set; }
+
+	// What Execute runs: the host's editor's text while it shows in the code editor's place, otherwise the code editor's
+	private string CodeToRun => EditorContent is not null && EditorContentCode is not null ? EditorContentCode() : _currentCode;
+
 	// Whether the last render showed EditorContent, so the code editor can be laid out again once it is back
 	private bool _editorContentShown;
 
@@ -645,7 +654,8 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 	private async Task ExecuteCode()
 	{
-		if (StudioService == null || string.IsNullOrWhiteSpace(_currentCode))
+		var code = CodeToRun;
+		if (StudioService == null || string.IsNullOrWhiteSpace(code))
 		{
 			return;
 		}
@@ -660,7 +670,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 			StateHasChanged();
 
-			await RunCodeAsync(StudioService, _cancellationTokenSource.Token);
+			await RunCodeAsync(StudioService, code, _cancellationTokenSource.Token);
 		}
 		catch (OperationCanceledException)
 		{
@@ -683,16 +693,16 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	}
 
 	// Clears the previous results, executes the code with the timeout from the options, and shows what it returns.
-	private async Task RunCodeAsync(IPDStudioService studioService, CancellationToken cancellationToken)
+	private async Task RunCodeAsync(IPDStudioService studioService, string code, CancellationToken cancellationToken)
 	{
 		await ClearResultsAsync();
 
 		if (studioService is IPDStudioResultSetService tabular
-			&& await tabular.ExecuteResultSetAsync(_currentCode, Options.Language, Options.ExecutionTimeoutSeconds, cancellationToken) is { } resultSet)
+			&& await tabular.ExecuteResultSetAsync(code, Options.Language, Options.ExecutionTimeoutSeconds, cancellationToken) is { } resultSet)
 		{
 			_resultSet = resultSet;
 			_executionStatus = StudioExecutionStatus.Complete.ToDisplayString();
-			await NotifyCodeExecutedAsync();
+			await NotifyCodeExecutedAsync(code);
 			LogSuccess(resultSet.DurationText is { } duration
 				? $"{resultSet.RowCountText} returned in {duration}"
 				: $"{resultSet.RowCountText} returned");
@@ -700,23 +710,23 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		}
 
 		var result = await studioService.ExecuteCodeAsync(
-			_currentCode,
+			code,
 			Options.Language,
 			null,
 			Options.ExecutionTimeoutSeconds,
 			cancellationToken);
 
 		await ShowResultsAsync(result);
-		await NotifyCodeExecutedAsync();
+		await NotifyCodeExecutedAsync(code);
 
 		LogSuccess("Code execution completed successfully");
 	}
 
-	private async Task NotifyCodeExecutedAsync()
+	private async Task NotifyCodeExecutedAsync(string code)
 	{
 		if (OnCodeExecuted.HasDelegate)
 		{
-			await OnCodeExecuted.InvokeAsync(_currentCode);
+			await OnCodeExecuted.InvokeAsync(code);
 		}
 	}
 

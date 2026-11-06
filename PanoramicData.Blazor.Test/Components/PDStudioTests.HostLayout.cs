@@ -48,6 +48,48 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
+	/// Verifies that while EditorContent shows, Execute runs the host's text from EditorContentCode, even with the code
+	/// editor empty, and runs the code editor's code again once that shows.
+	/// </summary>
+	[Fact]
+	public async Task EditorContentCode_IsWhatRuns_WhileEditorContentShows()
+	{
+		const string hostText = "<p>Rich text</p>";
+		var executed = new List<string>();
+		var studio = RenderStudio(more: p => p
+			.Add(x => x.EditorContent, b => b.AddMarkupContent(0, "<div class=\"rich\">Rich text</div>"))
+			.Add(x => x.EditorContentCode, () => hostText)
+			.Add(x => x.OnCodeExecuted, code => executed.Add(code)));
+
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+
+		studio.WaitForAssertion(() => _service.Calls.Select(call => call.Code).Should().Equal(hostText));
+		executed.Should().Equal(hostText);
+
+		studio.Render(p => p.Add(x => x.EditorContent, (RenderFragment?)null));
+		await TypeAsync(studio, "1 + 1");
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+
+		studio.WaitForAssertion(() => _service.Calls.Select(call => call.Code).Should().Equal(hostText, "1 + 1"));
+	}
+
+	/// <summary>
+	/// Verifies that while EditorContent shows, empty host text runs nothing, as an empty code editor does.
+	/// </summary>
+	[Fact]
+	public async Task EditorContentCode_WhenEmpty_RunsNothing()
+	{
+		var studio = RenderStudio(more: p => p
+			.Add(x => x.EditorContent, b => b.AddMarkupContent(0, "<div class=\"rich\"></div>"))
+			.Add(x => x.EditorContentCode, () => "  "));
+		await TypeAsync(studio, "1 + 1");
+
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+
+		_service.Calls.Should().BeEmpty();
+	}
+
+	/// <summary>
 	/// Verifies that the Results tab is shown first unless the host turns it off.
 	/// </summary>
 	[Fact]
