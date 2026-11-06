@@ -136,16 +136,9 @@
 						@if (!string.IsNullOrWhiteSpace(Options.ResultsTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.ResultsTabIconCssClass)" aria-hidden="true"></i> }
 					</button>
 				}
-				@if (Options.IsLoggingVisible)
+				@if (Options.IsLoggingVisible && !Options.MessagesTabLast)
 				{
-					<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@AriaSelected(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
-						@Options.MessagesTabTitle
-						@if (!string.IsNullOrWhiteSpace(Options.MessagesTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.MessagesTabIconCssClass)" aria-hidden="true"></i> }
-						@if (_messages.Count > 0)
-						{
-							<span class="@MessagesBadgeCssClass">@MessagesBadgeText</span>
-						}
-					</button>
+					@MessagesTab
 				}
 				@foreach (var tab in OutputTabs)
 				{
@@ -164,6 +157,10 @@
 							}
 						}
 					</button>
+				}
+				@if (Options.IsLoggingVisible && Options.MessagesTabLast)
+				{
+					@MessagesTab
 				}
 			</div>
 
@@ -232,3 +229,15 @@
 		<div class="pd-studio-footer">@FooterContent</div>
 	}
 </div>
+
+@code {
+	// Before the host's own tabs, or after them with Options.MessagesTabLast
+	private RenderFragment MessagesTab => @<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@AriaSelected(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
+		@Options.MessagesTabTitle
+		@if (!string.IsNullOrWhiteSpace(Options.MessagesTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.MessagesTabIconCssClass)" aria-hidden="true"></i> }
+		@if (_messages.Count > 0)
+		{
+			<span class="@MessagesBadgeCssClass">@MessagesBadgeText</span>
+		}
+	</button>;
+}

@@ -78,6 +78,22 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
+	/// Verifies that the Messages tab comes before the host's own tabs, or after them with MessagesTabLast, and still
+	/// opens either way.
+	/// </summary>
+	[Fact]
+	public async Task MessagesTab_ComesBeforeTheHostsTabs_OrLastWhenAskedTo()
+	{
+		Tabs(RenderStudio(more: p => p.Add(x => x.OutputTabs, _planTab))).Should().Equal("Results", "Messages", "Plan");
+
+		var last = RenderStudio(new PDStudioOptions { MessagesTabLast = true }, p => p.Add(x => x.OutputTabs, _planTab));
+
+		Tabs(last).Should().Equal("Results", "Plan", "Messages");
+		await last.FindAll("[role='tab']")[2].ClickAsync(new());
+		last.Instance.ActiveTabKey.Should().Be("messages");
+	}
+
+	/// <summary>
 	/// Verifies that with the Results tab turned off, the first tab reported is Messages.
 	/// </summary>
 	[Fact]

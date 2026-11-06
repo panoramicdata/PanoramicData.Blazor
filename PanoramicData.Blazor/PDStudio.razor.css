@@ -16,6 +16,8 @@
    --pd-studio-tab-color        unselected tab text        (--pd-studio-muted-color)
    --pd-studio-tab-active-color selected tab text          (--pd-studio-accent)
    --pd-studio-tab-underline-color  selected tab underline (--pd-studio-tab-active-color)
+   --pd-studio-tab-hover-color  an unselected tab's text on hover (--pd-studio-tab-color, so no change unless set)
+   --pd-studio-tab-separator    a line between tabs, as a border such as 1px solid grey (none)
    --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
    --pd-studio-left-panel-width the host's left panel      (16rem)
    --pd-studio-left-panel-bg    the host's left panel      (--pd-studio-panel-bg)
@@ -44,6 +46,8 @@
 	--_pds-tab-color: var(--pd-studio-tab-color, var(--_pds-muted-color));
 	--_pds-tab-active-color: var(--pd-studio-tab-active-color, var(--_pds-accent));
 	--_pds-tab-underline-color: var(--pd-studio-tab-underline-color, var(--_pds-tab-active-color));
+	--_pds-tab-hover-color: var(--pd-studio-tab-hover-color, var(--_pds-tab-color));
+	--_pds-tab-separator: var(--pd-studio-tab-separator, none);
 	--_pds-info-color: var(--pd-studio-status-ready-color, var(--bs-primary, #0d6efd));
 	--_pds-success-color: var(--pd-studio-status-success-color, var(--bs-success, #198754));
 	--_pds-warning-color: var(--pd-studio-status-warning-color, var(--bs-warning, #ffc107));
@@ -218,6 +222,7 @@
 }
 
 .pd-studio-tab {
+	position: relative;
 	padding: 0.4rem 0.75rem;
 	border: none;
 	border-bottom: 2px solid transparent;
@@ -227,6 +232,21 @@
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
+	transition: color 0.15s ease;
+}
+
+.pd-studio-tab:not(.active):hover {
+	color: var(--_pds-tab-hover-color);
+}
+
+/* A line between tabs, in the middle of the gap and half their height, when --pd-studio-tab-separator is set */
+.pd-studio-tab + .pd-studio-tab::before {
+	content: "";
+	position: absolute;
+	top: 25%;
+	bottom: 25%;
+	left: calc(-0.125rem - 0.5px);
+	border-left: var(--_pds-tab-separator);
 }
 
 /* Written after the title so the title stays the tab's first text, but shown before it */
