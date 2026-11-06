@@ -4,6 +4,8 @@
 	border: 1px solid var(--pd-monaco-border-color, silver);
 	display: grid;
 	grid-template-columns: minmax(0, auto);
+	/* An auto row never shrinks below Monaco's last height, so a shorter container would clip the editor unseen */
+	grid-template-rows: minmax(0, 1fr);
 	height: 100%;
 }
 
