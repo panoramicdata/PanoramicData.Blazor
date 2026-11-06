@@ -169,12 +169,13 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			return _resultsTab;
 		}
 
-		if (Options.IsLoggingVisible)
+		var hostsFirstTab = OutputTabs.Count > 0 ? OutputTabs[0].Key : null;
+		if (Options.IsLoggingVisible && (hostsFirstTab is null || !Options.MessagesTabLast))
 		{
 			return _messagesTab;
 		}
 
-		return OutputTabs.Count > 0 ? OutputTabs[0].Key : _resultsTab;
+		return hostsFirstTab ?? _resultsTab;
 	}
 
 	private bool IsTabActive(string tab) => tab == ActiveTab;

@@ -105,4 +105,21 @@ public partial class PDStudioTests
 
 		reported.Should().Equal("messages");
 	}
+
+	/// <summary>
+	/// Verifies that with the Results tab turned off and MessagesTabLast, the first tab shown is the host's first tab,
+	/// or Messages when the host has none.
+	/// </summary>
+	[Fact]
+	public void ActiveTabChanged_WithoutTheResultsTab_AndMessagesLast_ReportsTheHostsFirstTab()
+	{
+		var options = new PDStudioOptions { ShowResultsTab = false, MessagesTabLast = true };
+		var reported = new List<string>();
+
+		RenderReportingTabs(reported, options);
+		var withoutHostTabs = RenderStudio(options);
+
+		reported.Should().Equal("plan");
+		withoutHostTabs.Instance.ActiveTabKey.Should().Be("messages");
+	}
 }
