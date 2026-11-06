@@ -178,6 +178,9 @@ public class PDStudioOptions
 	/// <summary>Gets or sets the Messages tab's tooltip; null for none.</summary>
 	public string? MessagesTabToolTip { get; set; }
 
+	/// <summary>Gets or sets whether the Messages tab comes after the host's own tabs, rather than before them.</summary>
+	public bool MessagesTabLast { get; set; }
+
 	/// <summary>
 	/// Gets or sets classes added to the Messages tab's level list and filter box, such as "border" where a host's theme
 	/// draws form controls without one; null for none.
