@@ -49,6 +49,7 @@
 				<tr><td><code>SnapOffset</code></td><td><code>int</code></td><td><code>30</code></td><td>Distance in pixels from minimum size at which the panel snaps</td></tr>
 				<tr><td><code>DragInterval</code></td><td><code>int</code></td><td><code>1</code></td><td>Number of pixels per drag step</td></tr>
 				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS classes for the container element</td></tr>
+				<tr><td><code>DragEnd</code></td><td><code>EventCallback&lt;double[]&gt;</code></td><td>-</td><td>Raised when the user stops dragging a gutter, with each panel's new size as a percentage, so the page can remember them and restore them with <code>SetSizesAsync</code></td></tr>
 			</tbody>
 		</table>
 

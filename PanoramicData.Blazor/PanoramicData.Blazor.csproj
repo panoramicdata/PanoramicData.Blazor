@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDMonacoEditor and PDStudio: InsertTextAsync leaves the cursor at the end of the inserted text, as typing does, so a second insert follows the first instead of landing before it.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDSplitter: a DragEnd event, raised when the user stops dragging a gutter with each panel's new size as a percentage, so a page can remember the sizes and restore them later.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

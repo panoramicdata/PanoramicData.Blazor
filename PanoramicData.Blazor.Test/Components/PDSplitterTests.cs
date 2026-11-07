@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -178,6 +179,41 @@ public class PDSplitterTests : BunitContext
 		var invocation = module.VerifyInvoke("setSizes");
 		invocation.Arguments[0].Should().Be(splitter.Instance.Id);
 		invocation.Arguments[1].Should().BeOfType<double[]>().Which.Should().Equal(40, 60);
+	}
+
+	/// <summary>
+	/// Verifies that without a DragEnd handler split.js is not asked to report drags, so no .NET reference is made.
+	/// </summary>
+	[Fact]
+	public void WithoutADragEndHandler_SplitJsIsNotAskedToReportDrags()
+	{
+		var module = SetupModule();
+
+		RenderSplitter();
+
+		module.VerifyInvoke("initialize").Arguments[3].Should().BeNull();
+	}
+
+	/// <summary>
+	/// Verifies that with a DragEnd handler split.js is given this splitter to report drags to, and that a reported drag
+	/// raises DragEnd with the panels' new sizes.
+	/// </summary>
+	[Fact]
+	public async Task WithADragEndHandler_ADragThatEnds_RaisesDragEnd_WithThePanelsNewSizes()
+	{
+		var module = SetupModule();
+		var raised = new List<double[]>();
+		var splitter = Render<PDSplitter>(parameters => parameters
+			.Add(p => p.DragEnd, raised.Add)
+			.AddChildContent<PDSplitPanel>(panel => panel.Add(p => p.Size, 1))
+			.AddChildContent<PDSplitPanel>(panel => panel.Add(p => p.Size, 1)));
+
+		module.VerifyInvoke("initialize").Arguments[3].Should().BeOfType<DotNetObjectReference<PDSplitter>>()
+			.Which.Value.Should().BeSameAs(splitter.Instance);
+
+		await splitter.InvokeAsync(() => splitter.Instance.OnDragEnd([30.5, 69.5]));
+
+		raised.Should().ContainSingle().Which.Should().Equal(30.5, 69.5);
 	}
 
 	/// <summary>
