@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using PanoramicData.Blazor.Arguments;
+using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor.Test.Arguments;
 
@@ -46,5 +47,32 @@ public class DropEventArgsTests
 
 		args.Target.Should().Be("new");
 		args.Payload.Should().BeNull();
+	}
+
+	/// <summary>The old constructors derive the position from Before.</summary>
+	[Theory]
+	[InlineData(true, DropPosition.Before)]
+	[InlineData(false, DropPosition.After)]
+	[InlineData(null, DropPosition.Into)]
+	public void BeforeConstructors_DeriveThePosition(bool? before, DropPosition expected)
+	{
+		new DropEventArgs("target", "payload", false, before).Position.Should().Be(expected);
+		new DropEventArgs("target", "payload", false).Position.Should().Be(DropPosition.Into);
+	}
+
+	/// <summary>The position constructor sets Before to match, so existing consumers keep working.</summary>
+	[Theory]
+	[InlineData(DropPosition.Before, true)]
+	[InlineData(DropPosition.After, false)]
+	[InlineData(DropPosition.Into, null)]
+	public void PositionConstructor_SetsBeforeToMatch(DropPosition position, bool? expected)
+	{
+		var args = new DropEventArgs("target", "payload", true, position);
+
+		args.Position.Should().Be(position);
+		args.Before.Should().Be(expected);
+		args.Target.Should().Be("target");
+		args.Payload.Should().Be("payload");
+		args.Ctrl.Should().BeTrue();
 	}
 }

@@ -8,6 +8,10 @@ public partial class PDKnobPage
 	protected double BalanceValue { get; set; } = 0.5;
 	protected double GainValue { get; set; } = 0.5;
 	protected double SnapValue { get; set; } = 0.5;
+	protected double AngleValue { get; set; } = 45;
+	protected double AngleStep { get; set; } = 15;
+	protected bool AngleWrap { get; set; } = true;
+	protected bool AngleClockwise { get; set; } = true;
 	protected int MaxVolume { get; set; } = 11;
 	private readonly double _snapIncrement = 0.1;
 	protected string KnobColor { get; set; } = "#eee";

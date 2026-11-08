@@ -1,8 +1,13 @@
-﻿@typeparam TItem
+@typeparam TItem
 
-<div id="@($"tree-node-{Node?.Id}")" class="pdtreenode" @ondragover:preventDefault="AllowDrop">
+<div id="@($"tree-node-{Node?.Id}")" class="@NodeCssClass" @ondragover:preventDefault="AllowDrop">
 
-    <div class="pdtreenode_header">
+    @if (DropLine == DropPosition.Before)
+    {
+        <div class="pdtree-drop-anchor"><div class="@DropLineCssClass"></div></div>
+    }
+
+    <div class="pdtreenode_header" @ref="HeaderRef" @ondragover:preventDefault="AllowDropInBetween" @attributes="HeaderDragAttributes">
         @if (Node?.Isleaf ?? true)
         {
             <i class="far fa-plus-square fa-hidden"></i>
@@ -11,7 +16,7 @@
         {
             <i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
         }
-        <div id="@($"pdtnc-{Node?.Id}")" class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null) @(AllowDrop && _dragOverCount > 0 ? (IsDragOverValid ? "drag-over" : "drag-over-invalid") : null)"
+        <div id="@($"pdtnc-{Node?.Id}")" @ref="ContentRef" class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null) @ContentDragCssClass"
              @oncontextmenu:preventDefault
              @oncontextmenu="() => { }"
              @onmousedown="OnContentMouseDown"
@@ -98,6 +103,11 @@
                 }
             }
         </div>
+    }
+
+    @if (DropLine == DropPosition.After)
+    {
+        <div class="pdtree-drop-anchor"><div class="@DropLineCssClass"></div></div>
     }
 
     @if (AllowDropInBetween && Node != null && Node.IsLastSibling())

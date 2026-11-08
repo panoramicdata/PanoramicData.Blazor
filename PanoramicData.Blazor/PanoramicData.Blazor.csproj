@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDChat: the round button that opens a minimised chat shows a Font Awesome icon in place of an emoji, set with Icons.Launcher; CollapsedIcon still shows text instead when set; its colours are set with --pd-chat-launcher-bg, --pd-chat-launcher-hover-bg and --pd-chat-launcher-color. PDSplitter: the bars are coloured with --pd-splitter-gutter-bg, and a bar under the pointer fades to --pd-splitter-gutter-hover-bg (the primary colour by default) after --pd-splitter-gutter-hover-delay (0.2s), or at once when pressed.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDKnob: a new Angle mode, a full-circle dial for a direction that turns past 360 degrees with no jump, bound with @bind-Angle; 0 points right and the angle increases clockwise by default (AngleZeroDirection, AngleClockwise), it reports 0 up to 360 or a running total (AngleWrap), snaps to AngleStep while dragging unless Shift is held, and is a keyboard slider with an accessible name (arrow keys, Page Up, Page Down, AriaLabel). PDTree: with AllowDropInBetween, reordering by drag is decided by where the pointer is in a row (top quarter before, bottom quarter after, the middle into where allowed, halves otherwise), shown by an insertion line, and reported on DropEventArgs.Position (DropPosition Into, Before or After) with Before still set to match; IsDropPositionValid refuses a position, after an expanded node means after its subtree, and AllowDropAfterParent lets the last child's row drop after its parent.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

@@ -6,16 +6,38 @@
 public partial class PDTreePage3
 {
 	/// <summary>
-	/// Validates a move: a group can only be dragged onto another group and a person
-	/// can only be dropped onto a group itself (not before or after it).
+	/// Decides, for each drop position, whether the dragged item may land there: only a group can have items
+	/// dropped into it, an item can only sit beside its own kind, and a group never moves inside itself.
 	/// </summary>
-	private static bool IsValidMove(TreeItem source, TreeItem target, bool? before)
-		=> source.IsGroup ? target.IsGroup : !(target.IsGroup && before != null);
-
-	public void ReOrder(TreeItem source, TreeItem target, bool? before)
+	private bool IsDropPositionValid(TreeItem target, object? payload, DropPosition position)
 	{
-		// validate the move
-		if (!IsValidMove(source, target, before))
+		if (GetFirstPayloadItem(payload) is not { } source || IsWithin(target, source))
+		{
+			return false;
+		}
+
+		return position == DropPosition.Into ? target.IsGroup : source.IsGroup == target.IsGroup;
+	}
+
+	/// <summary>
+	/// Gets whether an item is the given group or anywhere inside it.
+	/// </summary>
+	private bool IsWithin(TreeItem item, TreeItem group)
+	{
+		for (var node = Tree.RootNode.Find(item.Id.ToString()); node?.Data is { } data; node = node.ParentNode)
+		{
+			if (data.Id == group.Id)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void ReOrder(TreeItem source, TreeItem target, DropPosition position)
+	{
+		if (!IsDropPositionValid(target, new List<TreeItem> { source }, position))
 		{
 			return;
 		}
@@ -27,16 +49,16 @@ public partial class PDTreePage3
 			return;
 		}
 
-		// remove source node from parent node
 		sourceSiblings.Remove(sourceNode);
+		ReOrderNodes(sourceSiblings);
 
-		if (source.IsGroup || !target.IsGroup)
+		if (position == DropPosition.Into)
 		{
-			InsertBesideNode(sourceNode, targetNode, targetSiblings, before == true);
+			MoveIntoNode(sourceNode, targetNode);
 		}
 		else
 		{
-			MoveIntoNode(sourceNode, targetNode);
+			InsertBesideNode(sourceNode, targetNode, targetSiblings, position == DropPosition.Before);
 		}
 	}
 
@@ -45,12 +67,22 @@ public partial class PDTreePage3
 		var tIdx = siblings.IndexOf(targetNode);
 		siblings.Insert(before ? tIdx : tIdx + 1, sourceNode);
 		sourceNode.ParentNode = targetNode.ParentNode;
+		if (sourceNode.Data is { } item)
+		{
+			item.ParentId = targetNode.ParentNode?.Data?.Id;
+		}
+
 		ReOrderNodes(siblings);
 	}
 
 	private static void MoveIntoNode(TreeNode<TreeItem> sourceNode, TreeNode<TreeItem> targetNode)
 	{
 		sourceNode.ParentNode = targetNode;
+		if (sourceNode.Data is { } item)
+		{
+			item.ParentId = targetNode.Data?.Id;
+		}
+
 		if (targetNode.Nodes is { } children)
 		{
 			children.Add(sourceNode);

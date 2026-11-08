@@ -237,3 +237,12 @@ function onDragStart(evt) {
 		evt.dataTransfer.setData("DownloadURL", url);
 	}
 }
+
+// PDTree reordering: a row's top and height, and the left edge of its content, in client pixels.
+export function getTreeRowBounds(header, content) {
+	if (!header || !content) {
+		return null;
+	}
+	const row = header.getBoundingClientRect();
+	return [row.top, row.height, content.getBoundingClientRect().left];
+}

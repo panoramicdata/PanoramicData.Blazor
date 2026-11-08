@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// Tests that <see cref="PDKnob"/> draws its dial, markings and ticks for each mode, positions its label,
 /// and turns pointer and double-click input into value changes.
 /// </summary>
-public class PDKnobTests : BunitContext
+public partial class PDKnobTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDKnob.razor.js";
 	private const string TickSelector = "line[stroke='#999']";
