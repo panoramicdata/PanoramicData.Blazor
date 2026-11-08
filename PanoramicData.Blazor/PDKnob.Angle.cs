@@ -211,7 +211,7 @@ public partial class PDKnob
 			"PageDown" => -AngleLargeStep,
 			_ => 0
 		};
-		if (delta != 0)
+		if (Math.Abs(delta) > _tolerance)
 		{
 			await SetAngleAsync(SnapAngle(Angle + delta, false)).ConfigureAwait(true);
 		}

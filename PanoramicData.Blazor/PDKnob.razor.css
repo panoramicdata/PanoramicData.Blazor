@@ -50,6 +50,7 @@
 [data-bs-theme="dark"] .pd-knob svg circle[stroke="#aaa"] {
     stroke: var(--bs-border-color, #6c757d);
 }
+
 .pd-knob svg[role="slider"]:focus-visible {
     outline: 2px solid var(--bs-primary, #0d6efd);
     outline-offset: 2px;
