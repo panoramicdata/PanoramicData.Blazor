@@ -8,13 +8,18 @@
 	}
 	<svg @ref="_svgRef"
 		 width="@(SizePx)" height="@(SizePx)"
-		 @onpointerdown="OnPointerDown"
-		 @ondblclick="OnDoubleClick"
+		 @onpointerdown="OnKnobPointerDownAsync"
+		 @ondblclick="OnKnobDoubleClickAsync"
+		 @onkeydown="OnKnobKeyDownAsync"
+		 @attributes="AngleAttributes"
 		 style="cursor:pointer;">
 		<!-- Knob background -->
 		<circle cx="@(Center)" cy="@(Center)" r="@(Radius)" fill="@CapColor" stroke="#aaa" stroke-width="2" />
-		<!-- Knob arc (value) -->
-		<path d="@ArcPath" fill="none" stroke="@ActiveColor" stroke-width="4" />
+		@if (!IsAngleMode)
+		{
+			<!-- Knob arc (value) -->
+			<path d="@ArcPath" fill="none" stroke="@ActiveColor" stroke-width="4" />
+		}
 		<!-- Knob indicator -->
 		<line x1="@(Center)" y1="@(Center)" x2="@(IndicatorX)" y2="@(IndicatorY)" stroke="#333" stroke-width="3" stroke-linecap="round" />
 		<!-- Markings -->

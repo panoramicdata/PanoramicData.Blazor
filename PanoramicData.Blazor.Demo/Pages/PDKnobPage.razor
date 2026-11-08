@@ -29,6 +29,26 @@
 			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="@SnapValue" SnapIncrement="@_snapIncrement" CapColor="@KnobColor" ActiveColor="@ActiveColor" Label="@KnobLabel" LabelPosition="@LabelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@LabelCssClass" />
 			<div>Value: @(SnapValue.ToString("F2"))</div>
 		</div>
+		<div>
+			<h3>Angle</h3>
+			<PDKnob Mode="PDKnobMode.Angle" @bind-Angle="AngleValue" AngleStep="@AngleStep" AngleWrap="@AngleWrap" AngleClockwise="@AngleClockwise" AriaLabel="Angle" CapColor="@KnobColor" Label="Angle" LabelPosition="@LabelPosition" />
+			<div>
+				<input type="number" class="form-control form-control-sm" style="width: 7rem;" step="any" aria-label="Angle in degrees" @bind="AngleValue" />
+			</div>
+			<div class="form-check">
+				<input type="checkbox" class="form-check-input" id="angle-wrap" @bind="AngleWrap" />
+				<label class="form-check-label" for="angle-wrap">Wrap to 0 to 360</label>
+			</div>
+			<div class="form-check">
+				<input type="checkbox" class="form-check-input" id="angle-clockwise" @bind="AngleClockwise" />
+				<label class="form-check-label" for="angle-clockwise">Clockwise</label>
+			</div>
+			<div>
+				<label for="angle-step">Step</label>
+				<input type="number" id="angle-step" class="form-control form-control-sm" style="width: 7rem;" min="0" @bind="AngleStep" />
+			</div>
+			<div class="text-muted small">0 points right. Drag round, hold Shift to move freely, or focus it and use the arrow keys and Page Up or Page Down.</div>
+		</div>
 	</div>
 
 	<div class="m-t-20">
