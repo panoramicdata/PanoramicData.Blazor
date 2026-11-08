@@ -199,8 +199,8 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 .pdchat-toggle,
 .pdchat-toggle-collapsed {
-	background-color: #0078d4;
-	color: white;
+	background-color: var(--pd-chat-launcher-bg, #0078d4);
+	color: var(--pd-chat-launcher-color, white);
 	border: none;
 	border-radius: 50%;
 	width: 50px;
@@ -244,7 +244,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 .pdchat-toggle:hover,
 .pdchat-toggle-collapsed:hover {
-	background-color: #005a9e;
+	background-color: var(--pd-chat-launcher-hover-bg, #005a9e);
 	transform: scale(1.05);
 }
 

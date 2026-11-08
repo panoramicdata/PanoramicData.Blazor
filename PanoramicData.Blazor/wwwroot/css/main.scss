@@ -157,7 +157,8 @@
 
 /* PDSplitter - the gutters are created by split.js */
 .pdsplitter .gutter {
-	background-color: #eee;
+	background-color: var(--pd-splitter-gutter-bg, #eee);
+	transition: background-color 0.1s ease-out;
 }
 
 .pdsplitter .gutter-vertical {
@@ -170,7 +171,18 @@
 
 /* PDStudio themes its own splitter bars */
 .pd-studio .pdsplitter > .gutter {
-	background-color: var(--pd-studio-gutter-bg, var(--bs-tertiary-bg, #eee));
+	background-color: var(--pd-studio-gutter-bg, var(--pd-splitter-gutter-bg, var(--bs-tertiary-bg, #eee)));
+}
+
+/* Highlights the splitter bar under the pointer after a short delay, so passing over it does not flash */
+.pdsplitter .gutter:hover,
+.pdsplitter .gutter:active {
+	background-color: var(--pd-splitter-gutter-hover-bg, var(--bs-primary, #0d6efd));
+	transition: background-color 0.15s ease-in var(--pd-splitter-gutter-hover-delay, 0.2s);
+}
+
+.pdsplitter .gutter:active {
+	transition-delay: 0s;
 }
 
 /* PDStudio's toolbar and its separators are PDToolbar markup, so they are styled here */

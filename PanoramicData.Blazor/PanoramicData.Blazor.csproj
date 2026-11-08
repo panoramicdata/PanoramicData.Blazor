@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDSplitter: a DragEnd event, raised when the user stops dragging a gutter with each panel's new size as a percentage, so a page can remember the sizes and restore them later.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDChat: the round button that opens a minimised chat shows a Font Awesome icon in place of an emoji, set with Icons.Launcher; CollapsedIcon still shows text instead when set; its colours are set with --pd-chat-launcher-bg, --pd-chat-launcher-hover-bg and --pd-chat-launcher-color. PDSplitter: the bars are coloured with --pd-splitter-gutter-bg, and a bar under the pointer fades to --pd-splitter-gutter-hover-bg (the primary colour by default) after --pd-splitter-gutter-hover-delay (0.2s), or at once when pressed.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

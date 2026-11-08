@@ -66,4 +66,21 @@
 		</table>
 	</section>
 
+	<section id="colours">
+		<h2 class="doc-section">Colours</h2>
+		<p>
+			The splitter bars take their colours from CSS variables, so a host can set them on <code>:root</code>, on a
+			theme class or on one splitter's <code>CssClass</code>. For example,
+			<code>body.theme-dark { --pd-splitter-gutter-bg: #495057; }</code> keeps the bars visible on a dark page.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>--pd-splitter-gutter-bg</code></td><td><code>#eee</code></td><td>The splitter bar</td></tr>
+				<tr><td><code>--pd-splitter-gutter-hover-bg</code></td><td><code>--bs-primary</code></td><td>The splitter bar under the pointer, so it can be found to drag</td></tr>
+				<tr><td><code>--pd-splitter-gutter-hover-delay</code></td><td><code>0.2s</code></td><td>How long the pointer rests on a bar before it fades to the hover colour, so passing over it does not flash. Pressing the bar shows the colour at once. <code>0s</code> starts the fade straight away.</td></tr>
+			</tbody>
+		</table>
+	</section>
+
 </div>
