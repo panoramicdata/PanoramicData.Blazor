@@ -13,7 +13,14 @@
 						<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
 								@onclick="ToggleChatAsync"
 								title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
-							<span>@CollapsedIcon</span>
+							@if (!string.IsNullOrEmpty(CollapsedIcon))
+							{
+								<span>@CollapsedIcon</span>
+							}
+							else if (!string.IsNullOrEmpty(Icons.Launcher))
+							{
+								<i class="@Icons.Launcher" aria-hidden="true"></i>
+							}
 							@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
 							{
 								<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>

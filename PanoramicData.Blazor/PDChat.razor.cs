@@ -75,10 +75,10 @@ public partial class PDChat : JSModuleComponentBase
 	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
 
 	/// <summary>
-	/// Gets or sets the icon to display when the chat window is collapsed.
+	/// Gets or sets text, such as an emoji, shown on the minimised chat's button in place of <see cref="PDChatIcons.Launcher"/>.
 	/// </summary>
 	[Parameter]
-	public string CollapsedIcon { get; set; } = "💬";
+	public string? CollapsedIcon { get; set; }
 
 	/// <summary>
 	/// Gets or sets the CSS classes of the header's and toolbar's icons. Font Awesome by default.

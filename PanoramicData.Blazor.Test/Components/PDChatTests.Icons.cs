@@ -39,6 +39,26 @@ public partial class PDChatTests
 		IconClass(component.Find(".chat-send")).Should().Be("bi bi-send");
 	}
 
+	/// <summary>Verifies that the minimised chat's button shows the launcher icon, not text, by default.</summary>
+	[Fact]
+	public void The_minimised_button_shows_the_launcher_icon_by_default()
+	{
+		var component = RenderChat(Minimised());
+
+		var button = component.Find(".pdchat-toggle-collapsed");
+		IconClass(button).Should().Be("fas fa-comment-dots");
+		button.TextContent.Trim().Should().BeEmpty();
+	}
+
+	/// <summary>Verifies that a host's launcher icon class replaces the default on the minimised chat's button.</summary>
+	[Fact]
+	public void A_host_s_launcher_icon_replaces_the_default()
+	{
+		var component = RenderChat(Minimised(), p => p.Add(x => x.Icons, new PDChatIcons { Launcher = "bi bi-chat-dots" }));
+
+		IconClass(component.Find(".pdchat-toggle-collapsed")).Should().Be("bi bi-chat-dots");
+	}
+
 	/// <summary>Verifies that each header button shows its icon, and full screen swaps to the restore icon.</summary>
 	[Fact]
 	public async Task The_header_buttons_show_their_icons()

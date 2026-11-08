@@ -18,7 +18,7 @@
    --pd-studio-tab-underline-color  selected tab underline (--pd-studio-tab-active-color)
    --pd-studio-tab-hover-color  an unselected tab's text on hover (--pd-studio-tab-color, so no change unless set)
    --pd-studio-tab-separator    a line between tabs, as a border such as 1px solid grey (none)
-   --pd-studio-gutter-bg        the splitter bar           (--bs-tertiary-bg)
+   --pd-studio-gutter-bg        the splitter bar           (--pd-splitter-gutter-bg, then --bs-tertiary-bg)
    --pd-studio-left-panel-width the host's left panel      (16rem)
    --pd-studio-left-panel-bg    the host's left panel      (--pd-studio-panel-bg)
    --pd-studio-toolbar-padding  around the toolbar         (0.375rem 0, so Execute lines up with the editor)

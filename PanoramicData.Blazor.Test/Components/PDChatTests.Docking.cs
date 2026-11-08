@@ -50,7 +50,7 @@ public partial class PDChatTests
 		component.FindAll(".pdchat-toggle-collapsed").Should().BeEmpty();
 	}
 
-	/// <summary>Verifies that the minimised button shows the collapsed icon and the message count.</summary>
+	/// <summary>Verifies that the minimised button shows text set as the collapsed icon, in place of the launcher icon, and the message count.</summary>
 	[Fact]
 	public void The_minimised_button_shows_its_icon_and_count()
 	{
@@ -61,6 +61,7 @@ public partial class PDChatTests
 
 		var button = component.Find(".pdchat-toggle-collapsed");
 		button.TextContent.Trim().Should().Be("C");
+		IconClass(button).Should().BeNull();
 		button.GetAttribute("title").Should().Be("Open Chat (1 message)");
 	}
 

@@ -7,6 +7,9 @@ namespace PanoramicData.Blazor.Models;
 /// <remarks>An empty class shows no icon.</remarks>
 public sealed record PDChatIcons
 {
+	/// <summary>Gets the icon on the round button that opens a minimised chat, unless <see cref="PanoramicData.Blazor.PDChat.CollapsedIcon"/> is set.</summary>
+	public string Launcher { get; init; } = "fas fa-comment-dots";
+
 	/// <summary>Gets the icon in the agent picker, for an agent with no icon of its own.</summary>
 	public string Agent { get; init; } = "fas fa-robot";
 

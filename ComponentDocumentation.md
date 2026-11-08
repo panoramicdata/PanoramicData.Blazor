@@ -284,7 +284,7 @@ This component has no public parameters.
 | User | required ChatMessageSender |  |
 | ConversationService | IChatConversationService? | Gets or sets an optional conversation history: the list of previous conversations that can be searched, opened and archived (issue #108). <c>null</c> - the default - means the host has no such store. |
 | ChatDockPosition | PDChatDockPosition | Gets or sets the dock position of the chat window. |
-| CollapsedIcon | string | Gets or sets the icon to display when the chat window is collapsed. |
+| CollapsedIcon | string? | Gets or sets text, such as an emoji, shown on the minimised chat's button in place of `Icons.Launcher`. |
 | Icons | PDChatIcons | Gets or sets the CSS classes of the header's and toolbar's icons. Font Awesome by default. |
 | UserIconSelector | Func<ChatMessage, string?>? | A function to select a user icon for a given message. |
 | PriorityIconSelector | Func<ChatMessage, string?>? | A function to select a priority icon for a given message. |
