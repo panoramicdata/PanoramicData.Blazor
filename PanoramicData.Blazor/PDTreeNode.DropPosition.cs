@@ -11,6 +11,10 @@ public partial class PDTreeNode<TItem>
 	private double[]? _rowBounds;
 	private bool _skipRender;
 
+	private ElementReference HeaderRef { get => _headerRef; set => _headerRef = value; }
+
+	private ElementReference ContentRef { get => _contentRef; set => _contentRef = value; }
+
 	/// <summary>
 	/// Gets the row's drag handlers, attached only when drop in between is allowed so other trees are unchanged.
 	/// </summary>
@@ -94,7 +98,7 @@ public partial class PDTreeNode<TItem>
 			&& node.IsLastSibling()
 			&& Tree.IsRenderedNode(node.ParentNode);
 
-	private async Task OnHeaderDragEnterAsync(DragEventArgs args)
+	private async Task OnHeaderDragEnterAsync()
 	{
 		_skipRender = true;
 		if (_headerDragCount++ == 0)
@@ -103,7 +107,7 @@ public partial class PDTreeNode<TItem>
 		}
 	}
 
-	private void OnHeaderDragLeave(DragEventArgs args)
+	private void OnHeaderDragLeave()
 	{
 		_skipRender = true;
 		_headerDragCount = Math.Max(0, _headerDragCount - 1);

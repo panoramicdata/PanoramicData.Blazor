@@ -7,7 +7,7 @@
         <div class="pdtree-drop-anchor"><div class="@DropLineCssClass"></div></div>
     }
 
-    <div class="pdtreenode_header" @ref="_headerRef" @ondragover:preventDefault="AllowDropInBetween" @attributes="HeaderDragAttributes">
+    <div class="pdtreenode_header" @ref="HeaderRef" @ondragover:preventDefault="AllowDropInBetween" @attributes="HeaderDragAttributes">
         @if (Node?.Isleaf ?? true)
         {
             <i class="far fa-plus-square fa-hidden"></i>
@@ -16,7 +16,7 @@
         {
             <i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
         }
-        <div id="@($"pdtnc-{Node?.Id}")" @ref="_contentRef" class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null) @ContentDragCssClass"
+        <div id="@($"pdtnc-{Node?.Id}")" @ref="ContentRef" class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null) @ContentDragCssClass"
              @oncontextmenu:preventDefault
              @oncontextmenu="() => { }"
              @onmousedown="OnContentMouseDown"
