@@ -53,6 +53,23 @@
 			</thead>
 			<tbody>
 				<tr>
+					<td><code>AllowDropInBetween</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Reorder by dragging: the top quarter of a row drops before it, the bottom quarter after it (after its subtree when it has children) and the middle into it, shown by an insertion line or a highlight. Without <code>AllowDrop</code> the row splits into halves. <code>DropEventArgs.Position</code> reports the position, and <code>Before</code> agrees with it.</td>
+				</tr>
+				<tr>
+					<td><code>IsDropPositionValid</code></td>
+					<td><code>Func&lt;TItem, object?, DropPosition, bool&gt;?</code></td>
+					<td>null</td>
+					<td>Consulted for each position while reordering; refusing <code>Into</code> splits the row into before and after halves. <code>IsDropValid</code> still applies to <code>Into</code>.</td>
+				</tr>
+				<tr>
+					<td><code>AllowDropAfterParent</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Dropping at the bottom of a group's last row, with the pointer left of its text, drops after the group.</td>
+				</tr>				<tr>
 					<td><code>TItem</code></td>
 					<td>Type parameter</td>
 					<td>-</td>

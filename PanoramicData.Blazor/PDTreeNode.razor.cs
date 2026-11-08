@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor;
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// A Blazor component that renders a single node within a <see cref="PDTree{TItem}"/> hierarchy.
@@ -28,13 +28,21 @@ public partial class PDTreeNode<TItem> where TItem : class
 		bool AllowDrag,
 		bool AllowDrop,
 		bool AllowDropInBetween,
-		int DragOverCount);
+		int DragOverCount,
+		(DropPosition? Line, bool Into, bool Valid) DropIndicator);
 
 	private RenderSnapshot _lastRenderSnapshot;
 
 	/// <inheritdoc />
 	protected override bool ShouldRender()
 	{
+		// a drag-over event needs no render of its own: the tree re-renders when the indicator moves
+		if (_skipRender)
+		{
+			_skipRender = false;
+			return false;
+		}
+
 		if (Tree?.OptimizeRendering != true || Node is null)
 		{
 			return true;
@@ -47,7 +55,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		var snapshot = new RenderSnapshot(
 			node, node.Data, node.Text, node.IconCssClass, node.IsExpanded, node.IsSelected,
 			node.IsEditing, node.Nodes, node.RenderVersion, ShowLines, AllowDrag, AllowDrop,
-			AllowDropInBetween, _dragOverCount);
+			AllowDropInBetween, _dragOverCount, DropIndicatorSnapshot);
 
 		var changed = snapshot != _lastRenderSnapshot;
 		_lastRenderSnapshot = snapshot;
@@ -244,7 +252,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 	private async Task OnDragDrop(MouseEventArgs args)
 	{
 		_dragOverCount = 0;
-		if (DragContext != null && Node != null && IsDragOverValid)
+		if (!AllowDropInBetween && DragContext != null && Node != null && IsDragOverValid)
 		{
 			await Drop.InvokeAsync(new DropEventArgs(Node, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 		}
@@ -254,7 +262,10 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 	private async Task OnSeparatorDrop(DropEventArgs args)
 	{
-		var newArgs = new DropEventArgs(Node, args.Payload, args.Ctrl, args.Before);
-		await Drop.InvokeAsync(newArgs).ConfigureAwait(true);
+		Tree.ClearDropIndicator();
+		if (Node is null || Tree.IsDropPositionAllowed(Node, args.Payload, args.Position))
+		{
+			await Drop.InvokeAsync(new DropEventArgs(Node, args.Payload, args.Ctrl, args.Position)).ConfigureAwait(true);
+		}
 	}
 }

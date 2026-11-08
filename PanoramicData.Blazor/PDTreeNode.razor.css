@@ -49,3 +49,25 @@
 	outline: 1px dashed var(--bs-danger, #dc3545);
 	border-radius: 3px;
 }
+
+/* insertion line for reordering by drag: a zero-height anchor so showing it never moves the rows */
+.pdtreenode-reorder .pdtree-drop-anchor {
+	position: relative;
+	height: 0;
+}
+
+.pdtreenode-reorder .pdtree-drop-line {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -1px;
+	height: 2px;
+	background-color: var(--bs-primary, #0d6efd);
+	border-radius: 1px;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.pdtreenode-reorder .pdtree-drop-line.invalid {
+	background-color: var(--bs-danger, #dc3545);
+}
