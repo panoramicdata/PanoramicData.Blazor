@@ -591,6 +591,21 @@ body:has(.pdchat-container.dock-fullscreen) {
 	max-width: 7rem;
 }
 
+/* A corner-docked chat shows the mode as the toggle's glyph alone, so Send fits on the row. The select keeps its
+   accessible name and its options. */
+@container (max-width: 420px) {
+	.chat-input-accessories .pdchat-voice-split .pdchat-voice-mode-picker select {
+		field-sizing: fixed;
+		width: 20px;
+		padding: 0;
+		color: transparent;
+	}
+
+	.chat-input-accessories .pdchat-voice-split .pdchat-voice-mode-picker::after {
+		right: 7px;
+	}
+}
+
 /* Issue #265: the icon shows the mode, and colour and motion the state; the title says both in words. */
 .chat-input-accessories .pdchat-voice-split .pdchat-voice-toggle.active {
 	color: #fff;
