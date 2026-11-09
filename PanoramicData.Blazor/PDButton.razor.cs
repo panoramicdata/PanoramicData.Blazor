@@ -160,8 +160,14 @@ public partial class PDButton : IEnablable, IDisposable
 		else
 		{
 			_operationInProgress = true;
-			await Operation.Invoke(args);
-			_operationInProgress = false;
+			try
+			{
+				await Operation.Invoke(args);
+			}
+			finally
+			{
+				_operationInProgress = false;
+			}
 		}
 	}
 
