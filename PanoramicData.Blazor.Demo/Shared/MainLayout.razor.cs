@@ -63,10 +63,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 		}
 	}
 
-	private void OnConfigurationChanged()
-	{
-		StateHasChanged();
-	}
+	// The demo's chat service is shared by every circuit, so this can be raised from another one.
+	private void OnConfigurationChanged() => _ = InvokeAsync(StateHasChanged);
 
 	// Optional dock mode change handler - for monitoring purposes only
 	// The PDChatContainer now handles all dock mode synchronization automatically!

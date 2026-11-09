@@ -6,15 +6,22 @@
 		{
 			foreach (var message in Messages)
 			{
-				<PDMessage Message="message"
-						   UserIconSelector="UserIconSelector"
-						   UseFullWidthMessages="UseFullWidthMessages"
-						   MessageMetadataDisplayMode="MessageMetadataDisplayMode"
-						   ShowMessageUserIcon="ShowMessageUserIcon"
-						   ShowMessageUserName="ShowMessageUserName"
-						   ShowMessageTimestamp="ShowMessageTimestamp"
-						   MessageTimestampFormat="@MessageTimestampFormat"
-						   ProgressDisplayMode="ProgressDisplayMode" />
+				<PDMessageErrorBoundary>
+					<ChildContent>
+						<PDMessage Message="message"
+								   UserIconSelector="UserIconSelector"
+								   UseFullWidthMessages="UseFullWidthMessages"
+								   MessageMetadataDisplayMode="MessageMetadataDisplayMode"
+								   ShowMessageUserIcon="ShowMessageUserIcon"
+								   ShowMessageUserName="ShowMessageUserName"
+								   ShowMessageTimestamp="ShowMessageTimestamp"
+								   MessageTimestampFormat="@MessageTimestampFormat"
+								   ProgressDisplayMode="ProgressDisplayMode" />
+					</ChildContent>
+					<ErrorContent>
+						<div class="pdchat-message-failed" role="alert">This message could not be shown.</div>
+					</ErrorContent>
+				</PDMessageErrorBoundary>
 			}
 		}
 	</div>

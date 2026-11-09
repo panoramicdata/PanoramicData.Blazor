@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace PanoramicData.Blazor.Models;
 
 /// <summary>
@@ -96,6 +94,12 @@ public static partial class PartialMarkdown
 			if (!lastLine.TrimEnd().EndsWith('|'))
 			{
 				completeUpTo = lastIndex - 1;
+			}
+
+			// The reply opens with a row still being written, so there is nothing complete to show yet.
+			if (completeUpTo < 0)
+			{
+				return new Result(string.Empty, "table");
 			}
 
 			// A header with no delimiter row yet is not a table at all.

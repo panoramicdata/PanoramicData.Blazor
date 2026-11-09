@@ -170,8 +170,13 @@ public partial class PDChat
 			_isMicrophonePaused = false;
 			await EnterModeAsync();
 		}
-		catch (JSException)
+		catch (JSDisconnectedException)
 		{
+			VoiceState = PDChatVoiceState.Off;
+		}
+		catch (Exception ex) when (ex is JSException or OperationCanceledException)
+		{
+			// A permission prompt left open past the interop timeout arrives as a cancellation.
 			VoiceState = PDChatVoiceState.Off;
 			VoiceError = "The microphone could not be opened. Check that this site may use it.";
 		}

@@ -76,7 +76,8 @@ public partial class PDChatContainer : ComponentBase
 	{
 		ChatService.DockMode = newDockMode;
 
-		StateHasChanged();
+		// A chat service event can bring this here from another thread.
+		await InvokeAsync(StateHasChanged);
 
 		// Optionally notify external listeners
 		if (DockModeChanged.HasDelegate)

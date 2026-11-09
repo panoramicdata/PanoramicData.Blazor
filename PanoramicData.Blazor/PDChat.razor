@@ -86,7 +86,7 @@
 						<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 						@if (ChatService.IsClearPermitted && _messages.Count > 0)
 						{
-							<button type="button" class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat" aria-label="Clear Chat">
+							<button type="button" class="pdchat-header-btn" @onclick="Guarded(ClearChatAsync, nameof(ClearChatAsync))" title="Clear Chat" aria-label="Clear Chat">
 								<i class="@Icons.Clear" aria-hidden="true"></i>
 							</button>
 						}
@@ -135,7 +135,7 @@
 									<PDChatConversationSidebar @ref="ConversationSidebar"
 															   ConversationService="ConversationService!"
 															   SelectedConversationId="_selectedConversationId"
-															   OnConversationSelected="OpenConversationAsync"
+															   OnConversationSelected="Guarded<ChatConversation>(OpenConversationAsync, nameof(OpenConversationAsync))"
 															   OnConversationsLoaded="OnConversationsLoadedAsync" />
 								</div>
 							}
@@ -152,7 +152,7 @@
 											class="pdchat-conversation-toolbar-btn"
 											title="@(_selectedConversationId is null ? "Select a conversation to archive it" : "Archive this conversation")"
 											disabled="@(_selectedConversationId is null)"
-											@onclick="ArchiveSelectedConversationAsync">
+											@onclick="Guarded(ArchiveSelectedConversationAsync, nameof(ArchiveSelectedConversationAsync))">
 										Archive
 									</button>
 
@@ -164,7 +164,7 @@
 										<button type="button"
 												class="pdchat-conversation-toolbar-btn"
 												title="Un-archive this conversation, returning it to the default list"
-												@onclick="UnarchiveSelectedConversationAsync">
+												@onclick="Guarded(UnarchiveSelectedConversationAsync, nameof(UnarchiveSelectedConversationAsync))">
 											Un-archive
 										</button>
 									}
@@ -182,10 +182,10 @@
 										  CreateTabPosition="CreateTabPosition.End"
 										  TabMinWidth="120px"
 										  TabMaxWidth="220px"
-										  OnTabSelected="OnConversationTabSelectedAsync"
-										  OnTabClosed="OnConversationTabClosedAsync"
-										  OnTabAdded="OnConversationTabAddedAsync"
-										  OnTabRenamed="OnConversationTabRenamedAsync">
+										  OnTabSelected="Guarded<PDTab>(OnConversationTabSelectedAsync, nameof(OnConversationTabSelectedAsync))"
+										  OnTabClosed="Guarded<PDTab>(OnConversationTabClosedAsync, nameof(OnConversationTabClosedAsync))"
+										  OnTabAdded="Guarded(OnConversationTabAddedAsync, nameof(OnConversationTabAddedAsync))"
+										  OnTabRenamed="Guarded<PDTab>(OnConversationTabRenamedAsync, nameof(OnConversationTabRenamedAsync))">
 									@foreach (var open in _openConversations)
 									{
 										<PDTab @key="open.Id"
@@ -206,7 +206,7 @@
 														ImagesChanged="OnImagesChanged"
 														IsInputPermitted="@ChatService.IsInputPermitted"
 														InputDisabledMessage="@ChatService.InputDisabledMessage"
-														OnSendClicked="SendCurrentMessageAsync"
+														OnSendClicked="Guarded(SendCurrentMessageAsync, nameof(SendCurrentMessageAsync))"
 														InputAccessories="InputAccessories"
 														Icons="Icons"
 														InputFocusChanged="OnInputFocusChangedAsync"
@@ -228,7 +228,7 @@
 									@* An empty state offering a new conversation, rather than a blank pane. *@
 									<div class="pdchat-conversation-none-open">
 										<p>No conversation open.</p>
-										<button type="button" class="pdchat-conversation-retry" @onclick="NewConversationAsync">
+										<button type="button" class="pdchat-conversation-retry" @onclick="Guarded(NewConversationAsync, nameof(NewConversationAsync))">
 											Start a new conversation
 										</button>
 									</div>
@@ -262,7 +262,7 @@
 											ImagesChanged="OnImagesChanged"
 											IsInputPermitted="@ChatService.IsInputPermitted"
 											InputDisabledMessage="@ChatService.InputDisabledMessage"
-											OnSendClicked="SendCurrentMessageAsync"
+											OnSendClicked="Guarded(SendCurrentMessageAsync, nameof(SendCurrentMessageAsync))"
 											InputAccessories="InputAccessories"
 											Icons="Icons"
 											InputFocusChanged="OnInputFocusChangedAsync"
@@ -292,7 +292,7 @@
 									ImagesChanged="OnImagesChanged"
 									IsInputPermitted="@ChatService.IsInputPermitted"
 									InputDisabledMessage="@ChatService.InputDisabledMessage"
-									OnSendClicked="SendCurrentMessageAsync"
+									OnSendClicked="Guarded(SendCurrentMessageAsync, nameof(SendCurrentMessageAsync))"
 									InputAccessories="InputAccessories"
 									Icons="Icons"
 									InputFocusChanged="OnInputFocusChangedAsync"

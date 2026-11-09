@@ -17,6 +17,7 @@ public partial class PDChatTests
 		public List<ChatConversation> Created { get; } = [];
 		public List<(Guid Id, string Title)> Renamed { get; } = [];
 		public List<Guid> Archived { get; } = [];
+		public bool FailArchive { get; set; }
 
 		public Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
 		{
@@ -57,6 +58,11 @@ public partial class PDChatTests
 		public Task ArchiveAsync(Guid id, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
+			if (FailArchive)
+			{
+				throw new InvalidOperationException("Archive failed");
+			}
+
 			Archived.Add(id);
 			SetArchived(id, true);
 			return Task.CompletedTask;

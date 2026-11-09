@@ -52,6 +52,16 @@
 	min-height: 200px; /* Minimum height to push input to bottom */
 }
 
+/* A message that failed to render, shown in its place. */
+.pdchat-message-failed {
+	padding: 6px 10px;
+	font-size: 0.85em;
+	font-style: italic;
+	color: var(--pd-chat-muted-color, #6c757d);
+	border: 1px dashed var(--pd-chat-border, #dee2e6);
+	border-radius: var(--pd-chat-control-radius, 6px);
+}
+
 /* Fullscreen specific - prevent viewport overflow */
 .pdchat-window.fullscreen .pdchat-panel-flex {
 	height: 100%;
