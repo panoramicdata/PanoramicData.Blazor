@@ -59,6 +59,12 @@ public partial class PDChatPage : IDisposable
 		}
 	}
 
+	private ChatProgressDisplayMode ProgressDisplayMode
+	{
+		get => ChatService.ProgressDisplayMode;
+		set => DemoService?.ProgressDisplayMode = value;
+	}
+
 	private bool IsModelPickerShown
 	{
 		get => ChatService.Models is { Count: > 1 };
@@ -157,6 +163,32 @@ public partial class PDChatPage : IDisposable
 		// Same ID to replace the typing message
 		var actualMessage = CreateBotMessage(typingMessage.Id, "Here's the message I was typing! The typing indicator helps show when someone is responding. The global chat now works seamlessly with proper dimension constraints!", MessageType.Normal);
 		ChatService.SendMessage(actualMessage);
+	}
+
+	private static readonly string[] _demoProgressSteps =
+	[
+		"Choosing the right tool",
+		"Looking up your report schedules",
+		"Checking recent runs of your report schedules",
+		"Searching the documentation",
+		"Reading the help for the page",
+		"Working on your question"
+	];
+
+	// A typing message that gains a step at a time, as a service polling an agent would send it, then the answer.
+	private async Task SendProgressStepsMessage()
+	{
+		var id = Guid.NewGuid();
+
+		for (var count = 0; count <= _demoProgressSteps.Length; count++)
+		{
+			var typing = CreateBotMessage(id, "Typing...", MessageType.Typing);
+			typing.ProgressSteps = _demoProgressSteps[..count];
+			ChatService.SendMessage(typing);
+			await Task.Delay(1400);
+		}
+
+		ChatService.SendMessage(CreateBotMessage(id, "Your Weekly Health schedule ran at 06:00 and finished in 4 minutes.", MessageType.Normal));
 	}
 
 	private async Task TestAutoRestore()

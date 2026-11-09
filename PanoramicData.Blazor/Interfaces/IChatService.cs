@@ -247,6 +247,12 @@ public interface IChatService : IDisposable
 	string MessageTimestampFormat { get; set; }
 
 	/// <summary>
+	/// Gets how a reply's progress steps are shown while it is being composed: <see cref="ChatProgressDisplayMode.List"/>
+	/// by default.
+	/// </summary>
+	ChatProgressDisplayMode ProgressDisplayMode => ChatProgressDisplayMode.List;
+
+	/// <summary>
 	/// Gets or sets whether the last message should be shown as a preview when the chat is minimized and a new message arrives.
 	/// </summary>
 	[Obsolete("Superseded by the richer toast API. Use " + nameof(ToastEnabled) + " instead. This member maps onto " + nameof(ToastEnabled) + " for backward compatibility.")]

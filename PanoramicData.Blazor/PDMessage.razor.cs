@@ -58,6 +58,17 @@ public partial class PDMessage
 	/// </summary>
 	[Parameter] public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
+	/// <summary>
+	/// Gets or sets how the progress steps of a message being composed are shown.
+	/// </summary>
+	[Parameter] public ChatProgressDisplayMode ProgressDisplayMode { get; set; } = ChatProgressDisplayMode.List;
+
+	private bool IsProgressTicker => ProgressDisplayMode == ChatProgressDisplayMode.Ticker;
+
+	/// <summary>The positions of the steps the ticker shows: the one rolling out, if any, then the latest.</summary>
+	private static IEnumerable<int> TickerStepIndexes(int count)
+		=> Enumerable.Range(Math.Max(0, count - 2), Math.Min(count, 2));
+
 	private bool ShouldShowMetaOnRight() => MessageMetadataDisplayMode switch
 	{
 		MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft => Message.Sender.IsUser,
