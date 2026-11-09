@@ -22,11 +22,19 @@ public partial class PDMessages : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_module =
-				await JSRuntime.InvokeAsync<IJSObjectReference>(
-					"import",
-					"./_content/PanoramicData.Blazor/PDMessages.razor.js")
-				.ConfigureAwait(true);
+			try
+			{
+				_module =
+					await JSRuntime.InvokeAsync<IJSObjectReference>(
+						"import",
+						"./_content/PanoramicData.Blazor/PDMessages.razor.js")
+					.ConfigureAwait(true);
+			}
+			catch (Exception ex) when (ex is JSException or JSDisconnectedException or OperationCanceledException)
+			{
+				// Without the module the messages still show; scrolling, Enter to send and images do not work.
+				return;
+			}
 		}
 
 		await ScrollToBottomAsync();

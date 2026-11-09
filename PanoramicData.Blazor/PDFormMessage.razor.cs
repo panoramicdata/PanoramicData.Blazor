@@ -103,6 +103,16 @@ public partial class PDFormMessage
 			? ranked
 			: [.. question.Options.Select(option => option.Label)];
 
+	/// <inheritdoc />
+	protected override void OnParametersSet()
+	{
+		// The message can be sent again with a shorter form, so the question shown must still exist.
+		if (Form is { Questions.Count: > 0 } form && _activeIndex >= form.Questions.Count)
+		{
+			_activeIndex = form.Questions.Count - 1;
+		}
+	}
+
 	/// <summary>
 	/// Makes the question at the given position the one shown.
 	/// </summary>

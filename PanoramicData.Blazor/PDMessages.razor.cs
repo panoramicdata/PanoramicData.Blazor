@@ -269,27 +269,35 @@ public partial class PDMessages : IChatInput
 		return SetImagesAsync([.. Images.Where((_, i) => i != index)]);
 	}
 
-	private async Task OnAttachClickedAsync()
-	{
-		if (_module is not null)
-		{
-			await _module.InvokeVoidAsync("openFilePicker", InputRef);
-		}
-	}
+	private Task OnAttachClickedAsync()
+		=> InvokeImageActionAsync("openFilePicker", InputRef);
 
-	private async Task OnFilePickerChangedAsync()
-	{
-		if (_module is not null)
-		{
-			await _module.InvokeVoidAsync("readPickedFiles", InputRef, _dotNetRef, MaxImages - Images.Count, MaxImages);
-		}
-	}
+	private Task OnFilePickerChangedAsync()
+		=> InvokeImageActionAsync("readPickedFiles", InputRef, _dotNetRef, MaxImages - Images.Count, MaxImages);
 
-	private async Task OnScreenshotClickedAsync()
+	private Task OnScreenshotClickedAsync()
+		=> InvokeImageActionAsync("captureTab", _dotNetRef);
+
+	/// <summary>Calls the browser for an image button, showing a notice rather than ending the circuit if it fails.</summary>
+	/// <remarks>The browser reports a cancelled picker itself; this sees a timeout, such as a picker left open.</remarks>
+	private async Task InvokeImageActionAsync(string identifier, params object?[] args)
 	{
-		if (_module is not null)
+		if (_module is null)
 		{
-			await _module.InvokeVoidAsync("captureTab", _dotNetRef);
+			return;
+		}
+
+		try
+		{
+			await _module.InvokeVoidAsync(identifier, args);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The page has gone.
+		}
+		catch (Exception ex) when (ex is JSException or OperationCanceledException)
+		{
+			ImageNotice = "The images could not be added. Try again.";
 		}
 	}
 

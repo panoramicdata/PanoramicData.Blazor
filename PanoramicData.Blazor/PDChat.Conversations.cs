@@ -58,7 +58,14 @@ public partial class PDChat
 	/// than a marker they can act on when they choose - especially when the answer they are waiting for may
 	/// be three minutes away.
 	/// </remarks>
-	private async void OnConversationMessageReceived(Guid conversationId)
+	private void OnConversationMessageReceived(Guid conversationId)
+		=> RunServiceEvent(() =>
+		{
+			MarkConversationUnread(conversationId);
+			return Task.CompletedTask;
+		}, nameof(IChatService.OnConversationMessageReceived));
+
+	private void MarkConversationUnread(Guid conversationId)
 	{
 		if (conversationId == _selectedConversationId)
 		{
@@ -73,7 +80,7 @@ public partial class PDChat
 		}
 
 		_unreadConversationIds.Add(conversationId);
-		await InvokeAsync(StateHasChanged);
+		StateHasChanged();
 	}
 
 	/// <summary>

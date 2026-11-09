@@ -93,6 +93,19 @@ public partial class PDMessage
 	private static string? FirstNonBlank(params string?[] values)
 		=> values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
 
+	private const string DefaultTimestampFormat = "HH:mm:ss";
+
+	/// <summary>The timestamp in <see cref="MessageTimestampFormat"/>, or in the default when that format is invalid.</summary>
 	private string GetFormattedTimestamp()
-		=> Message.Timestamp.ToLocalTime().ToString(MessageTimestampFormat, CultureInfo.CurrentCulture);
+	{
+		var local = Message.Timestamp.ToLocalTime();
+		try
+		{
+			return local.ToString(MessageTimestampFormat, CultureInfo.CurrentCulture);
+		}
+		catch (FormatException)
+		{
+			return local.ToString(DefaultTimestampFormat, CultureInfo.CurrentCulture);
+		}
+	}
 }
