@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDStudio: the left panel can now be resized from its edge, as an option. With LeftPanelResizable the user drags the bar beside the panel, or uses the arrow keys, Home and End once it has focus, and a double-click gives back its usual width. LeftPanelWidth and LeftPanelWidthChanged let a host give and remember the width in rem, kept within LeftPanelMinWidth and LeftPanelMaxWidth. The bar looks and highlights like the splitter bars, a resize is reported once when the drag ends, and with the option off, the default, existing studios are unchanged.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDForm: a form now opens much faster when the browser is far from the server, because opening it no longer waits for a round trip to the browser for every field. A failure while opening, editing or saving a form, whether in the data provider or in the host's own handlers, is now handed to the form's ExceptionHandler, or raised through its Error event when there is no handler, instead of ending the user's circuit. PDButton re-enables itself when its Operation throws.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
