@@ -196,7 +196,11 @@
 	private RenderFragment RenderProgress => __builder =>
 	{
 		<div class="pdchat-progress">
-			@if (Message.ProgressSteps is { Count: > 0 })
+			@if (IsProgressTicker)
+			{
+				@RenderProgressTicker
+			}
+			else if (Message.ProgressSteps is { Count: > 0 })
 			{
 				<ul class="pdchat-progress-steps">
 					@foreach (var step in Message.ProgressSteps)
@@ -231,8 +235,47 @@
 				}
 			}
 
-			<span class="typing-ellipsis">&nbsp;</span>
+			@if (!IsProgressTicker)
+			{
+				<span class="typing-ellipsis">&nbsp;</span>
+			}
 		</div>
+	};
+
+	/// <summary>The latest step on one line, the time taken so far, and every step on request.</summary>
+	/// <remarks>
+	/// Each step is keyed by its position, so a new step is a new element and its entry animation plays, while the one
+	/// before it stays for one more render to animate out. The time is counted by CSS, so nothing is sent while it runs.
+	/// </remarks>
+	private RenderFragment RenderProgressTicker => __builder =>
+	{
+		IReadOnlyList<string> steps = Message.ProgressSteps ?? [];
+		<div class="pdchat-progress-ticker">
+			<span class="pdchat-progress-ticker-pulse" aria-hidden="true"></span>
+			<span class="pdchat-progress-ticker-line" role="status">
+				@* One loop, so the browser keeps the latest step's element and only changes its class when it rolls out. *@
+				@foreach (var index in TickerStepIndexes(steps.Count))
+				{
+					var isLeaving = index < steps.Count - 1;
+					<span @key="index"
+						  class="@(isLeaving ? "pdchat-progress-ticker-step leaving" : "pdchat-progress-ticker-step")"
+						  aria-hidden="@(isLeaving ? "true" : null)">@steps[index]</span>
+				}
+			</span>
+			<span class="pdchat-progress-elapsed" title="Time taken so far" aria-hidden="true"></span>
+		</div>
+		@if (steps.Count > 1)
+		{
+			<details class="pdchat-progress-all">
+				<summary>@steps.Count steps so far</summary>
+				<ol>
+					@foreach (var step in steps)
+					{
+						<li>@step</li>
+					}
+				</ol>
+			</details>
+		}
 	};
 
 	/// <summary>The sender's name, with the author image beside it when the message has one.</summary>

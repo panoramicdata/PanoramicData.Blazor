@@ -128,6 +128,15 @@
 					</div>
 
 					<div class="mb-3">
+						<label class="form-label small">Progress Steps:</label>
+						<select @bind="ProgressDisplayMode" class="form-select form-select-sm">
+							<option value="@ChatProgressDisplayMode.List">List, every step</option>
+							<option value="@ChatProgressDisplayMode.Ticker">Ticker, the latest step</option>
+						</select>
+						<div class="form-text">How a reply's steps show while it is composed. Try the Progress Steps button.</div>
+					</div>
+
+					<div class="mb-3">
 						<label class="form-label small">Timestamp Format:</label>
 						<input type="text" @bind="ChatService.MessageTimestampFormat" class="form-control form-control-sm" placeholder="Enter timestamp format">
 						<div class="form-text">Examples: HH:mm:ss, yyyy-MM-dd HH:mm, dd/MM/yyyy HH:mm:ss</div>
@@ -399,6 +408,11 @@
 						<div class="col-6">
 							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="SendTypingMessage">
 								<i class="fas fa-keyboard me-1"></i>Typing
+							</button>
+						</div>
+						<div class="col-12">
+							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="SendProgressStepsMessage">
+								<i class="fas fa-list-ol me-1"></i>Progress Steps
 							</button>
 						</div>
 						<div class="col-12">

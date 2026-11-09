@@ -916,3 +916,16 @@
 		min-width: 0; /* Allow full shrinking on mobile */
 	}
 }
+
+/* PDMessage - the progress ticker's clock. A registration is global, so it cannot live in PDMessage.razor.css. */
+@property --pdchat-progress-seconds {
+	syntax: "<integer>";
+	inherits: false;
+	initial-value: 0;
+}
+
+@property --pdchat-progress-minutes {
+	syntax: "<integer>";
+	inherits: false;
+	initial-value: 0;
+}

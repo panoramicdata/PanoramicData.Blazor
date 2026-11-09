@@ -70,6 +70,11 @@ public partial class PDMessages : IChatInput
 	[Parameter] public MessageMetadataDisplayMode MessageMetadataDisplayMode { get; set; } = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
 
 	/// <summary>
+	/// Gets or sets how a reply's progress steps are shown while it is being composed.
+	/// </summary>
+	[Parameter] public ChatProgressDisplayMode ProgressDisplayMode { get; set; } = ChatProgressDisplayMode.List;
+
+	/// <summary>
 	/// Gets or sets whether to show the user icon for each message.
 	/// </summary>
 	[Parameter] public bool ShowMessageUserIcon { get; set; } = true;

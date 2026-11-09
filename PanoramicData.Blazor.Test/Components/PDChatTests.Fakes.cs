@@ -34,6 +34,7 @@ public partial class PDChatTests
 		public bool ShowMessageUserName { get; set; } = true;
 		public bool ShowMessageTimestamp { get; set; } = true;
 		public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
+		public ChatProgressDisplayMode ProgressDisplayMode { get; set; } = ChatProgressDisplayMode.List;
 
 		[Obsolete("Required by the interface for backward compatibility; superseded by the toast API.")]
 		public bool ShowLastMessage { get; set; }

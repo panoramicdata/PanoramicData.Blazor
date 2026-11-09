@@ -408,6 +408,125 @@
 	content: "\2026\00a0";
 }
 
+/* ChatProgressDisplayMode.Ticker: the latest step on one line, rolling up as each new one arrives. */
+.pdchat-progress-ticker {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.85em;
+}
+
+.pdchat-progress-ticker-pulse {
+	flex-shrink: 0;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--pd-chat-progress-pulse, var(--pd-chat-accent, var(--accent, var(--bs-primary, #0078d4))));
+	animation: pdchat-progress-pulse 1.2s ease-in-out infinite;
+}
+
+.pdchat-progress-ticker-line {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 1.5em;
+	overflow: hidden;
+}
+
+.pdchat-progress-ticker-step {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	line-height: 1.5em;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	animation: pdchat-progress-step-in 0.35s ease-out both;
+}
+
+.pdchat-progress-ticker-step.leaving {
+	animation: pdchat-progress-step-out 0.35s ease-in both;
+}
+
+/* m:ss, counted by the browser. The two counters are registered as integers in wwwroot/css/main.scss. */
+.pdchat-progress-elapsed {
+	flex-shrink: 0;
+	font-variant-numeric: tabular-nums;
+	color: var(--pd-chat-muted-color, #6c757d);
+	counter-reset: pdchat-progress-minutes var(--pdchat-progress-minutes) pdchat-progress-seconds var(--pdchat-progress-seconds);
+	animation: pdchat-progress-seconds 60s steps(60, end) infinite, pdchat-progress-minutes 3600s steps(60, end) forwards;
+}
+
+.pdchat-progress-elapsed::after {
+	content: counter(pdchat-progress-minutes) ":" counter(pdchat-progress-seconds, decimal-leading-zero);
+}
+
+.pdchat-progress-all {
+	font-size: 0.85em;
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
+.pdchat-progress-all > summary {
+	cursor: pointer;
+	user-select: none;
+}
+
+.pdchat-progress-all ol {
+	margin: 0.25rem 0 0;
+	padding-left: 1.5rem;
+}
+
+@keyframes pdchat-progress-pulse {
+	50% {
+		opacity: 0.3;
+	}
+}
+
+@keyframes pdchat-progress-step-in {
+	from {
+		opacity: 0;
+		transform: translateY(100%);
+	}
+}
+
+@keyframes pdchat-progress-step-out {
+	to {
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+}
+
+@keyframes pdchat-progress-seconds {
+	from {
+		--pdchat-progress-seconds: 0;
+	}
+
+	to {
+		--pdchat-progress-seconds: 60;
+	}
+}
+
+@keyframes pdchat-progress-minutes {
+	from {
+		--pdchat-progress-minutes: 0;
+	}
+
+	to {
+		--pdchat-progress-minutes: 60;
+	}
+}
+
+/* The clock keeps counting: it is not motion. */
+@media (prefers-reduced-motion: reduce) {
+	.pdchat-progress-ticker-pulse,
+	.pdchat-progress-ticker-step {
+		animation: none;
+	}
+
+	.pdchat-progress-ticker-step.leaving {
+		display: none;
+	}
+}
+
 .pdchat-thought {
 	font-size: 0.85em;
 	opacity: 0.85;
