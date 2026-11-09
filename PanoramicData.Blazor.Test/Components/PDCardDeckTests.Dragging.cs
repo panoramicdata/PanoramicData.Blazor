@@ -119,4 +119,58 @@ public partial class PDCardDeckTests
 
 		Names(deck).Should().Equal("Bravo", "Charlie", "Alpha");
 	}
+
+	/// <summary>
+	/// Verifies that further dragover events on the card just passed move nothing, so the dragged card does not flash
+	/// back and forth.
+	/// </summary>
+	[Fact]
+	public async Task RepeatedDragOverTheSameCard_MovesTheDraggedCardOnce()
+	{
+		// Over a slow connection these are the dragovers still in flight when the reorder renders.
+		var deck = RenderDeck();
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+
+		List<string> orders = [];
+		for (var dragOver = 0; dragOver < 4; dragOver++)
+		{
+			await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+			orders.Add(string.Join(", ", Names(deck)));
+		}
+
+		orders.Should().AllBe("Bravo, Alpha, Charlie");
+	}
+
+	/// <summary>
+	/// Verifies that the card just passed moves the dragged card back once the pointer has been over the dragged card.
+	/// </summary>
+	[Fact]
+	public async Task DragOverTheCardJustPassed_AfterTheDraggedCard_MovesBack()
+	{
+		var deck = RenderDeck();
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+
+		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
+	}
+
+	/// <summary>
+	/// Verifies that a new drag is not blocked by the card the previous drag last passed.
+	/// </summary>
+	[Fact]
+	public async Task NewDrag_CanMovePastTheCardThePreviousDragLastPassed()
+	{
+		var deck = RenderDeck();
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragEndAsync(new DragEventArgs()));
+
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+
+		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
+	}
 }

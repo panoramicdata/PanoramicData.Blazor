@@ -71,6 +71,10 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	// The card ids in order when a drag began, outside a group; null when no drag is waiting to be reported.
 	private List<Guid>? _orderAtDragStart;
 
+	// The card the selection last moved past. Its further dragovers are ignored until another card is dragged over,
+	// as over a slow connection they arrive after the move and would swap the selection straight back.
+	private Guid? _cardJustPassedId;
+
 	/// <summary>Gets the injected logger for this component.</summary>
 	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
 
@@ -372,6 +376,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
 		_orderAtDragStart = Parent is null ? [.. Cards.Select(deckCard => deckCard.Id)] : null;
+		_cardJustPassedId = null;
 		ClearAnimationPositions();
 		Parent?.ClearAllSelectionExceptActive(this);
 		Parent?.SetSourceDeck(this);
@@ -397,9 +402,15 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 	internal async Task NotifyDragPositionAsync(DragEventArgs e, TCard card)
 	{
-		if (!DragState.IsDragging)
+		if (!DragState.IsDragging || card.Id == _cardJustPassedId)
 		{
 			return;
+		}
+
+		var isSelected = Selection.Contains(card);
+		if (isSelected)
+		{
+			_cardJustPassedId = null;
 		}
 
 		ClearAnimationPositions();
@@ -421,6 +432,10 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		}
 
 		DragState.TargetIndex = cardIndex;
+		if (!isSelected)
+		{
+			_cardJustPassedId = card.Id;
+		}
 
 		await UpdateCardPositionsAsync(movingDown);
 
@@ -515,6 +530,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	internal async Task AddCardsAsync(List<TCard> selection)
 	{
 		DragState.IsDragging = true;
+		_cardJustPassedId = null;
 		await CancelAnimations();
 
 		// Create the new cards
