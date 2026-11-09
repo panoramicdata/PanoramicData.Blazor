@@ -66,6 +66,7 @@ public partial class PDCardDeckTests
 
 		await DragAsync(deck, "Alpha", over: "Bravo");
 		Names(deck).Should().Equal("Bravo", "Alpha", "Charlie");
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs()));
 		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 		await deck.InvokeAsync(deck.Instance.InitiateTransformAsync);
