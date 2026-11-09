@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDChat: in a chat docked to a corner, the voice mode picker now shows only its arrow, so the Send button fits on the toolbar row. A new IChatService.ProgressDisplayMode can show a reply's progress steps as a ticker: the latest step on one line, rolling over to each new one, with the time taken so far and every step on request. The default is still the list, so existing applications are unchanged.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDChat: in a chat docked to a corner, the voice mode picker now shows only its arrow, so the Send button fits on the toolbar row. A new IChatService.ProgressDisplayMode can show a reply's progress steps as a ticker: the latest step on one line, rolling over to each new one, with the time taken so far and every step on request. The default is still the list, so existing applications are unchanged. The chat no longer ends the connection when something fails: chat service events raised from another thread are handled safely, a failure in the chat service, the conversation store or the browser is logged or shown as a notice, and a message that cannot be displayed shows a short notice in its place.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
