@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDForm: a form now opens much faster when the browser is far from the server, because opening it no longer waits for a round trip to the browser for every field. A failure while opening, editing or saving a form, whether in the data provider or in the host's own handlers, is now handed to the form's ExceptionHandler, or raised through its Error event when there is no handler, instead of ending the user's circuit. PDButton re-enables itself when its Operation throws.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDForm: an application can now report every form's failures in one place by registering an IPDFormExceptionHandler, which a form calls when it sets neither ExceptionHandler nor Error. Nothing is registered by default, so existing applications are unchanged, and a form that sets either keeps its own handling.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
