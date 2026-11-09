@@ -26,10 +26,18 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	internal ElementReference EditorDiv { get; set; }
 
 	/// <summary>
+	/// Gets whether the browser has shown the editor, so the user may have resized it.
+	/// </summary>
+	internal bool IsRendered { get; private set; }
+
+	/// <summary>
 	/// Gets or sets JavaScript runtime used by this editor.
 	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
+
+	[Inject]
+	private ILogger<PDFormFieldEditor<TItem>> Logger { get; set; } = new NullLogger<PDFormFieldEditor<TItem>>();
 
 	/// <summary>
 	/// Gets or sets the debounce wait period in milliseconds for value changes.
@@ -198,6 +206,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (firstRender)
 		{
+			IsRendered = true;
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 		}
 	}
@@ -212,68 +221,104 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async void Form_ResetRequested(object? sender, EventArgs e)
+	/// <summary>
+	/// Runs work started by the user or the form so that its failure never escapes: an exception reaching a Blazor
+	/// event handler, or an async void method, ends the user's circuit.
+	/// </summary>
+	private async Task GuardAsync(Func<Task> action)
 	{
-		// reset data to any Monaco editors
+		try
+		{
+			await action().ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit has gone, and the page with it.
+		}
+		catch (JSException ex)
+		{
+			// A failed browser call leaves nothing for the user to act on.
+			Logger.LogWarning(ex, "Field editor {Id}: a call to the browser failed", Id);
+		}
+		catch (Exception ex)
+		{
+			if (Form is null)
+			{
+				Logger.LogError(ex, "Field editor {Id}: {ErrorMessage}", Id, ex.Message);
+				return;
+			}
+
+			await Form.HandleExceptionAsync(ex).ConfigureAwait(true);
+		}
+	}
+
+	private Task SetValueAsync(object? value)
+		=> GuardAsync(() => Form?.SetFieldValueAsync(Field, value) ?? Task.CompletedTask);
+
+	private async void Form_ResetRequested(object? sender, EventArgs e)
+		=> await GuardAsync(ResetMonacoValueAsync).ConfigureAwait(true);
+
+	private async Task ResetMonacoValueAsync()
+	{
 		if (MonacoEditor != null && Form != null && Field != null)
 		{
 			var value = Form.GetFieldStringValue(Field);
 			var model = await MonacoEditor.GetModel();
-			// when re-creating Monaco Editor (i.e toggling to/from ReadOnly)
-			// this can cause an crash - do NOT ResetChanges on Form.SetEditItem
 			await model.SetValue(value);
 		}
 	}
 
-	private async Task OnMonacoEditorBlurAsync()
-	{
-		if (MonacoEditor != null && Form != null && Field != null)
+	private Task OnMonacoEditorBlurAsync()
+		=> GuardAsync(async () =>
 		{
-			// Only update if a de-bounce is outstanding
-			if (DebounceWait > 0 && _monacoDebounceCts != null)
+			if (MonacoEditor != null && Form != null && Field != null)
 			{
-				await CancelPendingUpdateAsync();
+				// Only update if a de-bounce is outstanding
+				if (DebounceWait > 0 && _monacoDebounceCts != null)
+				{
+					await CancelPendingUpdateAsync();
 
-				var model = await MonacoEditor.GetModel();
-				var value = await model.GetValue(EndOfLinePreference.LF, true);
-				await Form.SetFieldValueAsync(Field, value);
+					var model = await MonacoEditor.GetModel();
+					var value = await model.GetValue(EndOfLinePreference.LF, true);
+					await Form.SetFieldValueAsync(Field, value);
+				}
+
+				Field.SuppressErrors = false;
+			}
+		});
+
+	private Task OnMonacoEditorKeyUpAsync()
+		=> GuardAsync(async () =>
+		{
+			if (MonacoEditor is null || Form is null || Field is null)
+			{
+				return;
 			}
 
-			Field.SuppressErrors = false;
-		}
-	}
+			// Cancel any pending update
+			await CancelPendingUpdateAsync();
 
-	private async Task OnMonacoEditorKeyUpAsync()
-	{
-		if (MonacoEditor is null || Form is null || Field is null)
-		{
-			return;
-		}
+			_monacoDebounceCts = new CancellationTokenSource();
+			var token = _monacoDebounceCts.Token;
 
-		// Cancel any pending update
-		await CancelPendingUpdateAsync();
-
-		_monacoDebounceCts = new CancellationTokenSource();
-		var token = _monacoDebounceCts.Token;
-
-		try
-		{
-			await Task.Delay(DebounceWait > 0 ? DebounceWait : 0, token);
-			if (!token.IsCancellationRequested)
+			try
 			{
-				// Cancel and dispose after use
-				await CancelPendingUpdateAsync();
+				await Task.Delay(DebounceWait > 0 ? DebounceWait : 0, token);
+				if (!token.IsCancellationRequested)
+				{
+					// Cancel and dispose after use
+					await CancelPendingUpdateAsync();
 
-				var model = await MonacoEditor.GetModel();
-				var value = await model.GetValue(EndOfLinePreference.LF, true);
-				await Form.SetFieldValueAsync(Field, value, false);
+					var model = await MonacoEditor.GetModel();
+					var value = await model.GetValue(EndOfLinePreference.LF, true);
+					await Form.SetFieldValueAsync(Field, value, false);
+				}
 			}
-		}
-		catch (TaskCanceledException)
-		{
-			// Ignore, another key-up event occurred
-		}
-	}
+			catch (TaskCanceledException)
+			{
+				// Ignore, another key-up event occurred
+			}
+		});
 
 	private async Task CancelPendingUpdateAsync()
 	{

@@ -206,6 +206,12 @@ export function clearInlineStyle(element) {
 	}
 }
 
+export function clearInlineStyles(elements) {
+	for (const element of elements ?? []) {
+		clearInlineStyle(element);
+	}
+}
+
 export function initDragImage(id) {
 	var el = document.getElementById(id);
 	if (!el || el._dragImageInitialized) return;
