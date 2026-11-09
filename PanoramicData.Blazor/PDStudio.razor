@@ -5,7 +5,21 @@
 	<div class="pd-studio-body">
 	@if (LeftPanelContent != null)
 	{
-		<div class="pd-studio-left-panel">@LeftPanelContent</div>
+		<div class="@LeftPanelCssClass" style="@LeftPanelStyle">@LeftPanelContent</div>
+		@if (ShowsLeftPanelHandle)
+		{
+			<div @ref="_leftPanelHandle"
+				 class="pd-studio-left-panel-handle gutter"
+				 role="separator"
+				 tabindex="0"
+				 aria-orientation="vertical"
+				 aria-label="@Options.LeftPanelResizeToolTip"
+				 aria-valuemin="@Rem(LeftPanelMinWidth)"
+				 aria-valuemax="@Rem(LeftPanelMaxWidth)"
+				 aria-valuenow="@LeftPanelWidthText"
+				 title="@Options.LeftPanelResizeToolTip"
+				 @ondblclick="ResetLeftPanelWidthAsync"></div>
+		}
 	}
 	<div class="pd-studio-main">
 	<PDSplitter Direction="SplitDirection.Vertical" GutterSize="@Options.GutterSize">

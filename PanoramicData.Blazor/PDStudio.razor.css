@@ -19,8 +19,11 @@
    --pd-studio-tab-hover-color  an unselected tab's text on hover (--pd-studio-tab-color, so no change unless set)
    --pd-studio-tab-separator    a line between tabs, as a border such as 1px solid grey (none)
    --pd-studio-gutter-bg        the splitter bar           (--pd-splitter-gutter-bg, then --bs-tertiary-bg)
-   --pd-studio-left-panel-width the host's left panel      (16rem)
+   --pd-studio-left-panel-width the host's left panel      (16rem; a LeftPanelWidth, or the user's resizing, sets it on the panel)
    --pd-studio-left-panel-bg    the host's left panel      (--pd-studio-panel-bg)
+   --pd-studio-left-panel-handle-width  the bar that resizes the left panel, with LeftPanelResizable (4px)
+     It takes --pd-studio-gutter-bg, and highlights as the splitter bars do, through --pd-splitter-gutter-hover-bg
+     and --pd-splitter-gutter-hover-delay; it also has the class gutter, so a host's .gutter rules reach it.
    --pd-studio-toolbar-padding  around the toolbar         (0.375rem 0, so Execute lines up with the editor)
    --pd-studio-toolbar-border-bottom  the line under the toolbar (1px solid the border colour; none for no line)
    --pd-studio-separator-color  toolbar separators         (--bs-secondary)
@@ -75,6 +78,43 @@
 	border-right: 1px solid var(--_pds-border-color);
 }
 
+/* A resizable panel's edge is the bar beside it rather than a border */
+.pd-studio-left-panel-resizable {
+	border-right: none;
+}
+
+.pd-studio-left-panel-handle {
+	flex: 0 0 var(--pd-studio-left-panel-handle-width, 4px);
+	cursor: col-resize;
+	touch-action: none;
+	background-color: var(--pd-studio-gutter-bg, var(--pd-splitter-gutter-bg, var(--bs-tertiary-bg, #eee)));
+	transition: background-color 0.1s ease-out;
+}
+
+/* As the splitter bars: highlighted after a short delay, so passing over it does not flash, and at once while in use */
+.pd-studio-left-panel-handle:hover,
+.pd-studio-left-panel-handle:focus-visible,
+.pd-studio-resizing .pd-studio-left-panel-handle {
+	background-color: var(--pd-splitter-gutter-hover-bg, var(--bs-primary, #0d6efd));
+	transition: background-color 0.15s ease-in var(--pd-splitter-gutter-hover-delay, 0.2s);
+}
+
+.pd-studio-left-panel-handle:focus-visible,
+.pd-studio-resizing .pd-studio-left-panel-handle {
+	outline: none;
+	transition-delay: 0s;
+}
+
+/* While the edge is dragged the pointer stays a resize cursor, no text is selected and frames cannot take the pointer */
+.pd-studio-resizing {
+	cursor: col-resize;
+	user-select: none;
+}
+
+.pd-studio-resizing ::deep iframe {
+	pointer-events: none;
+}
+
 .pd-studio-main {
 	flex: 1;
 	min-width: 0;
@@ -117,6 +157,11 @@
 		max-height: 12rem;
 		border-right: none;
 		border-bottom: 1px solid var(--_pds-border-color);
+	}
+
+	/* Stacked above the editor, the panel takes the full width, so there is nothing to resize */
+	.pd-studio-left-panel-handle {
+		display: none;
 	}
 }
 
