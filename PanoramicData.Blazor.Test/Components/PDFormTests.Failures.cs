@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test;
@@ -67,6 +69,49 @@ public partial class PDFormTests
 
 		handled.Should().Equal(failure);
 		errors.Should().BeEmpty();
+	}
+
+	/// <summary>With neither an exception handler nor Error, the application's registered handler is called.</summary>
+	[Fact]
+	public async Task HandleExceptionAsync_WithNothingWired_CallsTheRegisteredHandler()
+	{
+		var applicationHandler = new RecordingFormExceptionHandler();
+		Services.AddSingleton<IPDFormExceptionHandler>(applicationHandler);
+		var form = RenderForm();
+		var failure = new InvalidOperationException("The server is down");
+
+		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(failure));
+
+		applicationHandler.Handled.Should().Equal(failure);
+	}
+
+	/// <summary>A form that wires Error or an exception handler keeps its exceptions from the registered handler.</summary>
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public async Task HandleExceptionAsync_WithItsOwnHandling_LeavesTheRegisteredHandlerAlone(bool wiresExceptionHandler)
+	{
+		var applicationHandler = new RecordingFormExceptionHandler();
+		Services.AddSingleton<IPDFormExceptionHandler>(applicationHandler);
+		var form = wiresExceptionHandler
+			? RenderForm(p => p.Add(x => x.ExceptionHandler, (Exception _) => { }))
+			: RenderForm(p => p.Add(x => x.Error, (string _) => { }));
+
+		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(new InvalidOperationException("The server is down")));
+
+		applicationHandler.Handled.Should().BeEmpty();
+	}
+
+	/// <summary>A registered handler that throws does not make the form throw.</summary>
+	[Fact]
+	public async Task HandleExceptionAsync_WhenTheRegisteredHandlerThrows_DoesNotThrow()
+	{
+		Services.AddSingleton<IPDFormExceptionHandler>(new RecordingFormExceptionHandler { Throws = true });
+		var form = RenderForm();
+
+		var act = () => form.InvokeAsync(() => form.Instance.HandleExceptionAsync(new InvalidOperationException("The server is down")));
+
+		await act.Should().NotThrowAsync();
 	}
 
 	/// <summary>An exception handler that throws does not make the form throw.</summary>

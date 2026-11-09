@@ -23,6 +23,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
+	[Inject] private IServiceProvider ServiceProvider { get; set; } = default!;
+
 	/// <summary>
 	/// Injected log service.
 	/// </summary>
@@ -89,7 +91,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Parameter] public EventCallback<TItem> Updated { get; set; }
 
 	/// <summary>
-	/// Event raised whenever an error occurs.
+	/// Event raised whenever an error occurs, including an exception's message when ExceptionHandler is not set.
 	/// </summary>
 	[Parameter] public EventCallback<string> Error { get; set; }
 
@@ -114,7 +116,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Parameter] public EventCallback<CustomValidateArgs<TItem>> CustomValidate { get; set; }
 
 	/// <summary>
-	/// Gets or sets a delegate to be called if an exception occurs.
+	/// Gets or sets a delegate to be called if an exception occurs. When neither this nor Error is set, a registered
+	/// <see cref="IPDFormExceptionHandler"/> is called instead.
 	/// </summary>
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
@@ -241,14 +244,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Logger.LogError(ex, "Exception occurred: {ErrorMessage}", ex.Message);
 		try
 		{
-			// With no exception handler the message still reaches the user, through Error.
 			if (ExceptionHandler.HasDelegate)
 			{
 				await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 			}
-			else
+			else if (Error.HasDelegate)
 			{
 				await Error.InvokeAsync(ex.Message).ConfigureAwait(true);
+			}
+			else if (ServiceProvider.GetService<IPDFormExceptionHandler>() is { } applicationHandler)
+			{
+				await applicationHandler.HandleExceptionAsync(ex).ConfigureAwait(true);
 			}
 		}
 		catch (Exception handlerException)
