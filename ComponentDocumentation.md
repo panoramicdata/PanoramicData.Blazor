@@ -989,12 +989,12 @@ This component has no public parameters.
 | Created | EventCallback<TItem> | Event raised when the current item has been successfully created. |
 | FieldUpdated | EventCallback<FieldUpdateArgs<TItem>> | Event raised when the current item has been successfully updated. |
 | Updated | EventCallback<TItem> | Event raised when the current item has been successfully updated. |
-| Error | EventCallback<string> | Event raised whenever an error occurs. |
+| Error | EventCallback<string> | Event raised whenever an error occurs, including an exception's message when ExceptionHandler is not set. |
 | HideForm | bool | Should the form be hidden after a Save operation? |
 | DefaultMode | FormModes | Sets the default mode of the form. |
 | HelpTextMode | HelpTextMode | Sets how help text is displayed. |
 | CustomValidate | EventCallback<CustomValidateArgs<TItem>> | Gets or sets a delegate to be called for each field validated. |
-| ExceptionHandler | EventCallback<Exception> | Gets or sets a delegate to be called if an exception occurs. |
+| ExceptionHandler | EventCallback<Exception> | Gets or sets a delegate to be called if an exception occurs. When neither this nor Error is set, a registered <see cref="IPDFormExceptionHandler"/> is called instead. |
 | SuppressInitialErrors | bool | Should any errors (i.e mandatory fields) be suppressed until the first edit occurs? |
 
 ---
