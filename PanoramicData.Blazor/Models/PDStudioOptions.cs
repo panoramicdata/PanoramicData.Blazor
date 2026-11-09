@@ -111,6 +111,12 @@ public class PDStudioOptions
 	public int GutterSize { get; set; } = 4;
 
 	/// <summary>
+	/// Gets or sets the tooltip, and the label a screen reader reads, on the left panel's edge when
+	/// <see cref="PDStudio.LeftPanelResizable"/> is true.
+	/// </summary>
+	public string LeftPanelResizeToolTip { get; set; } = "Drag to resize the panel, or double-click to give it its usual width";
+
+	/// <summary>
 	/// Gets or sets an icon shown before the Results tab's title, such as "fas fa-table"; null for none.
 	/// </summary>
 	public string? ResultsTabIconCssClass { get; set; }

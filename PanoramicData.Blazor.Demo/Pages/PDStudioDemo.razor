@@ -42,6 +42,9 @@
 							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
 							  OnResultRowClick="OnResultRowClick"
 							  ActiveTabChanged="@(key => AddEvent("Tab", $"The {key} tab is showing (ActiveTabChanged)"))"
+							  LeftPanelResizable="@ResizableLeftPanel"
+							  @bind-LeftPanelWidth="LeftPanelWidth"
+							  @bind-LeftPanelWidth:after="OnLeftPanelWidthChanged"
 							  InitializeMonacoOptions="InitializeMonacoOptions"
 							  InitializeMethodCache="InitializeMethodCache"
 							  RegisterLanguages="RegisterLanguages"
@@ -156,6 +159,8 @@
 								<div class="form-check"><input id="optMenuGroup" class="form-check-input" type="checkbox" @bind="ShowMenuGroupButton" /><label class="form-check-label" for="optMenuGroup">Restore (MenuGroupContent)</label></div>
 								<div class="form-check"><input id="optEnd" class="form-check-input" type="checkbox" @bind="ShowEndContent" /><label class="form-check-label" for="optEnd">ToolbarEndContent</label></div>
 								<div class="form-check"><input id="optLeft" class="form-check-input" type="checkbox" @bind="ShowLeftPanel" /><label class="form-check-label" for="optLeft">LeftPanelContent</label></div>
+								<div class="form-check"><input id="optLeftResizable" class="form-check-input" type="checkbox" @bind="ResizableLeftPanel" /><label class="form-check-label" for="optLeftResizable">Drag its edge to resize it (LeftPanelResizable)</label></div>
+								<div class="text-muted ms-4 mb-1">Width: @(LeftPanelWidth is { } width ? $"{width}rem" : "the stylesheet's") (LeftPanelWidth)</div>
 								<div class="form-check"><input id="optFooter" class="form-check-input" type="checkbox" @bind="ShowFooter" /><label class="form-check-label" for="optFooter">FooterContent</label></div>
 								<div class="form-check"><input id="optAbout" class="form-check-input" type="checkbox" @bind="ShowAboutTab" /><label class="form-check-label" for="optAbout">About tab (OutputTabs)</label></div>
 								<label class="form-label mt-1 mb-1" for="optAboutBadge">About tab's badge (PDStudioOutputTab.Badge)</label>

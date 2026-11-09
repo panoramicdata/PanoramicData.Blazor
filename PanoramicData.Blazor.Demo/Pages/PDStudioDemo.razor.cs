@@ -155,6 +155,8 @@ public partial class PDStudioDemo : IDisposable
 	private bool ShowFileMenu { get; set; } = true;
 	private bool ShowEndContent { get; set; } = true;
 	private bool ShowLeftPanel { get; set; } = true;
+	private bool ResizableLeftPanel { get; set; } = true;
+	private double? LeftPanelWidth { get; set; }
 	private bool ShowFooter { get; set; } = true;
 	private bool ShowAboutTab { get; set; } = true;
 	private bool ShowEditorContent { get; set; }
@@ -207,6 +209,11 @@ public partial class PDStudioDemo : IDisposable
 
 	private Task InsertExampleAsync(PDStudioExample example)
 		=> _studio?.InsertTextAsync(example.Code) ?? Task.CompletedTask;
+
+	private void OnLeftPanelWidthChanged()
+		=> AddEvent("Left panel", LeftPanelWidth is { } width
+			? $"Resized to {width}rem (LeftPanelWidthChanged)"
+			: "Back to its usual width (LeftPanelWidthChanged)");
 
 	private void AddEvent(string eventType, string description)
 	{

@@ -445,6 +445,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 		await RelayOutEditorIfBackAsync();
 		await ReportActiveTabAsync();
+		await InitializeLeftPanelHandleAsync();
 
 		// Logging integration is handled through direct method calls
 		await base.OnAfterRenderAsync(firstRender);
@@ -483,6 +484,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_executionStatus = StudioService.CurrentStatus.ToDisplayString();
 		}
 
+		TakeLeftPanelWidth();
 		base.OnParametersSet();
 	}
 
@@ -896,6 +898,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			Logger.LogWarning(ex, "PDStudio could not cancel its execution while being disposed");
 		}
 
+		DisposeLeftPanelInterop();
 		GC.SuppressFinalize(this);
 	}
 }
