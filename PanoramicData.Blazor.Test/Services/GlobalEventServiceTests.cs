@@ -72,4 +72,24 @@ public class GlobalEventServiceTests
 		service.GetRegisteredShortcuts().Should().BeEmpty();
 		announcements.Should().Equal(0);
 	}
+
+	/// <summary>A modal is open from when it opens until it closes, however often either is reported, and while any other is.</summary>
+	[Fact]
+	public void IsModalOpen_FollowsEachModal()
+	{
+		var service = new GlobalEventService();
+		var first = new PDModal();
+		var second = new PDModal();
+		service.IsModalOpen.Should().BeFalse();
+
+		service.ModalOpened(first);
+		service.ModalOpened(first);
+		service.ModalOpened(second);
+		service.ModalClosed(first);
+		service.IsModalOpen.Should().BeTrue();
+
+		service.ModalClosed(second);
+		service.ModalClosed(second);
+		service.IsModalOpen.Should().BeFalse();
+	}
 }
