@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDChat: in a chat docked to a corner, the voice mode picker now shows only its arrow, so the Send button fits on the toolbar row. A new IChatService.ProgressDisplayMode can show a reply's progress steps as a ticker: the latest step on one line, rolling over to each new one, with the time taken so far and every step on request. The default is still the list, so existing applications are unchanged. The chat no longer ends the connection when something fails: chat service events raised from another thread are handled safely, a failure in the chat service, the conversation store or the browser is logged or shown as a notice, and a message that cannot be displayed shows a short notice in its place.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDStudio: a host can now leave a key to the page, so its own shortcuts work from inside the code editor. DisableEditorKeyAsync stops the editor acting on a key, as PDStudio already does for Ctrl+Enter, while the key still reaches the page. This matters on keyboard layouts with AltGr, where Windows reads Ctrl+Alt as AltGr, so a shortcut such as Ctrl+Alt+O would otherwise type an accented letter in the editor. It takes a key code with its modifiers, or a ShortcutKey such as a menu item's, and keys asked for before the editor starts are applied once it does.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
