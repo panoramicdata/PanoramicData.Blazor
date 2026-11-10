@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDToolbarDropdown: a new IgnoreShortcutsWhileModalOpen parameter, off by default, ignores the menu's shortcut keys while a PDModal is open, so a shortcut cannot open one pop-up over another. PDModal now tells the global event service when it opens and closes, and IGlobalEventService gains IsModalOpen, ModalOpened and ModalClosed, with default implementations so other implementers still compile.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDGlobalListener: keys handed on from an editor inside an iframe, such as a rich text editor, now get the same AltGr handling as keys the window listener hears, so on the UK keyboard layout Ctrl+Alt+O in such an editor runs its shortcut instead of typing an accented letter. getKeyArgs now notes which keys are held itself.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
