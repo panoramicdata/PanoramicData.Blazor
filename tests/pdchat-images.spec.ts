@@ -186,6 +186,113 @@ test.describe("PDChat: files the chat cannot take", () => {
 	});
 });
 
+// Pastes a PNG drawn in the page, as solid colour or as noise that PNG cannot compress; returns its size in bytes.
+async function pasteDrawnPng(
+	page: Page,
+	width: number,
+	height: number,
+	noise: boolean,
+) {
+	const textarea = page.locator(
+		".chat-input-container textarea[data-images-ready]",
+	);
+	return textarea.evaluate(
+		async (element, [w, h, n]) => {
+			const canvas = document.createElement("canvas");
+			canvas.width = w;
+			canvas.height = h;
+			const context = canvas.getContext("2d")!;
+			if (n) {
+				// getRandomValues fills at most 64 KB a call; alpha stays opaque.
+				const pixels = context.createImageData(w, h);
+				for (let i = 0; i < pixels.data.length; i += 65536) {
+					crypto.getRandomValues(pixels.data.subarray(i, i + 65536));
+				}
+
+				for (let i = 3; i < pixels.data.length; i += 4) {
+					pixels.data[i] = 255;
+				}
+
+				context.putImageData(pixels, 0, 0);
+			} else {
+				context.fillStyle = "#3a7bd5";
+				context.fillRect(0, 0, w, h);
+			}
+
+			const blob = await (await fetch(canvas.toDataURL("image/png"))).blob();
+			const data = new DataTransfer();
+			data.items.add(new File([blob], "drawn.png", { type: "image/png" }));
+			element.dispatchEvent(
+				new ClipboardEvent("paste", {
+					clipboardData: data,
+					bubbles: true,
+					cancelable: true,
+				}),
+			);
+			return blob.size;
+		},
+		[width, height, noise] as const,
+	);
+}
+
+// What the chat holds for the first attached image: its type, pixel size and size in bytes.
+async function firstAttachedImage(page: Page) {
+	const image = page.locator(".pdchat-image-thumb img").first();
+	await expect(image).toHaveCount(1);
+	return image.evaluate(async (img: HTMLImageElement) => {
+		await img.decode();
+		const [header, base64] = img.src.split(",");
+		return {
+			type: header.slice("data:".length, header.indexOf(";")),
+			width: img.naturalWidth,
+			height: img.naturalHeight,
+			bytes: atob(base64).length,
+		};
+	});
+}
+
+test.describe("PDChat: images are shrunk before they are sent", () => {
+	test("an image larger than 1600 pixels is scaled down to 1600 on its long side and sent as a JPEG", async ({
+		page,
+	}) => {
+		await openChat(page);
+
+		await pasteDrawnPng(page, 4000, 3000, false);
+
+		const image = await firstAttachedImage(page);
+		expect(image.type).toBe("image/jpeg");
+		expect(image.width).toBe(1600);
+		expect(image.height).toBe(1200);
+	});
+
+	test("an image over 1.5 MB is compressed as a JPEG at its own size", async ({
+		page,
+	}) => {
+		await openChat(page);
+
+		const original = await pasteDrawnPng(page, 1200, 1000, true);
+		expect(original).toBeGreaterThan(1.5 * 1024 * 1024);
+
+		const image = await firstAttachedImage(page);
+		expect(image.type).toBe("image/jpeg");
+		expect(image.width).toBe(1200);
+		expect(image.height).toBe(1000);
+		expect(image.bytes).toBeLessThan(original);
+	});
+
+	test("a small image is sent as it is", async ({ page }) => {
+		await openChat(page);
+
+		const original = await pasteDrawnPng(page, 800, 600, false);
+
+		const image = await firstAttachedImage(page);
+		expect(image.type).toBe("image/png");
+		expect(image.width).toBe(800);
+		expect(image.height).toBe(600);
+		expect(image.bytes).toBe(original);
+	});
+});
+
 test.describe("PDChat: screenshot of this tab", () => {
 	test("the screenshot button adds a numbered image of the tab", async ({
 		page,
