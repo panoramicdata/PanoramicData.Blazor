@@ -11,12 +11,16 @@ public partial class PDModal : IAsyncDisposable
 	private IJSObjectReference? _modalObj;
 	private IJSObjectReference? _commonModule;
 	private DotNetObjectReference<PDModal>? _dotNetReference;
+	private IGlobalEventService? _globalEvents;
 	private bool _disposed;
 
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used by modal interop.
 	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+
+	// Resolved by hand, as an app need not register the global event service to use a modal
+	[Inject] private IServiceProvider ServiceProvider { get; set; } = null!;
 
 	/// <summary>
 	/// Gets or sets the navigation manager, used to auto-hide the modal on navigation.
@@ -202,6 +206,10 @@ public partial class PDModal : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
+	protected override void OnInitialized()
+		=> _globalEvents = ServiceProvider.GetService(typeof(IGlobalEventService)) as IGlobalEventService;
+
 	/// <summary>
 	/// Initializes JavaScript interop for the modal after first render.
 	/// </summary>
@@ -241,13 +249,21 @@ public partial class PDModal : IAsyncDisposable
 	/// Invoked from JavaScript when the modal has been shown.
 	/// </summary>
 	[JSInvokable]
-	public async Task OnModalShown() => await Shown.InvokeAsync(null).ConfigureAwait(true);
+	public async Task OnModalShown()
+	{
+		_globalEvents?.ModalOpened(this);
+		await Shown.InvokeAsync(null).ConfigureAwait(true);
+	}
 
 	/// <summary>
 	/// Invoked from JavaScript when the modal has been hidden.
 	/// </summary>
 	[JSInvokable]
-	public async Task OnModalHidden() => await Hidden.InvokeAsync(null).ConfigureAwait(true);
+	public async Task OnModalHidden()
+	{
+		_globalEvents?.ModalClosed(this);
+		await Hidden.InvokeAsync(null).ConfigureAwait(true);
+	}
 
 	/// <summary>
 	/// Displays the Modal Dialog.
@@ -264,6 +280,8 @@ public partial class PDModal : IAsyncDisposable
 			return;
 		}
 
+		// Recorded before the modal animates in, so a shortcut pressed meanwhile already finds it open
+		_globalEvents?.ModalOpened(this);
 		try
 		{
 			await _modalObj.InvokeVoidAsync("show", cancellationToken).ConfigureAwait(true);
@@ -336,6 +354,7 @@ public partial class PDModal : IAsyncDisposable
 
 		_disposed = true;
 		GC.SuppressFinalize(this);
+		_globalEvents?.ModalClosed(this);
 
 		if (NavigationManager is not null)
 		{

@@ -216,6 +216,43 @@ public class PDToolbarDropdownTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that with IgnoreShortcutsWhileModalOpen a shortcut pressed while a modal is open raises nothing, and
+	/// works again once the modal has closed.
+	/// </summary>
+	[Fact]
+	public void IgnoreShortcutsWhileModalOpen_IgnoresAShortcutWhileAModalIsOpen()
+	{
+		var component = RenderDropdown(ShortcutItems(), p => p.Add(x => x.IgnoreShortcutsWhileModalOpen, true));
+		var modal = new PDModal();
+
+		Events.ModalOpened(modal);
+		Events.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+		Events.ModalClosed(modal);
+		Events.KeyUp(new KeyboardInfo { Key = "s", Code = "KeyS", CtrlKey = true });
+
+		// The shortcuts are dispatched in order, so a click from the ignored one would arrive first.
+		component.WaitForAssertion(() => _clicks.Should().Equal("save"), TimeSpan.FromSeconds(10));
+	}
+
+	/// <summary>Verifies that without IgnoreShortcutsWhileModalOpen a shortcut still works while a modal is open.</summary>
+	[Fact]
+	public void ByDefault_AShortcutWorksWhileAModalIsOpen()
+	{
+		var component = RenderDropdown(ShortcutItems());
+
+		Events.ModalOpened(new PDModal());
+		Events.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+
+		component.WaitForAssertion(() => _clicks.Should().Equal("open"));
+	}
+
+	private static List<MenuItem> ShortcutItems() =>
+	[
+		new MenuItem { Key = "open", Text = "Open", ShortcutKey = ShortcutKey.Create("ctrl-o") },
+		new MenuItem { Key = "save", Text = "Save", ShortcutKey = ShortcutKey.Create("ctrl-s") }
+	];
+
+	/// <summary>
 	/// Verifies that after disposal the dropdown no longer responds to shortcut keys.
 	/// </summary>
 	[Fact]

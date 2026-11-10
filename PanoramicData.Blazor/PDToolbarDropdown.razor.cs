@@ -102,6 +102,12 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 	[Parameter] public string TextCssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets whether the items' shortcut keys are ignored while a <see cref="PDModal"/> is open, so a shortcut
+	/// cannot open one pop-up over another.
+	/// </summary>
+	[Parameter] public bool IgnoreShortcutsWhileModalOpen { get; set; }
+
+	/// <summary>
 	/// Gets or sets the tooltip for the toolbar item.
 	/// </summary>
 	[Parameter] public string ToolTip { get; set; } = string.Empty;
@@ -154,6 +160,11 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 
 	private async Task OnGlobalKeyUpAsync(KeyboardInfo e)
 	{
+		if (IgnoreShortcutsWhileModalOpen && GlobalEventService.IsModalOpen)
+		{
+			return;
+		}
+
 		foreach (var item in Items)
 		{
 			if (item.ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))

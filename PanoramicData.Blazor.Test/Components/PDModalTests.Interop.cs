@@ -1,7 +1,9 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test;
@@ -105,5 +107,45 @@ public partial class PDModalTests
 		await component.InvokeAsync(component.Instance.OnModalHidden);
 
 		events.Should().Equal("shown", "hidden");
+	}
+
+	/// <summary>
+	/// Verifies that the global event service finds the dialog open from the moment it is asked to show, through the
+	/// shown notification, until it is hidden, and again until it is disposed.
+	/// </summary>
+	[Fact]
+	public async Task The_global_event_service_knows_while_the_dialog_is_open()
+	{
+		SetupModalObject();
+		var events = Services.GetRequiredService<IGlobalEventService>();
+		var component = Render<PDModal>();
+
+		await component.InvokeAsync(component.Instance.ShowAsync);
+		events.IsModalOpen.Should().BeTrue();
+		await component.InvokeAsync(component.Instance.OnModalHidden);
+		events.IsModalOpen.Should().BeFalse();
+
+		await component.InvokeAsync(component.Instance.OnModalShown);
+		events.IsModalOpen.Should().BeTrue();
+		await component.Instance.DisposeAsync();
+		events.IsModalOpen.Should().BeFalse();
+	}
+
+	/// <summary>
+	/// Verifies that a dialog without the footer's buttons, which need it, shows in an app that has not registered the
+	/// global event service.
+	/// </summary>
+	[Fact]
+	public async Task The_dialog_needs_no_global_event_service()
+	{
+		await using var context = new BunitContext();
+		context.JSInterop.Mode = JSRuntimeMode.Loose;
+		var modal = context.JSInterop.SetupModule(ModulePath).SetupModule("initialize", _ => true);
+		var component = context.Render<PDModal>(parameters => parameters.Add(p => p.ShowFooter, false));
+
+		await component.InvokeAsync(component.Instance.ShowAsync);
+		await component.InvokeAsync(component.Instance.OnModalHidden);
+
+		modal.VerifyInvoke("show");
 	}
 }

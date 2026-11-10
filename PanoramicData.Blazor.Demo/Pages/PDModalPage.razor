@@ -130,6 +130,35 @@
 		</Footer>
 	</PDModal>
 
+	<hr />
+	<h4>Menu Shortcuts While a Modal Is Open</h4>
+	<p class="text-muted">
+		The File menu's shortcuts are <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd> and <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd>.
+		With <code>IgnoreShortcutsWhileModalOpen="true"</code> on the <code>PDToolbarDropdown</code>, pressing one while the
+		other's modal is open does nothing. Without it, the second modal opens over the first.
+	</p>
+	<div class="form-check mb-2">
+		<input class="form-check-input" type="checkbox" id="ignore-menu-shortcuts" @bind="IgnoreMenuShortcuts" />
+		<label class="form-check-label" for="ignore-menu-shortcuts">Ignore the menu's shortcuts while a modal is open</label>
+	</div>
+	<PDToolbar>
+		<PDToolbarDropdown Text="File"
+						   IconCssClass="fas fa-fw fa-file"
+						   Items="FileMenuItems"
+						   Click="OnFileMenuClick"
+						   IgnoreShortcutsWhileModalOpen="IgnoreMenuShortcuts" />
+	</PDToolbar>
+
+	<PDModal @ref="RecentModal" Title="Open Recent">
+		<ChildContent>Recent files would be listed here.</ChildContent>
+		<Footer><PDButton Click="() => RecentModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<PDModal @ref="RestoreModal" Title="Restore Auto-Saved">
+		<ChildContent>Auto-saved versions would be listed here.</ChildContent>
+		<Footer><PDButton Click="() => RestoreModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
 	<EventView />
 
 	</ChildContent>
