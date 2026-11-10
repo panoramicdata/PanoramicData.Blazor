@@ -33,6 +33,21 @@ public partial class PDFileExplorer
 		}
 	}
 
+	/// <summary>
+	/// Does what clicking the toolbar item with the given key does, so a host can hide the explorer's toolbar
+	/// (<see cref="ShowToolbar"/>) and offer the built-in actions from its own. A disabled or hidden item does nothing.
+	/// </summary>
+	/// <param name="key">The toolbar item's key, for example "refresh", "upload", "preview", "create-folder" or "delete".</param>
+	public async Task ClickToolbarItemAsync(string key)
+	{
+		if (FindToolbarItem(key) is { } item && (!item.IsEnabled || !item.IsVisible))
+		{
+			return;
+		}
+
+		await OnToolbarButtonClickAsync(new KeyedEventArgs<MouseEventArgs>(key, new MouseEventArgs())).ConfigureAwait(true);
+	}
+
 	private async Task OnToolbarButtonClickAsync(KeyedEventArgs<MouseEventArgs> args)
 		=> await (args.Key switch
 		{
