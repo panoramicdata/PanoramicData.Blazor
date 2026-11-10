@@ -71,7 +71,13 @@ function forwardKeyEvent(e, methodName) {
 	}
 }
 
+// Notes the held keys too, so keys forwarded from where the window listener cannot hear them, such as an editor in an
+// iframe, are told apart from AltGr the same way
 export function getKeyArgs(e) {
+	if (e.type === "keydown") {
+		heldCodes.add(e.code);
+	}
+
 	var ctrlAlt = isCtrlAltReportedAsAltGr(e);
 	var obj = {};
 	obj.key = e.key;
@@ -80,6 +86,10 @@ export function getKeyArgs(e) {
 	obj.altKey = e.altKey || ctrlAlt;
 	obj.ctrlKey = e.ctrlKey || ctrlAlt;
 	obj.shiftKey = e.shiftKey;
+	if (e.type === "keyup") {
+		heldCodes.delete(e.code);
+	}
+
 	return obj;
 }
 
