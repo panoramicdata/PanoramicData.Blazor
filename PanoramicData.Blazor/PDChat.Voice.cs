@@ -71,6 +71,7 @@ public partial class PDChat
 	private bool _isAwaitingSpokenAnswer;
 	private bool _hasDictatedSinceTurn;
 	private bool _isMicrophonePaused;
+	private bool _returnToDormantAfterExchange;
 	private CancellationTokenSource? _autoSendCancellation;
 
 	/// <summary>Gets where Voice Mode is in a spoken exchange.</summary>
@@ -280,8 +281,22 @@ public partial class PDChat
 		}
 	}
 
-	// After an answer, each mode starts its next exchange as it starts its first.
-	private Task ResumeListeningAsync() => EnterModeAsync();
+	// After an answer, each mode starts its next exchange as it starts its first, except that a microphone that was
+	// dormant when the exchange began (the user typed the question) goes back to waiting for the wake phrase.
+	private Task ResumeListeningAsync()
+	{
+		var returnToDormant = _returnToDormantAfterExchange;
+		_returnToDormantAfterExchange = false;
+		return returnToDormant && VoiceMode != PDChatVoiceMode.Dictate ? EnterDormantAsync() : EnterModeAsync();
+	}
+
+	private async Task EnterDormantAsync()
+	{
+		CancelIdleTimer();
+		_wakeBuffer.Clear();
+		VoiceState = PDChatVoiceState.Dormant;
+		await SetMicrophonePausedAsync(false);
+	}
 
 	private async Task StopVoiceModeAsync()
 	{
@@ -290,6 +305,7 @@ public partial class PDChat
 		_wakeBuffer.Clear();
 		VoiceState = PDChatVoiceState.Off;
 		_isAwaitingSpokenAnswer = false;
+		_returnToDormantAfterExchange = false;
 		_hasDictatedSinceTurn = false;
 		_isMicrophonePaused = false;
 		if (_voiceModule is not null)
@@ -381,6 +397,7 @@ public partial class PDChat
 		CancelIdleTimer();
 		VoiceState = PDChatVoiceState.Off;
 		_isAwaitingSpokenAnswer = false;
+		_returnToDormantAfterExchange = false;
 		_isMicrophonePaused = false;
 		VoiceError ??= "Voice Mode stopped: the connection closed.";
 		return InvokeAsync(StateHasChanged);
@@ -455,14 +472,14 @@ public partial class PDChat
 
 	/// <summary>
 	/// Called as a message is about to be sent. The dictation turn is over; with read-aloud on, the answer is awaited,
-	/// and a listening microphone pauses until it has been spoken.
+	/// and an open microphone, whichever state it is in, pauses until it has been spoken.
 	/// </summary>
 	private async Task BeginSpokenExchangeAsync()
 	{
 		CancelAutoSend();
 		_hasDictatedSinceTurn = false;
 		_isAwaitingSpokenAnswer = IsReadAloudOn;
-		if (VoiceState != PDChatVoiceState.Listening)
+		if (VoiceState is not (PDChatVoiceState.Listening or PDChatVoiceState.Dormant or PDChatVoiceState.Paused))
 		{
 			return;
 		}
@@ -470,7 +487,7 @@ public partial class PDChat
 		if (!_isAwaitingSpokenAnswer)
 		{
 			// Nothing to speak, so a wake-phrase exchange is over as soon as it is sent.
-			if (VoiceMode == PDChatVoiceMode.Wake)
+			if (VoiceState == PDChatVoiceState.Listening && VoiceMode == PDChatVoiceMode.Wake)
 			{
 				await EnterModeAsync();
 			}
@@ -478,6 +495,8 @@ public partial class PDChat
 			return;
 		}
 
+		// A typed question asked while dormant leaves the microphone dormant once it has been answered.
+		_returnToDormantAfterExchange = VoiceState == PDChatVoiceState.Dormant;
 		VoiceState = PDChatVoiceState.Thinking;
 
 		// Half duplex: while Merlin thinks and speaks, the microphone sends nothing, so it never hears itself.

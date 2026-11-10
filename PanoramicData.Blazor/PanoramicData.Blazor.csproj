@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDFileExplorer: new ClickToolbarItemAsync(key) does what clicking that toolbar item does (refresh, upload, preview, create-folder, delete and the rest), so a host can hide the explorer's toolbar with ShowToolbar and offer the built-in actions from its own. A disabled or hidden item does nothing. Nothing changes for existing pages.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDChat Voice Mode: the microphone no longer hears the assistant read an answer aloud when it was waiting for the wake phrase or paused in Dictate mode, as it did when the question was typed. Whatever is heard while an answer is read aloud is never typed or sent, and a microphone that was waiting for the wake phrase waits for it again afterwards. An answer that replaces one still being read no longer hands the microphone back early.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
