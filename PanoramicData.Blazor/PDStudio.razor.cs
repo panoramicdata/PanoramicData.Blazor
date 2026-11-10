@@ -441,6 +441,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			// Ctrl+Enter runs the code, so the editor's own (Insert Line Below) is turned off; the editor applies it
 			// once Monaco has created it
 			await RunOnEditorAsync(e => e.DisableKeyBindingAsync(13, ctrlKey: true), "disable Ctrl+Enter");
+			await LeaveEditorKeysAloneAsync();
 		}
 
 		await RelayOutEditorIfBackAsync();
