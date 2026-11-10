@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDGlobalListener: Ctrl+Alt shortcuts now work on keyboard layouts where Windows turns Ctrl+Alt into AltGr. On a layout such as UK Extended, Ctrl+Alt+O gives an accented letter, and the browser reports the key with Ctrl and Alt cleared, so the shortcut never matched and an editor typed the letter instead. The listener now tracks the keys held, and when Ctrl and the left Alt are held it reports Ctrl+Alt, so the shortcut runs and the letter is not typed. The AltGr key itself, the right Alt, still types as before.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDToolbarDropdown: a new IgnoreShortcutsWhileModalOpen parameter, off by default, ignores the menu's shortcut keys while a PDModal is open, so a shortcut cannot open one pop-up over another. PDModal now tells the global event service when it opens and closes, and IGlobalEventService gains IsModalOpen, ModalOpened and ModalClosed, with default implementations so other implementers still compile.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
