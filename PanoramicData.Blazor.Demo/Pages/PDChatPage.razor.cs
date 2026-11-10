@@ -26,6 +26,7 @@ public partial class PDChatPage : IDisposable
 	private readonly Action<PDChatDockMode> _onDockModeChanged;
 
 	private string _wakePhraseText = string.Join(", ", DumbChatService.DemoWakePhrases);
+	private string _interruptPhraseText = string.Join(", ", DumbChatService.DemoInterruptPhrases);
 
 	// Voice endpoints, agents and models are read-only on IChatService, so the demo sets them on its own service.
 	private DumbChatService? DemoService => ChatService as DumbChatService;
@@ -98,6 +99,25 @@ public partial class PDChatPage : IDisposable
 			if (IsWakePhraseOn)
 			{
 				ChatService.WakePhrases = ParseWakePhrases(value);
+			}
+		}
+	}
+
+	private bool IsInterruptPhraseOn
+	{
+		get => ChatService.InterruptPhrases is { Count: > 0 };
+		set => ChatService.InterruptPhrases = value ? ParseWakePhrases(_interruptPhraseText) : null;
+	}
+
+	private string InterruptPhraseText
+	{
+		get => _interruptPhraseText;
+		set
+		{
+			_interruptPhraseText = value;
+			if (IsInterruptPhraseOn)
+			{
+				ChatService.InterruptPhrases = ParseWakePhrases(value);
 			}
 		}
 	}

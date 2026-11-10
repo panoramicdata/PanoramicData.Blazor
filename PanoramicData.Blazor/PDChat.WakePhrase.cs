@@ -13,7 +13,9 @@ public partial class PDChat
 	private string FirstWakePhrase => ChatService.WakePhrases?.FirstOrDefault(phrase => !string.IsNullOrWhiteSpace(phrase))?.Trim()
 		?? string.Empty;
 
-	private List<string[]> WakePhraseWords() => [.. (ChatService.WakePhrases ?? [])
+	private List<string[]> WakePhraseWords() => ToPhraseWords(ChatService.WakePhrases);
+
+	private static List<string[]> ToPhraseWords(IReadOnlyList<string>? phrases) => [.. (phrases ?? [])
 		.Select(phrase => ToWakeWords(phrase ?? string.Empty))
 		.Where(words => words.Length > 0)];
 
@@ -39,8 +41,24 @@ public partial class PDChat
 			return text;
 		}
 
-		var longest = phrases.Max(phrase => phrase.Length);
 		var words = text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+		var next = FindPhraseEnd(words, phrases, _wakeBuffer);
+		if (next < 0)
+		{
+			return string.Empty;
+		}
+
+		Wake();
+		return string.Join(' ', words[next..]);
+	}
+
+	/// <summary>
+	/// Adds the words to the buffer of what was just heard and returns the index of the word after the first one that
+	/// completes one of the phrases, or -1 when none does. Matching ignores case and punctuation.
+	/// </summary>
+	private static int FindPhraseEnd(string[] words, List<string[]> phrases, List<string> buffer)
+	{
+		var longest = phrases.Max(phrase => phrase.Length);
 		for (var index = 0; index < words.Length; index++)
 		{
 			var word = NormaliseWakeWord(words[index]);
@@ -49,25 +67,24 @@ public partial class PDChat
 				continue;
 			}
 
-			_wakeBuffer.Add(word);
-			if (_wakeBuffer.Count > longest)
+			buffer.Add(word);
+			if (buffer.Count > longest)
 			{
-				_wakeBuffer.RemoveAt(0);
+				buffer.RemoveAt(0);
 			}
 
-			if (phrases.Any(EndsWithWakePhrase))
+			if (phrases.Any(phrase => EndsWithPhrase(buffer, phrase)))
 			{
-				Wake();
-				return string.Join(' ', words[(index + 1)..]);
+				return index + 1;
 			}
 		}
 
-		return string.Empty;
+		return -1;
 	}
 
-	private bool EndsWithWakePhrase(string[] phrase)
-		=> _wakeBuffer.Count >= phrase.Length
-			&& _wakeBuffer.Skip(_wakeBuffer.Count - phrase.Length).SequenceEqual(phrase, StringComparer.Ordinal);
+	private static bool EndsWithPhrase(List<string> buffer, string[] phrase)
+		=> buffer.Count >= phrase.Length
+			&& buffer.Skip(buffer.Count - phrase.Length).SequenceEqual(phrase, StringComparer.Ordinal);
 
 	private void Wake()
 	{

@@ -50,6 +50,8 @@ internal sealed class ChatServiceDefaultState
 
 	public IReadOnlyList<string>? WakePhrases { get; set; }
 
+	public IReadOnlyList<string>? InterruptPhrases { get; set; }
+
 	public TimeSpan VoiceIdleTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
 	public string? SelectedAgentId { get; set; }

@@ -147,6 +147,7 @@
 				<tr><td><code>IsReadAloudEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Reads the answer to each sent message aloud. Independent of the microphone and of notification sounds.</td></tr>
 				<tr><td><code>VoiceAutoSendDelay</code></td><td><code>TimeSpan</code></td><td>1 second</td><td>How long after a pause dictation is sent, when the user is not editing.</td></tr>
 				<tr><td><code>WakePhrases</code></td><td><code>IReadOnlyList&lt;string&gt;?</code></td><td><code>null</code> (off)</td><td>Phrases such as "Hey DumbBot" that wake a dormant microphone. Case and punctuation are ignored, and the phrase itself is never typed.</td></tr>
+				<tr><td><code>InterruptPhrases</code></td><td><code>IReadOnlyList&lt;string&gt;?</code></td><td><code>null</code> (off)</td><td>Phrases such as "Merlin" that interrupt an answer being read aloud. Case and punctuation are ignored. Off, the microphone hears nothing while an answer is read.</td></tr>
 				<tr><td><code>VoiceIdleTimeout</code></td><td><code>TimeSpan</code></td><td>10 seconds</td><td>How long the microphone may hear nothing before it goes dormant. Applies only with wake phrases.</td></tr>
 				<tr><td><code>VoiceMode</code></td><td><code>PDChatVoiceMode</code></td><td><code>Hal</code></td><td>The mode the user last chose: <code>Hal</code> listens at once and sends on a pause; <code>Dictate</code> listens only while the text box has focus and never sends by itself; <code>Wake</code> starts dormant and returns there after each exchange (offered only with wake phrases). The picker also has a first choice, "Mic off", that stops listening and releases the microphone without changing this value. Implement it to remember the choice per user.</td></tr>
 				<tr><td><code>AnsweringModelName</code> / <code>AnsweringModelDescription</code></td><td><code>string?</code></td><td><code>null</code> (nothing shown)</td><td>The model that answered the latest turn, shown as an "answered by" badge after the model picker, with the description as its tooltip.</td></tr>
@@ -176,6 +177,15 @@
 			mode and whichever state the microphone was in when the question was asked, including while it waits for a
 			wake phrase. Afterwards the microphone is as it was: a dormant microphone is dormant again, and the other
 			modes start their next exchange as usual.
+		</p>
+		<p>
+			With <code>InterruptPhrases</code> set, saying one of them while an answer is read aloud stops it and starts
+			listening, with the text box unchanged. The microphone stays open while the answer plays, but every word it
+			hears goes only to a matcher for those phrases, so nothing else is typed or sent; the rest of the utterance
+			that interrupted is discarded, and what is said after the next pause is dictated as usual. An answer that
+			itself contains one of the phrases is read with the microphone paused, so it cannot interrupt itself; the
+			read-aloud button still stops it. Try it with <strong>Interrupt Phrase</strong> in the
+			<strong>Voice and Assistant</strong> settings on this page.
 		</p>
 		<p>
 			The controls flow from the left and wrap onto another row only when they do not fit, and Send stays at the
