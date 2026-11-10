@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDGlobalListener: keys handed on from an editor inside an iframe, such as a rich text editor, now get the same AltGr handling as keys the window listener hears, so on the UK keyboard layout Ctrl+Alt+O in such an editor runs its shortcut instead of typing an accented letter. getKeyArgs now notes which keys are held itself.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDFileExplorer: new ClickToolbarItemAsync(key) does what clicking that toolbar item does (refresh, upload, preview, create-folder, delete and the rest), so a host can hide the explorer's toolbar with ShowToolbar and offer the built-in actions from its own. A disabled or hidden item does nothing. Nothing changes for existing pages.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
