@@ -121,6 +121,23 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets or sets the phrases that interrupt an answer being read aloud, such as "Merlin", or null or empty (the
+	/// default) for half duplex: the microphone hears nothing while an answer is read. Matching ignores case and
+	/// punctuation.
+	/// </summary>
+	/// <remarks>
+	/// When set, the microphone stays open while an answer is read aloud, but everything it hears goes only to a matcher
+	/// for these phrases: it is never typed or sent. Hearing one stops the answer and starts listening, with the text
+	/// box unchanged; the rest of that utterance is discarded and what is said after the next pause is dictated as
+	/// usual. An answer that itself contains one of the phrases is read half duplex, so it cannot interrupt itself.
+	/// </remarks>
+	IReadOnlyList<string>? InterruptPhrases
+	{
+		get => ChatServiceDefaultState.For(this).InterruptPhrases;
+		set => ChatServiceDefaultState.For(this).InterruptPhrases = value;
+	}
+
+	/// <summary>
 	/// Gets or sets how long Voice Mode may listen without hearing a word before the microphone goes dormant to wait
 	/// for one of the <see cref="WakePhrases"/>. Applies only when they are set. Defaults to ten seconds.
 	/// </summary>

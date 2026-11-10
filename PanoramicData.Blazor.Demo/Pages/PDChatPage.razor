@@ -339,6 +339,12 @@
 								<label class="form-check-label small" for="wakePhraseCheck">Wake Phrase</label>
 							</div>
 						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsInterruptPhraseOn" id="interruptPhraseCheck">
+								<label class="form-check-label small" for="interruptPhraseCheck">Interrupt Phrase</label>
+							</div>
+						</div>
 					</div>
 
 					<div class="row mt-2">
@@ -356,6 +362,12 @@
 						<label class="form-label small">Wake Phrases (comma-separated):</label>
 						<input type="text" @bind="WakePhraseText" class="form-control form-control-sm" placeholder="Hey DumbBot, OK DumbBot">
 						<div class="form-text">With Wake Phrase on, the microphone goes dormant after the idle time and types nothing until it hears one of these. It is still streaming audio while dormant.</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label small">Interrupt Phrases (comma-separated):</label>
+						<input type="text" @bind="InterruptPhraseText" class="form-control form-control-sm" placeholder="DumbBot">
+						<div class="form-text">With Interrupt Phrase on, saying one of these while an answer is read aloud stops it. Anything else heard meanwhile is ignored. An answer that says the phrase itself cannot be interrupted by voice.</div>
 					</div>
 
 					<div class="small text-muted">

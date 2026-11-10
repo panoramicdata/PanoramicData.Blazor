@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDChat Voice Mode: the microphone no longer hears the assistant read an answer aloud when it was waiting for the wake phrase or paused in Dictate mode, as it did when the question was typed. Whatever is heard while an answer is read aloud is never typed or sent, and a microphone that was waiting for the wake phrase waits for it again afterwards. An answer that replaces one still being read no longer hands the microphone back early.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDChat Voice Mode: the microphone no longer hears the assistant read an answer aloud when it was waiting for the wake phrase or paused in Dictate mode, as it did when the question was typed. Whatever is heard while an answer is read aloud is never typed or sent, and a microphone that was waiting for the wake phrase waits for it again afterwards. IChatService gains InterruptPhrases, off by default and with a default implementation so other implementers still compile: when set, saying one of the phrases, such as Merlin, while an answer is read aloud stops it and starts listening, while every other word heard meanwhile is ignored. An answer that itself says one of the phrases is read with the microphone paused, so it cannot interrupt itself. An answer that replaces one still being read no longer hands the microphone back early.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

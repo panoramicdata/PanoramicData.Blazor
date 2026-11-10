@@ -11,6 +11,9 @@ public partial class DumbChatService
 	/// <summary>The wake phrases the demo suggests; its simulated microphone says the first of them every other time.</summary>
 	public static IReadOnlyList<string> DemoWakePhrases { get; } = ["Hey DumbBot", "OK DumbBot"];
 
+	/// <summary>The interrupt phrases the demo suggests; its simulated microphone says them every other time.</summary>
+	public static IReadOnlyList<string> DemoInterruptPhrases { get; } = ["DumbBot"];
+
 	/// <summary>The agents offered by default.</summary>
 	public static IReadOnlyList<PDChatAgentOption> DemoAgents { get; } =
 	[
@@ -29,6 +32,7 @@ public partial class DumbChatService
 	private IReadOnlyList<PDChatAgentOption>? _agents = DemoAgents;
 	private IReadOnlyList<PDChatModelOption>? _models = DemoModels;
 	private IReadOnlyList<string>? _wakePhrases;
+	private IReadOnlyList<string>? _interruptPhrases;
 	private string? _answeringModelName = "Dumb Model";
 	private string? _answeringModelDescription = "The demo's model. It answers the same whatever you ask.";
 	private bool _isImageInputOffered = true;
@@ -107,6 +111,13 @@ public partial class DumbChatService
 	{
 		get => _wakePhrases;
 		set => SetConfiguration(ref _wakePhrases, value);
+	}
+
+	/// <inheritdoc />
+	public IReadOnlyList<string>? InterruptPhrases
+	{
+		get => _interruptPhrases;
+		set => SetConfiguration(ref _interruptPhrases, value);
 	}
 
 	/// <inheritdoc />
