@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDStudio: a host can now leave a key to the page, so its own shortcuts work from inside the code editor. DisableEditorKeyAsync stops the editor acting on a key, as PDStudio already does for Ctrl+Enter, while the key still reaches the page. This matters on keyboard layouts with AltGr, where Windows reads Ctrl+Alt as AltGr, so a shortcut such as Ctrl+Alt+O would otherwise type an accented letter in the editor. It takes a key code with its modifiers, or a ShortcutKey such as a menu item's, and keys asked for before the editor starts are applied once it does.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDGlobalListener: Ctrl+Alt shortcuts now work on keyboard layouts where Windows turns Ctrl+Alt into AltGr. On a layout such as UK Extended, Ctrl+Alt+O gives an accented letter, and the browser reports the key with Ctrl and Alt cleared, so the shortcut never matched and an editor typed the letter instead. The listener now tracks the keys held, and when Ctrl and the left Alt are held it reports Ctrl+Alt, so the shortcut runs and the letter is not typed. The AltGr key itself, the right Alt, still types as before.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
