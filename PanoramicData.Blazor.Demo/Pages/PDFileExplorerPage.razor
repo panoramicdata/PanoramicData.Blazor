@@ -88,6 +88,13 @@
 		<span class="small text-muted ms-2">@_showItemResult</span>
 	</div>
 
+	<div class="mt-2">
+		<strong>Open a folder:</strong>
+		<input class="form-control form-control-sm d-inline-block w-auto ms-2" aria-label="Path of the folder to open" @bind="FolderPathToOpen" />
+		<button type="button" class="btn btn-sm btn-secondary ms-1" @onclick="OpenFolderAsync">Open</button>
+		<span class="small text-muted ms-2">@_openFolderResult</span>
+	</div>
+
 	<p class="small text-muted mt-2 mb-0">
 		Navigate to <code>/Library/Templates/</code> or <code>/Sharepoint/Public/</code> to see read-only files.
 		Try different combinations to compare: position (before/after), style (text/icon), and badge overlay.

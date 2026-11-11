@@ -92,4 +92,17 @@ public partial class PDFileExplorerTests
 		cut.Instance.SelectedFilesAndFolders.Should().Equal("/Media/pic.png");
 		cut.Instance.IsNavigating.Should().BeFalse();
 	}
+
+	/// <summary>The tree's and table's right-click menus pass their failures on as the explorer does.</summary>
+	[Fact]
+	public void TheContextMenus_PassFailuresOn_OnlyWhenTheApplicationGivesAHandler()
+	{
+		var withHandler = RenderExplorer();
+		var withoutHandler = Render<PDFileExplorer>(p => p.Add(x => x.DataProvider, _provider));
+
+		withHandler.FindComponents<PDContextMenu>().Should().HaveCount(2)
+			.And.AllSatisfy(menu => menu.Instance.ExceptionHandler.HasDelegate.Should().BeTrue());
+		withoutHandler.FindComponents<PDContextMenu>().Should().HaveCount(2)
+			.And.AllSatisfy(menu => menu.Instance.ExceptionHandler.HasDelegate.Should().BeFalse());
+	}
 }

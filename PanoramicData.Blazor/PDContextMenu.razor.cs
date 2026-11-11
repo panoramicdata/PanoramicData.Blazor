@@ -1,9 +1,15 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.Helpers;
+
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// A Blazor component that displays a context menu when the user right-clicks on the wrapped content.
 /// </summary>
-public partial class PDContextMenu
+/// <remarks>
+/// When the application gives an <see cref="ExceptionHandler"/>, a failure in showing the menu or in an item's click,
+/// such as its script failing, is passed to it instead of ending the Blazor circuit.
+/// </remarks>
+public partial class PDContextMenu : IHandleEvent
 {
 	private static int _idSequence;
 
@@ -42,6 +48,18 @@ public partial class PDContextMenu
 	/// Gets or sets whether the menu is displayed on the mouse up event instead of the default mouse down event.
 	/// </summary>
 	[Parameter] public bool ShowOnMouseUp { get; set; }
+
+	/// <summary>
+	/// Gets or sets where a failure in one of the menu's events is passed. Without one, a failure is thrown as before.
+	/// </summary>
+	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+	/// <summary>
+	/// Handles an event as <see cref="ComponentBase"/> does, passing a failure to <see cref="ExceptionHandler"/> when
+	/// the application gives one.
+	/// </summary>
+	Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? arg)
+		=> ComponentExceptionGuard.HandleEventAsync(callback, arg, ExceptionHandler, StateHasChanged);
 
 	/// <summary>
 	/// Gets the unique identifier of this panel.

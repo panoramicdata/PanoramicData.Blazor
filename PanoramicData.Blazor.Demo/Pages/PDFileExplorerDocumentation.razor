@@ -64,6 +64,7 @@
 			<tbody>
 				<tr><td><code>NavigateToAsync(path)</code></td><td>Opens a folder by opening each folder above it in turn</td></tr>
 				<tr><td><code>NavigateToItemAsync(itemPath)</code></td><td>Opens the folder holding a file or folder and selects it, loading the folder's contents once. Returns false, leaving the deepest folder found open, when it is not there</td></tr>
+				<tr><td><code>NavigateToFolderAsync(folderPath)</code></td><td>Opens the folder itself, loading its contents once, without first showing the folder holding it. Returns false, leaving the deepest folder found open, when it is not there</td></tr>
 			</tbody>
 		</table>
 	</section>

@@ -162,6 +162,74 @@ public partial class PDFileExplorerTests
 		cut.Instance.FolderPath.Should().Be("/Docs");
 	}
 
+	/// <summary>Navigating to a folder opens it once, without opening the folders above it or first showing its parent.</summary>
+	[Fact]
+	public async Task NavigateToFolderAsync_OpensOnlyTheFolder()
+	{
+		_provider.Items.Remove(_provider.Get("/Docs/Sub"));
+		_provider.Items.AddRange(
+		[
+			FileProvider.Dir("/Docs/Sub", hasSubFolders: true),
+			FileProvider.Dir("/Docs/Sub/Deep"),
+			FileProvider.File("/Docs/Sub/Deep/report.pdf", 100)
+		]);
+		var folders = new List<string>();
+		var cut = RenderExplorer(p => p.Add(x => x.FolderChanged, (FileExplorerItem f) => folders.Add(f.Path)));
+		await NavigateAsync(cut, "/Media");
+		folders.Clear();
+		_provider.Requests.Clear();
+
+		var found = await cut.InvokeAsync(() => cut.Instance.NavigateToFolderAsync("/Docs/Sub/Deep"));
+
+		found.Should().BeTrue();
+		cut.Instance.FolderPath.Should().Be("/Docs/Sub/Deep");
+		folders.Should().Equal("/Docs/Sub/Deep");
+		_provider.Requests.Should().Equal("/Docs", "/Docs/Sub", "/Docs/Sub/Deep");
+		Tree(cut).Instance.SelectedNode!.Key.Should().Be("/Docs/Sub/Deep");
+		cut.Instance.SelectedFilesAndFolders.Should().BeEmpty();
+		RowNames(cut).Should().Equal("..", "report.pdf");
+		cut.Instance.IsNavigating.Should().BeFalse();
+	}
+
+	/// <summary>A missing folder on the way stops at the deepest folder found.</summary>
+	[Fact]
+	public async Task NavigateToFolderAsync_AMissingFolder_OpensTheDeepestFolderFound_AndReturnsFalse()
+	{
+		var cut = RenderExplorer();
+
+		var found = await cut.InvokeAsync(() => cut.Instance.NavigateToFolderAsync("/Docs/Gone"));
+
+		found.Should().BeFalse();
+		cut.Instance.FolderPath.Should().Be("/Docs");
+		cut.Instance.IsNavigating.Should().BeFalse();
+	}
+
+	/// <summary>The root is a folder, so it can be opened.</summary>
+	[Fact]
+	public async Task NavigateToFolderAsync_TheRoot_OpensIt()
+	{
+		var cut = RenderExplorer();
+		await NavigateAsync(cut, "/Docs");
+
+		var found = await cut.InvokeAsync(() => cut.Instance.NavigateToFolderAsync("/"));
+
+		found.Should().BeTrue();
+		cut.Instance.FolderPath.Should().Be("/");
+	}
+
+	/// <summary>A blank path is ignored.</summary>
+	[Fact]
+	public async Task NavigateToFolderAsync_ABlankPath_DoesNothing()
+	{
+		var cut = RenderExplorer();
+		await NavigateAsync(cut, "/Docs");
+
+		var found = await cut.InvokeAsync(() => cut.Instance.NavigateToFolderAsync(" "));
+
+		found.Should().BeFalse();
+		cut.Instance.FolderPath.Should().Be("/Docs");
+	}
+
 	/// <summary>SelectedFilesAndFolders lists the selected paths, and SelectionChanged carries the selected items.</summary>
 	[Fact]
 	public async Task Selection_IsReportedToTheApplication()

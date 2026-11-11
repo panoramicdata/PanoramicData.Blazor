@@ -30,6 +30,9 @@ public partial class PDFileExplorer
 			PreviewPanelVisible = !PreviewPanelVisible;
 
 			await RefreshToolbarAsync();
+
+			// Shown again, the preview fetches the item chosen while it was hidden, also when a host toggles it
+			StateHasChanged();
 		}
 	}
 

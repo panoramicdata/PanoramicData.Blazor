@@ -20,9 +20,11 @@ export function showMenu(menuId, x, y) {
 				};
 			},
 		};
+		// Fixed, so the menu opens at the pointer wherever it sits: under CSS zoom or a scaled parent, and in a panel that
+		// scrolls or clips. "positionFixed" was popper 1's option, which popper 2 ignores
 		var options = {
 			placement: "bottom-start",
-			positionFixed: true,
+			strategy: "fixed",
 		};
 		menuEl.classList.add("show");
 		popper = window.Popper.createPopper(reference, menuEl, options); // this is popper v2.4.4 syntax
