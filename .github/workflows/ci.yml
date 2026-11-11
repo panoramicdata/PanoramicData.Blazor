@@ -76,7 +76,7 @@ jobs:
     # Every test in this repository runs offline with no credentials, so no filter is applied.
     - name: Run tests with coverage
       run: >-
-        ./PanoramicData.Blazor.Test/bin/Debug/net10.0/PanoramicData.Blazor.Test
+        ./PanoramicData.Blazor.Test/bin/Debug/net11.0/PanoramicData.Blazor.Test
         --coverage
         --coverage-settings "$GITHUB_WORKSPACE/coverage.config"
         --coverage-output-format cobertura
@@ -90,7 +90,7 @@ jobs:
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: PanoramicData.Blazor.Test/bin/Debug/net10.0/TestResults/coverage.cobertura.xml
+        coverage-reports: PanoramicData.Blazor.Test/bin/Debug/net11.0/TestResults/coverage.cobertura.xml
 
     - name: Upload coverage artifact
       if: always()
@@ -98,7 +98,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: coverage
-        path: PanoramicData.Blazor.Test/bin/Debug/net10.0/TestResults/coverage.cobertura.xml
+        path: PanoramicData.Blazor.Test/bin/Debug/net11.0/TestResults/coverage.cobertura.xml
         retention-days: 7
 
   publish:
