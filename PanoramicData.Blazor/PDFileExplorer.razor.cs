@@ -1,13 +1,19 @@
-﻿using PanoramicData.Blazor.PreviewProviders;
+﻿using PanoramicData.Blazor.Helpers;
+using PanoramicData.Blazor.PreviewProviders;
 
 namespace PanoramicData.Blazor;
 
 /// <summary>
 /// File explorer component with tree/table navigation, uploads, preview, and context actions.
 /// </summary>
-public partial class PDFileExplorer : IAsyncDisposable
+/// <remarks>
+/// When the application gives an <see cref="ExceptionHandler"/>, a failure in any of the explorer's event handlers, or
+/// in the tree and table inside it, is passed to it instead of ending the Blazor circuit.
+/// </remarks>
+public partial class PDFileExplorer : IAsyncDisposable, IHandleEvent
 {
 	private static int _idSequence;
+	private int _itemNavigation;
 	private readonly SortCriteria _tableSort = new("Name", SortDirection.Ascending);
 	private readonly MenuItem _menuOpen = new() { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
 	private readonly MenuItem _menuDownload = new() { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
@@ -530,16 +536,16 @@ public partial class PDFileExplorer : IAsyncDisposable
 			return;
 		}
 
+		var isTouchDevice = false;
 		try
 		{
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+			isTouchDevice = await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
 		}
 		catch
 		{
-			// Do nothing
+			// Without the module the explorer works, with the toolbar for a mouse
 		}
-
-		var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
 
 		AddToolbarItems(isTouchDevice);
 
@@ -550,8 +556,30 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 		SetUpDialogButtons();
 
-		await RefreshToolbarAsync().ConfigureAwait(true);
+		// The toolbar state comes from the application, so a failure there is passed on rather than ending the circuit
+		try
+		{
+			await RefreshToolbarAsync().ConfigureAwait(true);
+		}
+		catch (Exception ex) when (ExceptionHandler.HasDelegate)
+		{
+			await ComponentExceptionGuard.ReportAsync(ExceptionHandler, ex).ConfigureAwait(true);
+		}
 	}
+
+	/// <summary>
+	/// Handles an event as <see cref="ComponentBase"/> does, passing a failure to <see cref="ExceptionHandler"/> when
+	/// the application gives one.
+	/// </summary>
+	Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? arg)
+		=> ComponentExceptionGuard.HandleEventAsync(callback, arg, ExceptionHandler, StateHasChanged);
+
+	/// <summary>
+	/// The handler given to the tree and table: the explorer's own, which passes a failure on to the application's,
+	/// only when the application has given one, so that without one a failure behaves as it always has.
+	/// </summary>
+	private EventCallback<Exception> ChildExceptionHandler
+		=> ExceptionHandler.HasDelegate ? EventCallback.Factory.Create<Exception>(this, OnException) : default;
 
 	/// <summary>
 	/// Adds the explorer's own toolbar buttons, and its upload menu items when uploads are possible.
@@ -668,6 +696,112 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		IsNavigating = false;
+	}
+
+	/// <summary>
+	/// Opens the folder holding the given file or folder and selects it in the table. Unlike
+	/// <see cref="NavigateToAsync(string)"/>, which opens each folder on the way in turn, the folders above it are only
+	/// loaded into the tree, so the table loads once and <see cref="FolderChanged"/> is raised once.
+	/// </summary>
+	/// <param name="itemPath">The path of the file or folder to show, such as "/Docs/a.docx".</param>
+	/// <returns>
+	/// True when the item was found and selected. False when it was not, in which case the deepest folder found on the
+	/// way to it is open.
+	/// </returns>
+	public async Task<bool> NavigateToItemAsync(string itemPath)
+	{
+		if (string.IsNullOrWhiteSpace(itemPath) || Tree?.RootNode.Find("/") is not { } rootNode)
+		{
+			return false;
+		}
+
+		// The root itself is in no folder
+		var segments = itemPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+		if (segments.Length == 0)
+		{
+			return false;
+		}
+
+		// A later call supersedes this one: each stops at its next step once it is no longer the latest
+		var navigation = ++_itemNavigation;
+		IsNavigating = true;
+		try
+		{
+			var (folderNode, isFolderFound) = await LoadFolderNodesAsync(rootNode, segments[..^1], navigation).ConfigureAwait(true);
+			if (navigation != _itemNavigation)
+			{
+				return false;
+			}
+
+			if (Tree.SelectedNode != folderNode)
+			{
+				await Tree.SelectNode(folderNode, false).ConfigureAwait(true);
+			}
+
+			await ScrollIntoViewAsync(() => Tree.ScrollNodeIntoViewAsync(folderNode)).ConfigureAwait(true);
+			return isFolderFound
+				&& navigation == _itemNavigation
+				&& await SelectTableItemAsync("/" + string.Join('/', segments)).ConfigureAwait(true);
+		}
+		finally
+		{
+			if (navigation == _itemNavigation)
+			{
+				IsNavigating = false;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Scrolls something into view. Scrolling only helps the eye, so a browser that cannot do it, or a connection that
+	/// has closed, is no reason to fail.
+	/// </summary>
+	private static async Task ScrollIntoViewAsync(Func<Task> scroll)
+	{
+		try
+		{
+			await scroll().ConfigureAwait(true);
+		}
+		catch (Exception ex) when (ex is JSException or JSDisconnectedException or TaskCanceledException or ObjectDisposedException)
+		{
+			// Left where it is
+		}
+	}
+
+	/// <summary>
+	/// Loads each folder below the given node into the tree in turn, without selecting any of them, and returns the
+	/// deepest one found and whether every folder was found. It stops early once a later navigation has started.
+	/// </summary>
+	private async Task<(TreeNode<FileExplorerItem> Node, bool IsFound)> LoadFolderNodesAsync(TreeNode<FileExplorerItem> node, string[] folderNames, int navigation)
+	{
+		for (var i = 0; i < folderNames.Length && navigation == _itemNavigation; i++)
+		{
+			await Tree!.LoadChildNodesAsync(node).ConfigureAwait(true);
+			var childPath = "/" + string.Join('/', folderNames.Take(i + 1));
+			if (node.Nodes?.Find(x => x.Key == childPath) is not { } child)
+			{
+				return (node, false);
+			}
+
+			node = child;
+		}
+
+		return (node, true);
+	}
+
+	/// <summary>
+	/// Selects the row with the given path, as a click on it would, and scrolls it into view, when the table shows it.
+	/// </summary>
+	private async Task<bool> SelectTableItemAsync(string path)
+	{
+		if (Table is null || !Table.ItemsToDisplay.Any(x => x.Path == path))
+		{
+			return false;
+		}
+
+		await Table.SelectItemAsync(path).ConfigureAwait(true);
+		await ScrollIntoViewAsync(() => Table.ScrollItemIntoViewAsync(path)).ConfigureAwait(true);
+		return true;
 	}
 
 	/// <summary>

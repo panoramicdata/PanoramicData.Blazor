@@ -50,6 +50,20 @@
 				<tr><td><code>AllowDelete</code></td><td><code>bool</code></td><td>Enable file deletion</td></tr>
 				<tr><td><code>AllowRename</code></td><td><code>bool</code></td><td>Enable renaming</td></tr>
 				<tr><td><code>AllowNewFolder</code></td><td><code>bool</code></td><td>Enable folder creation</td></tr>
+				<tr><td><code>ShowToolbar</code></td><td><code>bool</code></td><td>Show the toolbar. Without it the explorer has the <code>pdfe-no-toolbar</code> class and its panes take the full height</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Method</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>NavigateToAsync(path)</code></td><td>Opens a folder by opening each folder above it in turn</td></tr>
+				<tr><td><code>NavigateToItemAsync(itemPath)</code></td><td>Opens the folder holding a file or folder and selects it, loading the folder's contents once. Returns false, leaving the deepest folder found open, when it is not there</td></tr>
 			</tbody>
 		</table>
 	</section>

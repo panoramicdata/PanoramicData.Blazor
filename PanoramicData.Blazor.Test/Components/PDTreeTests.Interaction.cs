@@ -215,6 +215,24 @@ public partial class PDTreeTests
 		_provider.Requests.Should().Equal(string.Empty, "a");
 	}
 
+	/// <summary>LoadChildNodesAsync loads a node's children once, without expanding it, and does nothing for a leaf.</summary>
+	[Fact]
+	public async Task LoadChildNodesAsync_LoadsChildrenOnce_WithoutExpanding()
+	{
+		_provider.UseLoadOnDemand();
+		var tree = RenderItemTree(p => p
+			.Add(x => x.LoadOnDemand, true)
+			.Add(x => x.IsLeaf, item => item.Id == "b"));
+
+		await tree.InvokeAsync(() => tree.Instance.LoadChildNodesAsync(Node(tree, "a")));
+		await tree.InvokeAsync(() => tree.Instance.LoadChildNodesAsync(Node(tree, "a")));
+		await tree.InvokeAsync(() => tree.Instance.LoadChildNodesAsync(Node(tree, "b")));
+
+		Node(tree, "a").Nodes!.Select(n => n.Key).Should().Equal("a1");
+		Node(tree, "a").IsExpanded.Should().BeFalse();
+		_provider.Requests.Should().Equal(string.Empty, "a");
+	}
+
 	/// <summary>With ClearOnCollapse, collapsing discards loaded children so they are fetched again.</summary>
 	[Fact]
 	public async Task ClearOnCollapse_DiscardsChildren()

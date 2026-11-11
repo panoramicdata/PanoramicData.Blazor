@@ -6,8 +6,19 @@ namespace PanoramicData.Blazor;
 /// Represents a tree component for displaying hierarchical data with support for selection, editing, drag-and-drop, and on-demand loading.
 /// </summary>
 /// <typeparam name="TItem">The type of the data item associated with each tree node.</typeparam>
-public partial class PDTree<TItem> : IDisposable where TItem : class
+/// <remarks>
+/// When the application gives an <see cref="ExceptionHandler"/>, a failure in any of the tree's event handlers is
+/// passed to it instead of ending the Blazor circuit.
+/// </remarks>
+public partial class PDTree<TItem> : IDisposable, IHandleEvent where TItem : class
 {
+    /// <summary>
+    /// Handles an event as <see cref="ComponentBase"/> does, passing a failure to <see cref="ExceptionHandler"/> when
+    /// the application gives one.
+    /// </summary>
+    Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? arg)
+        => ComponentExceptionGuard.HandleEventAsync(callback, arg, ExceptionHandler, StateHasChanged);
+
     private const string _idPrefix = "pd-tree-";
     private IJSObjectReference? _commonModule;
 

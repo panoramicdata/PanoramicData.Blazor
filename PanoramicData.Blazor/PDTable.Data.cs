@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Helpers;
+
 namespace PanoramicData.Blazor;
 
 public partial class PDTable<TItem>
@@ -324,24 +326,46 @@ public partial class PDTable<TItem>
 		}
 	}
 
+	// An exception leaving an async void method ends the Blazor circuit, so these pass one to ExceptionHandler when
+	// the application gives one
+	private async Task ReportPagingFailureAsync(Exception ex)
+	{
+		Logger.LogError(ex, "{Message}", ex.Message);
+		await ComponentExceptionGuard.ReportAsync(ExceptionHandler, ex).ConfigureAwait(true);
+	}
+
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
 	{
-		await RefreshAsync(SearchText).ConfigureAwait(true);
-		if (PageCriteria != null)
+		try
 		{
-			await PageSizeChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
-		}
+			await RefreshAsync(SearchText).ConfigureAwait(true);
+			if (PageCriteria != null)
+			{
+				await PageSizeChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
+			}
 
-		StateHasChanged();
+			StateHasChanged();
+		}
+		catch (Exception ex) when (ExceptionHandler.HasDelegate)
+		{
+			await ReportPagingFailureAsync(ex).ConfigureAwait(true);
+		}
 	}
 
 	private async void PageCriteria_PageChanged(object? sender, EventArgs e)
 	{
-		if (PageCriteria != null)
+		try
 		{
-			await RefreshAsync(SearchText).ConfigureAwait(true);
-			await PageChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
-			StateHasChanged();
+			if (PageCriteria != null)
+			{
+				await RefreshAsync(SearchText).ConfigureAwait(true);
+				await PageChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
+				StateHasChanged();
+			}
+		}
+		catch (Exception ex) when (ExceptionHandler.HasDelegate)
+		{
+			await ReportPagingFailureAsync(ex).ConfigureAwait(true);
 		}
 	}
 }

@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Helpers;
+
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -15,29 +17,53 @@ public partial class PDTree<TItem>
 	/// <param name="state">The state object, typically a <see cref="MouseEventArgs"/>.</param>
 	private void ClickTimerCallback(object? state)
 	{
+		// A timer calls back on a thread-pool thread, where an exception would end the whole process, so the click is
+		// only handed to the component's dispatcher, where the clicks are counted too
+		try
+		{
+			_ = InvokeAsync(() => OnClickTimerElapsedAsync(state));
+		}
+		catch
+		{
+			// The component has gone
+		}
+	}
+
+	/// <summary>
+	/// Acts on the clicks counted since the first one: one selects the node, more select and expand or collapse it.
+	/// Not an event, so a failure is passed to <see cref="ExceptionHandler"/> here, when the application gives one.
+	/// </summary>
+	private async Task OnClickTimerElapsedAsync(object? state)
+	{
 		_clickTimer?.Dispose();
 		_clickTimer = null;
-
-		InvokeAsync(async () =>
-		{
-			if (_clickedNode != null)
-			{
-				if (_clickCount > 1)
-				{
-					await SelectNode(_clickedNode, false).ConfigureAwait(true);
-					await ToggleNodeIsExpandedAsync(_clickedNode).ConfigureAwait(true);
-				}
-				else
-				{
-					var autoEdit = state is MouseEventArgs args && args.Button == 0;
-					await SelectNode(_clickedNode, autoEdit).ConfigureAwait(true);
-				}
-
-				StateHasChanged();
-			}
-		});
-
+		var node = _clickedNode;
+		var clickCount = _clickCount;
 		_clickCount = 0;
+		if (node is null)
+		{
+			return;
+		}
+
+		try
+		{
+			if (clickCount > 1)
+			{
+				await SelectNode(node, false).ConfigureAwait(true);
+				await ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
+			}
+			else
+			{
+				var autoEdit = state is MouseEventArgs args && args.Button == 0;
+				await SelectNode(node, autoEdit).ConfigureAwait(true);
+			}
+		}
+		catch (Exception ex) when (ExceptionHandler.HasDelegate)
+		{
+			await ComponentExceptionGuard.ReportAsync(ExceptionHandler, ex).ConfigureAwait(true);
+		}
+
+		StateHasChanged();
 	}
 
 	/// <summary>
@@ -148,6 +174,32 @@ public partial class PDTree<TItem>
 	}
 
 	/// <summary>
+	/// Loads the given node's children from the data provider, unless they are loaded already, without expanding the
+	/// node or redrawing the tree. Selecting a node expands every node above it, so loading each node on a path and
+	/// then selecting the last one opens the whole path with a single redraw.
+	/// </summary>
+	/// <param name="node">The node whose children to load.</param>
+	public async Task LoadChildNodesAsync(TreeNode<TItem> node)
+	{
+		ArgumentNullException.ThrowIfNull(node);
+
+		if (node.Isleaf || node.Nodes != null)
+		{
+			return;
+		}
+
+		// fetch direct child items
+		var key = node.Data is null ? null : KeyField!(node.Data!).ToString();
+		var items = await GetDataAsync(key).ConfigureAwait(true);
+		// add new nodes to existing node
+		node.Nodes = []; // indicates data fetched, even if no items returned
+		UpdateModel(items);
+
+		// notify any listeners that new data fetched
+		await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
+	}
+
+	/// <summary>
 	/// Toggles the given node's expanded state, loading children if necessary.
 	/// </summary>
 	/// <param name="node">The node to be expanded or collapsed.</param>
@@ -160,18 +212,9 @@ public partial class PDTree<TItem>
 			return;
 		}
 
-		// if expanding and Nodes is null then request data
-		if (!wasExpanded && node.Nodes == null)
+		if (!wasExpanded)
 		{
-			// fetch direct child items
-			var key = node.Data is null ? null : KeyField!(node.Data!).ToString();
-			var items = await GetDataAsync(key).ConfigureAwait(true);
-			// add new nodes to existing node
-			node.Nodes = []; // indicates data fetched, even if no items returned
-			UpdateModel(items);
-
-			// notify any listeners that new data fetched
-			await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
+			await LoadChildNodesAsync(node).ConfigureAwait(true);
 		}
 
 		// expand / collapse and notify
