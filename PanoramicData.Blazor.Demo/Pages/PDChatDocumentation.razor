@@ -11,6 +11,7 @@
 				<tr><td><code>Messages</code></td><td><code>List&lt;ChatMessage&gt;</code></td><td>Messages to display</td></tr>
 				<tr><td><code>OnSend</code></td><td><code>EventCallback&lt;string&gt;</code></td><td>Fired when user sends message</td></tr>
 				<tr><td><code>Icons</code></td><td><code>PDChatIcons</code></td><td>The CSS classes of the header and toolbar icons. Font Awesome by default. See <a href="#icons-and-theming">Icons and theming</a>.</td></tr>
+				<tr><td><code>VoiceModeShortcutKey</code></td><td><code>string?</code></td><td>A key code such as <code>"KeyM"</code>: Alt with that key, while focus is in the chat, cycles Voice Mode through Mic off and its modes. <code>null</code> (the default) offers no shortcut. See <a href="#input-toolbar">Input toolbar, voice and wake phrase</a>.</td></tr>
 			</tbody>
 		</table>
 	</section>
@@ -159,6 +160,12 @@
 			The microphone is one split control: the button starts and stops listening, and the select beside it picks
 			the mode. The button shows the mode as its icon (the HAL eye, a microphone, or an ear) and the state through
 			its colour and motion: listening, editing, thinking, speaking, dormant or paused. Its title says both in words.
+			While the microphone is off, a small badge (<code>Icons.MicOff</code>, a microphone with a slash) marks the
+			button; set it to an empty string to show none. The select shows Mic off while the microphone is off and the
+			running mode otherwise.
+			Set the <code>VoiceModeShortcutKey</code> parameter to a key code such as <code>"KeyM"</code> to let Alt with
+			that key, while focus is in the chat, cycle the select through Mic off and the modes; the select's tooltip
+			then names it. Without it there is no shortcut.
 			In <code>Hal</code> and <code>Wake</code>, clicking in the text box switches to manual: dictation keeps
 			streaming into the box, Send submits, and the next pause sends again. A message's
 			<code>SpokenMessage</code>, when set, is read aloud in place of the message, which is displayed unchanged; an

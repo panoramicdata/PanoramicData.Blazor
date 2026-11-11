@@ -3,7 +3,8 @@
 @* Issue #106: one cascade for the whole component, rather than threading a callback through
    PDMessages three times - once per dock mode - and PDMessage besides. *@
 <CascadingValue Value="FormContext" IsFixed="true">
-	<div class="pdchat-container @GetDockModeClasses() @( ChatService.DockMode != PDChatDockMode.Minimized ? "open" : "" )">
+	<div class="pdchat-container @GetDockModeClasses() @( ChatService.DockMode != PDChatDockMode.Minimized ? "open" : "" )"
+		 @onkeydown="OnChatKeyDownAsync">
 		@switch (ChatService.DockMode)
 		{
 			case PDChatDockMode.Minimized:
@@ -390,13 +391,13 @@
 						aria-label="@VoiceButtonTitle"
 						aria-pressed="@(IsVoiceModeOn ? "true" : "false")">@VoiceButtonGlyph</button>
 				<label class="pdchat-toolbar-picker pdchat-voice-mode-picker">
-					<select title="How Voice Mode listens" aria-label="Voice mode" @onchange="OnVoiceModeSelectedAsync">
-						<option value="@MicOffValue" title="The microphone is off" selected="@(!IsVoiceModeOn)">Mic off</option>
-						<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Hal)">HAL</option>
-						<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Dictate)">Dictate</option>
+					<select title="@VoicePickerTitle" aria-label="Voice mode" value="@VoicePickerValue" @onchange="OnVoiceModeSelectedAsync">
+						<option value="@MicOffValue" title="The microphone is off">Mic off</option>
+						<option value="@PDChatVoiceMode.Hal" title="Listens at once and sends when you pause">HAL</option>
+						<option value="@PDChatVoiceMode.Dictate" title="Listens while the text box has focus; you press Send">Dictate</option>
 						@if (IsWakeModeOffered)
 						{
-							<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause" selected="@(IsVoiceModeOn && VoiceMode == PDChatVoiceMode.Wake)">@FirstWakePhrase</option>
+							<option value="@PDChatVoiceMode.Wake" title="Waits for the wake phrase, then sends when you pause">@FirstWakePhrase</option>
 						}
 					</select>
 				</label>
@@ -424,6 +425,10 @@
 			{
 				<span class="pdchat-voice-paused-badge" aria-hidden="true"><i class="@Icons.VoicePaused"></i></span>
 			}
+		}
+		@if (VoiceState == PDChatVoiceState.Off && !string.IsNullOrEmpty(Icons.MicOff))
+		{
+			<span class="pdchat-voice-off-badge" aria-hidden="true"><i class="@Icons.MicOff"></i></span>
 		}
 	</text>;
 }

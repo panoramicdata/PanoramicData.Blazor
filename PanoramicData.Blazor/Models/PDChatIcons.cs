@@ -40,6 +40,9 @@ public sealed record PDChatIcons
 	/// <summary>Gets the badge on the voice button while dictation is paused.</summary>
 	public string VoicePaused { get; init; } = "fas fa-pause";
 
+	/// <summary>Gets the badge on the voice button while the microphone is off. Empty shows no badge.</summary>
+	public string MicOff { get; init; } = "fas fa-microphone-slash";
+
 	/// <summary>Gets the attach images button's icon.</summary>
 	public string Attach { get; init; } = "fas fa-paperclip";
 

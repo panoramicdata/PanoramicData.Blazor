@@ -770,7 +770,8 @@ body:has(.pdchat-container.dock-fullscreen) {
 	}
 }
 
-.pdchat-voice-paused-badge {
+.pdchat-voice-paused-badge,
+.pdchat-voice-off-badge {
 	position: absolute;
 	right: 3px;
 	bottom: 3px;
