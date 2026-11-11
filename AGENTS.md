@@ -27,3 +27,7 @@ conventions and skills.
 to the private `PanoramicData.Skills` repository), ignore this section and continue. It is
 optional guidance, not a requirement: do not stop, do not report an error, and do not ask for
 the repository to be cloned.
+
+## Commits
+
+Do not add `Co-Authored-By` trailers or other AI attribution to commit messages or pull requests.

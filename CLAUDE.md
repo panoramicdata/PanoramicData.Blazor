@@ -53,6 +53,7 @@ Use the GitHub command-line tool (`gh`) for pull requests and issues.
 - Do not weaken or delete existing tests to make a build pass.
 - Do not commit to `main`. Work on a branch and open a pull request.
 - Do not run `Publish.ps1` unless a maintainer has asked for a release.
+- Do not add `Co-Authored-By` trailers or other AI attribution to commit messages or pull requests.
 
 ## Error handling
 
