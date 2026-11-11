@@ -9,6 +9,7 @@
 	overflow: auto !important;
 }
 
+/* Above what it opens over, such as a sticky table header: Bootstrap's drop-down level, unless the application sets its own */
 .pdcontextmenu {
 	-webkit-user-select: none; /* Chrome/Safari */
 	-moz-user-select: none; /* Firefox */
@@ -16,6 +17,7 @@
 	width: fit-content;
 	flex-direction: column;
 	display: none;
+	z-index: var(--pd-contextmenu-z-index, 1000);
 }
 
 .pdcontextmenu.show {

@@ -727,19 +727,7 @@ public partial class PDFileExplorer : IAsyncDisposable, IHandleEvent
 		IsNavigating = true;
 		try
 		{
-			var (folderNode, isFolderFound) = await LoadFolderNodesAsync(rootNode, segments[..^1], navigation).ConfigureAwait(true);
-			if (navigation != _itemNavigation)
-			{
-				return false;
-			}
-
-			if (Tree.SelectedNode != folderNode)
-			{
-				await Tree.SelectNode(folderNode, false).ConfigureAwait(true);
-			}
-
-			await ScrollIntoViewAsync(() => Tree.ScrollNodeIntoViewAsync(folderNode)).ConfigureAwait(true);
-			return isFolderFound
+			return await OpenFolderAsync(rootNode, segments[..^1], navigation).ConfigureAwait(true)
 				&& navigation == _itemNavigation
 				&& await SelectTableItemAsync("/" + string.Join('/', segments)).ConfigureAwait(true);
 		}
@@ -750,6 +738,60 @@ public partial class PDFileExplorer : IAsyncDisposable, IHandleEvent
 				IsNavigating = false;
 			}
 		}
+	}
+
+	/// <summary>
+	/// Opens the given folder, as choosing it in the tree does. As with <see cref="NavigateToItemAsync(string)"/>, the
+	/// folders above it are only loaded into the tree, so the table loads once and <see cref="FolderChanged"/> is raised
+	/// once, for the folder itself.
+	/// </summary>
+	/// <param name="folderPath">The path of the folder to open, such as "/Docs/Sub"; "/" opens the root.</param>
+	/// <returns>
+	/// True when the folder was found and opened. False when it was not, in which case the deepest folder found on the
+	/// way to it is open.
+	/// </returns>
+	public async Task<bool> NavigateToFolderAsync(string folderPath)
+	{
+		if (string.IsNullOrWhiteSpace(folderPath) || Tree?.RootNode.Find("/") is not { } rootNode)
+		{
+			return false;
+		}
+
+		var navigation = ++_itemNavigation;
+		IsNavigating = true;
+		try
+		{
+			return await OpenFolderAsync(rootNode, folderPath.Split('/', StringSplitOptions.RemoveEmptyEntries), navigation).ConfigureAwait(true)
+				&& navigation == _itemNavigation;
+		}
+		finally
+		{
+			if (navigation == _itemNavigation)
+			{
+				IsNavigating = false;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Loads each folder on the way into the tree, then opens the deepest one found, and returns whether every folder
+	/// was found. Returns false without opening anything once a later navigation has started.
+	/// </summary>
+	private async Task<bool> OpenFolderAsync(TreeNode<FileExplorerItem> rootNode, string[] folderNames, int navigation)
+	{
+		var (folderNode, isFound) = await LoadFolderNodesAsync(rootNode, folderNames, navigation).ConfigureAwait(true);
+		if (navigation != _itemNavigation)
+		{
+			return false;
+		}
+
+		if (Tree!.SelectedNode != folderNode)
+		{
+			await Tree.SelectNode(folderNode, false).ConfigureAwait(true);
+		}
+
+		await ScrollIntoViewAsync(() => Tree.ScrollNodeIntoViewAsync(folderNode)).ConfigureAwait(true);
+		return isFound;
 	}
 
 	/// <summary>

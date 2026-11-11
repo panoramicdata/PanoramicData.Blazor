@@ -95,6 +95,17 @@ public partial class PDFileExplorerPage
 		_showItemResult = isFound ? "Selected" : "Not found: the deepest folder found is open";
 	}
 
+	private string FolderPathToOpen { get; set; } = "/Library/Templates";
+
+	private string? _openFolderResult;
+
+	// Opens the folder itself once, without first showing the folder holding it
+	private async Task OpenFolderAsync()
+	{
+		var isFound = await FileExplorer!.NavigateToFolderAsync(FolderPathToOpen).ConfigureAwait(true);
+		_openFolderResult = isFound ? "Opened" : "Not found: the deepest folder found is open";
+	}
+
 	private async Task OnReady()
 	{
 		if (!string.IsNullOrWhiteSpace(_deepLinkPath))

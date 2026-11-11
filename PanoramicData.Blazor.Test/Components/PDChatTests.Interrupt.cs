@@ -131,7 +131,7 @@ public partial class PDChatTests
 	{
 		var service = InterruptService();
 		var component = await RenderSpeakingAsync(service);
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "A draft" });
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "A draft" }));
 
 		await SayAsync(component, Merlin);
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);

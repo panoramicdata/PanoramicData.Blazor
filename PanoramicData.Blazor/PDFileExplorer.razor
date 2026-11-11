@@ -130,6 +130,7 @@
 
 			<PDContextMenu Items="TreeContextItems"
 					   Enabled="ShowContextMenu"
+					   ExceptionHandler="ChildExceptionHandler"
 					   UpdateState="OnTreeContextMenuUpdateStateAsync"
 					   ItemClick="OnTreeContextMenuItemClickAsync">
 
@@ -224,6 +225,7 @@
 
 			<PDContextMenu Items="TableContextItems"
 						   Enabled="ShowContextMenu"
+						   ExceptionHandler="ChildExceptionHandler"
 						   ShowOnMouseUp="true"
 						   UpdateState="OnTableContextMenuUpdateStateAsync"
 						   ItemClick="OnTableContextMenuItemClickAsync">
@@ -424,6 +426,7 @@
 			<PDSplitPanel Size="InitialPreviewSize" MinSize="0">
 
 				<PDFilePreview Item="_previewItem"
+							   IsVisible="PreviewPanelVisible"
 							   ExceptionHandler="ExceptionHandler"
 							   PreviewProvider="PreviewProvider" />
 
