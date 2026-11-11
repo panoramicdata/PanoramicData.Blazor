@@ -238,7 +238,14 @@ public partial class PDTextBox : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("setValue", Id, string.Empty).ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("setValue", Id, string.Empty).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		Value = string.Empty;

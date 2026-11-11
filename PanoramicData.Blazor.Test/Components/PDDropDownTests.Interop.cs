@@ -109,7 +109,15 @@ public partial class PDDropDownTests
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
+			try
+			{
+				return InvokeAsync<TValue>(identifier, args);
+			}
+			catch (JSDisconnectedException)
+			{
+				// Test double: let a simulated disconnect reach the caller.
+				throw;
+			}
 		}
 	}
 
@@ -122,7 +130,15 @@ public partial class PDDropDownTests
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
+			try
+			{
+				return InvokeAsync<TValue>(identifier, args);
+			}
+			catch (JSDisconnectedException)
+			{
+				// Test double: let a simulated disconnect reach the caller.
+				throw;
+			}
 		}
 	}
 
@@ -139,7 +155,15 @@ public partial class PDDropDownTests
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
+			try
+			{
+				return InvokeAsync<TValue>(identifier, args);
+			}
+			catch (JSDisconnectedException)
+			{
+				// Test double: let a simulated disconnect reach the caller.
+				throw;
+			}
 		}
 	}
 }

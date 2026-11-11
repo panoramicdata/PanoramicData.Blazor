@@ -143,7 +143,14 @@ public partial class PDTable<TItem>
 			Selection.Add(id);
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("scrollIntoView", id, false).ConfigureAwait(true);
+				try
+				{
+					await _commonModule.InvokeVoidAsync("scrollIntoView", id, false).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 	}

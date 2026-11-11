@@ -130,7 +130,14 @@ public partial class PDSplitter : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
+			try
+			{
+				return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		return [];
@@ -144,7 +151,14 @@ public partial class PDSplitter : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("setSizes", Id, sizes).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("setSizes", Id, sizes).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

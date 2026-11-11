@@ -197,20 +197,43 @@ public partial class PDColorPicker : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
-				"import",
-				"./_content/PanoramicData.Blazor/PDColorPicker.razor.js"
-			).ConfigureAwait(true);
+		try
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
+					"import",
+					"./_content/PanoramicData.Blazor/PDColorPicker.razor.js"
+				).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		}
 
 		if (_isOpen && Options.CloseOnOutsideClick && _module != null)
 		{
-			await _module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 
 			// Get the actual dimensions of the SV container for accurate positioning
 			if (SvContainerRef.Id != null)
 			{
-				var bounds = await _module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
+				ElementBounds? bounds;
+				try
+				{
+					bounds = await _module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+					return;
+				}
 				if (bounds != null)
 				{
 					_svWidth = bounds.Width;

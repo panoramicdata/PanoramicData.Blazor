@@ -323,7 +323,14 @@ public partial class PDModal : IAsyncDisposable
 
 		if (btn != null && _commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("focus", cancellationToken, $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("focus", cancellationToken, $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		_userChoice = new TaskCompletionSource<string>();

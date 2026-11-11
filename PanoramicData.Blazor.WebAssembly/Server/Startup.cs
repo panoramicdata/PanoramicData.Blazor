@@ -32,7 +32,6 @@ public class Startup(IConfiguration configuration)
 		if (env.IsDevelopment())
 		{
 			app.UseDeveloperExceptionPage();
-			app.UseWebAssemblyDebugging();
 		}
 		else
 		{

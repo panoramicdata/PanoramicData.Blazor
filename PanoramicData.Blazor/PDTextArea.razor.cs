@@ -248,7 +248,16 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 
 			// TODO: if running within a PDForm then need to block from
 			// switching to another Item until completes
-			var val = await _commonModule.InvokeAsync<string>("getValue", Id);
+			string val;
+			try
+			{
+				val = await _commonModule.InvokeAsync<string>("getValue", Id);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 			_lastReportedValue = val;
 			await ValueChanged.InvokeAsync(val).ConfigureAwait(true);
 
@@ -313,7 +322,14 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("setSelection", Id, start, end);
+			try
+			{
+				await _module.InvokeVoidAsync("setSelection", Id, start, end);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -325,7 +341,14 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("setValue", Id, value);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("setValue", Id, value);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -336,7 +359,14 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("scrollToEnd", Id);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("scrollToEnd", Id);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

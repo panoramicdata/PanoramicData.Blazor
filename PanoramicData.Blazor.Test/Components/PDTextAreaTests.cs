@@ -254,7 +254,17 @@ public class PDTextAreaTests : BunitContext
 		public List<string> Identifiers { get; } = [];
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+		{
+			try
+			{
+				return InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+			}
+			catch (JSDisconnectedException)
+			{
+				// Test double: let a simulated disconnect reach the caller.
+				throw;
+			}
+		}
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{

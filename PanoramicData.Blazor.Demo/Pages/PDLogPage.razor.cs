@@ -46,7 +46,6 @@ public partial class PDLogPage
 	private void OnLogLevelClick(string key)
 	{
 		_logLevel = Enum.Parse<LogLevel>(key);
-		StateHasChanged();
 	}
 
 	private void Clear()

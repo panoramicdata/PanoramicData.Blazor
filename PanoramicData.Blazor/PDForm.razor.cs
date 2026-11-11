@@ -324,13 +324,28 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	}
 
 	/// <summary>
+	/// Tells the browser module to arm or disarm the unload prompt.
+	/// </summary>
+	private async Task SetModuleUnloadListenerAsync(IJSObjectReference module, bool enabled)
+	{
+		try
+		{
+			await module.InvokeVoidAsync("setUnloadListener", Id, enabled).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+	}
+
+	/// <summary>
 	/// Arms or disarms the prompt shown when leaving the page with unsaved changes, if the form asks for one.
 	/// </summary>
 	private async Task SetUnloadListenerAsync(bool enabled)
 	{
 		// Skipping a disarm when never armed saves a browser round trip on every form open.
 		if (ConfirmOnUnload && _module is { } module && (enabled || _unloadListenerArmed)
-			&& await TryBrowserCallAsync(() => module.InvokeVoidAsync("setUnloadListener", Id, enabled).AsTask()).ConfigureAwait(true))
+			&& await TryBrowserCallAsync(() => SetModuleUnloadListenerAsync(module, enabled)).ConfigureAwait(true))
 		{
 			_unloadListenerArmed = enabled;
 		}
@@ -589,7 +604,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		}
 
 		var elements = editors.Select(x => x.EditorDiv).ToArray();
-		await TryBrowserCallAsync(() => common.InvokeVoidAsync("clearInlineStyles", elements).AsTask()).ConfigureAwait(true);
+		await TryBrowserCallAsync(async () =>
+		{
+			try
+			{
+				await common.InvokeVoidAsync("clearInlineStyles", elements).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+		}).ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -606,7 +631,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				if (ConfirmOnUnload)
 				{
 					// The listener is module-level state that outlives the form, so a dirty form must disarm it.
-					await TryBrowserCallAsync(() => module.InvokeVoidAsync("setUnloadListener", Id, false).AsTask()).ConfigureAwait(true);
+					await TryBrowserCallAsync(() => SetModuleUnloadListenerAsync(module, false)).ConfigureAwait(true);
 				}
 
 				await TryBrowserCallAsync(() => module.DisposeAsync().AsTask()).ConfigureAwait(true);

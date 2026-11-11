@@ -79,7 +79,14 @@ public partial class PDContextMenu : IHandleEvent
 		{
 			if (_module != null)
 			{
-				await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			await ItemClick.InvokeAsync(item).ConfigureAwait(true);
@@ -103,16 +110,36 @@ public partial class PDContextMenu : IHandleEvent
 
 	private async Task ShowMenuAsync(MouseEventArgs args)
 	{
+		ElementInfo? sourceElement = null;
+		if (_commonModule != null)
+		{
+			try
+			{
+				sourceElement = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+		}
+
 		var cancelArgs = new MenuItemsEventArgs(this, Items)
 		{
 			// get details of element that was clicked on
-			SourceElement = _commonModule != null ? (await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
+			SourceElement = sourceElement
 		};
 
 		await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
 		if (!cancelArgs.Cancel && _module != null && await IsPopperAvailableAsync(_module).ConfigureAwait(true))
 		{
-			await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 }

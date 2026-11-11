@@ -240,7 +240,14 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
+			try
+			{
+				await _commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

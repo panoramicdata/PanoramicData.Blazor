@@ -19,9 +19,18 @@ public abstract partial class PDAudioControl
 	/// <summary>
 	/// Gets the control's JavaScript module, importing it on first use; it is disposed with the control.
 	/// </summary>
-	/// <returns>The imported module.</returns>
-	protected async Task<IJSObjectReference> GetJsModuleAsync()
-		=> _jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName).ConfigureAwait(true);
+	/// <returns>The imported module, or null when the circuit is gone.</returns>
+	protected async Task<IJSObjectReference?> GetJsModuleAsync()
+	{
+		try
+		{
+			return _jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			return null;
+		}
+	}
 
 	/// <summary>
 	/// Handles pointer-down and registers drag listeners via JavaScript.
@@ -42,9 +51,15 @@ public abstract partial class PDAudioControl
 			_dragOriginValue = Value;
 
 			_dotNetRef ??= DotNetObjectReference.Create(this);
-			_jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName);
-			
-			await _jsModule.InvokeVoidAsync("registerAudioControlEvents", _dotNetRef);
+			try
+			{
+				_jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName);
+				await _jsModule.InvokeVoidAsync("registerAudioControlEvents", _dotNetRef);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

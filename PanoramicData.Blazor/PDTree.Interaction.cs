@@ -300,7 +300,14 @@ public partial class PDTree<TItem>
 		node.ParentNode?.Nodes?.Sort(NodeSort); // re-sort parent
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -326,7 +333,14 @@ public partial class PDTree<TItem>
 		// re-focus the tree
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

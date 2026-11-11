@@ -267,8 +267,15 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 			Parent?.RegisterDeckAsChild(this);
 
 			_dotNetRef = DotNetObjectReference.Create(this);
-			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
-				"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+			try
+			{
+				_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+					"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 
 			// Disposed while the module was loading: register nothing that would outlive the deck.
 			if (_disposed)
@@ -279,8 +286,22 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 			if (_jsModule != null)
 			{
-				await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", DeckElement, _dotNetRef);
-				await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", DeckElement, _dotNetRef);
+				try
+				{
+					await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", DeckElement, _dotNetRef);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
+				try
+				{
+					await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", DeckElement, _dotNetRef);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			_canDrag = true;

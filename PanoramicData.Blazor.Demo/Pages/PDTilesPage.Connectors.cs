@@ -14,13 +14,11 @@ public partial class PDTilesPage
 	{
 		_connectors = TilesComponent?.GenerateRandomConnectors() ?? GenerateDefaultConnectors();
 		UpdateUrl();
-		StateHasChanged();
 	}
 
 	private void OnClearConnectors()
 	{
 		_connectors = [];
-		StateHasChanged();
 	}
 
 	private List<TileConnector> GenerateDefaultConnectors()

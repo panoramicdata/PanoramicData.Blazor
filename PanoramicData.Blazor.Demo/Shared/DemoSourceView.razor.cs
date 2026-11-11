@@ -113,7 +113,14 @@ public partial class DemoSourceView : IDisposable
 		if (!string.IsNullOrEmpty(uri.Fragment))
 		{
 			var anchor = uri.Fragment.TrimStart('#');
-			await JSRuntime.InvokeVoidAsync("scrollToElement", anchor).ConfigureAwait(true);
+			try
+			{
+				await JSRuntime.InvokeVoidAsync("scrollToElement", anchor).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

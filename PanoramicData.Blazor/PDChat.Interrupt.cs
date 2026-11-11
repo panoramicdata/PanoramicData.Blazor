@@ -97,7 +97,14 @@ public partial class PDChat
 		_hasDictatedSinceTurn = false;
 		if (_voiceModule is not null)
 		{
-			await _voiceModule.InvokeVoidAsync("stopSpeaking");
+			try
+			{
+				await _voiceModule.InvokeVoidAsync("stopSpeaking");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		await EnterListeningAsync();

@@ -120,14 +120,12 @@ public partial class PDTilesPage
 	{
 		_lastEvent = $"Tile: {e.TileName} ({e.Column}, {e.Row})";
 		_lastEventIcon = "fa-solid fa-cube";
-		StateHasChanged();
 	}
 
 	private void OnConnectorClick(ConnectorClickEventArgs e)
 	{
 		_lastEvent = $"Connector: {e.ConnectorName}";
 		_lastEventIcon = "fa-solid fa-link";
-		StateHasChanged();
 	}
 
 }

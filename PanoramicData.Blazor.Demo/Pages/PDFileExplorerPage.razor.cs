@@ -132,7 +132,14 @@ public partial class PDFileExplorerPage
 			}
 		}
 
-		await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	public static void OnUploadRequest(DropZoneEventArgs args)

@@ -70,7 +70,16 @@ public partial class PDTreeNode<TItem>
 			return null;
 		}
 
-		var bounds = await _commonModule.InvokeAsync<double[]?>("getTreeRowBounds", _headerRef, _contentRef).ConfigureAwait(true);
+		double[]? bounds;
+		try
+		{
+			bounds = await _commonModule.InvokeAsync<double[]?>("getTreeRowBounds", _headerRef, _contentRef).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to measure.
+			return null;
+		}
 		return bounds is { Length: 3 } ? bounds : null;
 	}
 

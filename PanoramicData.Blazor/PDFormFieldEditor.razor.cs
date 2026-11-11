@@ -207,7 +207,14 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		if (firstRender)
 		{
 			IsRendered = true;
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -406,8 +413,23 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	/// </summary>
 	public async Task ResetEditorCssAsync()
 	{
-		_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
-		await _commonModule.InvokeVoidAsync("clearInlineStyle", EditorDiv);
+		try
+		{
+			_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
+		try
+		{
+			await _commonModule.InvokeVoidAsync("clearInlineStyle", EditorDiv);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	#region IDisposable

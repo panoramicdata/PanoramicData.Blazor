@@ -260,9 +260,24 @@ public partial class PDTree<TItem> : IDisposable, IHandleEvent where TItem : cla
     /// <param name="nodeId">The ID of the node to scroll into view.</param>
     public async Task ScrollNodeIntoViewAsync(string nodeId)
     {
-        _commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+        try
+        {
+            _commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit is gone, so there is nothing left to do.
+            return;
+        }
 
-        await _commonModule.InvokeVoidAsync("scrollIntoView", nodeId);
+        try
+        {
+            await _commonModule.InvokeVoidAsync("scrollIntoView", nodeId);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit is gone, so there is nothing left to do.
+        }
     }
 
 	/// <summary>

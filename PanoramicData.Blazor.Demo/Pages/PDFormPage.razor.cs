@@ -54,7 +54,6 @@ public partial class PDFormPage
 	{
 		if (args.Field.Name == "AllowLogin")
 		{
-			StateHasChanged();
 		}
 	}
 

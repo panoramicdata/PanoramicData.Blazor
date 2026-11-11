@@ -326,18 +326,46 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private async Task InitializeInteropAsync()
 	{
 		_objRef = DotNetObjectReference.Create(this);
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
+		try
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+		try
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		if (_commonModule != null)
 		{
-			_canvasHeight = (int)await _commonModule.InvokeAsync<double>("getHeight", SvgPlotElement).ConfigureAwait(true);
-			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", SvgPlotElement).ConfigureAwait(true);
-			_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", SvgPlotElement).ConfigureAwait(true);
+			try
+			{
+				_canvasHeight = (int)await _commonModule.InvokeAsync<double>("getHeight", SvgPlotElement).ConfigureAwait(true);
+				_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", SvgPlotElement).ConfigureAwait(true);
+				_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", SvgPlotElement).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -392,8 +420,15 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	{
 		if (_commonModule != null)
 		{
-			_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", SvgPlotElement).ConfigureAwait(true));
-			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", SvgPlotElement).ConfigureAwait(true);
+			try
+			{
+				_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", SvgPlotElement).ConfigureAwait(true));
+				_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", SvgPlotElement).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		await SetScale(Scale, true, refreshData: RefetchDataOnResize).ConfigureAwait(true);

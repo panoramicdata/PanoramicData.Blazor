@@ -19,7 +19,14 @@ public partial class PDTimeline
 	{
 		if (_commonModule != null)
 		{
-			_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", SvgPlotElement).ConfigureAwait(true);
+			try
+			{
+				_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", SvgPlotElement).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -27,7 +34,14 @@ public partial class PDTimeline
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("setPointerCapture", pointerId, element).ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("setPointerCapture", pointerId, element).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

@@ -105,12 +105,27 @@ public partial class PDMonaco
 		// this needs to be performed in javascript
 		if (_module is null && JSRuntime != null)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.js").ConfigureAwait(true);
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.js").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 		}
 
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("configureMonaco");
+			try
+			{
+				await _module.InvokeVoidAsync("configureMonaco");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

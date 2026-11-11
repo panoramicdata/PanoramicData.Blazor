@@ -79,7 +79,14 @@ public partial class PDNavLink : IAsyncDisposable
 		if (args.CtrlKey && _commonModule != null)
 		{
 			// use JS to perform navigation in new tab
-			await _commonModule.InvokeVoidAsync("openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? string.Empty).ConfigureAwait(true))
 		{

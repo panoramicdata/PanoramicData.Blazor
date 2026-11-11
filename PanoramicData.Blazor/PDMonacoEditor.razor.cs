@@ -283,19 +283,44 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	private async Task PrepareMonacoAsync(IJSRuntime jsRuntime)
 	{
 		_objRef = DotNetObjectReference.Create(this);
-		_module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true);
+		try
+		{
+			_module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		if (_module is null)
 		{
 			return;
 		}
 
-		if (!await _module.InvokeAsync<bool>("waitForMonaco", _monacoLoadTimeoutMs).ConfigureAwait(true))
+		bool monacoLoaded;
+		try
+		{
+			monacoLoaded = await _module.InvokeAsync<bool>("waitForMonaco", _monacoLoadTimeoutMs).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
+
+		if (!monacoLoaded)
 		{
 			_monacoFailedToLoad = true;
 			return;
 		}
 
-		await _module.InvokeVoidAsync("initialize", _objRef);
+		try
+		{
+			await _module.InvokeVoidAsync("initialize", _objRef);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		await RegisterCustomLanguagesAsync(_module).ConfigureAwait(true);
 
 		InitializeCache?.Invoke(_methodCache);
@@ -315,7 +340,16 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		RegisterLanguages?.Invoke(languages);
 		foreach (var language in languages)
 		{
-			var registered = await module.InvokeAsync<bool>("registerLanguage", language.Id, language);
+			bool registered;
+			try
+			{
+				registered = await module.InvokeAsync<bool>("registerLanguage", language.Id, language);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 			if (registered)
 			{
 				InitializeLanguage?.Invoke(language);

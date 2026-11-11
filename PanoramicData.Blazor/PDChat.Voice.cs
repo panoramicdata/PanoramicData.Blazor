@@ -167,6 +167,12 @@ public partial class PDChat
 		try
 		{
 			var module = await GetVoiceModuleAsync(endpoints);
+			if (module is null)
+			{
+				VoiceState = PDChatVoiceState.Off;
+				return;
+			}
+
 			await module.InvokeVoidAsync("start", endpoints.ListenUrl, _voiceReference);
 			_isMicrophonePaused = false;
 			await EnterModeAsync();
@@ -284,13 +290,28 @@ public partial class PDChat
 		}
 
 		_isMicrophonePaused = isPaused;
-		await (_voiceModule?.InvokeVoidAsync("pause", isPaused) ?? ValueTask.CompletedTask);
+		try
+		{
+			await (_voiceModule?.InvokeVoidAsync("pause", isPaused) ?? ValueTask.CompletedTask);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	// Loaded on first use, so the page asks for nothing until the user turns a voice control on.
-	private async Task<IJSObjectReference> GetVoiceModuleAsync(PDChatVoiceEndpoints endpoints)
+	private async Task<IJSObjectReference?> GetVoiceModuleAsync(PDChatVoiceEndpoints endpoints)
 	{
-		_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", endpoints.ModulePath ?? _voiceModulePath);
+		try
+		{
+			_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", endpoints.ModulePath ?? _voiceModulePath);
+		}
+		catch (JSDisconnectedException)
+		{
+			return null;
+		}
+
 		_voiceReference ??= DotNetObjectReference.Create(this);
 		return _voiceModule;
 	}
@@ -307,7 +328,14 @@ public partial class PDChat
 		_isAwaitingSpokenAnswer = false;
 		if (_voiceModule is not null)
 		{
-			await _voiceModule.InvokeVoidAsync("stopSpeaking");
+			try
+			{
+				await _voiceModule.InvokeVoidAsync("stopSpeaking");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		if (VoiceState is PDChatVoiceState.Thinking or PDChatVoiceState.Speaking)
@@ -353,7 +381,14 @@ public partial class PDChat
 		ResetInterruptState();
 		if (_voiceModule is not null)
 		{
-			await _voiceModule.InvokeVoidAsync("stop");
+			try
+			{
+				await _voiceModule.InvokeVoidAsync("stop");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -584,6 +619,10 @@ public partial class PDChat
 		try
 		{
 			var module = await GetVoiceModuleAsync(endpoints);
+			if (module is null)
+			{
+				return;
+			}
 
 			// The module calls OnVoiceSpoken when the last of the audio has played.
 			await module.InvokeVoidAsync("speak", endpoints.SpeakUrl, spoken, _voiceReference);

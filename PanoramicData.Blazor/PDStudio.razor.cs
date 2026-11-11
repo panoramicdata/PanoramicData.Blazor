@@ -750,7 +750,6 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			// show "Cancelling..." before cancelling: the cancellation can complete the execution, which sets
 			// "Cancelled", and writing "Cancelling..." afterwards would overwrite it (issue #176)
 			_executionStatus = StudioExecutionStatus.Cancelling.ToDisplayString();
-			StateHasChanged();
 			await _cancellationTokenSource.CancelAsync();
 			await Task.Delay(100); // Brief delay to show cancelling status
 		}

@@ -161,7 +161,14 @@ public partial class PDTreeNode<TItem> where TItem : class
 		{
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{node.Id}", 0, node.Text.Length).ConfigureAwait(true);
+				try
+				{
+					await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{node.Id}", 0, node.Text.Length).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			node.BeginEditEvent.Reset();
@@ -177,7 +184,14 @@ public partial class PDTreeNode<TItem> where TItem : class
 	{
 		if (AllowDrag && _commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("initDragImage", $"pdtnc-{node.Id}").ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("initDragImage", $"pdtnc-{node.Id}").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -236,7 +250,6 @@ public partial class PDTreeNode<TItem> where TItem : class
 		if (AllowDrop)
 		{
 			_dragOverCount++;
-			StateHasChanged();
 		}
 	}
 
@@ -245,7 +258,6 @@ public partial class PDTreeNode<TItem> where TItem : class
 		if (AllowDrop)
 		{
 			_dragOverCount = Math.Max(0, _dragOverCount - 1);
-			StateHasChanged();
 		}
 	}
 

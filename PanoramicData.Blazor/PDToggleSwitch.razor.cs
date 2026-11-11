@@ -270,5 +270,19 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	}
 
 	private static async Task<double> MeasureTextAsync(IJSObjectReference module, string? text, string fontSize)
-		=> string.IsNullOrEmpty(text) ? 0 : await module.InvokeAsync<double>("measureText", text, fontSize).ConfigureAwait(true);
+	{
+		if (string.IsNullOrEmpty(text))
+		{
+			return 0;
+		}
+
+		try
+		{
+			return await module.InvokeAsync<double>("measureText", text, fontSize).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			return 0;
+		}
+	}
 }

@@ -128,8 +128,15 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_jsModule = await JS.InvokeAsync<IJSObjectReference>(
-				"import", "./_content/PanoramicData.Blazor/PDComboBox.razor.js");
+			try
+			{
+				_jsModule = await JS.InvokeAsync<IJSObjectReference>(
+					"import", "./_content/PanoramicData.Blazor/PDComboBox.razor.js");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -150,7 +157,14 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	{
 		if (_jsModule is not null)
 		{
-			await _jsModule.InvokeVoidAsync("blurInput", InputRef);
+			try
+			{
+				await _jsModule.InvokeVoidAsync("blurInput", InputRef);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -217,7 +231,14 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	{
 		if (_jsModule is not null)
 		{
-			await _jsModule.InvokeVoidAsync("selectInputText", InputRef);
+			try
+			{
+				await _jsModule.InvokeVoidAsync("selectInputText", InputRef);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -231,14 +252,12 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 				_searchText = ItemToString(SelectedItem);
 			}
 
-			StateHasChanged();
 			return;
 		}
 
 		// Restore last search text for filtering
 		var searchText = _lastSearchText;
 		ApplyFilter(searchText);
-		StateHasChanged();
 
 		// Focus the input after dropdown is shown
 		await FocusInputAsync();
@@ -306,7 +325,6 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 		if (await HandleDropdownKeyAsync(e.Key))
 		{
-			StateHasChanged();
 		}
 	}
 
@@ -372,7 +390,6 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			_searchText = _lastSearchText;
 			_showDropdown = true;
 			ApplyFilter(_searchText);
-			StateHasChanged();
 		} 
 		else
 		{
@@ -387,7 +404,14 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 		if (_jsModule is not null && !string.IsNullOrEmpty(_searchText))
 		{
-			await _jsModule.InvokeVoidAsync("selectInputText", InputRef);
+			try
+			{
+				await _jsModule.InvokeVoidAsync("selectInputText", InputRef);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

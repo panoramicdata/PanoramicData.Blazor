@@ -55,7 +55,6 @@ public partial class PDDashboard
 
 		await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
 
-		StateHasChanged();
 	}
 
 	private void AddConfigProperty()

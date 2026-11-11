@@ -98,18 +98,15 @@ public partial class PDColorPickerPage
 	private void OnRecentColorsChanged(List<string> colors)
 	{
 		_events.Add($"{DateTime.Now:HH:mm:ss} - Recent colors updated: {colors.Count} colors");
-		StateHasChanged();
 	}
 
 	private void OnColor7Selected(string color)
 	{
 		_events.Add($"{DateTime.Now:HH:mm:ss} - Live color selected: {color}");
-		StateHasChanged();
 	}
 
 	private void OnColor8Selected(string color)
 	{
 		_events.Add($"{DateTime.Now:HH:mm:ss} - Confirmed color selected: {color}");
-		StateHasChanged();
 	}
 }

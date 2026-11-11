@@ -99,10 +99,18 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
-				"import",
-				"./_content/PanoramicData.Blazor/PDTilesJavaScript.razor.js"
-			).ConfigureAwait(true);
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
+					"import",
+					"./_content/PanoramicData.Blazor/PDTilesJavaScript.razor.js"
+				).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 
 			await InitializeGrid().ConfigureAwait(true);
 		}
@@ -219,7 +227,14 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync(identifier, args).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync(identifier, args).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

@@ -76,11 +76,18 @@ public partial class PDVoiceListener : IAsyncDisposable
 		ConfigureServiceIfChanged();
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("configure", new
+			try
 			{
-				mode = Mode.ToString(),
-				runInBackground = RunInBackground
-			}).ConfigureAwait(true);
+				await _module.InvokeVoidAsync("configure", new
+				{
+					mode = Mode.ToString(),
+					runInBackground = RunInBackground
+				}).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 			await SyncListeningStateAsync().ConfigureAwait(true);
 		}
 	}
@@ -94,12 +101,27 @@ public partial class PDVoiceListener : IAsyncDisposable
 		}
 
 		_dotNetObjectReference = DotNetObjectReference.Create(this);
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDVoiceListener.razor.js").ConfigureAwait(true);
-		await _module.InvokeVoidAsync("initialize", _dotNetObjectReference, new
+		try
 		{
-			mode = Mode.ToString(),
-			runInBackground = RunInBackground
-		}).ConfigureAwait(true);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDVoiceListener.razor.js").ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
+		try
+		{
+			await _module.InvokeVoidAsync("initialize", _dotNetObjectReference, new
+			{
+				mode = Mode.ToString(),
+				runInBackground = RunInBackground
+			}).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 
 		await SyncListeningStateAsync().ConfigureAwait(true);
 	}
@@ -112,7 +134,14 @@ public partial class PDVoiceListener : IAsyncDisposable
 		ActiveListenerService.StartListening();
 		if (_module != null && !_isStarted)
 		{
-			await _module.InvokeVoidAsync("startListening").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("startListening").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 			_isStarted = true;
 		}
 	}
@@ -125,7 +154,14 @@ public partial class PDVoiceListener : IAsyncDisposable
 		ActiveListenerService.StopListening();
 		if (_module != null && _isStarted)
 		{
-			await _module.InvokeVoidAsync("stopListening").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("stopListening").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 			_isStarted = false;
 		}
 	}
@@ -226,7 +262,14 @@ public partial class PDVoiceListener : IAsyncDisposable
 		{
 			if (_isStarted)
 			{
-				await _module.InvokeVoidAsync("stopListening").ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("stopListening").ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 				_isStarted = false;
 			}
 
@@ -235,7 +278,14 @@ public partial class PDVoiceListener : IAsyncDisposable
 
 		if (!_isStarted)
 		{
-			await _module.InvokeVoidAsync("startListening").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("startListening").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 			_isStarted = true;
 		}
 	}

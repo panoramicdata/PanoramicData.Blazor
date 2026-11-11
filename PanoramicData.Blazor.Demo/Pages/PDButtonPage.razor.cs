@@ -30,7 +30,15 @@ public partial class PDButtonPage : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 		}
 	}
 
@@ -54,7 +62,14 @@ public partial class PDButtonPage : IAsyncDisposable
 		if (args.CtrlKey && _commonModule != null)
 		{
 			// open target in new tab / browser
-			await _commonModule.InvokeVoidAsync("openUrl", "/", "_blank").ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("openUrl", "/", "_blank").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 		else
 		{

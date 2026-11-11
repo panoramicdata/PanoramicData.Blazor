@@ -110,7 +110,6 @@ public partial class PDStudioDemo : IDisposable
 	private async Task OnExecutionStateChanged(bool isExecuting)
 	{
 		AddEvent("State", isExecuting ? "Expression evaluation started" : "Expression evaluation completed");
-		StateHasChanged();
 		await Task.CompletedTask;
 	}
 
@@ -118,13 +117,11 @@ public partial class PDStudioDemo : IDisposable
 	{
 		var first = e.Columns.Count == 0 ? "row" : $"{e.Columns[0].Name} = {PDStudioResultSet.FormatValue(e.Values[0])}";
 		AddEvent("Results", $"Row {e.RowIndex + 1} clicked ({first})");
-		StateHasChanged();
 	}
 
 	private async Task OnLoggingVisibilityChanged(bool isVisible)
 	{
 		AddEvent("UI", isVisible ? "Console shown" : "Console hidden");
-		StateHasChanged();
 		await Task.CompletedTask;
 	}
 
@@ -139,7 +136,16 @@ public partial class PDStudioDemo : IDisposable
 		// Update theme based on language and current system preference
 		if (_jsModule != null)
 		{
-			var isDark = await _jsModule.InvokeAsync<bool>("isSystemDarkMode");
+			bool isDark;
+			try
+			{
+				isDark = await _jsModule.InvokeAsync<bool>("isSystemDarkMode");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 			UpdateThemeBasedOnPreference(isDark);
 		}
 		

@@ -299,7 +299,6 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 			_isRenaming = false;
 		}
 
-		StateHasChanged();
 	}
 
 	private string GetBodyOverflowStyle()
@@ -369,7 +368,6 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		if (!HasConfigChanges)
 		{
 			_isConfiguring = false;
-			StateHasChanged();
 			return;
 		}
 
@@ -413,7 +411,6 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 
 		_isConfiguring = false;
 		_isPreviewing = false;
-		StateHasChanged();
 	}
 
 	private void OnPreviewStart()
@@ -426,7 +423,6 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		if (_isPreviewing)
 		{
 			_isPreviewing = false;
-			StateHasChanged();
 		}
 	}
 
@@ -443,7 +439,6 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 			}
 		}
 
-		StateHasChanged();
 	}
 
 	private void OnConfigContentChanged(string value)

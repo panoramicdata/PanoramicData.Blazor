@@ -10,10 +10,24 @@ public partial class PDTextBox
 
 	private async Task InitializeSpeechAsync()
 	{
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);
+		try
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("initSpeech", SpeechLang).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("initSpeech", SpeechLang).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -21,7 +35,14 @@ public partial class PDTextBox
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("termSpeech").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("termSpeech").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 			await _module.DisposeAsync().ConfigureAwait(true);
 		}
 	}
@@ -32,14 +53,35 @@ public partial class PDTextBox
 		{
 			if (_activeListener == Id)
 			{
-				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 			else
 			{
-				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 				await Task.Delay(100).ConfigureAwait(true);
 				Volatile.Write(ref _activeListener, Id);
-				await _module.InvokeVoidAsync("startListenForSpeech", _objRef).ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("startListenForSpeech", _objRef).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 	}

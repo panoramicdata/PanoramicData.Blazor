@@ -124,7 +124,14 @@ public partial class PDDropZone : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -135,7 +142,14 @@ public partial class PDDropZone : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("clear", $"#{Id}").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("clear", $"#{Id}").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -334,7 +348,14 @@ public partial class PDDropZone : IAsyncDisposable
 			// clear dropzone queue
 			if (_module != null)
 			{
-				await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 		else
@@ -349,11 +370,25 @@ public partial class PDDropZone : IAsyncDisposable
 				// remove skipped files and then proceed
 				foreach (var file in args.FilesToSkip)
 				{
-					await _module.InvokeVoidAsync("removeFile", $"#{Id}", file.Key).ConfigureAwait(true);
+					try
+					{
+						await _module.InvokeVoidAsync("removeFile", $"#{Id}", file.Key).ConfigureAwait(true);
+					}
+					catch (JSDisconnectedException)
+					{
+						// The circuit is gone, so there is nothing left to do.
+					}
 				}
 
 				// begin processing queue
-				await _module.InvokeVoidAsync("process", $"#{Id}", args.Overwrite).ConfigureAwait(true);
+				try
+				{
+					await _module.InvokeVoidAsync("process", $"#{Id}", args.Overwrite).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 	}
@@ -371,7 +406,14 @@ public partial class PDDropZone : IAsyncDisposable
 		// clear dropzone queue
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		// notify app

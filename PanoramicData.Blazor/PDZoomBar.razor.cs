@@ -104,7 +104,14 @@ public partial class PDZoomBar : IAsyncDisposable
 		Value.Zoom = zoom;
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);

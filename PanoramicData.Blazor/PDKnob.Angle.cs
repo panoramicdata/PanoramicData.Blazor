@@ -158,7 +158,21 @@ public partial class PDKnob
 		}
 
 		var module = await GetJsModuleAsync().ConfigureAwait(true);
-		var start = await module.InvokeAsync<double[]?>("registerAngleEvents", DotNetReference, _svgRef, e.ClientX, e.ClientY).ConfigureAwait(true);
+		if (module is null)
+		{
+			return;
+		}
+
+		double[]? start;
+		try
+		{
+			start = await module.InvokeAsync<double[]?>("registerAngleEvents", DotNetReference, _svgRef, e.ClientX, e.ClientY).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
 		if (start is { Length: 2 })
 		{
 			_isAngleDragging = true;
