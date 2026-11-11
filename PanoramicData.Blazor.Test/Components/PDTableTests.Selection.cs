@@ -182,6 +182,19 @@ public partial class PDTableTests
 		table.Instance.Selection.Should().Equal("1", "2", "3");
 	}
 
+	/// <summary>ScrollItemIntoViewAsync scrolls the row with the key into view, matching a key that is no CSS identifier.</summary>
+	[Fact]
+	public async Task ScrollItemIntoViewAsync_scrolls_the_row_by_its_id_attribute()
+	{
+		var table = RenderTable();
+
+		await table.InvokeAsync(() => table.Instance.ScrollItemIntoViewAsync("/a \"b\".txt"));
+		await table.InvokeAsync(() => table.Instance.ScrollItemIntoViewAsync(" "));
+
+		var arguments = _common.Invocations["scrollIntoViewEx"].Should().ContainSingle().Which.Arguments;
+		arguments.Should().Equal($"#{table.Instance.Id} tr[id=\"/a \\\"b\\\".txt\"]", "auto", "nearest", "nearest");
+	}
+
 	/// <summary>Without a key field no items are reported as selected.</summary>
 	[Fact]
 	public void GetSelectedItems_without_a_key_field_is_empty()

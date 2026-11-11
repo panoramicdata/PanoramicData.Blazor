@@ -116,7 +116,7 @@
 
 </PDModal>
 
-<div class="pdfileexplorer @CssClass">
+<div class="pdfileexplorer @(ShowToolbar ? null : "pdfe-no-toolbar") @CssClass">
 
 	<div class="pdfe-toolbar @(ShowToolbar ? "" : "d-none")">
 		<PDToolbar Items="ToolbarItems"
@@ -162,7 +162,7 @@
 							ClearOnCollapse="true"
 							DataProvider="DataProvider"
 							Drop="OnDropAsync"
-							ExceptionHandler="OnException"
+							ExceptionHandler="ChildExceptionHandler"
 							IsDropValid="@((item, _) => item.CanAddItems)"
 							IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
 							ItemsLoaded="OnTreeItemsLoaded"
@@ -259,7 +259,7 @@
 							 DoubleClick="OnTableDoubleClickAsync"
 							 DownloadUrlFunc="DownloadUrlFunc"
 							 Drop="OnDropAsync"
-							 ExceptionHandler="OnException"
+							 ExceptionHandler="ChildExceptionHandler"
 							 ItemsLoaded="OnTableItemsLoaded"
 							 KeyDown="OnTableKeyDownAsync"
 							 KeyField="x => x.Path"

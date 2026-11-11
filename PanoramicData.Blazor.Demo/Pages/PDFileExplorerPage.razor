@@ -81,8 +81,15 @@
 		</div>
 	</div>
 
+	<div class="mt-2">
+		<strong>Show a file:</strong>
+		<input class="form-control form-control-sm d-inline-block w-auto ms-2" aria-label="Path of the file to show" @bind="ItemPathToShow" />
+		<button type="button" class="btn btn-sm btn-secondary ms-1" @onclick="ShowItemAsync">Show</button>
+		<span class="small text-muted ms-2">@_showItemResult</span>
+	</div>
+
 	<p class="small text-muted mt-2 mb-0">
-		Navigate to <code>/Library/Templates/</code> or <code>/Sharepoint/Public/</code> to see read-only files. 
+		Navigate to <code>/Library/Templates/</code> or <code>/Sharepoint/Public/</code> to see read-only files.
 		Try different combinations to compare: position (before/after), style (text/icon), and badge overlay.
 	</p>
 </div>

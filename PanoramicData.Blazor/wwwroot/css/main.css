@@ -535,6 +535,10 @@
   height: calc(100% - 50px);
 }
 
+.pdfileexplorer.pdfileexplorer.pdfe-no-toolbar .pdsplitter.horizontal {
+  height: 100%;
+}
+
 /* Suppress the whole-panel Dropzone.js hover highlight on the tree side;
    individual node highlighting is handled by PDTreeNode.drag-over instead. */
 .pdfileexplorer.pdfileexplorer .pddropzone.dz-drag-hover {

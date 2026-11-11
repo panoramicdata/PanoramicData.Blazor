@@ -148,6 +148,23 @@ public partial class PDTableTests
 		pages.Should().Equal(2u);
 	}
 
+	/// <summary>A PageChanged handler that fails is passed to ExceptionHandler, rather than ending the circuit.</summary>
+	[Fact]
+	public async Task A_failing_PageChanged_handler_is_passed_to_ExceptionHandler()
+	{
+		static void FailToChangePage(PageCriteria criteria) => throw new InvalidOperationException("Paging failed");
+		var criteria = new PageCriteria(1, 2);
+		var failures = new List<Exception>();
+		var table = RenderTable(p => p
+			.Add(x => x.PageCriteria, criteria)
+			.Add(x => x.PageChanged, c => FailToChangePage(c))
+			.Add(x => x.ExceptionHandler, failures.Add));
+
+		await table.InvokeAsync(() => criteria.Page = 2);
+
+		table.WaitForAssertion(() => failures.Should().ContainSingle().Which.Message.Should().Be("Paging failed"));
+	}
+
 	/// <summary>Changing the page size refetches and raises PageSizeChanged.</summary>
 	[Fact]
 	public async Task Changing_the_page_size_refetches_and_raises_PageSizeChanged()

@@ -84,6 +84,17 @@ public partial class PDFileExplorerPage
 
 	private void OnFolderChanged(FileExplorerItem folder) => NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
 
+	private string ItemPathToShow { get; set; } = "/Library/Templates/word_template.docx";
+
+	private string? _showItemResult;
+
+	// Opens the file's folder once and selects the file, without opening each folder on the way
+	private async Task ShowItemAsync()
+	{
+		var isFound = await FileExplorer!.NavigateToItemAsync(ItemPathToShow).ConfigureAwait(true);
+		_showItemResult = isFound ? "Selected" : "Not found: the deepest folder found is open";
+	}
+
 	private async Task OnReady()
 	{
 		if (!string.IsNullOrWhiteSpace(_deepLinkPath))
