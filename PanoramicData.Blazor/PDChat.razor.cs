@@ -87,6 +87,14 @@ public partial class PDChat : JSModuleComponentBase
 	public PDChatIcons Icons { get; set; } = new();
 
 	/// <summary>
+	/// Gets or sets the key that, pressed with Alt while focus is in the chat, cycles Voice Mode through Mic off and its
+	/// modes. A KeyboardEvent.code such as "KeyM", so it is the same physical key on every layout. Null, the default,
+	/// offers no shortcut.
+	/// </summary>
+	[Parameter]
+	public string? VoiceModeShortcutKey { get; set; }
+
+	/// <summary>
 	/// A function to select a user icon for a given message.
 	/// </summary>
 	[Parameter]

@@ -185,6 +185,45 @@ public partial class PDChat
 
 	private const string MicOffValue = "MicOff";
 
+	// Set as the select's value: per-option selected attributes stop moving the selection once the user has chosen.
+	private string VoicePickerValue => IsVoiceModeOn ? VoiceMode.ToString() : MicOffValue;
+
+	private string VoicePickerTitle => VoiceModeShortcutKey is { Length: > 0 } key
+		? $"How Voice Mode listens. Alt+{ShortcutKeyName(key)} cycles the choices."
+		: "How Voice Mode listens";
+
+	// KeyboardEvent.code names the physical key, so "KeyM" is shown as M and "Digit5" as 5.
+	private static string ShortcutKeyName(string code)
+		=> code.StartsWith("Key", StringComparison.Ordinal) ? code[3..]
+			: code.StartsWith("Digit", StringComparison.Ordinal) ? code[5..]
+			: code;
+
+	private async Task OnChatKeyDownAsync(KeyboardEventArgs args)
+	{
+		if (!IsVoiceModeShortcut(args) || !IsVoiceModeOffered || ChatService.DockMode == PDChatDockMode.Minimized)
+		{
+			return;
+		}
+
+		await OnVoiceModeSelectedAsync(new ChangeEventArgs { Value = NextVoiceChoice() });
+	}
+
+	// Alt alone: Ctrl with Alt is AltGr on many layouts, which types characters.
+	private bool IsVoiceModeShortcut(KeyboardEventArgs args)
+		=> VoiceModeShortcutKey is { Length: > 0 } key && args.Code == key
+			&& args.AltKey && !args.CtrlKey && !args.ShiftKey && !args.MetaKey;
+
+	private string NextVoiceChoice()
+	{
+		List<string> choices = [MicOffValue, nameof(PDChatVoiceMode.Hal), nameof(PDChatVoiceMode.Dictate)];
+		if (IsWakeModeOffered)
+		{
+			choices.Add(nameof(PDChatVoiceMode.Wake));
+		}
+
+		return choices[(choices.IndexOf(VoicePickerValue) + 1) % choices.Count];
+	}
+
 	private async Task OnVoiceModeSelectedAsync(ChangeEventArgs args)
 	{
 		if (args.Value?.ToString() == MicOffValue)
