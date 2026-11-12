@@ -100,6 +100,7 @@ public partial class PDFormFooterTests
 
 		form.WaitForAssertion(() => form.Find(".pd-form-footer-errors").TextContent.Should()
 			.Contain("Please correct the highlighted fields"));
+		form.Find(".pd-form-footer-errors").ClassList.Should().NotContain("text-danger", "its colours come from --pd-form-footer-error-* variables");
 		ButtonFor(form, "Save").HasAttribute("disabled").Should().BeTrue();
 	}
 

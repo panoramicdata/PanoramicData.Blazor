@@ -289,6 +289,19 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		return classes.Contains("alert-success") ? "alert-success" : string.Empty;
 	}
 
+	// alert-danger keeps the label's look for existing hosts; the state class tells a field still waiting for a value from a wrong one
+	private string GetTitleCssClass(FieldGroup<TItem> fieldGroup)
+	{
+		if (!fieldGroup.HasErrors(Form))
+		{
+			return string.Empty;
+		}
+
+		return GetValidationCssClass(fieldGroup.Fields) == "alert-warning"
+			? "alert-danger pd-form-title-required"
+			: "alert-danger pd-form-title-invalid";
+	}
+
 	private static string GetValidationIconForCssClass(string cssClass) => "d-table-cell pt-1 fas fa-fw " + cssClass switch
 	{
 		"alert-danger" => "fa-exclamation-circle",

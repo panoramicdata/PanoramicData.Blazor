@@ -10,6 +10,11 @@
 	vertical-align: middle;
 }
 
+/* Bootstrap 5.3's dark mode: its own border colour, as its inputs have, unless the host sets the variable */
+[data-bs-theme="dark"] .editor {
+	border-color: var(--pd-form-editor-border-color, var(--bs-border-color, #495057));
+}
+
 /* The editors are mostly child components (PDTextBox, PDDateTime, Monaco, ...), so the rules that
    style them live in wwwroot/css/main.scss, anchored to the .pd-form-field-editor root class. */
 

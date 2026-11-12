@@ -3,3 +3,8 @@
 	font-size: 1.2rem;
 	width: 100%;
 }
+
+/* Bootstrap's info colour unless the host sets its own */
+.pd-form-header-help {
+	color: var(--pd-form-helper-color, var(--bs-info, #0dcaf0));
+}
