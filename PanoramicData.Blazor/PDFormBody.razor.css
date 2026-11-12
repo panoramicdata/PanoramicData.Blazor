@@ -9,23 +9,44 @@
 
 /* BS5 alert-* classes only define CSS variables; without .alert they are not applied.
    Apply colour and background directly so dark mode works without touching layout.
-   !important needed to override .input-group-text's own color/background-color rules. */
-.title-box.alert-danger,
-.input-group-text.alert-danger {
-	color: var(--bs-danger-text-emphasis) !important;
-	background-color: var(--bs-danger-bg-subtle) !important;
+   !important needed to override .input-group-text's own color/background-color rules.
+   Each colour reads a --pd-form-* variable a host can set, defaulting to Bootstrap's alert colours. */
+.title-box.alert-danger {
+	color: var(--pd-form-title-error-color, var(--bs-danger-text-emphasis)) !important;
+	background-color: var(--pd-form-title-error-bg, var(--bs-danger-bg-subtle)) !important;
 }
 
-.title-box.alert-warning,
-.input-group-text.alert-warning {
-	color: var(--bs-warning-text-emphasis) !important;
-	background-color: var(--bs-warning-bg-subtle) !important;
+.pd-form-status.alert-danger {
+	color: var(--pd-form-status-invalid-color, var(--bs-danger-text-emphasis)) !important;
+	background-color: var(--pd-form-status-invalid-bg, var(--bs-danger-bg-subtle)) !important;
 }
 
-.title-box.alert-success,
-.input-group-text.alert-success {
-	color: var(--bs-success-text-emphasis) !important;
-	background-color: var(--bs-success-bg-subtle) !important;
+.pd-form-status.alert-warning {
+	color: var(--pd-form-status-required-color, var(--bs-warning-text-emphasis)) !important;
+	background-color: var(--pd-form-status-required-bg, var(--bs-warning-bg-subtle)) !important;
+}
+
+.pd-form-status.alert-success {
+	color: var(--pd-form-status-valid-color, var(--bs-success-text-emphasis)) !important;
+	background-color: var(--pd-form-status-valid-bg, var(--bs-success-bg-subtle)) !important;
+}
+
+/* An edge down the label of a field still waiting for a value, or holding a wrong one; none unless the host gives it a width */
+.title-box.pd-form-title-required {
+	box-shadow: inset var(--pd-form-title-edge-width, 0) 0 0 0 var(--pd-form-title-required-edge-color, transparent);
+}
+
+.title-box.pd-form-title-invalid {
+	box-shadow: inset var(--pd-form-title-edge-width, 0) 0 0 0 var(--pd-form-title-invalid-edge-color, transparent);
+}
+
+/* The help link, helper and copy icons beside a label, and the message under a field: Bootstrap's info and danger colours unless the host sets its own */
+.pd-form-body ::deep .pd-form-helper {
+	color: var(--pd-form-helper-color, var(--bs-info, #0dcaf0));
+}
+
+.pd-form-field-form-error-message {
+	color: var(--pd-form-error-color, var(--bs-danger, #dc3545));
 }
 
 

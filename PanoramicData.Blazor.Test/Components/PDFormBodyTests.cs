@@ -79,7 +79,7 @@ public partial class PDFormBodyTests : BunitContext
 		]);
 		await Edit(host, FormModes.Edit);
 
-		host.FindAll(".d-table.input-group-text").Should().AllSatisfy(e => e.ClassList.Length.Should().Be(3));
+		host.FindAll(".d-table.input-group-text").Should().AllSatisfy(e => e.ClassList.Where(c => c.StartsWith("alert-", StringComparison.Ordinal)).Should().BeEmpty());
 
 		var hidden = RenderForm([Field(x => x.Name)], showValidationIndicator: false);
 		await Edit(hidden, FormModes.Edit);

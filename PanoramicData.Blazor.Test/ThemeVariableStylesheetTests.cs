@@ -3,8 +3,8 @@ using AwesomeAssertions;
 namespace PanoramicData.Blazor.Test;
 
 /// <summary>
-/// The tree, combo box and context menu take their colours from CSS variables a host can set, and each default is the
-/// colour the component had before, so a host that sets nothing sees no change.
+/// The tree, combo box, context menu and form take their colours from CSS variables a host can set, and each default is
+/// the colour the component had before, so a host that sets nothing sees no change.
 /// </summary>
 public class ThemeVariableStylesheetTests
 {
@@ -23,6 +23,17 @@ public class ThemeVariableStylesheetTests
 	[InlineData("PDContextMenu.razor.css", "color: var(--pd-contextmenu-disabled-color, #6c757d);")]
 	[InlineData("PDContextMenu.razor.css", "border-bottom: 1px solid var(--pd-contextmenu-border-color, rgba(0,0,0,.125));")]
 	[InlineData("PDFormFieldEditor.razor.css", "border-top: 1px solid var(--pd-form-editor-border-color, #ced4da);")]
+	[InlineData("PDFormFieldEditor.razor.css", "border-color: var(--pd-form-editor-border-color, var(--bs-border-color, #495057));")]
+	[InlineData("PDFormBody.razor.css", "background-color: var(--pd-form-title-error-bg, var(--bs-danger-bg-subtle)) !important;")]
+	[InlineData("PDFormBody.razor.css", "background-color: var(--pd-form-status-invalid-bg, var(--bs-danger-bg-subtle)) !important;")]
+	[InlineData("PDFormBody.razor.css", "background-color: var(--pd-form-status-required-bg, var(--bs-warning-bg-subtle)) !important;")]
+	[InlineData("PDFormBody.razor.css", "background-color: var(--pd-form-status-valid-bg, var(--bs-success-bg-subtle)) !important;")]
+	[InlineData("PDFormBody.razor.css", "box-shadow: inset var(--pd-form-title-edge-width, 0) 0 0 0 var(--pd-form-title-invalid-edge-color, transparent);")]
+	[InlineData("PDFormBody.razor.css", "color: var(--pd-form-helper-color, var(--bs-info, #0dcaf0));")]
+	[InlineData("PDFormBody.razor.css", "color: var(--pd-form-error-color, var(--bs-danger, #dc3545));")]
+	[InlineData("PDFormHeader.razor.css", "color: var(--pd-form-helper-color, var(--bs-info, #0dcaf0));")]
+	[InlineData("PDFormFooter.razor.css", "color: var(--pd-form-footer-error-color, var(--bs-danger, #dc3545));")]
+	[InlineData("PDFormFooter.razor.css", "border-width: var(--pd-form-footer-error-border-width, 0 0 1px 0);")]
 	public void A_colour_reads_its_variable_with_the_original_default(string stylesheet, string declaration)
 		=> Read(stylesheet).Should().Contain(declaration);
 

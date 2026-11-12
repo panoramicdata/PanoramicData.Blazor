@@ -2,11 +2,22 @@
 	width: 100%;
 }
 
+/* Danger-coloured text over a line by default; a host can make it a box, for example with a coloured edge */
 .pd-form-footer-errors {
 	font-size: 0.875rem;
-	padding: 0.25rem 0;
+	padding: var(--pd-form-footer-error-padding, 0.25rem 0);
 	margin-bottom: 0.75rem;
-	border-bottom: 1px solid currentColor;
+	color: var(--pd-form-footer-error-color, var(--bs-danger, #dc3545));
+	background-color: var(--pd-form-footer-error-bg, transparent);
+	border-style: solid;
+	border-width: var(--pd-form-footer-error-border-width, 0 0 1px 0);
+	border-color: var(--pd-form-footer-error-border-color, currentColor);
+	border-left-color: var(--pd-form-footer-error-edge-color, var(--pd-form-footer-error-border-color, currentColor));
+	border-radius: var(--pd-form-footer-error-radius, 0);
+}
+
+.pd-form-footer-errors i {
+	color: var(--pd-form-footer-error-icon-color, inherit);
 }
 
 /* The footer's PDToolbar is styled in wwwroot/css/main.scss. */

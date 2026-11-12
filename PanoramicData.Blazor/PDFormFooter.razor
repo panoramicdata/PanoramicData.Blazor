@@ -8,7 +8,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 	<div class="pd-form-footer">
 		@if (ShowErrorCount && ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit) && _errorCount > 0)
 		{
-			<div class="pd-form-footer-errors text-danger user-select-none">
+			<div class="pd-form-footer-errors user-select-none">
 				<i class="fas fa-exclamation-triangle me-1"></i>
 				<span>@(string.Format(ErrorCountMessage, _errorCount, _errorCount == 1 ? "" : "s", _errorFieldNames))</span>
 			</div>

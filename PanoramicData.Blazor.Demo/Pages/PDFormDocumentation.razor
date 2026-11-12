@@ -214,13 +214,28 @@
 	<section id="colours">
 		<h2 class="doc-section">Colours</h2>
 		<p>
-			The frame around each field's editor comes from a CSS variable, so a host can match it to its own control
-			borders on <code>:root</code> or on a theme class, for example on a dark theme.
+			The form's frames, validation state and helper icons take their colours from CSS variables, so a host can
+			match them to its own theme on <code>:root</code> or on a theme class. Each default is the colour the form
+			drew before. PDForm 6 in the demo turns groups of them on and off.
 		</p>
 		<table class="table table-sm doc-props-table">
 			<thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
 			<tbody>
-				<tr><td><code>--pd-form-editor-border-color</code></td><td><code>#ced4da</code></td><td>The border around a field's editor, to the right of its label</td></tr>
+				<tr><td><code>--pd-form-editor-border-color</code></td><td><code>#ced4da</code>, and Bootstrap's border colour under its dark mode</td><td>The border around a field's editor, to the right of its label</td></tr>
+				<tr><td><code>--pd-form-title-error-bg</code>, <code>--pd-form-title-error-color</code></td><td>Bootstrap's danger alert colours</td><td>The label of a field with errors, whether still waiting for a value or holding a wrong one</td></tr>
+				<tr><td><code>--pd-form-title-edge-width</code></td><td><code>0</code></td><td>The width of an edge down the left of such a label; none unless set</td></tr>
+				<tr><td><code>--pd-form-title-required-edge-color</code></td><td><code>transparent</code></td><td>The edge while a field is still waiting for a value (label class <code>pd-form-title-required</code>)</td></tr>
+				<tr><td><code>--pd-form-title-invalid-edge-color</code></td><td><code>transparent</code></td><td>The edge once a field holds a wrong value (label class <code>pd-form-title-invalid</code>)</td></tr>
+				<tr><td><code>--pd-form-status-valid-bg</code>, <code>--pd-form-status-valid-color</code></td><td>Bootstrap's success alert colours</td><td>The validation indicator at the end of a valid field (class <code>pd-form-status</code>)</td></tr>
+				<tr><td><code>--pd-form-status-required-bg</code>, <code>--pd-form-status-required-color</code></td><td>Bootstrap's warning alert colours</td><td>The indicator, an asterisk, while a field is still waiting for a value</td></tr>
+				<tr><td><code>--pd-form-status-invalid-bg</code>, <code>--pd-form-status-invalid-color</code></td><td>Bootstrap's danger alert colours</td><td>The indicator once a field holds a wrong value</td></tr>
+				<tr><td><code>--pd-form-helper-color</code></td><td>Bootstrap's info colour</td><td>The help link, helper and copy icons beside a label, and the header's help icon</td></tr>
+				<tr><td><code>--pd-form-error-color</code></td><td>Bootstrap's danger colour</td><td>The message under a field with a wrong value</td></tr>
+				<tr><td><code>--pd-form-footer-error-color</code>, <code>--pd-form-footer-error-icon-color</code></td><td>Bootstrap's danger colour</td><td>The footer's error count and its icon</td></tr>
+				<tr><td><code>--pd-form-footer-error-bg</code></td><td><code>transparent</code></td><td>Behind the footer's error count</td></tr>
+				<tr><td><code>--pd-form-footer-error-border-width</code>, <code>--pd-form-footer-error-border-color</code></td><td><code>0 0 1px 0</code>, the text colour</td><td>Its border, a line underneath by default</td></tr>
+				<tr><td><code>--pd-form-footer-error-edge-color</code></td><td>the border colour</td><td>Its left border, for a coloured edge</td></tr>
+				<tr><td><code>--pd-form-footer-error-padding</code>, <code>--pd-form-footer-error-radius</code></td><td><code>0.25rem 0</code>, <code>0</code></td><td>Its padding and corners</td></tr>
 			</tbody>
 		</table>
 	</section>

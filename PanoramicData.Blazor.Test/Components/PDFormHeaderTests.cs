@@ -157,6 +157,7 @@ public class PDFormHeaderTests : BunitContext
 		await EditAsync(form, mode);
 		form.Markup.Should().NotContain("Fill in the name.");
 
+		form.Find("i.fa-question-circle").ClassList.Should().Contain("pd-form-header-help").And.NotContain("text-info");
 		form.Find("i.fa-question-circle").Click();
 		form.Find(".pd-form-header .small.text-muted").TextContent.Trim().Should().Be("Fill in the name.");
 		form.Instance.ShowHelp.Should().BeTrue();
