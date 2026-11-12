@@ -203,4 +203,21 @@
 		</table>
 	</section>
 
+	<section id="colours">
+		<h2 class="doc-section">Colours</h2>
+		<p>
+			A node's selection and shape come from CSS variables, so a host can set them on <code>:root</code> or on a
+			theme class. The hover and the selection share the shape, so rounding one rounds both. For example,
+			<code>body.theme-dark { --pd-tree-selected-bg: #2a3a5c; --pd-tree-node-radius: 0.25em; }</code>.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>--pd-tree-selected-bg</code></td><td><code>#007bff</code></td><td>The selected node's background</td></tr>
+				<tr><td><code>--pd-tree-selected-color</code></td><td><code>inherit</code></td><td>The selected node's text</td></tr>
+				<tr><td><code>--pd-tree-node-radius</code></td><td><code>0</code></td><td>The corner radius of a node's hover and selection</td></tr>
+				<tr><td><code>--pd-tree-node-inset-end</code></td><td><code>0</code></td><td>The gap between a node's hover and selection and the end of the tree, so rounded corners stay clear of the panel's edge</td></tr>
+			</tbody>
+		</table>
+	</section>
 </div>
