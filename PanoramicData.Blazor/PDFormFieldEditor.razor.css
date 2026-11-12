@@ -1,8 +1,9 @@
+/* The frame around a field's editor; a host can match it to its own control borders */
 .editor {
 	align-items: center;
-	border-bottom: 1px solid #ced4da;
-	border-top: 1px solid #ced4da;
-	border-right: 1px solid #ced4da;
+	border-bottom: 1px solid var(--pd-form-editor-border-color, #ced4da);
+	border-top: 1px solid var(--pd-form-editor-border-color, #ced4da);
+	border-right: 1px solid var(--pd-form-editor-border-color, #ced4da);
 	display: flex;
 	flex: 1 1;
 	padding: 0 2px;
