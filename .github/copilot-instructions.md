@@ -4,7 +4,7 @@
 
 **PanoramicData.Blazor** is a comprehensive Blazor component library providing rich UI controls for data visualization, forms, and user interaction.
 
-**Repository**: .NET 10 solution with Blazor WebAssembly, Razor Pages demo applications, and a reusable component library.
+**Repository**: .NET 11.0 solution with Blazor WebAssembly, Razor Pages demo applications, and a reusable component library.
 
 ---
 
@@ -34,7 +34,7 @@ dotnet build PanoramicData.Blazor.slnx
 
 | Project | Purpose | Technology |
 |---------|---------|------------|
-| **PanoramicData.Blazor** | Main component library | Blazor Components, .NET 9 |
+| **PanoramicData.Blazor** | Main component library | Blazor Components, .NET 11.0 |
 | **PanoramicData.Blazor.Demo** | Demo application (Razor Pages) | Blazor Server, Razor Pages |
 | **PanoramicData.Blazor.Web** | Additional demo/web host | Blazor Server |
 | **PanoramicData.Blazor.WebAssembly** | WebAssembly demo (Client/Server) | Blazor WASM |
@@ -765,4 +765,4 @@ Demo pages support deep linking to tabs and anchors:
 
 ---
 
-**Last Updated**: Based on .NET 10, C# 14, current as of main branch
+**Last Updated**: Based on .NET 11.0, C# 14, current as of main branch
