@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test;
 
@@ -41,6 +42,37 @@ public partial class PDFileModalTests : BunitContext
 		component.Find(".modal-title").TextContent.Should().Be("Pick");
 		OkButton(component).TextContent.Trim().Should().Be("Choose");
 		Row(component, "/readme.txt").QuerySelector(".icon-readme\\.txt").Should().NotBeNull();
+	}
+
+	/// <summary>Verifies that, unless chosen otherwise, the buttons stay medium sized and Cancel keeps its cross.</summary>
+	[Fact]
+	public async Task Buttons_are_medium_with_a_cross_on_cancel_by_default()
+	{
+		var component = RenderModal();
+
+		await ShowOpenAsync(component);
+
+		FooterButton(component, "Cancel").ClassList.Should().NotContain("btn-sm");
+		FooterButton(component, "Cancel").QuerySelector(".fa-times").Should().NotBeNull();
+	}
+
+	/// <summary>Verifies that the button size reaches every button, toolbar included, and the dismissing icon reaches Cancel and the overwrite confirmation's No.</summary>
+	[Fact]
+	public async Task Button_size_and_the_dismissing_icon_can_be_replaced()
+	{
+		var component = RenderModal(p => p
+			.Add(x => x.ButtonSize, ButtonSizes.Small)
+			.Add(x => x.CancelButtonIconCssClass, "fa-regular fa-fw fa-circle-xmark")
+			.Add(x => x.ShowToolbar, true));
+
+		await ShowOpenAsync(component);
+
+		component.Find(".pdfe-toolbar #pd-tbr-btn-refresh").ClassList.Should().Contain("btn-sm");
+		OkButton(component).ClassList.Should().Contain("btn-sm");
+		FooterButton(component, "Cancel").ClassList.Should().Contain("btn-sm");
+		FooterButton(component, "Cancel").QuerySelector(".fa-circle-xmark").Should().NotBeNull();
+		ConfirmButton(component, "No").ClassList.Should().Contain("btn-sm");
+		ConfirmButton(component, "No").QuerySelector(".fa-circle-xmark").Should().NotBeNull();
 	}
 
 	/// <summary>Verifies that refreshing asks the data provider for the folder contents again.</summary>

@@ -157,7 +157,7 @@
 
 /* PDSplitter - the gutters are created by split.js */
 .pdsplitter .gutter {
-	background-color: var(--pd-splitter-gutter-bg, #eee);
+	background-color: var(--pd-splitter-gutter-bg, var(--bs-border-color, #eee));
 	transition: background-color 0.1s ease-out;
 }
 
@@ -529,12 +529,22 @@
 }
 
 /* PDFileExplorer */
+/* The top folder sits a little below whatever is above the tree, rather than against it */
 .pdfileexplorer.pdfileexplorer .pdtree {
 	height: 0;
+	box-sizing: border-box;
+	padding-top: 0.5rem;
 }
 
+/* The top folder lines up with the toolbar's first button: the toolbar's padding, less the drop zone's 1px border */
+.pdfileexplorer.pdfileexplorer .pdtree > .pdtreenode {
+	padding-left: calc(0.5rem - 1px);
+}
+
+/* The splitter takes the height the toolbar leaves */
 .pdfileexplorer.pdfileexplorer .pdsplitter.horizontal {
-	height: calc(100% - 50px);
+	flex: 1 1 0;
+	min-height: 0;
 }
 
 .pdfileexplorer.pdfileexplorer.pdfe-no-toolbar .pdsplitter.horizontal {
@@ -557,12 +567,24 @@
 }
 
 /* PDFileModal */
+/* The dialog's body has no padding (p-0), so the toolbar's own spacing is the only spacing and the panes run edge to edge */
 .pdfilemodalexplorer.pdfilemodalexplorer .pdfileexplorer {
 	height: 100%;
+	padding-bottom: 0;
 }
 
 .pdfilemodalexplorer.pdfilemodalexplorer .pdsplitter {
 	flex-grow: 1;
+}
+
+/* In the dialog the toolbar's buttons and the top folder line up with the title and the footer's buttons, 1rem in */
+.pdfilemodalexplorer.pdfilemodalexplorer .pdfe-toolbar .pdtoolbar {
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+.pdfilemodalexplorer.pdfilemodalexplorer .pdtree > .pdtreenode {
+	padding-left: calc(1rem - 1px);
 }
 
 /* PDFilter */
@@ -841,6 +863,12 @@
 }
 
 .pdtoolbar .pdtoolbaritem:first-child {
+	padding-left: 0;
+}
+
+/* A hidden first item, such as an Up button turned off, must not leave the next one indented */
+.pdtoolbar .pdtoolbaritem.pd-hidden:first-child + .pdtoolbaritem,
+.pdtoolbar .pdtoolbaritem.d-none:first-child + .pdtoolbaritem {
 	padding-left: 0;
 }
 
