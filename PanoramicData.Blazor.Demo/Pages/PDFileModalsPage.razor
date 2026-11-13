@@ -60,7 +60,8 @@
 	<h4>Customised Button Text and Icons</h4>
 	<p class="text-muted">
 		Use <code>OpenButtonText</code>, <code>OpenButtonIconCssClass</code>, <code>SaveButtonText</code>, and <code>SaveButtonIconCssClass</code>
-		to replace the default button labels and icons.
+		to replace the default button labels and icons, <code>CancelButtonIconCssClass</code> for the Cancel and No buttons' icon,
+		and <code>ButtonSize</code> for the size of every button, the toolbar's included. Below, every button is small and Cancel shows a circled cross.
 	</p>
 	<PDToolbar>
 		<PDToolbarButton Text="Custom Open"
@@ -72,7 +73,10 @@
 	</PDToolbar>
 
 	<PDFileModal @ref="CustomButtonModal"
+				 ButtonSize="ButtonSizes.Small"
+				 CancelButtonIconCssClass="fas fa-fw fa-times-circle"
 				 DataProvider="_dataProvider"
+				 ShowToolbar="true"
 				 OpenButtonText="Pick this file"
 				 OpenButtonIconCssClass="fas fa-fw fa-check"
 				 SaveButtonText="Write here"

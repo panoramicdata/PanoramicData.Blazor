@@ -21,8 +21,10 @@
 	font-style: italic;
 }
 
+/* As tall as its buttons and their padding, with a line below; set --pd-file-explorer-toolbar-border to none to leave it out */
 .pdfileexplorer .pdfe-toolbar {
-	height: 50px;
+	flex: none;
+	border-bottom: var(--pd-file-explorer-toolbar-border, 1px solid var(--bs-border-color, #dee2e6));
 }
 
 .pdfileexplorer .preview-header {
