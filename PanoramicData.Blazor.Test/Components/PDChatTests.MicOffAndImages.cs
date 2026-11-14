@@ -183,6 +183,71 @@ public partial class PDChatTests
 		component.FindAll(".pdchat-image-thumb").Should().ContainSingle();
 	}
 
+	/// <summary>Verifies that a blocked reason holds back only images, so a message without them is sent.</summary>
+	[Fact]
+	public async Task A_blocked_reason_does_not_hold_a_message_without_images()
+	{
+		var service = new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." };
+		var component = RenderChat(service);
+		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Hello" });
+
+		component.Find(".chat-send").HasAttribute("disabled").Should().BeFalse();
+		await component.Find(".chat-send").ClickAsync(new());
+
+		var sent = service.Sent.Should().ContainSingle().Subject;
+		sent.Message.Should().Be("Hello");
+		sent.Images.Should().BeNull();
+	}
+
+	/// <summary>Verifies that a blocked reason is not shown until an image is added.</summary>
+	[Fact]
+	public async Task A_blocked_reason_is_shown_only_once_an_image_is_added()
+	{
+		var component = RenderChat(new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." });
+
+		component.FindAll(".pdchat-image-notice").Should().BeEmpty();
+
+		await AddImagesAsync(component, 1);
+
+		component.Find(".pdchat-image-notice").TextContent.Should().Be("This model cannot take images.");
+		component.Find(".chat-send").HasAttribute("disabled").Should().BeTrue();
+	}
+
+	/// <summary>Verifies that removing the last image clears a blocked reason and lets the text be sent.</summary>
+	[Fact]
+	public async Task Removing_the_last_image_clears_a_blocked_reason_and_allows_Send()
+	{
+		var service = new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." };
+		var component = RenderChat(service);
+		await AddImagesAsync(component, 1);
+		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Look" });
+
+		await component.Find(".pdchat-image-remove").ClickAsync(new());
+		await LetPDMessagesSettleAsync();
+
+		component.FindAll(".pdchat-image-notice").Should().BeEmpty();
+		component.Find(".chat-send").HasAttribute("disabled").Should().BeFalse();
+		await component.Find(".chat-send").ClickAsync(new());
+		service.Sent.Should().ContainSingle().Which.Images.Should().BeNull();
+	}
+
+	/// <summary>Verifies that Enter and a voice auto-send, which skip the Send button, also send a message without images despite a blocked reason.</summary>
+	[Fact]
+	public async Task Enter_and_voice_auto_send_are_not_held_by_a_blocked_reason_without_images()
+	{
+		var service = new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." };
+		var component = RenderChat(service);
+		var messages = component.FindComponent<PDMessages>();
+
+		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Typed" });
+		await component.InvokeAsync(() => messages.Instance.OnEnterPressed());
+		await LetPDMessagesSettleAsync();
+		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Spoken" });
+		await component.InvokeAsync(() => messages.Instance.SendAsync());
+
+		service.Sent.Select(message => message.Message).Should().Equal("Typed", "Spoken");
+	}
+
 	/// <summary>Verifies that a message carries at most five images and says so.</summary>
 	[Fact]
 	public async Task A_sixth_image_is_refused_with_a_message()
@@ -286,7 +351,9 @@ public partial class PDChatTests
 			await component.InvokeAsync(() => messages.Instance.OnImageAdded("image/png", TinyPng, name));
 		}
 
-		// PDMessages renders again about 10 ms later, and that render retires the handlers a click would be aimed at.
-		await Task.Delay(250, Xunit.TestContext.Current.CancellationToken);
+		await LetPDMessagesSettleAsync();
 	}
+
+	// PDMessages renders again about 10 ms after a change, and that render retires the handlers a click would be aimed at.
+	private static Task LetPDMessagesSettleAsync() => Task.Delay(250, Xunit.TestContext.Current.CancellationToken);
 }

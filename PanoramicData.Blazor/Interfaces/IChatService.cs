@@ -224,7 +224,8 @@ public interface IChatService : IDisposable
 
 	/// <summary>
 	/// Gets why images cannot be sent right now, such as the selected model not accepting them, or null (the default)
-	/// when they can. While it is set the images stay in the message but Send is disabled, and this is shown.
+	/// when they can. While it is set, a message with images keeps them but Send is disabled and this is shown beside
+	/// them; a message without images is sent as usual.
 	/// </summary>
 	string? ImageInputBlockedReason => null;
 
