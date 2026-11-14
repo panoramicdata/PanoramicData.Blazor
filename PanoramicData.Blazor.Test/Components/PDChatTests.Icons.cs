@@ -103,9 +103,10 @@ public partial class PDChatTests
 
 	/// <summary>Verifies that a notice about the images carries the warning icon, and its text is unchanged.</summary>
 	[Fact]
-	public void An_image_notice_shows_the_warning_icon()
+	public async Task An_image_notice_shows_the_warning_icon()
 	{
 		var component = RenderChat(new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." });
+		await AddImagesAsync(component, 1);
 
 		var notice = component.Find(".pdchat-image-notice");
 		IconClass(notice).Should().Be(_defaultIcons.Warning);

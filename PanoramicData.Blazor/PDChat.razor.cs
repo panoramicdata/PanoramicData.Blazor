@@ -577,7 +577,8 @@ public partial class PDChat : JSModuleComponentBase
 
 	private void OnImagesChanged(List<ChatImage> images) => _pendingImages = images;
 
-	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive && ChatService.ImageInputBlockedReason is null
+	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive
+		&& (ChatService.ImageInputBlockedReason is null || !HasPendingImages)
 		&& (!string.IsNullOrWhiteSpace(_currentInput) || HasPendingImages);
 
 	private void OnTabAdded()

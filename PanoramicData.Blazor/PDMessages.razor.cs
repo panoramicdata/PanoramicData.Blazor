@@ -138,7 +138,8 @@ public partial class PDMessages : IChatInput
 	[Parameter] public bool IsImageInputOffered { get; set; }
 
 	/// <summary>
-	/// Gets or sets why images cannot be sent now. While set, Send is disabled and this is shown beside the images.
+	/// Gets or sets why images cannot be sent now. While set and the message has images, Send is disabled and this is
+	/// shown beside them; a message without images is sent as usual.
 	/// </summary>
 	[Parameter] public string? ImageBlockedReason { get; set; }
 
@@ -151,8 +152,12 @@ public partial class PDMessages : IChatInput
 	private string _localInput = string.Empty;
 	private string _inputKey = Guid.NewGuid().ToString();
 
-	private bool CanSendLocal => IsInputPermitted && IsLive && ImageBlockedReason is null
-		&& (!string.IsNullOrWhiteSpace(_localInput) || (IsImageInputOffered && Images.Count > 0));
+	private bool HasImages => IsImageInputOffered && Images.Count > 0;
+
+	private bool IsHeldForImages => ImageBlockedReason is not null && HasImages;
+
+	private bool CanSendLocal => IsInputPermitted && IsLive && !IsHeldForImages
+		&& (!string.IsNullOrWhiteSpace(_localInput) || HasImages);
 
 	/// <inheritdoc />
 	public string Text => _localInput;
