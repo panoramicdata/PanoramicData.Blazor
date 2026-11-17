@@ -2,12 +2,14 @@ import { test, expect, type Page } from "@playwright/test";
 
 type KeyEvent = [type: "keydown" | "keyup", init: KeyboardEventInit];
 
+let freshCopies = 0;
+
 // Reads each key as an editor in an iframe hands it on, through a fresh copy of the module so no keys stay held between tests.
 async function keyArgsFor(page: Page, events: KeyEvent[]) {
-	return page.evaluate(async (keyEvents) => {
-		const listener = await import(`/_content/PanoramicData.Blazor/PDGlobalListener.razor.js?fresh=${Math.random()}`);
+	return page.evaluate(async ({ keyEvents, fresh }) => {
+		const listener = await import(`/_content/PanoramicData.Blazor/PDGlobalListener.razor.js?fresh=${fresh}`);
 		return keyEvents.map(([type, init]) => listener.getKeyArgs(new KeyboardEvent(type, init)));
-	}, events);
+	}, { keyEvents: events, fresh: ++freshCopies });
 }
 
 const oAcute = "ó";
