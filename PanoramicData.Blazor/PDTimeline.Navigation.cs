@@ -418,7 +418,7 @@ public partial class PDTimeline
 		var idx = GetScaleIndex();
 		if (idx > 0)
 		{
-			await SetScale(Options.General.Scales[idx - 1]).ConfigureAwait(true);
+			await SetScaleAroundSelectionAsync(Options.General.Scales[idx - 1]).ConfigureAwait(true);
 		}
 	}
 
@@ -431,9 +431,18 @@ public partial class PDTimeline
 		var idx = GetScaleIndex();
 		if (idx >= 0 && idx < Options.General.Scales.Length - 1)
 		{
-			await SetScale(Options.General.Scales[idx + 1]).ConfigureAwait(true);
+			await SetScaleAroundSelectionAsync(Options.General.Scales[idx + 1]).ConfigureAwait(true);
 		}
 	}
+
+	/// <summary>
+	/// Steps to a scale for a zoom gesture: centred on the selection when there is one, otherwise on the
+	/// current viewport centre, so a selected range does not drift off-centre as the user zooms.
+	/// </summary>
+	private Task SetScaleAroundSelectionAsync(TimelineScale scale)
+		=> _selectionRange is { } selection
+			? SetScale(scale, false, selection.StartTime + ((selection.EndTime - selection.StartTime) / 2), TimelinePositions.Center, true)
+			: SetScale(scale);
 
 	/// <summary>
 	/// Zooms to fit the specified range using centered positioning.
