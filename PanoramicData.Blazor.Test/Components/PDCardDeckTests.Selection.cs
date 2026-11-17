@@ -66,13 +66,13 @@ public partial class PDCardDeckTests
 	{
 		var deck = RenderDeck();
 
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Bravo");
 
 		deck.Instance.DragState.IsDragging.Should().BeTrue();
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Bravo");
 		CardElement(deck, "Bravo").ClassList.Should().Contain("dragging").And.Contain("selected");
 
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragEndAsync(new DragEventArgs()));
+		await DragEndAsync(deck, "Bravo");
 
 		deck.Instance.DragState.IsDragging.Should().BeFalse();
 		deck.Instance.DragState.TargetIndex.Should().Be(-1);
@@ -88,7 +88,7 @@ public partial class PDCardDeckTests
 		await deck.InvokeAsync(() => CardElement(deck, "Alpha").MouseUpAsync(new MouseEventArgs()));
 		await deck.InvokeAsync(() => CardElement(deck, "Bravo").MouseUpAsync(new MouseEventArgs { CtrlKey = true }));
 
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Bravo");
 
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Alpha", "Bravo");
 	}

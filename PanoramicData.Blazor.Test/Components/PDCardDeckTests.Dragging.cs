@@ -18,8 +18,8 @@ public partial class PDCardDeckTests
 	{
 		var deck = RenderDeck();
 
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Charlie");
 
 		Names(deck).Should().Equal("Bravo", "Charlie", "Alpha");
 		deck.Instance.DragState.TargetIndex.Should().Be(2);
@@ -33,9 +33,9 @@ public partial class PDCardDeckTests
 	{
 		var deck = RenderDeck();
 
-		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Charlie");
+		await DragOverAsync(deck, "Bravo");
+		await DragOverAsync(deck, "Alpha");
 
 		Names(deck).Should().Equal("Charlie", "Alpha", "Bravo");
 	}
@@ -48,9 +48,9 @@ public partial class PDCardDeckTests
 	{
 		var deck = RenderDeck();
 
-		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await DragOverAsync(deck, "Charlie");
+		await DragStartAsync(deck, "Bravo");
+		await DragOverAsync(deck, "Bravo");
 
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 	}
@@ -65,8 +65,8 @@ public partial class PDCardDeckTests
 		await deck.InvokeAsync(() => CardElement(deck, "A").MouseUpAsync(new MouseEventArgs()));
 		await deck.InvokeAsync(() => CardElement(deck, "B").MouseUpAsync(new MouseEventArgs { ShiftKey = true }));
 
-		await deck.InvokeAsync(() => CardElement(deck, "A").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "D").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "A");
+		await DragOverAsync(deck, "D");
 
 		Names(deck).Should().Equal("C", "D", "A", "B");
 	}
@@ -82,8 +82,8 @@ public partial class PDCardDeckTests
 		await deck.InvokeAsync(() => CardElement(deck, "C").MouseUpAsync(new MouseEventArgs()));
 		await deck.InvokeAsync(() => CardElement(deck, "A").MouseUpAsync(new MouseEventArgs { CtrlKey = true }));
 
-		await deck.InvokeAsync(() => CardElement(deck, "A").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "D").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "A");
+		await DragOverAsync(deck, "D");
 
 		Names(deck).Should().Equal("B", "D", "C", "A");
 	}
@@ -95,12 +95,12 @@ public partial class PDCardDeckTests
 	public async Task DropAndEndOfDrag_EndTheDrag()
 	{
 		var deck = RenderDeck();
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Bravo");
 
 		await deck.InvokeAsync(() => deck.Find($"#{deck.Instance.Id}").DropAsync(new DragEventArgs()));
 		deck.Instance.DragState.IsDragging.Should().BeFalse();
 
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Bravo");
 		await deck.InvokeAsync(deck.Instance.EndDragOperationAsync);
 		deck.Instance.DragState.IsDragging.Should().BeFalse();
 	}
@@ -114,8 +114,8 @@ public partial class PDCardDeckTests
 		var deck = RenderDeck(more: p => p.Add(x => x.IsAnimated, true));
 
 		deck.FindComponents<PDAnimation>().Should().HaveCount(3);
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Charlie");
 
 		Names(deck).Should().Equal("Bravo", "Charlie", "Alpha");
 	}
@@ -129,12 +129,12 @@ public partial class PDCardDeckTests
 	{
 		// Over a slow connection these are the dragovers still in flight when the reorder renders.
 		var deck = RenderDeck();
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Alpha");
 
 		List<string> orders = [];
 		for (var dragOver = 0; dragOver < 4; dragOver++)
 		{
-			await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+			await DragOverAsync(deck, "Bravo");
 			orders.Add(string.Join(", ", Names(deck)));
 		}
 
@@ -148,11 +148,11 @@ public partial class PDCardDeckTests
 	public async Task DragOverTheCardJustPassed_AfterTheDraggedCard_MovesBack()
 	{
 		var deck = RenderDeck();
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Bravo");
 
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await DragOverAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Bravo");
 
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 	}
@@ -164,12 +164,12 @@ public partial class PDCardDeckTests
 	public async Task NewDrag_CanMovePastTheCardThePreviousDragLastPassed()
 	{
 		var deck = RenderDeck();
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragEndAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Bravo");
+		await DragEndAsync(deck, "Alpha");
 
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Bravo");
 
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 	}
