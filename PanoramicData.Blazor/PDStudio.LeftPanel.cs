@@ -85,12 +85,20 @@ public partial class PDStudio
 	// Once for each edge drawn, as hiding the edge, such as when the host closes its panel, removes it
 	private async Task InitializeLeftPanelHandleAsync()
 	{
-		if (!ShowsLeftPanelHandle || _leftPanelHandle.Id is not { } handleId || handleId == _initializedLeftPanelHandleId)
+		if (UninitializedLeftPanelHandleId is not { } handleId)
 		{
 			return;
 		}
 
 		_initializedLeftPanelHandleId = handleId;
+		await ConnectLeftPanelHandleAsync().ConfigureAwait(true);
+	}
+
+	private string? UninitializedLeftPanelHandleId
+		=> ShowsLeftPanelHandle && _leftPanelHandle.Id is { } id && id != _initializedLeftPanelHandleId ? id : null;
+
+	private async Task ConnectLeftPanelHandleAsync()
+	{
 		try
 		{
 			_leftPanelModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDStudio.razor.js").ConfigureAwait(true);

@@ -594,8 +594,7 @@ public partial class PDChat
 	/// <summary>Reads the first finished reply to a sent message aloud, when read-aloud is on.</summary>
 	private async Task SpeakAnswerIfAwaitedAsync(ChatMessage message)
 	{
-		if (!_isAwaitingSpokenAnswer || message.Sender.IsUser || message.Type == MessageType.Typing
-			|| ChatService.VoiceEndpoints is not { } endpoints)
+		if (!IsAwaitedAnswer(message) || ChatService.VoiceEndpoints is not { } endpoints)
 		{
 			return;
 		}
@@ -616,6 +615,14 @@ public partial class PDChat
 			await InvokeAsync(StateHasChanged);
 		}
 
+		await SpeakWithModuleAsync(endpoints, spoken);
+	}
+
+	private bool IsAwaitedAnswer(ChatMessage message)
+		=> _isAwaitingSpokenAnswer && !message.Sender.IsUser && message.Type != MessageType.Typing;
+
+	private async Task SpeakWithModuleAsync(PDChatVoiceEndpoints endpoints, string spoken)
+	{
 		try
 		{
 			var module = await GetVoiceModuleAsync(endpoints);
