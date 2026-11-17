@@ -162,14 +162,6 @@
 	background: var(--_pdc-control-hover-bg);
 }
 
-/* Keyboard focus only. A picker also checks data-pointer-focus, set by PDMessages.razor.js after a mouse or touch
-   press, because Chrome counts a select focused with the mouse as :focus-visible. */
-.chat-input-accessories ::deep .pdchat-toolbar-btn:focus-visible,
-.pdchat-panel-flex:not([data-pointer-focus]) .chat-input-accessories ::deep .pdchat-toolbar-picker:has(select:focus-visible) {
-	outline: 2px solid var(--_pdc-accent);
-	outline-offset: 1px;
-}
-
 .chat-input-accessories ::deep .pdchat-toolbar-btn.active {
 	color: var(--_pdc-control-active-color);
 	background: var(--_pdc-control-active-bg);
@@ -203,6 +195,14 @@
 
 .chat-input-accessories ::deep .pdchat-toolbar-picker:hover {
 	background: linear-gradient(var(--_pdc-control-hover-bg), var(--_pdc-control-hover-bg)), var(--_pdc-control-bg);
+}
+
+/* Keyboard focus only. A picker also checks data-pointer-focus, set by PDMessages.razor.js after a mouse or touch
+   press, because Chrome counts a select focused with the mouse as :focus-visible. */
+.chat-input-accessories ::deep .pdchat-toolbar-btn:focus-visible,
+.pdchat-panel-flex:not([data-pointer-focus]) .chat-input-accessories ::deep .pdchat-toolbar-picker:has(select:focus-visible) {
+	outline: 2px solid var(--_pdc-accent);
+	outline-offset: 1px;
 }
 
 /* Drawn in the text colour, in place of the select's own arrow, so it follows the theme. */
@@ -273,10 +273,6 @@
 	border-radius: var(--pd-chat-send-radius, var(--_pdc-control-radius));
 }
 
-.chat-input-accessories .chat-send:hover:not(:disabled) {
-	filter: brightness(1.1);
-}
-
 /* Keyboard focus only, in place of Bootstrap's glow, which older versions also show on click. */
 .chat-input-accessories .chat-send:focus {
 	box-shadow: none;
@@ -289,6 +285,10 @@
 
 .chat-input-accessories .chat-send:disabled {
 	opacity: 0.5;
+}
+
+.chat-input-accessories .chat-send:hover:not(:disabled) {
+	filter: brightness(1.1);
 }
 
 /* A corner-docked chat is too narrow for the words; each control keeps its tooltip and accessible name. */

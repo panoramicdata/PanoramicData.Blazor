@@ -559,6 +559,13 @@
   flex-grow: 1;
 }
 
+/* PDFormFooter - no padding needed, modal-footer / page context already provides it */
+.pd-form-footer.pd-form-footer .pdtoolbar {
+  flex-wrap: nowrap;
+  padding: 0;
+  flex-shrink: 0;
+}
+
 /* In the dialog the toolbar's buttons and the top folder line up with the title and the footer's buttons, 1rem in */
 .pdfilemodalexplorer.pdfilemodalexplorer .pdfe-toolbar .pdtoolbar {
   padding-left: 1rem;
@@ -683,13 +690,6 @@
 /* override disabled grey out */
 .pd-form-field-editor.editor.readonly .form-control:disabled {
   border-radius: 0 !important;
-}
-
-/* PDFormFooter - no padding needed, modal-footer / page context already provides it */
-.pd-form-footer.pd-form-footer .pdtoolbar {
-  flex-wrap: nowrap;
-  padding: 0;
-  flex-shrink: 0;
 }
 
 /* PDMonacoEditor */
@@ -848,12 +848,6 @@
   padding-left: 0;
 }
 
-/* A hidden first item, such as an Up button turned off, must not leave the next one indented */
-.pdtoolbar .pdtoolbaritem.pd-hidden:first-child + .pdtoolbaritem,
-.pdtoolbar .pdtoolbaritem.d-none:first-child + .pdtoolbaritem {
-  padding-left: 0;
-}
-
 .pdtoolbar .pdtoolbaritem:last-child {
   padding-right: 0;
 }
@@ -962,4 +956,10 @@
 
 .pd-studio .pdtoolbar.pd-studio-toolbar .pdts-bar {
   border-left-color: var(--pd-studio-separator-color, var(--bs-secondary, #6c757d));
+}
+
+/* A hidden first item, such as an Up button turned off, must not leave the next one indented */
+.pdtoolbar .pdtoolbaritem.pd-hidden:first-child + .pdtoolbaritem,
+.pdtoolbar .pdtoolbaritem.d-none:first-child + .pdtoolbaritem {
+  padding-left: 0;
 }
