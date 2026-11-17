@@ -15,8 +15,8 @@ public partial class PDCardDeckTests
 
 	private static async Task DragAsync(IRenderedComponent<PDCardDeck<Card>> deck, string card, string over)
 	{
-		await deck.InvokeAsync(() => CardElement(deck, card).DragStartAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, over).DragOverAsync(new DragEventArgs()));
+		await DragStartAsync(deck, card);
+		await DragOverAsync(deck, over);
 	}
 
 	/// <summary>
@@ -31,7 +31,7 @@ public partial class PDCardDeckTests
 
 		await DragAsync(deck, "Alpha", over: "Charlie");
 		await deck.InvokeAsync(deck.Instance.InitiateTransformAsync);
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragEndAsync(new DragEventArgs()));
+		await DragEndAsync(deck, "Alpha");
 
 		reports.Should().ContainSingle();
 		reports[0].Select(c => c.Name).Should().Equal("Bravo", "Charlie", "Alpha");
@@ -48,7 +48,7 @@ public partial class PDCardDeckTests
 		var deck = RenderReportingDeck(reports);
 
 		await DragAsync(deck, "Alpha", over: "Charlie");
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragEndAsync(new DragEventArgs()));
+		await DragEndAsync(deck, "Alpha");
 		await deck.InvokeAsync(deck.Instance.InitiateTransformAsync);
 
 		reports.Should().ContainSingle();
@@ -66,11 +66,11 @@ public partial class PDCardDeckTests
 
 		await DragAsync(deck, "Alpha", over: "Bravo");
 		Names(deck).Should().Equal("Bravo", "Alpha", "Charlie");
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs()));
-		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await DragOverAsync(deck, "Alpha");
+		await DragOverAsync(deck, "Bravo");
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 		await deck.InvokeAsync(deck.Instance.InitiateTransformAsync);
-		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragEndAsync(new DragEventArgs()));
+		await DragEndAsync(deck, "Alpha");
 
 		reports.Should().BeEmpty();
 	}
