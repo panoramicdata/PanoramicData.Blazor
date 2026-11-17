@@ -52,12 +52,12 @@ IMPORTANT: Follow these steps in order; every one is required.
 
 CRITICAL: These are hard limits.
 
-- NEVER suppress analyzer warnings with `#pragma warning disable` or `[SuppressMessage]`; fix the code instead. Ask the maintainer first if a warning is a genuine false positive.
-- NEVER remove or change a public or protected member; add an overload instead. Ask the maintainer first if a breaking change is unavoidable.
-- NEVER weaken or delete existing tests to make a build pass.
-- NEVER commit to `main`. Work on a branch and open a pull request.
-- NEVER run `Publish.ps1` unless a maintainer has asked for a release.
-- NEVER add `Co-Authored-By` trailers or other AI attribution to commit messages or pull requests.
+- Do not suppress analyzer warnings with `#pragma warning disable` or `[SuppressMessage]`; fix the code instead. Ask the maintainer first if a warning is a genuine false positive.
+- Do not remove or change a public or protected member; add an overload instead. Ask the maintainer first if a breaking change is unavoidable.
+- Do not weaken or delete existing tests to make a build pass.
+- Do not commit to `main`. Work on a branch and open a pull request.
+- Do not run `Publish.ps1` unless a maintainer has asked for a release.
+- Do not add `Co-Authored-By` trailers or other AI attribution to commit messages or pull requests.
 
 ## Error handling
 
