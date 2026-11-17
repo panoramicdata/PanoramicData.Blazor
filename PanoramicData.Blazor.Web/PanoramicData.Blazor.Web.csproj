@@ -9,9 +9,8 @@
     <PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>PanoramicData.Blazor.Web</PackageId>
+    <IsPackable>false</IsPackable>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
     <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
