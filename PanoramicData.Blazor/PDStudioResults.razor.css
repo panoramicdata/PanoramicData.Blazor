@@ -20,6 +20,7 @@
 	--_pds-border-radius: var(--pd-studio-border-radius, 0.25rem);
 	--_pds-overlay-bg: var(--pd-studio-overlay-bg, rgba(128, 128, 128, 0.35));
 	--_pds-status-color: var(--_pds-color);
+
 	display: flex;
 	flex-direction: column;
 	height: 100%;

@@ -839,6 +839,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 		display: none;
 	}
 }
+
 .pdchat-voice-status {
 	user-select: none;
 	padding: 6px 12px;
@@ -862,6 +863,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 .pdchat-voice-status.pdchat-voice-error {
 	background: var(--pd-chat-warning-bg, #fff3cd);
 }
+
 /* ==============================================
    PDMessages Layout - Ensure Full Height
    ============================================== */

@@ -55,6 +55,7 @@
 	--_pds-success-color: var(--pd-studio-status-success-color, var(--bs-success, #198754));
 	--_pds-warning-color: var(--pd-studio-status-warning-color, var(--bs-warning, #ffc107));
 	--_pds-error-color: var(--pd-studio-status-error-color, var(--bs-danger, #dc3545));
+
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -326,6 +327,7 @@
 	border: none;
 	color: var(--_pds-muted-color);
 	background-color: currentColor;
+
 	/* Level with the middle of the lowercase letters, which the eye centres on, rather than the line's middle */
 	position: relative;
 	top: var(--pd-studio-tab-dot-offset, 0.15em);
