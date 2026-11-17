@@ -225,13 +225,13 @@ public partial class PDTimeline
 			// zoom in
 			if (index > 0)
 			{
-				await SetScale(Options.General.Scales[index - 1]).ConfigureAwait(true);
+				await SetScaleAroundSelectionAsync(Options.General.Scales[index - 1]).ConfigureAwait(true);
 			}
 		}
 		else if (index < Options.General.Scales.Length - 1)
 		{
 			// zoom out
-			await SetScale(Options.General.Scales[index + 1]).ConfigureAwait(true);
+			await SetScaleAroundSelectionAsync(Options.General.Scales[index + 1]).ConfigureAwait(true);
 		}
 	}
 

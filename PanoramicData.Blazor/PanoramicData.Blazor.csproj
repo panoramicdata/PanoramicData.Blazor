@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDChat holds Send only while the message has images when IChatService.ImageInputBlockedReason is set. Before, a set reason disabled Send, Enter and voice auto-send for every message and showed the reason with no image attached, so a host whose answering model cannot read images could not send text at all. The reason now shows beside the images once one is added, and removing the last image clears it and lets the text be sent.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDTimeline keeps a selected range centred when it is zoomed in or out with the zoom buttons or Ctrl with the mouse wheel. Before, the viewport stayed centred on wherever it had been, so a selection could end up off to one side or out of view after zooming.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
