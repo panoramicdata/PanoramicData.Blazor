@@ -168,7 +168,7 @@ public partial class PDStudioTests
 		/// <summary>Tabular results to return; null makes the studio fall back to <see cref="Result"/>.</summary>
 		public PDStudioResultSet? ResultSet { get; set; }
 
-		public Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken cancellationToken)
+		public Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken _)
 		{
 			if (ResultSet is not null)
 			{

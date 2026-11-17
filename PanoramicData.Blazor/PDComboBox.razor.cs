@@ -323,9 +323,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			return;
 		}
 
-		if (await HandleDropdownKeyAsync(e.Key))
-		{
-		}
+		await HandleDropdownKeyAsync(e.Key);
 	}
 
 	private async Task CloseDropdownAndRevertAsync()

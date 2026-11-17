@@ -383,7 +383,7 @@ public partial class PDCalendarTests
 	}
 
 	/// <summary>A runtime whose module works until it is disposed, when the circuit turns out to have gone.</summary>
-	private sealed class DisconnectingJSRuntime : IJSRuntime
+	private sealed class DisconnectingJSRuntime : FakeJsRuntime
 	{
 		public DisconnectingModule Module { get; } = new();
 
@@ -393,31 +393,15 @@ public partial class PDCalendarTests
 		/// <summary>Gets each call made, with the identifier and the first argument, such as the module path imported.</summary>
 		public List<(string Identifier, string? FirstArgument)> Calls { get; } = [];
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+		public override object? Resolve(string identifier, object?[] args)
 		{
-			Calls.Add((identifier, args?.FirstOrDefault() as string));
-			return ImportException is null
-				? ValueTask.FromResult((TValue)(object)Module)
-				: ValueTask.FromException<TValue>(ImportException);
-		}
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			try
-			{
-				return InvokeAsync<TValue>(identifier, args);
-			}
-			catch (JSDisconnectedException)
-			{
-				// Test double: let a simulated disconnect reach the caller.
-				throw;
-			}
+			Calls.Add((identifier, args.FirstOrDefault() as string));
+			return ImportException is null ? Module : throw ImportException;
 		}
 	}
 
 	/// <summary>A module that records calls and throws when disposed.</summary>
-	private sealed class DisconnectingModule : IJSObjectReference
+	private sealed class DisconnectingModule : FakeJsObject
 	{
 		public List<string> Calls { get; } = [];
 
@@ -425,28 +409,14 @@ public partial class PDCalendarTests
 
 		public int ArgumentCount { get; private set; }
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+		public override object? Resolve(string identifier, object?[] args)
 		{
 			Calls.Add(identifier);
-			ArgumentCount += args?.Length ?? 0;
-			return ValueTask.FromResult(default(TValue)!);
+			ArgumentCount += args.Length;
+			return null;
 		}
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			try
-			{
-				return InvokeAsync<TValue>(identifier, args);
-			}
-			catch (JSDisconnectedException)
-			{
-				// Test double: let a simulated disconnect reach the caller.
-				throw;
-			}
-		}
-
-		public ValueTask DisposeAsync()
+		public override ValueTask DisposeAsync()
 		{
 			DisposeCalls++;
 			throw new JSDisconnectedException("The circuit has gone.");
