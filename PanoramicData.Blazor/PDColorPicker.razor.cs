@@ -197,6 +197,17 @@ public partial class PDColorPicker : IAsyncDisposable
 	{
 		if (firstRender)
 		{
+			await ImportModuleAsync().ConfigureAwait(true);
+		}
+
+		if (_isOpen && Options.CloseOnOutsideClick && _module != null)
+		{
+			await InitializeOpenPickerAsync(_module).ConfigureAwait(true);
+		}
+	}
+
+	private async Task ImportModuleAsync()
+	{
 		try
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
@@ -208,38 +219,43 @@ public partial class PDColorPicker : IAsyncDisposable
 		{
 			// The circuit is gone, so there is nothing left to do.
 		}
+	}
+
+	private async Task InitializeOpenPickerAsync(IJSObjectReference module)
+	{
+		try
+		{
+			await module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
 		}
 
-		if (_isOpen && Options.CloseOnOutsideClick && _module != null)
+		// Get the actual dimensions of the SV container for accurate positioning
+		if (SvContainerRef.Id != null)
 		{
-			try
-			{
-				await _module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
-			}
-			catch (JSDisconnectedException)
-			{
-				// The circuit is gone, so there is nothing left to do.
-			}
+			await MeasureSvContainerAsync(module).ConfigureAwait(true);
+		}
+	}
 
-			// Get the actual dimensions of the SV container for accurate positioning
-			if (SvContainerRef.Id != null)
-			{
-				ElementBounds? bounds;
-				try
-				{
-					bounds = await _module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
-				}
-				catch (JSDisconnectedException)
-				{
-					// The circuit is gone, so there is nothing left to do.
-					return;
-				}
-				if (bounds != null)
-				{
-					_svWidth = bounds.Width;
-					_svHeight = bounds.Height;
-				}
-			}
+	private async Task MeasureSvContainerAsync(IJSObjectReference module)
+	{
+		ElementBounds? bounds;
+		try
+		{
+			bounds = await module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
+
+		if (bounds != null)
+		{
+			_svWidth = bounds.Width;
+			_svHeight = bounds.Height;
 		}
 	}
 

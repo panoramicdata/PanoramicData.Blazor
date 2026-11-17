@@ -163,21 +163,25 @@ public partial class PDKnob
 			return;
 		}
 
-		double[]? start;
-		try
-		{
-			start = await module.InvokeAsync<double[]?>("registerAngleEvents", DotNetReference, _svgRef, e.ClientX, e.ClientY).ConfigureAwait(true);
-		}
-		catch (JSDisconnectedException)
-		{
-			// The circuit is gone, so there is nothing left to do.
-			return;
-		}
+		var start = await RegisterAngleEventsAsync(module, e).ConfigureAwait(true);
 		if (start is { Length: 2 })
 		{
 			_isAngleDragging = true;
 			_angleRaw = Angle;
 			_anglePointerLast = ScreenDirection(start[0], start[1]);
+		}
+	}
+
+	private async Task<double[]?> RegisterAngleEventsAsync(IJSObjectReference module, PointerEventArgs e)
+	{
+		try
+		{
+			return await module.InvokeAsync<double[]?>("registerAngleEvents", DotNetReference, _svgRef, e.ClientX, e.ClientY).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return null;
 		}
 	}
 

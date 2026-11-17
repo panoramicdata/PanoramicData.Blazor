@@ -530,25 +530,12 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task SendCurrentMessageAsync()
 	{
-		if (ChatService.ImageInputBlockedReason is not null && HasPendingImages)
+		if (!HasSendableInput)
 		{
 			return;
 		}
 
-		if (string.IsNullOrWhiteSpace(_currentInput) && !HasPendingImages)
-		{
-			return;
-		}
-
-		var message = new ChatMessage
-		{
-			Id = Guid.NewGuid(),
-			Message = _currentInput,
-			Images = HasPendingImages ? [.. _pendingImages] : null,
-			Sender = User,
-			Type = MessageType.Normal,
-			Timestamp = DateTime.UtcNow
-		};
+		var message = CreateOutgoingMessage();
 
 		// Before sending, so a reply that arrives at once is still the one spoken.
 		await BeginSpokenExchangeAsync();
@@ -562,11 +549,27 @@ public partial class PDChat : JSModuleComponentBase
 			await OnMessageSent.InvokeAsync(message);
 		}
 
-		// Clear input locally
-		_currentInput = string.Empty;
+		ClearSentInput();
+	}
 
+	private bool HasSendableInput
+		=> !(ChatService.ImageInputBlockedReason is not null && HasPendingImages)
+		&& (!string.IsNullOrWhiteSpace(_currentInput) || HasPendingImages);
+
+	private ChatMessage CreateOutgoingMessage() => new()
+	{
+		Id = Guid.NewGuid(),
+		Message = _currentInput,
+		Images = HasPendingImages ? [.. _pendingImages] : null,
+		Sender = User,
+		Type = MessageType.Normal,
+		Timestamp = DateTime.UtcNow
+	};
+
+	private void ClearSentInput()
+	{
+		_currentInput = string.Empty;
 		_pendingImages = [];
-		// Clear the PDMessages component's textarea
 		MessagesComponent?.ClearInput();
 		MessagesComponent?.ClearImages();
 	}

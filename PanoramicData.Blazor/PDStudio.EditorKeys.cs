@@ -48,11 +48,21 @@ public partial class PDStudio
 	internal static int? EditorKeyCode(ShortcutKey shortcutKey)
 	{
 		var name = shortcutKey.Code.Length > 0 ? shortcutKey.Code : shortcutKey.Key;
+		return SingleCharacterKeyCode(name) ?? PrefixedKeyCode(name) ?? FunctionKeyCode(name);
+	}
+
+	private static int? SingleCharacterKeyCode(string name)
+	{
 		if (name.Length == 1 && char.IsAsciiLetterOrDigit(name[0]))
 		{
 			return char.ToUpperInvariant(name[0]);
 		}
 
+		return null;
+	}
+
+	private static int? PrefixedKeyCode(string name)
+	{
 		if (name.Length == 4 && name.StartsWith("Key", StringComparison.OrdinalIgnoreCase) && char.IsAsciiLetter(name[3]))
 		{
 			return char.ToUpperInvariant(name[3]);
@@ -63,6 +73,11 @@ public partial class PDStudio
 			return name[5];
 		}
 
+		return null;
+	}
+
+	private static int? FunctionKeyCode(string name)
+	{
 		return name.Length is 2 or 3 && (name[0] is 'F' or 'f') && int.TryParse(name[1..], NumberStyles.None, CultureInfo.InvariantCulture, out var function) && function is >= 1 and <= 12
 			? 111 + function
 			: null;

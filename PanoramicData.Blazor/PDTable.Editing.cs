@@ -267,28 +267,35 @@ public partial class PDTable<TItem>
 	/// </summary>
 	private async Task FocusFirstEditorAsync()
 	{
-		if (BeginEditEvent.WaitOne(0) && Columns.Count > 0 && EditItem != null)
+		if (!BeginEditEvent.WaitOne(0) || Columns.Count == 0 || EditItem is null)
 		{
-			// find first editable column
-			var key = ActualColumnsToDisplay.Find(IsColumnEditable)?.Id ?? string.Empty;
+			return;
+		}
 
-			var row = ItemsToDisplay.IndexOf(EditItem);
-			if (key != string.Empty)
-			{
-				if (_commonModule != null)
-				{
-					try
-					{
-						await _commonModule.InvokeVoidAsync("selectText", $"{_idEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
-					}
-					catch (JSDisconnectedException)
-					{
-						// The circuit is gone, so there is nothing left to do.
-					}
-				}
+		var key = ActualColumnsToDisplay.Find(IsColumnEditable)?.Id ?? string.Empty;
+		if (key == string.Empty)
+		{
+			return;
+		}
 
-				BeginEditEvent.Reset();
-			}
+		await SelectEditorTextAsync($"{_idEditPrefix}-{ItemsToDisplay.IndexOf(EditItem)}-{key}").ConfigureAwait(true);
+		BeginEditEvent.Reset();
+	}
+
+	private async Task SelectEditorTextAsync(string editorId)
+	{
+		if (_commonModule is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await _commonModule.InvokeVoidAsync("selectText", editorId, _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
 		}
 	}
 }

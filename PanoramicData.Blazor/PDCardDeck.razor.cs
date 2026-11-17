@@ -212,11 +212,13 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		{
 			await DeleteRequested.InvokeAsync([.. Selection]);
 		}
-		else if (args.AltKey && CanReorderByKeyboard && args.Key is "ArrowUp" or "ArrowDown")
+		else if (IsReorderKey(args))
 		{
 			await MoveSelectionAsync(args.Key == "ArrowUp" ? -1 : 1);
 		}
 	}
+
+	private bool IsReorderKey(KeyboardEventArgs args) => args.AltKey && CanReorderByKeyboard && args.Key is "ArrowUp" or "ArrowDown";
 
 	// Each selected card swaps with the card beside it, leading edge first, so a block moves together. Nothing moves
 	// once a selected card is at the end it is moving towards.
@@ -255,57 +257,64 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (!firstRender)
 		{
-			// The cards come first, so a full page load shows them without waiting for the script to download.
-			await RefreshAsync();
-			if (_disposed)
-			{
-				return;
-			}
+			return;
+		}
 
-			Parent?.RegisterDeckAsChild(this);
+		// The cards come first, so a full page load shows them without waiting for the script to download.
+		await RefreshAsync();
+		if (_disposed)
+		{
+			return;
+		}
 
-			_dotNetRef = DotNetObjectReference.Create(this);
-			try
-			{
-				_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
-					"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
-			}
-			catch (JSDisconnectedException)
-			{
-				// The circuit is gone, so there is nothing left to do.
-			}
+		Parent?.RegisterDeckAsChild(this);
 
-			// Disposed while the module was loading: register nothing that would outlive the deck.
-			if (_disposed)
-			{
-				await DisposeAsync().ConfigureAwait(true);
-				return;
-			}
+		_dotNetRef = DotNetObjectReference.Create(this);
+		await ImportJsModuleAsync();
 
-			if (_jsModule != null)
-			{
-				try
-				{
-					await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", DeckElement, _dotNetRef);
-				}
-				catch (JSDisconnectedException)
-				{
-					// The circuit is gone, so there is nothing left to do.
-				}
-				try
-				{
-					await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", DeckElement, _dotNetRef);
-				}
-				catch (JSDisconnectedException)
-				{
-					// The circuit is gone, so there is nothing left to do.
-				}
-			}
+		// Disposed while the module was loading: register nothing that would outlive the deck.
+		if (_disposed)
+		{
+			await DisposeAsync().ConfigureAwait(true);
+			return;
+		}
 
-			_canDrag = true;
-			StateHasChanged();
+		await InvokeListenerRegistrationAsync("registerValidDragOperationListeners");
+		await InvokeListenerRegistrationAsync("registerInvalidDragOperationListeners");
+
+		_canDrag = true;
+		StateHasChanged();
+	}
+
+	private async Task ImportJsModuleAsync()
+	{
+		try
+		{
+			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+				"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+	}
+
+	private async Task InvokeListenerRegistrationAsync(string identifier)
+	{
+		if (_jsModule is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await _jsModule.InvokeVoidAsync(identifier, DeckElement, _dotNetRef);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
 		}
 	}
 
