@@ -124,6 +124,7 @@
 	--_pdc-control-active-bg: var(--pd-chat-control-active-bg, rgba(128, 128, 128, 0.22));
 	--_pdc-icon-color: var(--pd-chat-icon-color, var(--pd-chat-muted-color, #6c757d));
 	--_pdc-icon-size: var(--pd-chat-icon-size, 0.95rem);
+
 	container-type: inline-size;
 	display: flex;
 	flex-wrap: wrap;

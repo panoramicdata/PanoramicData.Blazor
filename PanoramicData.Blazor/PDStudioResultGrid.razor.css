@@ -16,6 +16,7 @@
 	--_pdg-stripe-bg: var(--pd-studio-grid-stripe-bg, var(--bs-tertiary-bg, #f8f9fa));
 	--_pdg-null: var(--pd-studio-grid-null-color, var(--_pdg-muted));
 	--_pdg-hover-bg: var(--pd-studio-grid-hover-bg, var(--bs-secondary-bg, #e9ecef));
+
 	flex: 1;
 	min-height: 0;
 	overflow: auto;
