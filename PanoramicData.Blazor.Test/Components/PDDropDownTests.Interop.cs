@@ -67,7 +67,7 @@ public partial class PDDropDownTests
 	[Fact]
 	public async Task A_disconnected_dropdown_does_not_throw()
 	{
-		Services.AddSingleton<IJSRuntime>(new DisconnectedRuntime());
+		Services.AddSingleton<IJSRuntime>(new ModuleOnlyRuntime(new DisconnectedObject()));
 		var component = Render<PDDropDown>();
 
 		var act = async () =>
@@ -85,7 +85,7 @@ public partial class PDDropDownTests
 	[Fact]
 	public async Task A_failed_import_leaves_a_working_button()
 	{
-		Services.AddSingleton<IJSRuntime>(new OfflineRuntime());
+		Services.AddSingleton<IJSRuntime>(new OfflineJsRuntime());
 		var component = Render<PDDropDown>(parameters => parameters.Add(p => p.Text, "Menu"));
 
 		await component.InvokeAsync(component.Instance.ShowAsync);
@@ -93,77 +93,14 @@ public partial class PDDropDownTests
 		component.Find("button").TextContent.Should().Contain("Menu");
 	}
 
-	/// <summary>
-	/// A runtime whose module initialises but whose dropdown object then fails every call, as it does once
-	/// the circuit has gone.
-	/// </summary>
-	private sealed class DisconnectedRuntime : IJSRuntime
-	{
-		private readonly DisconnectedObject _module = new();
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> identifier == "import"
-				? ValueTask.FromResult((TValue)(object)_module)
-				: throw new InvalidOperationException($"Unexpected runtime call '{identifier}' with {args?.Length ?? 0} args.");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			try
-			{
-				return InvokeAsync<TValue>(identifier, args);
-			}
-			catch (JSDisconnectedException)
-			{
-				// Test double: let a simulated disconnect reach the caller.
-				throw;
-			}
-		}
-	}
-
-	/// <summary>A runtime that cannot import anything.</summary>
-	private sealed class OfflineRuntime : IJSRuntime
-	{
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			try
-			{
-				return InvokeAsync<TValue>(identifier, args);
-			}
-			catch (JSDisconnectedException)
-			{
-				// Test double: let a simulated disconnect reach the caller.
-				throw;
-			}
-		}
-	}
-
 	/// <summary>A JS object that hands itself back on initialise and fails everything else.</summary>
-	private sealed class DisconnectedObject : IJSObjectReference
+	private sealed class DisconnectedObject : FakeJsObject
 	{
-		public ValueTask DisposeAsync() => throw new JSDisconnectedException("gone");
+		public override ValueTask DisposeAsync() => throw new JSDisconnectedException("gone");
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+		public override object? Resolve(string identifier, object?[] args)
 			=> identifier == "initialize"
-				? ValueTask.FromResult((TValue)(object)this)
-				: throw new JSDisconnectedException($"{identifier} ({args?.Length ?? 0} args)");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			try
-			{
-				return InvokeAsync<TValue>(identifier, args);
-			}
-			catch (JSDisconnectedException)
-			{
-				// Test double: let a simulated disconnect reach the caller.
-				throw;
-			}
-		}
+				? this
+				: throw new JSDisconnectedException($"{identifier} ({args.Length} args)");
 	}
 }

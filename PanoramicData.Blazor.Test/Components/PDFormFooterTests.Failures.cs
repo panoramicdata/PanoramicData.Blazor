@@ -68,7 +68,7 @@ public partial class PDFormFooterTests
 	/// <summary>A data provider whose create fails as a broken connection would.</summary>
 	private sealed class ThrowingProvider : DataProviderBase<Person>
 	{
-		public override Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
+		public override Task<OperationResponse> CreateAsync(Person _, CancellationToken cancellationToken)
 			=> throw new HttpRequestException("The server is down");
 	}
 }

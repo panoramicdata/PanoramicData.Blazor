@@ -249,28 +249,14 @@ public class PDTextAreaTests : BunitContext
 	/// <summary>
 	/// A JavaScript runtime whose module imports always fail, as they can when a page is torn down mid-render.
 	/// </summary>
-	private sealed class ImportFailingJsRuntime : IJSRuntime
+	private sealed class ImportFailingJsRuntime : FakeJsRuntime
 	{
 		public List<string> Identifiers { get; } = [];
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+		public override object? Resolve(string identifier, object?[] args)
 		{
-			try
-			{
-				return InvokeAsync<TValue>(identifier, CancellationToken.None, args);
-			}
-			catch (JSDisconnectedException)
-			{
-				// Test double: let a simulated disconnect reach the caller.
-				throw;
-			}
-		}
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
 			Identifiers.Add(identifier);
-			throw new JSException($"Cannot {identifier} {args?.Length ?? 0} argument(s).");
+			throw new JSException($"Cannot {identifier} {args.Length} argument(s).");
 		}
 	}
 

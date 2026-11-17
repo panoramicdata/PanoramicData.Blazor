@@ -37,7 +37,6 @@ public partial class PDButtonPage : IAsyncDisposable
 			catch (JSDisconnectedException)
 			{
 				// The circuit is gone, so there is nothing left to do.
-				return;
 			}
 		}
 	}

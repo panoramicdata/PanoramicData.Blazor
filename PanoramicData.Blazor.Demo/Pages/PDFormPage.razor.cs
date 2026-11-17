@@ -52,9 +52,7 @@ public partial class PDFormPage
 
 	private void OnFieldUpdated(FieldUpdateArgs<Person> args)
 	{
-		if (args.Field.Name == "AllowLogin")
-		{
-		}
+		EventManager?.Add(new Event("FieldUpdated", new EventArgument("Field", args.Field.Name)));
 	}
 
 	private async Task OnFooterClick(string key)

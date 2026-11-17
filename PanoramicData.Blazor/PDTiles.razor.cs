@@ -16,7 +16,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 	// Animation state
 	private double _animationOffset;
-	private System.Timers.Timer? _animationTimer;
+	private readonly List<System.Timers.Timer> _animationTimers = [];
 	private DateTime _lastAnimationTime;
 	private bool _isDisposed;
 
@@ -162,7 +162,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		{
 			StopAnimation();
 		}
-		else if (_animationTimer == null)
+		else if (!IsAnimating)
 		{
 			StartAnimation();
 		}
@@ -171,16 +171,17 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private void StartAnimation()
 	{
 		_lastAnimationTime = DateTime.UtcNow;
-		_animationTimer = new System.Timers.Timer(1000.0 / 60); // 60 FPS
-		_animationTimer.Elapsed += OnAnimationTick;
-		_animationTimer.AutoReset = true;
-		_animationTimer.Start();
+		var timer = new System.Timers.Timer(1000.0 / 60); // 60 FPS
+		timer.Elapsed += OnAnimationTick;
+		timer.AutoReset = true;
+		_animationTimers.Add(timer);
+		timer.Start();
 	}
 
 	/// <summary>
 	/// Gets whether the connector animation timer is running.
 	/// </summary>
-	internal bool IsAnimating => _animationTimer != null;
+	internal bool IsAnimating => _animationTimers.Count > 0;
 
 	/// <summary>
 	/// Gets the animation offset for connector patterns.
@@ -189,13 +190,14 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 	private void StopAnimation()
 	{
-		if (_animationTimer != null)
+		foreach (var timer in _animationTimers)
 		{
-			_animationTimer.Stop();
-			_animationTimer.Elapsed -= OnAnimationTick;
-			_animationTimer.Dispose();
-			_animationTimer = null;
+			timer.Stop();
+			timer.Elapsed -= OnAnimationTick;
+			timer.Dispose();
 		}
+
+		_animationTimers.Clear();
 	}
 
 	private void OnAnimationTick(object? sender, System.Timers.ElapsedEventArgs e) => AdvanceAnimation();

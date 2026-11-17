@@ -152,7 +152,7 @@ public partial class PDTableTests
 	[Fact]
 	public async Task A_failing_PageChanged_handler_is_passed_to_ExceptionHandler()
 	{
-		static void FailToChangePage(PageCriteria criteria) => throw new InvalidOperationException("Paging failed");
+		static void FailToChangePage(PageCriteria _) => throw new InvalidOperationException("Paging failed");
 		var criteria = new PageCriteria(1, 2);
 		var failures = new List<Exception>();
 		var table = RenderTable(p => p

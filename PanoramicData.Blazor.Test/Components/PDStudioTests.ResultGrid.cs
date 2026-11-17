@@ -25,8 +25,8 @@ public partial class PDStudioTests
 		Duration = TimeSpan.FromMilliseconds(142)
 	};
 
-	private static List<string> Column(IRenderedComponent<PDStudio> studio, int column)
-		=> [.. studio.FindAll(".pd-studio-grid tbody tr").Select(r => r.Children[column + 1].TextContent)];
+	private static List<string> Column(IRenderedComponent<PDStudio> studio, int index)
+		=> [.. studio.FindAll(".pd-studio-grid tbody tr").Select(r => r.Children[index + 1].TextContent)];
 
 	private async Task<IRenderedComponent<PDStudio>> RunDevicesAsync()
 	{

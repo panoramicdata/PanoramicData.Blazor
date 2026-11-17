@@ -50,7 +50,7 @@ public partial class PDFileExplorerTests
 	[Fact]
 	public void AFailingToolbarStateHandler_OnTheFirstRender_IsPassedOn()
 	{
-		static void FailToUpdateToolbar(List<ToolbarItem> items) => throw new InvalidOperationException("No toolbar state");
+		static void FailToUpdateToolbar(List<ToolbarItem> _) => throw new InvalidOperationException("No toolbar state");
 
 		var cut = RenderExplorer(p => p.Add(x => x.UpdateToolbarState, items => FailToUpdateToolbar(items)));
 
