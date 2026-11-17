@@ -8,7 +8,7 @@ export function initialize(id, ids, options, dotNetRef) {
 	if (dotNetRef) {
 		options.onDragEnd = function (sizes) {
 			// The circuit may be gone by the time a drag ends, and then there is no one left to tell
-			dotNetRef.invokeMethodAsync("OnDragEnd", sizes).catch(function () { });
+			dotNetRef.invokeMethodAsync("OnDragEnd", sizes).catch(function () {});
 		};
 	}
 	splits[id] = window.Split(ids, options);

@@ -107,18 +107,28 @@ export function disableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
 	}
 }
 
+// Monaco's name for a browser key code, or undefined when it has none here.
+function monacoKeyName(code) {
+	const named = _monacoKeyNames[code];
+	if (named) {
+		return named;
+	}
+
+	if (code >= 65 && code <= 90) {
+		return `Key${String.fromCharCode(code)}`;
+	}
+
+	if (code >= 48 && code <= 57) {
+		return `Digit${code - 48}`;
+	}
+
+	return code >= 112 && code <= 123 ? `F${code - 111}` : undefined;
+}
+
 // The browser key as Monaco's keybinding, or null for a key it has no name for here. Ctrl is Monaco's WinCtrl on a
 // Mac, where its CtrlCmd is the Command key.
 function toMonacoKeybinding(monaco, binding) {
-	let name = _monacoKeyNames[binding.keyCode];
-	if (!name && binding.keyCode >= 65 && binding.keyCode <= 90) {
-		name = `Key${String.fromCharCode(binding.keyCode)}`;
-	} else if (!name && binding.keyCode >= 48 && binding.keyCode <= 57) {
-		name = `Digit${binding.keyCode - 48}`;
-	} else if (!name && binding.keyCode >= 112 && binding.keyCode <= 123) {
-		name = `F${binding.keyCode - 111}`;
-	}
-
+	const name = monacoKeyName(binding.keyCode);
 	const keyCode = name ? monaco.KeyCode[name] : undefined;
 	if (keyCode === undefined) {
 		return null;

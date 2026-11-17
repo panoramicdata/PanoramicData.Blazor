@@ -11,11 +11,13 @@ export function initializeLeftPanelHandle(handle, dotNetRef) {
 	}
 
 	initializedHandles.add(handle);
-	handle.addEventListener("pointerdown", event => startDrag(event, handle, dotNetRef));
+	handle.addEventListener("pointerdown", (event) =>
+		startDrag(event, handle, dotNetRef),
+	);
 
 	// A held arrow key repeats, so the width changes on each key down and is reported once, when the key is let go
 	const keys = { pending: null };
-	handle.addEventListener("keydown", event => onKeyDown(event, handle, keys));
+	handle.addEventListener("keydown", (event) => onKeyDown(event, handle, keys));
 	handle.addEventListener("keyup", () => reportPending(dotNetRef, keys));
 	handle.addEventListener("blur", () => reportPending(dotNetRef, keys));
 }
@@ -39,13 +41,19 @@ function remPixels() {
 function measure(panel) {
 	const shown = panel.getBoundingClientRect().width;
 	const styled = parseFloat(getComputedStyle(panel).width) || shown;
-	return { width: styled / remPixels(), scale: styled > 0 && shown > 0 ? shown / styled : 1 };
+	return {
+		width: styled / remPixels(),
+		scale: styled > 0 && shown > 0 ? shown / styled : 1,
+	};
 }
 
 function limits(handle) {
 	const min = parseFloat(handle.getAttribute("aria-valuemin"));
 	const max = parseFloat(handle.getAttribute("aria-valuemax"));
-	return { min: Number.isFinite(min) ? min : 0, max: Number.isFinite(max) ? max : Number.POSITIVE_INFINITY };
+	return {
+		min: Number.isFinite(min) ? min : 0,
+		max: Number.isFinite(max) ? max : Number.POSITIVE_INFINITY,
+	};
 }
 
 function clamp(width, bounds) {
@@ -72,7 +80,7 @@ function report(dotNetRef, width) {
 
 	// The circuit may be gone by the time a drag ends, and then there is no one left to tell
 	try {
-		dotNetRef.invokeMethodAsync("OnLeftPanelResized", width).catch(() => { });
+		dotNetRef.invokeMethodAsync("OnLeftPanelResized", width).catch(() => {});
 	} catch {
 		// As above, when the call cannot even be sent
 	}
@@ -104,12 +112,19 @@ function startDrag(event, handle, dotNetRef) {
 	let width = null;
 	let finished = false;
 
-	const move = moveEvent => {
-		width = apply(handle, clamp(start.width + (moveEvent.clientX - startX) / start.scale / pixels, bounds)) ?? width;
+	const move = (moveEvent) => {
+		width =
+			apply(
+				handle,
+				clamp(
+					start.width + (moveEvent.clientX - startX) / start.scale / pixels,
+					bounds,
+				),
+			) ?? width;
 	};
 
 	// Also run when capture is lost, such as when the host removes the edge mid-drag, so only the first call counts
-	const end = endEvent => {
+	const end = (endEvent) => {
 		if (finished) {
 			return;
 		}

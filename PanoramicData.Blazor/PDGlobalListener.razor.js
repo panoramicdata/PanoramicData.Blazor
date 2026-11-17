@@ -97,9 +97,11 @@ export function getKeyArgs(e) {
 // as AltGr with Ctrl and Alt cleared. With the left Alt held it is the shortcut that was pressed; the AltGr key itself
 // is the right Alt, and that is typing, so it is left as it is.
 function isCtrlAltReportedAsAltGr(e) {
-	return typeof e.getModifierState === "function" &&
+	return (
+		typeof e.getModifierState === "function" &&
 		e.getModifierState("AltGraph") &&
 		(heldCodes.has("ControlLeft") || heldCodes.has("ControlRight")) &&
 		heldCodes.has("AltLeft") &&
-		!heldCodes.has("AltRight");
+		!heldCodes.has("AltRight")
+	);
 }
