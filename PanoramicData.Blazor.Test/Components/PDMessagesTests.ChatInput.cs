@@ -72,7 +72,7 @@ public partial class PDMessagesTests
 	[Fact]
 	public void Input_accessories_sit_in_a_toolbar_above_the_input()
 	{
-		RenderLive([]).Find(".chat-input-accessories").Children.Select(child => child.ClassName).Should().Equal("btn btn-sm btn-secondary chat-send");
+		RenderLive([]).Find(".chat-input-accessories").Children.Select(child => child.ClassName).Should().Equal("btn btn-sm btn-primary chat-send");
 
 		var component = Render<PDMessages>(parameters => parameters
 			.Add(p => p.IsLive, true)

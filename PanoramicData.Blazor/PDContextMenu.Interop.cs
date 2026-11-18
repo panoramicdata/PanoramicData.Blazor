@@ -63,9 +63,16 @@ public partial class PDContextMenu : IAsyncDisposable
 	/// </summary>
 	private async Task<bool> IsPopperAvailableAsync(IJSObjectReference module)
 	{
-		if (_popperMissing && await module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true))
+		if (_popperMissing)
 		{
-			_popperMissing = false;
+			try
+			{
+				_popperMissing = !await module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so popper.js cannot be used.
+			}
 		}
 
 		return !_popperMissing;

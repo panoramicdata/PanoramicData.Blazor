@@ -1,6 +1,21 @@
 var _objRef = null;
 var _disabledKeys = new Set();
 var _keyEventListeners = new Map(); // Track event listeners for cleanup
+var _keyContexts = new Map(); // keyId -> Map(editor -> context key that switches its do-nothing command on)
+
+// The Monaco names of the browser key codes a key binding can be disabled for
+var _monacoKeyNames = {
+	8: "Backspace",
+	9: "Tab",
+	13: "Enter",
+	27: "Escape",
+	32: "Space",
+	37: "LeftArrow",
+	38: "UpArrow",
+	39: "RightArrow",
+	40: "DownArrow",
+	46: "Delete",
+};
 var languageOptions = {};
 
 // Characters that may start a (dotted) function name: ASCII letters, "_" and "$"
@@ -28,6 +43,24 @@ function getMonaco() {
 	return window.monaco;
 }
 
+// Resolves true once the monaco global exists, or false after the timeout. editor.main.js is an AMD bundle, so
+// monaco is only defined once the loader has fetched its remaining parts, which a fast reload can beat.
+export function waitForMonaco(timeoutMs) {
+	return new Promise((resolve) => {
+		const started = Date.now();
+		const check = () => {
+			if (getMonaco()) {
+				resolve(true);
+			} else if (Date.now() - started >= timeoutMs) {
+				resolve(false);
+			} else {
+				setTimeout(check, 50);
+			}
+		};
+		check();
+	});
+}
+
 export function initialize(objRef) {
 	if (objRef) {
 		_objRef = objRef;
@@ -49,39 +82,97 @@ function fromKeyId(keyId) {
 }
 
 export function disableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
-	// Create a key identifier for the combination
 	const binding = { keyCode, ctrlKey, altKey, shiftKey };
 	const keyId = toKeyId(binding);
 	_disabledKeys.add(keyId);
 
-	// Wait for Monaco to be ready and then intercept the key events
 	const monaco = getMonaco();
 	if (monaco && monaco.editor) {
-		// Apply to all existing editors
 		monaco.editor.getEditors().forEach((editor) => {
-			interceptKeyboardEvent(editor, binding, keyId);
+			disableInEditor(editor, binding, keyId);
 		});
 
-		// Also intercept for any new editors that might be created
+		// Editors created later are given every disabled key too
 		const originalCreate = monaco.editor.create;
 		if (!originalCreate._pdIntercepted) {
 			monaco.editor.create = function (container, options, override) {
 				const editor = originalCreate.call(this, container, options, override);
-
-				// Apply all currently disabled key combinations to new editor
 				_disabledKeys.forEach((disabledKeyId) => {
-					interceptKeyboardEvent(
-						editor,
-						fromKeyId(disabledKeyId),
-						disabledKeyId,
-					);
+					disableInEditor(editor, fromKeyId(disabledKeyId), disabledKeyId);
 				});
-
 				return editor;
 			};
 			originalCreate._pdIntercepted = true;
 		}
 	}
+}
+
+// Monaco's name for a browser key code, or undefined when it has none here.
+function monacoKeyName(code) {
+	const named = _monacoKeyNames[code];
+	if (named) {
+		return named;
+	}
+
+	if (code >= 65 && code <= 90) {
+		return `Key${String.fromCharCode(code)}`;
+	}
+
+	if (code >= 48 && code <= 57) {
+		return `Digit${code - 48}`;
+	}
+
+	return code >= 112 && code <= 123 ? `F${code - 111}` : undefined;
+}
+
+// The browser key as Monaco's keybinding, or null for a key it has no name for here. Ctrl is Monaco's WinCtrl on a
+// Mac, where its CtrlCmd is the Command key.
+function toMonacoKeybinding(monaco, binding) {
+	const name = monacoKeyName(binding.keyCode);
+	const keyCode = name ? monaco.KeyCode[name] : undefined;
+	if (keyCode === undefined) {
+		return null;
+	}
+
+	const isMac = /Mac/.test(navigator.platform);
+	const ctrl = isMac ? monaco.KeyMod.WinCtrl : monaco.KeyMod.CtrlCmd;
+	return (
+		keyCode |
+		(binding.ctrlKey ? ctrl : 0) |
+		(binding.altKey ? monaco.KeyMod.Alt : 0) |
+		(binding.shiftKey ? monaco.KeyMod.Shift : 0)
+	);
+}
+
+// A do-nothing command of Monaco's own takes the key's place in the editor (Ctrl+Enter is its Insert Line Below),
+// and the key still reaches the page's shortcuts, such as PDStudio's Run. Monaco now takes typing on a native edit
+// context rather than its textarea, so catching the key on the textarea no longer stops it. A key Monaco cannot be
+// given is caught there all the same.
+function disableInEditor(editor, binding, keyId) {
+	const monaco = getMonaco();
+	const keybinding = monaco ? toMonacoKeybinding(monaco, binding) : null;
+	if (keybinding === null || !editor.addCommand || !editor.createContextKey) {
+		interceptKeyboardEvent(editor, binding, keyId);
+		return;
+	}
+
+	let contexts = _keyContexts.get(keyId);
+	if (!contexts) {
+		contexts = new Map();
+		_keyContexts.set(keyId, contexts);
+	}
+
+	const existing = contexts.get(editor);
+	if (existing) {
+		existing.set(true);
+		return;
+	}
+
+	const contextName = `pdDisabled_${keyId.replaceAll("-", "_")}`;
+	const contextKey = editor.createContextKey(contextName, true);
+	editor.addCommand(keybinding, () => {}, contextName);
+	contexts.set(editor, contextKey);
+	editor.onDidDispose(() => contexts.delete(editor));
 }
 
 function findEditorInputElement(domNode) {
@@ -146,6 +237,9 @@ export function enableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
 
 	// Remove from disabled keys
 	_disabledKeys.delete(keyId);
+
+	// The do-nothing commands stand aside, so the editor's own take the key again
+	_keyContexts.get(keyId)?.forEach((contextKey) => contextKey.set(false));
 
 	// Remove all event listeners for this key combination
 	if (_keyEventListeners.has(keyId)) {

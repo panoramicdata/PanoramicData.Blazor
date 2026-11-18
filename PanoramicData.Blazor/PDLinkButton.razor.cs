@@ -178,7 +178,14 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("click", Id).ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("click", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

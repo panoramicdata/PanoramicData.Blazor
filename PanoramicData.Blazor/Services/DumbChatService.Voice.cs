@@ -11,6 +11,9 @@ public partial class DumbChatService
 	/// <summary>The wake phrases the demo suggests; its simulated microphone says the first of them every other time.</summary>
 	public static IReadOnlyList<string> DemoWakePhrases { get; } = ["Hey DumbBot", "OK DumbBot"];
 
+	/// <summary>The interrupt phrases the demo suggests; its simulated microphone says them every other time.</summary>
+	public static IReadOnlyList<string> DemoInterruptPhrases { get; } = ["DumbBot"];
+
 	/// <summary>The agents offered by default.</summary>
 	public static IReadOnlyList<PDChatAgentOption> DemoAgents { get; } =
 	[
@@ -29,6 +32,11 @@ public partial class DumbChatService
 	private IReadOnlyList<PDChatAgentOption>? _agents = DemoAgents;
 	private IReadOnlyList<PDChatModelOption>? _models = DemoModels;
 	private IReadOnlyList<string>? _wakePhrases;
+	private IReadOnlyList<string>? _interruptPhrases;
+	private string? _answeringModelName = "Dumb Model";
+	private string? _answeringModelDescription = "The demo's model. It answers the same whatever you ask.";
+	private bool _isImageInputOffered = true;
+	private string? _imageInputBlockedReason;
 	private TimeSpan _voiceIdleTimeout = TimeSpan.FromSeconds(10);
 	private TimeSpan _voiceAutoSendDelay = TimeSpan.FromMilliseconds(1000);
 	private bool _isReadAloudEnabled;
@@ -70,11 +78,46 @@ public partial class DumbChatService
 		set => SetConfiguration(ref _models, value);
 	}
 
+	/// <summary>Gets or sets the model named in the toolbar after the agent picker; "Dumb Model" by default, and null shows none.</summary>
+	public string? AnsweringModelName
+	{
+		get => _answeringModelName;
+		set => SetConfiguration(ref _answeringModelName, value);
+	}
+
+	/// <summary>Gets or sets the tooltip of <see cref="AnsweringModelName"/>.</summary>
+	public string? AnsweringModelDescription
+	{
+		get => _answeringModelDescription;
+		set => SetConfiguration(ref _answeringModelDescription, value);
+	}
+
+	/// <summary>Gets or sets whether images can be added to a message; true by default in the demo.</summary>
+	public bool IsImageInputOffered
+	{
+		get => _isImageInputOffered;
+		set => SetConfiguration(ref _isImageInputOffered, value);
+	}
+
+	/// <summary>Gets or sets why images cannot be sent, or null when they can.</summary>
+	public string? ImageInputBlockedReason
+	{
+		get => _imageInputBlockedReason;
+		set => SetConfiguration(ref _imageInputBlockedReason, value);
+	}
+
 	/// <inheritdoc />
 	public IReadOnlyList<string>? WakePhrases
 	{
 		get => _wakePhrases;
 		set => SetConfiguration(ref _wakePhrases, value);
+	}
+
+	/// <inheritdoc />
+	public IReadOnlyList<string>? InterruptPhrases
+	{
+		get => _interruptPhrases;
+		set => SetConfiguration(ref _interruptPhrases, value);
 	}
 
 	/// <inheritdoc />

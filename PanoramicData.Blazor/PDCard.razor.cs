@@ -85,7 +85,7 @@ public partial class PDCard<TCard> where TCard : ICard
 		// Visual Updates
 		{ "onmouseup", (MouseEventArgs e) => ParentCardDeck.AddToSelection(e, card)},
 		{ "ondragstart", (DragEventArgs e) => ParentCardDeck.OnDragStartAsync(e, card)},
-		{ "ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEnd(e, card) },
+		{ "ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEndAsync(e, card) },
 
 		// Position Updates
 		{ "ondragover",(DragEventArgs e) => OnDragOverAsync(e, card) }

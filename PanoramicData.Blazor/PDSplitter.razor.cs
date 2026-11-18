@@ -7,6 +7,7 @@ public partial class PDSplitter : IAsyncDisposable
 {
 	private static int _idSequence;
 	private IJSObjectReference? _module;
+	private DotNetObjectReference<PDSplitter>? _dotNetRef;
 
 	/// <summary>
 	/// Gets the unique identifier of this splitter instance.
@@ -59,6 +60,12 @@ public partial class PDSplitter : IAsyncDisposable
 	[Parameter] public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Raised when the user stops dragging a gutter, with each panel's new size as a percentage, so the host can keep
+	/// them. Without a handler, split.js is not asked to report drags.
+	/// </summary>
+	[Parameter] public EventCallback<double[]> DragEnd { get; set; }
+
+	/// <summary>
 	/// Gets a collection of child panels.
 	/// </summary>
 	private List<PDSplitPanel> Panels { get; } = [];
@@ -104,7 +111,8 @@ public partial class PDSplitter : IAsyncDisposable
 						throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
 					}
 
-					await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
+					_dotNetRef = DragEnd.HasDelegate ? DotNetObjectReference.Create(this) : null;
+					await _module.InvokeVoidAsync("initialize", Id, ids, options, _dotNetRef).ConfigureAwait(true);
 				}
 			}
 			catch
@@ -122,7 +130,14 @@ public partial class PDSplitter : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
+			try
+			{
+				return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		return [];
@@ -136,9 +151,23 @@ public partial class PDSplitter : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("setSizes", Id, sizes).ConfigureAwait(true);
+			try
+			{
+				await _module.InvokeVoidAsync("setSizes", Id, sizes).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
+
+	/// <summary>
+	/// Called by split.js when the user stops dragging a gutter.
+	/// </summary>
+	/// <param name="sizes">Each panel's new size as a percentage.</param>
+	[JSInvokable]
+	public Task OnDragEnd(double[] sizes) => DragEnd.InvokeAsync(sizes);
 
 	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
@@ -146,6 +175,7 @@ public partial class PDSplitter : IAsyncDisposable
 		try
 		{
 			GC.SuppressFinalize(this);
+			_dotNetRef?.Dispose();
 			if (_module != null)
 			{
 				await _module.InvokeVoidAsync("destroy", Id).ConfigureAwait(true);

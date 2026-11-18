@@ -127,6 +127,43 @@ public partial class PDFileExplorerTests
 		updates.Should().BeGreaterThan(0);
 	}
 
+	/// <summary>With the explorer's toolbar hidden, a host can still run a built-in action by its key.</summary>
+	[Fact]
+	public async Task ClickToolbarItemAsync_RunsTheBuiltInAction_WithTheToolbarHidden()
+	{
+		var cut = RenderExplorer(p => p.Add(x => x.ShowToolbar, false).Add(x => x.NewFolderName, "Fresh"));
+		await NavigateAsync(cut, "/Docs");
+
+		await cut.InvokeAsync(() => cut.Instance.ClickToolbarItemAsync("create-folder"));
+
+		_provider.Creates.Should().Equal("/Docs/Fresh");
+	}
+
+	/// <summary>A disabled item does nothing, as its button would.</summary>
+	[Fact]
+	public async Task ClickToolbarItemAsync_DoesNothing_ForADisabledItem()
+	{
+		var cut = RenderExplorer(p => p.Add(x => x.NewFolderName, "Fresh"));
+		await NavigateAsync(cut, "/Media");
+		ToolbarButton(cut, "create-folder").IsEnabled.Should().BeFalse();
+
+		await cut.InvokeAsync(() => cut.Instance.ClickToolbarItemAsync("create-folder"));
+
+		_provider.Creates.Should().BeEmpty();
+	}
+
+	/// <summary>A key the explorer does not handle itself is raised to the application, as a toolbar click is.</summary>
+	[Fact]
+	public async Task ClickToolbarItemAsync_RaisesAnUnknownKey_ToTheApplication()
+	{
+		var clicked = new List<string>();
+		var cut = RenderExplorer(p => p.Add(x => x.ToolbarClick, (string k) => clicked.Add(k)));
+
+		await cut.InvokeAsync(() => cut.Instance.ClickToolbarItemAsync("custom"));
+
+		clicked.Should().Equal("custom");
+	}
+
 	/// <summary>In a read-only folder the create-folder and upload buttons are disabled.</summary>
 	[Fact]
 	public async Task ReadOnlyFolder_DisablesCreateAndUpload()

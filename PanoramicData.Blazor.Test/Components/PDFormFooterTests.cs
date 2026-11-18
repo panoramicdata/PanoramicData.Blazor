@@ -44,6 +44,18 @@ public partial class PDFormFooterTests : BunitContext
 		return (form, person);
 	}
 
+	private async Task<(IRenderedComponent<PDForm<Person>> Form, Person Person, List<string> Clicks)> OpenAsync(RecordingProvider? provider, FormModes mode)
+	{
+		var clicks = new List<string>();
+		var (form, person) = RenderForm(provider, configure: footer => footer
+			.Add(p => p.Click, (string key) => clicks.Add(key)));
+		await EditAsync(form, mode);
+		return (form, person, clicks);
+	}
+
+	private static Task PressAsync(IRenderedComponent<PDForm<Person>> form, string text)
+		=> ButtonFor(form, text).ClickAsync(new());
+
 	private static Task EditAsync(IRenderedComponent<PDForm<Person>> form, FormModes mode)
 		=> form.InvokeAsync(() => form.Instance.EditItemAsync(form.Instance.Item, mode));
 

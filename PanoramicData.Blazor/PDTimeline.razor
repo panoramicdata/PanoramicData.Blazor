@@ -17,6 +17,24 @@
 			@onpointerup="OnChartPointerUp"
 			preserveAspectRatio="none">
 		@{
+			var maxYValue = points.Length > 0 ? GetMaxValue(points) : 0;
+			var axisMax = Options.YAxis.MaxValue ?? maxYValue;
+
+			@* GRID LINES *@
+			if (Options.YAxis.ShowGridLines)
+			{
+				foreach (var gridValue in Utilities.GridLineValues(axisMax, Options.YAxis.GridLineCount))
+				{
+					var gridY = PlotY(gridValue, axisMax);
+					<line class="tl-grid-line"
+						  shape-rendering="crispEdges"
+						  stroke="@Options.YAxis.GridLineColour"
+						  x1="0"
+						  x2="@_canvasWidth"
+						  y1="@gridY"
+						  y2="@gridY" />
+				}
+			}
 
 			@* SELECTION RANGE *@
 			if(_selectionStartIndex > -1 && _selectionEndIndex > -1)
@@ -31,18 +49,34 @@
 			@* BARS *@
 			if (points.Length > 0)
 			{
-				var maxYValue = GetMaxValue(points);
 				for (var i = 0; i < points.Length; i++)
 				{
 					<PDStackedBar DateFormat="@Scale.FormatPattern(Options.General.DateFormat)"
 								  DataPoint="points[i]"
 								  Height="_canvasHeight"
 								  IsEnabled="IsPointEnabled(points[i])"
-								  MaxValue="@(Options.YAxis.MaxValue ?? maxYValue)"
+								  MaxValue="@axisMax"
 								  Options="Options"
 								  X="@(i * Options.Bar.Width)"
 								  YValueTransform="YValueTransform" />
 				}
+			}
+
+			@* MAX VALUE LABEL *@
+			if (Options.YAxis.ShowMaxValue && axisMax > 0)
+			{
+				var maxLabel = FormatMaxLabel(GetMaxLabelValue(points));
+				<g class="tl-max-value">
+					<rect fill="@Options.YAxis.MaxValueBackgroundColour"
+						  height="14"
+						  rx="2"
+						  width="@(maxLabel.Length * 7 + 6)"
+						  x="2"
+						  y="2" />
+					<text fill="@Options.YAxis.MaxValueColour"
+						  x="5"
+						  y="13">@maxLabel</text>
+				</g>
 			}
 
 			@* SELECTION HANDLES *@

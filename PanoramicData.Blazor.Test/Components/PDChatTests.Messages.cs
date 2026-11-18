@@ -23,7 +23,7 @@ public partial class PDChatTests
 		var component = RenderChat(service, p => p.Add(x => x.OnMessageSent, (ChatMessage m) => reported.Add(m)));
 
 		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Hi" });
-		await component.Find("button.btn-secondary").ClickAsync(new());
+		await component.Find(".chat-send").ClickAsync(new());
 
 		var sent = service.Sent.Should().ContainSingle().Subject;
 		sent.Message.Should().Be("Hi");

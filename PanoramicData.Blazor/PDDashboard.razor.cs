@@ -373,13 +373,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnEditModeChanged.InvokeAsync(EffectiveIsEditable).ConfigureAwait(true);
 		}
 
-		StateHasChanged();
 	}
 
 	private async Task ToggleRotationPauseAsync()
 	{
 		_isRotationPaused = !_isRotationPaused;
-		StateHasChanged();
 		await Task.CompletedTask.ConfigureAwait(true);
 	}
 

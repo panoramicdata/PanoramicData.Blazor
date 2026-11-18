@@ -7,8 +7,9 @@
 			   class="pdchat-conversation-search-input"
 			   placeholder="Search conversations"
 			   aria-label="Search conversations"
-			   value="@_searchText"
-			   @oninput="OnSearchTextChangedAsync" />
+			   @bind:get="_searchText"
+			   @bind:set="SetSearchTextAsync"
+			   @bind:event="oninput" />
 
 		@* Hidden, not disabled, when the store has no embedding model: a control that is permanently
 		   greyed teaches the reader nothing about why. *@

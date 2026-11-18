@@ -84,6 +84,28 @@ public partial class PDFileExplorerPage
 
 	private void OnFolderChanged(FileExplorerItem folder) => NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
 
+	private string ItemPathToShow { get; set; } = "/Library/Templates/word_template.docx";
+
+	private string? _showItemResult;
+
+	// Opens the file's folder once and selects the file, without opening each folder on the way
+	private async Task ShowItemAsync()
+	{
+		var isFound = await FileExplorer!.NavigateToItemAsync(ItemPathToShow).ConfigureAwait(true);
+		_showItemResult = isFound ? "Selected" : "Not found: the deepest folder found is open";
+	}
+
+	private string FolderPathToOpen { get; set; } = "/Library/Templates";
+
+	private string? _openFolderResult;
+
+	// Opens the folder itself once, without first showing the folder holding it
+	private async Task OpenFolderAsync()
+	{
+		var isFound = await FileExplorer!.NavigateToFolderAsync(FolderPathToOpen).ConfigureAwait(true);
+		_openFolderResult = isFound ? "Opened" : "Not found: the deepest folder found is open";
+	}
+
 	private async Task OnReady()
 	{
 		if (!string.IsNullOrWhiteSpace(_deepLinkPath))
@@ -110,7 +132,14 @@ public partial class PDFileExplorerPage
 			}
 		}
 
-		await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	public static void OnUploadRequest(DropZoneEventArgs args)

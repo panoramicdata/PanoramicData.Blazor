@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTreePage3
 {
@@ -22,12 +22,13 @@ public partial class PDTreePage3
 		EventManager?.Add(new Event("Drop",
 			new EventArgument("Source", sourceItem?.Name),
 			new EventArgument("Target", targetItem?.Name),
+			new EventArgument("Position", args.Position),
 			new EventArgument("Before", args.Before),
 			new EventArgument("Ctrl", args.Ctrl)));
 
 		if (sourceItem != null && targetItem != null)
 		{
-			ReOrder(sourceItem, targetItem, args.Before);
+			ReOrder(sourceItem, targetItem, args.Position);
 		}
 	}
 }

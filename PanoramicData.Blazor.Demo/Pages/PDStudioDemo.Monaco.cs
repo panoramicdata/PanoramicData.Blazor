@@ -1,4 +1,5 @@
 ﻿using BlazorMonaco.Editor;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Models.Monaco;
 
@@ -15,6 +16,29 @@ public partial class PDStudioDemo
 		["ncalc"] = ("ncalc-dark", "ncalc-light"),
 		["sql"] = ("sql-dark", "sql-light")
 	};
+
+	private bool EditorReadOnly { get; set; }
+
+	private int EditorTabSize { get; set; } = 4;
+
+	// Changed while the studio is open, through UpdateEditorOptionsAsync
+	private async Task OnEditorReadOnlyChanged(ChangeEventArgs args)
+	{
+		EditorReadOnly = args.Value is true;
+		if (_studio is not null)
+		{
+			await _studio.UpdateEditorOptionsAsync(new EditorUpdateOptions { ReadOnly = EditorReadOnly });
+		}
+	}
+
+	private async Task OnEditorTabSizeChanged(ChangeEventArgs args)
+	{
+		if (int.TryParse(args.Value?.ToString(), out var tabSize) && _studio is not null)
+		{
+			EditorTabSize = tabSize;
+			await _studio.UpdateEditorOptionsAsync(new EditorUpdateOptions { DetectIndentation = false, TabSize = tabSize });
+		}
+	}
 
 	private void UpdateThemeBasedOnPreference(bool isDark)
 	{

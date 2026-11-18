@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Interfaces;
@@ -36,6 +37,15 @@ public partial class PDCardDeckTests : BunitContext
 		deck.WaitForState(() => deck.Instance.DataLoaded);
 		return deck;
 	}
+
+	private static Task DragStartAsync(IRenderedComponent<PDCardDeck<Card>> deck, string name)
+		=> deck.InvokeAsync(() => CardElement(deck, name).DragStartAsync(new DragEventArgs()));
+
+	private static Task DragOverAsync(IRenderedComponent<PDCardDeck<Card>> deck, string name)
+		=> deck.InvokeAsync(() => CardElement(deck, name).DragOverAsync(new DragEventArgs()));
+
+	private static Task DragEndAsync(IRenderedComponent<PDCardDeck<Card>> deck, string name)
+		=> deck.InvokeAsync(() => CardElement(deck, name).DragEndAsync(new DragEventArgs()));
 
 	private static List<string> Names(IRenderedComponent<PDCardDeck<Card>> deck)
 		=> [.. deck.FindAll("div.card").Select(c => c.TextContent.Trim())];

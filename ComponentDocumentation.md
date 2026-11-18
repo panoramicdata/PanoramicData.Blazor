@@ -239,6 +239,9 @@ This component has no public parameters.
 | ShowLoadingIcon | bool | Whether a deck outside a group shows a loading icon while its cards load. Defaults to true. A deck in a group never shows one: see <see cref="PDCardDeckGroup{TCard}.ShowLoadingIcon"/>. |
 | LoadingMessage | string | The message shown with the loading icon. Defaults to <see cref="PDCardDeckLoadingIcon.DefaultMessage"/>. |
 | ShowLoadingElapsedTime | bool | Whether the loading icon shows how many seconds the cards have been loading. Defaults to true. |
+| CardsReordered | EventCallback<IReadOnlyList<TCard>> | Raised by a deck outside a <see cref="PDCardDeckGroup{TCard}"/> when the user changes the order of its cards, with the cards in their new order and each <see cref="ICard.DeckPosition"/> set. Inside a group, see <see cref="PDCardDeckGroup{TCard}.Transformation"/> instead. |
+| KeyboardReorder | bool | Whether, in a deck outside a <see cref="PDCardDeckGroup{TCard}"/>, Alt+Up and Alt+Down move the selected cards one place, raising <see cref="CardsReordered"/>. Defaults to false. |
+| DeleteRequested | EventCallback<IReadOnlyList<TCard>> | Raised when the user presses Delete with cards selected, with the selected cards. The deck removes nothing itself. |
 
 ---
 
@@ -281,7 +284,8 @@ This component has no public parameters.
 | User | required ChatMessageSender |  |
 | ConversationService | IChatConversationService? | Gets or sets an optional conversation history: the list of previous conversations that can be searched, opened and archived (issue #108). <c>null</c> - the default - means the host has no such store. |
 | ChatDockPosition | PDChatDockPosition | Gets or sets the dock position of the chat window. |
-| CollapsedIcon | string | Gets or sets the icon to display when the chat window is collapsed. |
+| CollapsedIcon | string? | Gets or sets text, such as an emoji, shown on the minimised chat's button in place of `Icons.Launcher`. |
+| Icons | PDChatIcons | Gets or sets the CSS classes of the header's and toolbar's icons. Font Awesome by default. |
 | UserIconSelector | Func<ChatMessage, string?>? | A function to select a user icon for a given message. |
 | PriorityIconSelector | Func<ChatMessage, string?>? | A function to select a priority icon for a given message. |
 | SoundSelector | Func<ChatMessage, string?>? | A function to select a sound to play for a given message. |
@@ -985,12 +989,12 @@ This component has no public parameters.
 | Created | EventCallback<TItem> | Event raised when the current item has been successfully created. |
 | FieldUpdated | EventCallback<FieldUpdateArgs<TItem>> | Event raised when the current item has been successfully updated. |
 | Updated | EventCallback<TItem> | Event raised when the current item has been successfully updated. |
-| Error | EventCallback<string> | Event raised whenever an error occurs. |
+| Error | EventCallback<string> | Event raised whenever an error occurs, including an exception's message when ExceptionHandler is not set. |
 | HideForm | bool | Should the form be hidden after a Save operation? |
 | DefaultMode | FormModes | Sets the default mode of the form. |
 | HelpTextMode | HelpTextMode | Sets how help text is displayed. |
 | CustomValidate | EventCallback<CustomValidateArgs<TItem>> | Gets or sets a delegate to be called for each field validated. |
-| ExceptionHandler | EventCallback<Exception> | Gets or sets a delegate to be called if an exception occurs. |
+| ExceptionHandler | EventCallback<Exception> | Gets or sets a delegate to be called if an exception occurs. When neither this nor Error is set, a registered <see cref="IPDFormExceptionHandler"/> is called instead. |
 | SuppressInitialErrors | bool | Should any errors (i.e mandatory fields) be suppressed until the first edit occurs? |
 
 ---
@@ -1461,6 +1465,7 @@ This component has no public parameters.
 | ShowMessageTimestamp | bool | Gets or sets whether to show the timestamp for each message. |
 | MessageTimestampFormat | string | Gets or sets the format for the message timestamp. |
 | InputAccessories | RenderFragment? | Gets or sets optional controls shown in the thin toolbar above the text box, before Send. The toolbar is shown even where input is not permitted, so a control such as notification sounds stays reachable. |
+| Icons | PDChatIcons | Gets or sets the CSS classes of the toolbar's icons. Font Awesome by default. |
 | InputFocusChanged | EventCallback<bool> | An event callback that is invoked when the text box gains (<c>true</c>) or loses (<c>false</c>) focus. |
 | IsInputAutoFocused | bool | Gets or sets whether the text box takes focus when first shown and after each send. Defaults to true. |
 
@@ -1736,6 +1741,13 @@ No code-behind file found for this component.
 | OnLoggingVisibilityChanged | EventCallback<bool> | Event callback for when logging visibility changes. |
 | DataProvider | IDataProviderService<GraphData>? | Gets or sets the data provider for the graph data. |
 | EditorToolbarContent | RenderFragment? | Custom content for the editor toolbar. |
+| ActiveTabChanged | EventCallback<string> | Raised with the key of the tab showing, once it first shows and whenever it changes, whether by a click, SelectTab(string), or because the tab that was showing has gone. A host can use it to render a costly tab's content only while that tab shows. |
+| *UpdateEditorOptionsAsync(EditorUpdateOptions)* | Method | Changes the code editor's options while the studio is open, such as its tab size or whether it suggests as you type. Options given before the editor has started are applied once it has. |
+| *OutputTabs[].Badge* | PDStudioTabBadge? | A badge shown after a host tab's title: a short text such as a count, or a dot when it has none, coloured by its Kind (Neutral, Info, Success, Warning, Error) with an optional CssClass and ToolTip. To change it, give the studio the tab again with `with { Badge = ... }`. |
+| ExecuteMenuItems | List<MenuItem>? | Gets or sets a menu joined to Execute as a split button, such as options for the run; null or empty for none. |
+| ExecuteMenuClick | EventCallback<string> | Raised with the key of the item chosen on ExecuteMenuItems. |
+| ExecuteMenuToolTip | string? | Gets or sets the tooltip of the menu joined to Execute, such as the options it holds; null for none. |
+| EditorContent | RenderFragment? | Gets or sets content shown in place of the code editor, such as another kind of editor; null shows the code editor. The code editor stays in the page, hidden, so its code and undo history are still there when this is cleared. Give it as an attribute, as content written between the tags is never null. |
 | InitializeMonacoOptions | Action<StandaloneEditorConstructionOptions>? | Gets or sets a callback to initialize Monaco editor options. |
 | InitializeMethodCache | Action<MethodCache>? | Gets or sets a callback to initialize the method cache for language completions. |
 | RegisterLanguages | Action<List<Language>>? | Gets or sets a callback to register custom languages for Monaco editor. |
@@ -1961,6 +1973,7 @@ No code-behind file found for this component.
 | IsVisible | bool | Gets or sets whether the toolbar item is visible. |
 | IsEnabled | bool | Gets or sets whether the toolbar item is enabled. |
 | Width | string | Sets the width of the containing div element. |
+| MaxLength | int? | Gets or sets the maximum number of characters the text box accepts, or null for no limit. |
 | Placeholder | string | Gets or sets placeholder text for the text box. |
 | Value | string | Sets the initial text value. |
 | ValueChanged | EventCallback<string> | Event raised whenever the text value changes. |
@@ -1968,7 +1981,7 @@ No code-behind file found for this component.
 | Keypress | EventCallback<KeyboardEventArgs> | Event raised whenever a key is pressed. |
 | ShowClearButton | bool | Gets or sets whether the clear button is displayed. |
 | ShowSpeechButton | bool | Gets or sets whether the user may use speech to populate the textbox. |
-| DebounceWait | int | Sets the debounce wait period in milliseconds. |
+| DebounceWait | int | Sets the debounce wait period in milliseconds. Leaving the text box or pressing Enter sends the value without waiting. |
 | Cleared | EventCallback | Event raised when the user clicks on the clear button. |
 
 ---

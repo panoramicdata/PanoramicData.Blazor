@@ -85,6 +85,20 @@ public partial class PDButtonTests
 		gate.SetResult();
 	}
 
+	/// <summary>An Operation that throws still leaves the button enabled.</summary>
+	[Fact]
+	public async Task Operation_that_throws_still_reenables_the_button()
+	{
+		var component = Render<PDButton>(parameters => parameters
+			.Add(p => p.Operation, _ => Task.FromException(new InvalidOperationException("The operation failed"))));
+
+		var click = () => component.Find("button").ClickAsync(new MouseEventArgs());
+
+		await click.Should().ThrowAsync<InvalidOperationException>();
+		component.Render();
+		component.Find("button").HasAttribute("disabled").Should().BeFalse();
+	}
+
 	/// <summary>A shortcut key is registered while the button lives and unregistered when disposed.</summary>
 	[Fact]
 	public void Shortcut_is_registered_and_unregistered()

@@ -1,4 +1,4 @@
-﻿using PanoramicData.Blazor.Models.Monaco;
+using PanoramicData.Blazor.Models.Monaco;
 
 namespace PanoramicData.Blazor;
 
@@ -14,6 +14,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private string _executionStatus = StudioExecutionStatus.Ready.ToDisplayString();
 	private string _resultsContent = string.Empty;
 	private string _currentCode = string.Empty;
+	private PDStudioResultSet? _resultSet;
+
+	/// <summary>
+	/// Gets the tabular results of the last execution, when the service returned them, for example to download.
+	/// </summary>
+	public PDStudioResultSet? ResultSet => _resultSet;
 
 	// Shortcut key for execute functionality
 	private readonly ShortcutKey _executeShortcut = ShortcutKey.Create("ctrl-enter");
@@ -38,14 +44,42 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public EventCallback<string> OnCodeExecuted { get; set; }
 
 	/// <summary>
-	/// Event callback for when execution state changes.
+	/// Event callback for when the editor's code changes, whether by typing, New or loading an example.
+	/// </summary>
+	[Parameter] public EventCallback<string> CodeChanged { get; set; }
+
+	/// <summary>
+	/// Called when New is clicked, before anything is cleared: return false to keep the code and results,
+	/// for example when the user chooses to keep unsaved changes.
+	/// </summary>
+	[Parameter] public Func<Task<bool>>? ConfirmNewAsync { get; set; }
+
+	/// <summary>
+	/// Gets the code currently in the editor.
+	/// </summary>
+	public string Code => _currentCode;
+
+	/// <summary>
+	/// Event callback for when execution state changes: true when a run starts, false when it ends, however it ends.
 	/// </summary>
 	[Parameter] public EventCallback<bool> OnExecutionStateChanged { get; set; }
+
+	// The state last given to OnExecutionStateChanged, so each change is reported once.
+	private bool? _reportedExecuting;
+
+	// The service whose running state and status the studio last took.
+	private IPDStudioService? _stateTakenFrom;
 
 	/// <summary>
 	/// Event callback for when logging visibility changes.
 	/// </summary>
 	[Parameter] public EventCallback<bool> OnLoggingVisibilityChanged { get; set; }
+
+	/// <summary>
+	/// Event callback for when the user clicks a result grid row, or presses Enter on one. While it is bound,
+	/// rows show a pointer and a hover highlight and can be focused.
+	/// </summary>
+	[Parameter] public EventCallback<PDStudioResultRowClickEventArgs> OnResultRowClick { get; set; }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="PDStudio"/> class.
@@ -56,10 +90,212 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		_onGlobalKeyDown = (_, keyboardInfo) => OnGlobalKeyDown(keyboardInfo);
 	}
 
+	private const string _resultsTab = "results";
+	private const string _messagesTab = "messages";
+
+	private readonly List<PDStudioMessage> _messages = [];
+	private string _activeTab = _resultsTab;
+	private LogLevel? _messageLevel;
+	private string MessageSearch { get; set; } = string.Empty;
+
 	/// <summary>
-	/// Gets the PDLog component reference for logging integration; set by the markup's <c>@ref</c>.
+	/// Gets the messages recorded so far, oldest first, whether or not the Messages tab is shown.
 	/// </summary>
-	public PDLog? LogComponent { get; internal set; }
+	public IReadOnlyList<PDStudioMessage> Messages => _messages;
+
+	// The filter starts at the options' level; Debug and below show everything.
+	private LogLevel MessageLevel => _messageLevel ?? (Options.DefaultLogLevel <= LogLevel.Debug ? LogLevel.Trace : Options.DefaultLogLevel);
+
+	private string MessageLevelValue => MessageLevel.ToString();
+
+	private IEnumerable<PDStudioMessage> FilteredMessages => _messages.Where(m =>
+		m.Level >= MessageLevel
+		&& (MessageSearch.Length == 0 || m.Text.Contains(MessageSearch, StringComparison.OrdinalIgnoreCase)));
+
+	private string MessagesBadgeCssClass => _messages.Any(m => m.Level >= LogLevel.Error)
+		? "pd-studio-tab-badge pd-studio-tab-badge-error"
+		: "pd-studio-tab-badge";
+
+	// The kind sets the colour; with no text the badge is a dot
+	private static string BadgeCssClass(PDStudioTabBadge badge)
+		=> string.Join(' ', new[]
+		{
+			"pd-studio-tab-badge",
+			string.IsNullOrEmpty(badge.Text) ? "pd-studio-tab-badge-dot" : null,
+			badge.Kind == PDStudioTabBadgeKind.Neutral ? null : $"pd-studio-tab-badge-{badge.Kind.ToString().ToLowerInvariant()}",
+			badge.CssClass
+		}.Where(cssClass => !string.IsNullOrWhiteSpace(cssClass)));
+
+	private string MessagesBadgeText
+	{
+		get
+		{
+			var errors = _messages.Count(m => m.Level >= LogLevel.Error);
+			return errors > 0
+				? string.Format(CultureInfo.InvariantCulture, errors == 1 ? "{0} error" : "{0} errors", errors)
+				: _messages.Count.ToString(CultureInfo.InvariantCulture);
+		}
+	}
+
+	// A tab that is hidden or no longer offered cannot stay selected: the first tab shown is, instead.
+	private string ActiveTab => IsTabShown(_activeTab) ? _activeTab : FirstShownTab();
+
+	/// <summary>
+	/// Gets the key of the tab showing: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
+	/// </summary>
+	public string ActiveTabKey => ActiveTab;
+
+	/// <summary>
+	/// Raised with the key of the tab showing, once it first shows and whenever it changes, whether by a click,
+	/// <see cref="SelectTab(string)"/>, or because the tab that was showing has gone. A host can use it to render a
+	/// costly tab's content only while that tab shows.
+	/// </summary>
+	[Parameter] public EventCallback<string> ActiveTabChanged { get; set; }
+
+	// The tab last given to ActiveTabChanged
+	private string? _reportedTab;
+
+	private bool IsTabShown(string key) => key switch
+	{
+		_resultsTab => Options.ShowResultsTab,
+		_messagesTab => Options.IsLoggingVisible,
+		_ => OutputTabs.Any(t => t.Key == key)
+	};
+
+	private string FirstShownTab()
+	{
+		if (Options.ShowResultsTab)
+		{
+			return _resultsTab;
+		}
+
+		var hostsFirstTab = OutputTabs.Count > 0 ? OutputTabs[0].Key : null;
+		if (Options.IsLoggingVisible && (hostsFirstTab is null || !Options.MessagesTabLast))
+		{
+			return _messagesTab;
+		}
+
+		return hostsFirstTab ?? _resultsTab;
+	}
+
+	private bool IsTabActive(string tab) => tab == ActiveTab;
+
+	private string TabCssClass(string tab) => IsTabActive(tab) ? "pd-studio-tab active" : "pd-studio-tab";
+
+	// Text, as a bool renders the attribute bare when true and leaves it out when false
+	private string AriaSelected(string tab) => IsTabActive(tab) ? "true" : "false";
+
+	/// <summary>
+	/// Shows a tab: "results", "messages", or the key of one of the <see cref="OutputTabs"/>.
+	/// </summary>
+	public void SelectTab(string key)
+	{
+		_activeTab = key;
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Gets or sets tabs shown after Results and Messages, such as a query plan or a chart.
+	/// </summary>
+	[Parameter] public IReadOnlyList<PDStudioOutputTab> OutputTabs { get; set; } = [];
+
+	/// <summary>
+	/// Gets or sets content shown in a panel to the left of the editor and its tabs, such as a schema browser.
+	/// </summary>
+	[Parameter] public RenderFragment? LeftPanelContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content placed at the right-hand end of the toolbar.
+	/// </summary>
+	[Parameter] public RenderFragment? ToolbarEndContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content placed at the start of the toolbar, before Execute, such as a File menu.
+	/// </summary>
+	[Parameter] public RenderFragment? ToolbarStartContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets toolbar items grouped with Execute, after it and before Cancel when
+	/// <see cref="PDStudioOptions.ShowCancelButton"/> is set, such as an Explain button.
+	/// </summary>
+	[Parameter] public RenderFragment? ExecuteGroupContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets a menu joined to Execute as a split button, such as options for the run; null or empty for none.
+	/// </summary>
+	[Parameter] public List<MenuItem>? ExecuteMenuItems { get; set; }
+
+	/// <summary>
+	/// Raised with the key of the item chosen on <see cref="ExecuteMenuItems"/>.
+	/// </summary>
+	[Parameter] public EventCallback<string> ExecuteMenuClick { get; set; }
+
+	/// <summary>
+	/// Gets or sets the tooltip of the menu joined to Execute, such as the options it holds; null for none.
+	/// </summary>
+	[Parameter] public string? ExecuteMenuToolTip { get; set; }
+
+	// The menu takes Execute's colour, which is Cancel's while Execute is Cancel
+	// Execute gives way to its own Cancel button while running, and its menu goes with it
+	private bool IsPlayEnabled => !(Options.ShowCancelButton && _isExecuting);
+
+	private string ExecuteMenuCssClass
+		=> $"pd-studio-execute-menu {(IsPlayCancel ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}";
+
+	/// <summary>
+	/// Gets or sets toolbar items grouped with New and Examples, after them, such as a Restore button.
+	/// </summary>
+	[Parameter] public RenderFragment? MenuGroupContent { get; set; }
+
+	// The menu group only when something is in it.
+	private bool HasMenuButtons
+		=> (Options.ShowMenu && (Options.ShowNewButton || CurrentExamples.Count > 0)) || MenuGroupContent != null;
+
+	// Without a Cancel button of its own, Execute turns into Cancel while code runs.
+	private bool IsPlayCancel => _isExecuting && !Options.ShowCancelButton;
+
+	// One width for Execute and Cancel only matters when the one button is both.
+	private string PlayCssClass => Options.ShowCancelButton
+		? Options.ExecuteButtonCssClass
+		: $"pd-studio-execute {(_isExecuting ? Options.CancelButtonCssClass : Options.ExecuteButtonCssClass)}";
+
+	/// <summary>
+	/// Gets or sets content shown in a bar along the bottom of the studio, such as the cursor position.
+	/// </summary>
+	[Parameter] public RenderFragment? FooterContent { get; set; }
+
+	private void OnMessageLevelChanged(ChangeEventArgs args)
+		=> _messageLevel = Enum.TryParse<LogLevel>(args.Value?.ToString(), out var level) ? level : LogLevel.Trace;
+
+	/// <summary>
+	/// Removes every recorded message.
+	/// </summary>
+	public void ClearMessages() => _messages.Clear();
+
+	private static string LevelCssClass(PDStudioMessage message) => message.Level switch
+	{
+		>= LogLevel.Error => "level-error",
+		LogLevel.Warning => "level-warning",
+		LogLevel.Information => message.IsSuccess ? "level-success" : "level-information",
+		_ => "level-debug"
+	};
+
+	private static string LevelIcon(PDStudioMessage message) => message.Level switch
+	{
+		>= LogLevel.Error => "fas fa-times-circle",
+		LogLevel.Warning => "fas fa-exclamation-triangle",
+		LogLevel.Information => message.IsSuccess ? "fas fa-check-circle" : "fas fa-info-circle",
+		_ => "fas fa-bug"
+	};
+
+	private static string LevelName(PDStudioMessage message) => message.Level switch
+	{
+		LogLevel.Critical => "Critical",
+		LogLevel.Error => "Error",
+		LogLevel.Warning => "Warning",
+		LogLevel.Information => message.IsSuccess ? "Success" : "Info",
+		_ => "Debug"
+	};
 
 	/// <summary>Gets or sets the code editor; set by the markup's <c>@ref</c>.</summary>
 	internal PDMonacoEditor? EditorRef { get; set; }
@@ -74,9 +310,43 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	public IDataProviderService<GraphData>? DataProvider { get; set; }
 
 	/// <summary>
+	/// Gets or sets the examples offered on the Examples menu; those for another language are left out.
+	/// </summary>
+	[Parameter] public IReadOnlyList<PDStudioExample> Examples { get; set; } = [];
+
+	private const string _examplePrefix = "example-";
+
+	private List<PDStudioExample> CurrentExamples => [.. Examples.Where(e => e.IsFor(Options.Language))];
+
+	private static string ExampleKey(int index) => _examplePrefix + index.ToString(CultureInfo.InvariantCulture);
+
+	// Built afresh each render: a child PDMenuItem registers with its dropdown only once, so would not follow a language change.
+	private List<MenuItem> ExampleMenuItems()
+		=> [.. CurrentExamples.Select((e, i) => new MenuItem { Text = e.Name, Key = ExampleKey(i) })];
+
+	/// <summary>
 	/// Custom content for the editor toolbar.
 	/// </summary>
 	[Parameter] public RenderFragment? EditorToolbarContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets content shown in place of the code editor, such as another kind of editor; null shows the code
+	/// editor. The code editor stays in the page, hidden, so its code and undo history are still there when this is
+	/// cleared. Give it as an attribute, as content written between the tags is never null.
+	/// </summary>
+	[Parameter] public RenderFragment? EditorContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets what Execute runs while <see cref="EditorContent"/> shows, such as the text of the host's own editor;
+	/// null runs the code editor's code, as it does while the code editor shows.
+	/// </summary>
+	[Parameter] public Func<string>? EditorContentCode { get; set; }
+
+	// What Execute runs: the host's editor's text while it shows in the code editor's place, otherwise the code editor's
+	private string CodeToRun => EditorContent is not null && EditorContentCode is not null ? EditorContentCode() : _currentCode;
+
+	// Whether the last render showed EditorContent, so the code editor can be laid out again once it is back
+	private bool _editorContentShown;
 
 	/// <summary>
 	/// Gets or sets a callback to initialize Monaco editor options.
@@ -126,6 +396,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		options.WordWrap = "on";
 		options.Minimap = new EditorMinimapOptions { Enabled = false };
 
+		// Room between the line under the toolbar and the first line of code
+		options.Padding = new EditorPaddingOptions { Top = 6 };
+
 		// Enable IntelliSense and syntax highlighting features by default
 		options.LineNumbers = "on";
 		options.Suggest = new SuggestOptions
@@ -165,31 +438,54 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			// Register the Ctrl+Enter shortcut for execution
 			GlobalEventService.RegisterShortcutKey(_executeShortcut);
 
-			// Disable Ctrl+Enter in Monaco editor to prevent conflicts (with delay to ensure initialization)
-			if (EditorRef != null)
-			{
-				_ = Task.Run(async () =>
-				{
-					await Task.Delay(500); // Wait for Monaco to fully initialize
-					await EditorRef.DisableKeyBindingAsync(13, ctrlKey: true);
-				});
-			}
+			// Ctrl+Enter runs the code, so the editor's own (Insert Line Below) is turned off; the editor applies it
+			// once Monaco has created it
+			await RunOnEditorAsync(e => e.DisableKeyBindingAsync(13, ctrlKey: true), "disable Ctrl+Enter");
+			await LeaveEditorKeysAloneAsync();
 		}
+
+		await RelayOutEditorIfBackAsync();
+		await ReportActiveTabAsync();
+		await InitializeLeftPanelHandleAsync();
 
 		// Logging integration is handled through direct method calls
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
+	// Hidden, the code editor had no size to lay out to
+	private async Task RelayOutEditorIfBackAsync()
+	{
+		if (_editorContentShown && EditorContent is null)
+		{
+			await RefreshEditorLayoutAsync();
+		}
+
+		_editorContentShown = EditorContent is not null;
+	}
+
+	// Checked after each render, so a tab that changes because the one showing has gone is reported too
+	private async Task ReportActiveTabAsync()
+	{
+		if (ActiveTab != _reportedTab)
+		{
+			_reportedTab = ActiveTab;
+			await ActiveTabChanged.InvokeAsync(_reportedTab);
+		}
+	}
+
 	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
-		// Update execution state if service is available
-		if (StudioService != null)
+		// A service's state is taken once, when it is given: taking it on every render would let a host re-rendering
+		// after a run replace the studio's own status, such as Cancelled, with the service's.
+		if (StudioService != null && !ReferenceEquals(StudioService, _stateTakenFrom))
 		{
+			_stateTakenFrom = StudioService;
 			_isExecuting = StudioService.IsExecuting;
 			_executionStatus = StudioService.CurrentStatus.ToDisplayString();
 		}
 
+		TakeLeftPanelWidth();
 		base.OnParametersSet();
 	}
 
@@ -199,17 +495,48 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		if (_executeShortcut.IsMatch(keyboardInfo.Key, keyboardInfo.Code, keyboardInfo.AltKey, keyboardInfo.CtrlKey, keyboardInfo.ShiftKey))
 		{
 			// Trigger execution asynchronously
-			InvokeAsync(async () => await OnPlayCancelClick());
+			InvokeAsync(() => RunSafelyAsync(OnPlayCancelClick, "run the code"));
 		}
 	}
 
 	private void OnStudioExecutionEvent(object? sender, StudioExecutionEventArgs e)
 	{
-		InvokeAsync(async () =>
+		InvokeAsync(() => RunSafelyAsync(async () =>
 		{
 			await ApplyExecutionEventAsync(e);
 			StateHasChanged();
-		});
+		}, "show the service's progress"));
+	}
+
+	// Event handlers run outside any caller's try/catch, so a failure is logged rather than allowed to take the host down.
+	private async Task RunSafelyAsync(Func<Task> action, string what)
+	{
+		try
+		{
+			await action();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "PDStudio could not {What}", what);
+		}
+	}
+
+	// Editor calls go through JavaScript, which fails once the browser has gone.
+	private async Task RunOnEditorAsync(Func<PDMonacoEditor, Task> action, string what)
+	{
+		if (EditorRef is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await action(EditorRef);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "PDStudio could not {What} in the editor", what);
+		}
 	}
 
 	private async Task ApplyExecutionEventAsync(StudioExecutionEventArgs e)
@@ -278,13 +605,27 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		_executionStatus = e.EventType == StudioExecutionEventType.Completed ?
 			StudioExecutionStatus.Complete.ToDisplayString() :
 			StudioExecutionStatus.Cancelled.ToDisplayString();
-		LogInformation("Execution {0}: {1}", e.EventType, e.Status);
+		if (e.EventType == StudioExecutionEventType.Completed)
+		{
+			LogSuccess($"Execution Completed: {e.Status}");
+		}
+		else
+		{
+			LogInformation("Execution {0}: {1}", e.EventType, e.Status);
+		}
 
 		await NotifyExecutionStateChangedAsync();
 	}
 
+	// A run can end through a service event and then through ExecuteCode's finally; both report, so only a change counts.
 	private async Task NotifyExecutionStateChangedAsync()
 	{
+		if (_reportedExecuting == _isExecuting)
+		{
+			return;
+		}
+
+		_reportedExecuting = _isExecuting;
 		if (OnExecutionStateChanged.HasDelegate)
 		{
 			await OnExecutionStateChanged.InvokeAsync(_isExecuting);
@@ -295,6 +636,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private async Task ShowResultsAsync(string output)
 	{
 		_resultsContent = output;
+		_resultSet = null;
 		if (ResultsRef != null)
 		{
 			await ResultsRef.UpdateResults(output);
@@ -315,7 +657,8 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 	private async Task ExecuteCode()
 	{
-		if (StudioService == null || string.IsNullOrWhiteSpace(_currentCode))
+		var code = CodeToRun;
+		if (StudioService == null || string.IsNullOrWhiteSpace(code))
 		{
 			return;
 		}
@@ -330,7 +673,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 			StateHasChanged();
 
-			await RunCodeAsync(StudioService, _cancellationTokenSource.Token);
+			await RunCodeAsync(StudioService, code, _cancellationTokenSource.Token);
 		}
 		catch (OperationCanceledException)
 		{
@@ -347,35 +690,53 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_isExecuting = false;
 			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
+			await NotifyExecutionStateChangedAsync();
 			StateHasChanged();
 		}
 	}
 
 	// Clears the previous results, executes the code with the timeout from the options, and shows what it returns.
-	private async Task RunCodeAsync(IPDStudioService studioService, CancellationToken cancellationToken)
+	private async Task RunCodeAsync(IPDStudioService studioService, string code, CancellationToken cancellationToken)
 	{
 		await ClearResultsAsync();
 
+		if (studioService is IPDStudioResultSetService tabular
+			&& await tabular.ExecuteResultSetAsync(code, Options.Language, Options.ExecutionTimeoutSeconds, cancellationToken) is { } resultSet)
+		{
+			_resultSet = resultSet;
+			_executionStatus = StudioExecutionStatus.Complete.ToDisplayString();
+			await NotifyCodeExecutedAsync(code);
+			LogSuccess(resultSet.DurationText is { } duration
+				? $"{resultSet.RowCountText} returned in {duration}"
+				: $"{resultSet.RowCountText} returned");
+			return;
+		}
+
 		var result = await studioService.ExecuteCodeAsync(
-			_currentCode,
+			code,
 			Options.Language,
 			null,
 			Options.ExecutionTimeoutSeconds,
 			cancellationToken);
 
 		await ShowResultsAsync(result);
+		await NotifyCodeExecutedAsync(code);
 
+		LogSuccess("Code execution completed successfully");
+	}
+
+	private async Task NotifyCodeExecutedAsync(string code)
+	{
 		if (OnCodeExecuted.HasDelegate)
 		{
-			await OnCodeExecuted.InvokeAsync(_currentCode);
+			await OnCodeExecuted.InvokeAsync(code);
 		}
-
-		LogInformation("Code execution completed successfully");
 	}
 
 	private async Task ClearResultsAsync()
 	{
 		_resultsContent = string.Empty;
+		_resultSet = null;
 		if (ResultsRef != null)
 		{
 			await ResultsRef.ClearResults();
@@ -389,205 +750,92 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			// show "Cancelling..." before cancelling: the cancellation can complete the execution, which sets
 			// "Cancelled", and writing "Cancelling..." afterwards would overwrite it (issue #176)
 			_executionStatus = StudioExecutionStatus.Cancelling.ToDisplayString();
-			StateHasChanged();
 			await _cancellationTokenSource.CancelAsync();
 			await Task.Delay(100); // Brief delay to show cancelling status
 		}
 	}
-	private void OnCodeChanged(string code)
+	private async Task OnCodeChanged(string code)
 	{
 		_currentCode = code;
+		await CodeChanged.InvokeAsync(code);
 	}
 
-	// Menu event handlers
-	private async Task OnNewClick()
+	/// <summary>
+	/// Replaces the code in the editor, for example with a file the host has opened.
+	/// </summary>
+	public async Task SetCodeAsync(string code)
 	{
-		_currentCode = string.Empty;
-		if (EditorRef != null)
+		_currentCode = code;
+		await CodeChanged.InvokeAsync(code);
+		await RunOnEditorAsync(e => e.SetMonacoValueAsync(code), "set the code");
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Inserts text at the editor's cursor, replacing any selection, for example a table name the user picked.
+	/// The editor then reports the new code through <see cref="CodeChanged"/>.
+	/// </summary>
+	public Task InsertTextAsync(string text)
+		=> RunOnEditorAsync(e => e.InsertTextAsync(text), "insert text");
+
+	/// <summary>
+	/// Does what the New button does: asks <see cref="ConfirmNewAsync"/> first, then clears the code and results.
+	/// For a host that offers New in its own menu, with <see cref="PDStudioOptions.ShowNewButton"/> off.
+	/// </summary>
+	public async Task NewAsync()
+	{
+		if (ConfirmNewAsync is not null && !await ConfirmNewAsync())
 		{
-			await EditorRef.SetMonacoValueAsync(string.Empty);
+			return;
 		}
 
+		await SetCodeAsync(string.Empty);
 		await ClearResultsAsync();
 
 		LogInformation("New document created");
 	}
 
-	private async Task OnLoadExample1()
+	private async Task OnExampleClick(string key)
 	{
-		var example = GetExample1();
-		_currentCode = example;
-		if (EditorRef != null)
+		var examples = CurrentExamples;
+		if (!key.StartsWith(_examplePrefix, StringComparison.Ordinal)
+			|| !int.TryParse(key.AsSpan(_examplePrefix.Length), NumberStyles.None, CultureInfo.InvariantCulture, out var index)
+			|| index >= examples.Count)
 		{
-			await EditorRef.SetMonacoValueAsync(example);
+			return;
 		}
 
-		LogInformation("Example 1 loaded");
-	}
+		var example = examples[index];
+		await SetCodeAsync(example.Code);
 
-	private async Task OnLoadExample2()
-	{
-		var example = GetExample2();
-		_currentCode = example;
-		if (EditorRef != null)
-		{
-			await EditorRef.SetMonacoValueAsync(example);
-		}
-
-		LogInformation("Example 2 loaded");
-	}
-
-	private async Task OnOpenClick()
-	{
-		// Future implementation
-		LogInformation("Open clicked (not implemented)");
-		await Task.CompletedTask;
-	}
-
-	private async Task OnSaveClick()
-	{
-		// Future implementation
-		LogInformation("Save clicked (not implemented)");
-		await Task.CompletedTask;
-	}
-
-	private async Task SetLogLevel(LogLevel logLevel)
-	{
-		Options.DefaultLogLevel = logLevel;
-		LogInformation("Log level changed to {0}", logLevel);
-		StateHasChanged();
-		await Task.CompletedTask;
-	}
-
-	// Handles a click on an item of the File menu; a key that names no item does nothing.
-	private async Task OnFileMenuClick(string key)
-	{
-		switch (key)
-		{
-			case "New":
-				await OnNewClick();
-				break;
-			case "LoadExample1":
-				await OnLoadExample1();
-				break;
-			case "LoadExample2":
-				await OnLoadExample2();
-				break;
-			case "Open":
-				await OnOpenClick();
-				break;
-			case "Save":
-				await OnSaveClick();
-				break;
-			default:
-				// Not a File menu item: nothing to do.
-				break;
-		}
-	}
-
-	private async Task OnLoggingMenuClick(string key)
-	{
-		LogLevel logLevel = key switch
-		{
-			"Debug" => LogLevel.Debug,
-			"Info" => LogLevel.Information,
-			"Warning" => LogLevel.Warning,
-			"Error" => LogLevel.Error,
-			_ => LogLevel.Information
-		};
-
-		await SetLogLevel(logLevel);
-	}
-
-	private string GetExample1()
-	{
-		return Options.Language.ToLowerInvariant() switch
-		{
-			"ncalc" => @"// Basic NCalc Expression Examples
-
-// Mathematical Operations
-2 + 3 * 4
-
-// Using Built-in Variables
-Pi * 2
-
-// Trigonometric Functions
-Sin(Pi / 4) + Cos(Pi / 4)
-
-// Conditional Logic
-if(x > y, 'X is greater than Y', 'Y is greater than or equal to X')
-
-// Square Root with Variables
-Sqrt(x * y)",
-
-			"sql" or "mssql" => "SELECT * FROM customers WHERE city = 'London'",
-			"html" => "<h1>Hello World</h1>\n<p>This is a sample HTML document.</p>",
-			"javascript" => "console.log('Hello World!');\nfor(let i = 0; i < 5; i++) {\n  console.log('Count: ' + i);\n}",
-			_ => $"<h2>Example 1 for {Options.Language}</h2>\n<p>This is a sample {Options.Language} example.</p>"
-		};
-	}
-
-	private string GetExample2()
-	{
-		return Options.Language.ToLowerInvariant() switch
-		{
-			"ncalc" => @"// Test Error Scenarios (Choose one to test)
-
-// 1. TIMEOUT TEST - Will timeout after 5 seconds
-// sleep(10)
-
-// 2. INVALID CODE TEST - Syntax error
-// 1 +
-
-// 3. RUNTIME ERROR TEST - Division by zero
-// 10 / 0
-
-// 4. VALID COMPLEX EXPRESSION - Advanced example
-if(Hour(Now) < 12,
-   'Good Morning! Pi = ' + Pi,
-   if(Hour(Now) < 18,
-      'Good Afternoon! E = ' + E,
-      'Good Evening! Today is ' + Today))
-
-// Uncomment one of the test cases above to try different error scenarios",
-
-			"sql" or "mssql" => @"SELECT c.name, SUM(o.total) as total_spent
-FROM customers c
-JOIN orders o ON c.id = o.customer_id
-GROUP BY c.id, c.name
-ORDER BY total_spent DESC",
-			"html" => @"<div class=""container"">
-  <h1>Sample Table</h1>
-  <table border=""1"">
-    <tr><th>Name</th><th>Value</th></tr>
-    <tr><td>Item 1</td><td>100</td></tr>
-    <tr><td>Item 2</td><td>200</td></tr>
-  </table>
-</div>",
-			"javascript" => @"function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-for(let i = 0; i < 10; i++) {
-  console.log(`fibonacci(${i}) = ${fibonacci(i)}`);
-}",
-			_ => $"<h2>Example 2 for {Options.Language}</h2>\n<p>This is a more complex {Options.Language} example.</p>\n<pre>Sample code block</pre>"
-		};
+		LogInformation("Example loaded: {0}", example.Name);
 	}
 
 	/// <summary>
-	/// Logs a message to both the standard logger and the PDLog component.
+	/// Logs a message to the standard logger and the Messages tab.
 	/// </summary>
 	private void LogToComponent(LogLevel level, string message, params object[] args)
 	{
-		// Log to standard logger
-#pragma warning disable CA2254 // Logging wrapper intentionally forwards variable message templates
-		Logger.Log(level, message, args);
-#pragma warning restore CA2254
+		// Without arguments the message is plain text, such as a service's status, and may contain braces.
+		AddMessage(level, args.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message, args), false);
+	}
 
-		// Also log to PDLog component if available
-		LogComponent?.Log(level, default, message, null, (msg, _) => string.Format(CultureInfo.InvariantCulture, msg, args));
+	// A successful outcome: Information to the logger and the level filter, styled as a success on the tab.
+	private void LogSuccess(string text) => AddMessage(LogLevel.Information, text, true);
+
+	private void AddMessage(LogLevel level, string text, bool isSuccess)
+	{
+		if (Logger.IsEnabled(level))
+		{
+			Logger.Log(level, "{Message}", text);
+		}
+
+		while (_messages.Count >= Math.Max(1, Options.MaxMessages))
+		{
+			_messages.RemoveAt(0);
+		}
+
+		_messages.Add(new PDStudioMessage(DateTime.UtcNow, level, text) { IsSuccess = isSuccess });
 	}
 
 	/// <summary>
@@ -607,15 +855,22 @@ for(let i = 0; i < 10; i++) {
 	}
 
 	/// <summary>
+	/// Changes the code editor's options while the studio is open, such as its tab size or whether it suggests as you
+	/// type. Options given before the editor has started are applied once it has.
+	/// </summary>
+	public Task UpdateEditorOptionsAsync(EditorUpdateOptions options)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return RunOnEditorAsync(e => e.UpdateOptions(options), "update its options");
+	}
+
+	/// <summary>
 	/// Forces the Monaco editor to refresh its layout.
 	/// This can be called when the container size changes.
 	/// </summary>
 	public async Task RefreshEditorLayoutAsync()
 	{
-		if (EditorRef != null)
-		{
-			await EditorRef.ForceLayoutUpdateAsync();
-		}
+		await RunOnEditorAsync(e => e.ForceLayoutUpdateAsync(), "refresh the layout");
 	}
 
 	/// <inheritdoc />
@@ -632,9 +887,18 @@ for(let i = 0; i < 10; i++) {
 		// Unregister the shortcut key
 		GlobalEventService.UnregisterShortcutKey(_executeShortcut);
 
-		_cancellationTokenSource?.Cancel();
-		_cancellationTokenSource?.Dispose();
+		try
+		{
+			_cancellationTokenSource?.Cancel();
+			_cancellationTokenSource?.Dispose();
+		}
+		catch (Exception ex)
+		{
+			// Cancelling runs the execution's own callbacks, and disposal must not fail because of them.
+			Logger.LogWarning(ex, "PDStudio could not cancel its execution while being disposed");
+		}
 
+		DisposeLeftPanelInterop();
 		GC.SuppressFinalize(this);
 	}
 }

@@ -95,11 +95,19 @@ export function stop() {
 
 /** Stops an answer part-way through. */
 export function stopSpeaking() {
+	endSpeaking(true);
+}
+
+// A replaced answer is not reported as finished: that would hand the microphone back while its successor plays.
+function endSpeaking(notify) {
 	if (!speaking) {
 		return;
 	}
 	const state = speaking;
 	speaking = null;
+	if (!notify) {
+		state.finished = true;
+	}
 	state.socket.close();
 	state.context.close();
 	state.finish();
@@ -107,7 +115,7 @@ export function stopSpeaking() {
 
 /** Speaks an answer, and calls OnVoiceSpoken once the last of the audio has played. */
 export function speak(speakUrl, text, dotNet) {
-	stopSpeaking();
+	endSpeaking(false);
 	const context = new AudioContext({ sampleRate: SAMPLE_RATE });
 	const socket = new WebSocket(toWebSocketUrl(speakUrl));
 	socket.binaryType = "arraybuffer";

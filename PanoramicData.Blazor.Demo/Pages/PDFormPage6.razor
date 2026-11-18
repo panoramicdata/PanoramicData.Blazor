@@ -1,0 +1,91 @@
+﻿@page "/pdform6"
+
+<h1>PDForm</h1>
+
+<DemoSourceView SourceFiles="Pages/PDFormPage6.razor, Pages/PDFormPage6.razor.cs, Pages/PDFormPage6.razor.css">
+
+	<p>
+		The form's validation and helper colours come from <code>--pd-form-*</code> CSS variables. Each switch below sets
+		one group of them on the box around the form. With every switch off the form uses Bootstrap's alert and info
+		colours, as it always has.
+	</p>
+
+	<div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+		<div class="form-check form-switch">
+			<input id="fc-dark" class="form-check-input" type="checkbox" @bind="_dark" />
+			<label class="form-check-label" for="fc-dark">Dark</label>
+		</div>
+		<div class="form-check form-switch">
+			<input id="fc-labels" class="form-check-input" type="checkbox" @bind="_neutralLabels" />
+			<label class="form-check-label" for="fc-labels">Neutral labels</label>
+		</div>
+		<div class="form-check form-switch">
+			<input id="fc-edge" class="form-check-input" type="checkbox" @bind="_labelEdges" />
+			<label class="form-check-label" for="fc-edge">Label edges</label>
+		</div>
+		<div class="form-check form-switch">
+			<input id="fc-status" class="form-check-input" type="checkbox" @bind="_quietStatus" />
+			<label class="form-check-label" for="fc-status">Quiet status column</label>
+		</div>
+		<div class="form-check form-switch">
+			<input id="fc-helpers" class="form-check-input" type="checkbox" @bind="_mutedHelpers" />
+			<label class="form-check-label" for="fc-helpers">Muted helper icons</label>
+		</div>
+		<div class="form-check form-switch">
+			<input id="fc-footer" class="form-check-input" type="checkbox" @bind="_footerBox" />
+			<label class="form-check-label" for="fc-footer">Footer as a box</label>
+		</div>
+		<button type="button" class="btn btn-sm btn-secondary" @onclick="AllOn">All on</button>
+		<button type="button" class="btn btn-sm btn-secondary" @onclick="AllOff">All off</button>
+		<button type="button" class="btn btn-sm btn-secondary" @onclick="ResetFormAsync">New form</button>
+	</div>
+
+	<div class="form-colours-demo bg-body text-body border rounded p-3 @WrapperCssClass" data-bs-theme="@(_dark ? "dark" : "light")">
+		<PDForm @ref="_form"
+				CssClass="w-100"
+				DataProvider="_dataProvider"
+				TItem="FormColoursModel">
+
+			<PDFormHeader TItem="FormColoursModel" CreateTitle="Create new schedule" />
+
+			<PDFormBody TItem="FormColoursModel" TitleWidth="160">
+
+				<PDField TItem="FormColoursModel"
+						 Description="A name to find the schedule by."
+						 Field="x => x.Name" />
+
+				<PDField TItem="FormColoursModel"
+						 Description="What the schedule produces."
+						 Field="x => x.Description" />
+
+				<PDField TItem="FormColoursModel"
+						 Description="The folder the report templates are read from."
+						 Field="x => x.InputFolder"
+						 Helper="_folderHelper"
+						 Title="Input Folder" />
+
+				<PDField TItem="FormColoursModel"
+						 Description="The folder the finished reports are written to."
+						 Field="x => x.OutputFolder"
+						 Helper="_folderHelper"
+						 HelpUrl="https://github.com/panoramicdata/PanoramicData.Blazor"
+						 Title="Output Folder" />
+
+				<PDField TItem="FormColoursModel"
+						 Description="Who is told when the schedule finishes."
+						 Field="x => x.NotifyEmail"
+						 Title="Notify" />
+
+				<PDField TItem="FormColoursModel"
+						 Description="Free text, with a copy button."
+						 Field="x => x.Notes"
+						 ShowCopyButton="_ => true" />
+
+			</PDFormBody>
+
+			<PDFormFooter TItem="FormColoursModel" ShowDelete="false" />
+
+		</PDForm>
+	</div>
+
+</DemoSourceView>

@@ -283,7 +283,6 @@ public partial class PDDashboard
 		{
 			_resizingTile.ColumnSpanCount = newColSpan;
 			_resizingTile.RowSpanCount = newRowSpan;
-			StateHasChanged();
 		}
 	}
 
@@ -313,7 +312,6 @@ public partial class PDDashboard
 			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
 		}
 
-		StateHasChanged();
 	}
 
 	private async Task RequestAddTileAsync()
@@ -346,7 +344,6 @@ public partial class PDDashboard
 			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
 		}
 
-		StateHasChanged();
 	}
 
 	private async Task RequestDeleteTileAsync(PDDashboardTile tile)

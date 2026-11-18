@@ -17,6 +17,21 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	private StandaloneCodeEditor? _monacoEditor;
 	private DotNetObjectReference<PDMonacoEditor>? _objRef;
 	private static readonly MethodCache _methodCache = new();
+	private const int _monacoLoadTimeoutMs = 15000;
+
+	// The BlazorMonaco editor is only rendered once monaco exists: creating it earlier throws inside BlazorMonaco,
+	// where nothing can catch it, and takes the host's circuit down.
+	private bool _isMonacoReady;
+	private bool _monacoFailedToLoad;
+	private string? _pendingValue;
+	private bool _isEditorInitialised;
+
+	// Options given before the browser had created the editor, which it may not have received
+	private readonly List<EditorUpdateOptions> _pendingOptions = [];
+
+	// Key bindings disabled so far, given to the editor again once the browser has created it, as Monaco may not
+	// have loaded when they were first asked for
+	private readonly HashSet<(int KeyCode, bool CtrlKey, bool AltKey, bool ShiftKey)> _disabledKeys = [];
 
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used to initialize and interact with Monaco.
@@ -128,11 +143,58 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <param name="source">An identifier describing the source of the edits.</param>
 	/// <param name="edits">The edit operations to execute.</param>
 	/// <param name="endCursorState">Cursor selections to apply after edits complete, or null for none.</param>
-	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState)
+	public Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState)
+		=> RunOnEditorAsync(editor => editor.ExecuteEdits(source, edits, endCursorState ?? []));
+
+	// Every call into the browser fails once it has gone (a closed tab, a dropped connection, a disposed editor, or
+	// prerendering before it exists). Such a failure must never reach the host; anything else is a real fault.
+	private static bool IsBrowserUnavailable(Exception ex)
+		=> ex is JSException or JSDisconnectedException or OperationCanceledException or ObjectDisposedException or InvalidOperationException;
+
+	private async Task RunOnEditorAsync(Func<StandaloneCodeEditor, Task> action)
 	{
-		if (_monacoEditor != null)
+		if (_monacoEditor is { } editor)
 		{
-			await _monacoEditor.ExecuteEdits(source, edits, endCursorState ?? []).ConfigureAwait(true);
+			try
+			{
+				await action(editor).ConfigureAwait(true);
+			}
+			catch (Exception ex) when (IsBrowserUnavailable(ex))
+			{
+				// See IsBrowserUnavailable.
+			}
+		}
+	}
+
+	private async Task<T> RunOnEditorAsync<T>(Func<StandaloneCodeEditor, Task<T>> action, T fallback)
+	{
+		if (_monacoEditor is { } editor)
+		{
+			try
+			{
+				return await action(editor).ConfigureAwait(true);
+			}
+			catch (Exception ex) when (IsBrowserUnavailable(ex))
+			{
+				// See IsBrowserUnavailable.
+			}
+		}
+
+		return fallback;
+	}
+
+	private async Task RunOnModuleAsync(string identifier, params object?[] args)
+	{
+		if (_module is { } module)
+		{
+			try
+			{
+				await module.InvokeVoidAsync(identifier, args).ConfigureAwait(true);
+			}
+			catch (Exception ex) when (IsBrowserUnavailable(ex))
+			{
+				// See IsBrowserUnavailable.
+			}
 		}
 	}
 
@@ -153,9 +215,12 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			AutomaticLayout = true,
 			Language = Language,
 			Theme = Theme,
-			Value = Value
+			Value = _pendingValue ?? Value
 		};
 		InitializeOptions?.Invoke(options);
+
+		// The theme the editor is created with
+		_theme = options.Theme ?? string.Empty;
 		return options;
 	}
 
@@ -165,17 +230,8 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <param name="endOfLinePreference">The end-of-line representation to use in the returned text.</param>
 	/// <param name="preserveBOM">True to preserve a byte order mark when available; otherwise false.</param>
 	/// <returns>The editor text, or an empty string when the editor is not initialized.</returns>
-	public async Task<string> GetMonacoValueAsync(EndOfLinePreference endOfLinePreference, bool preserveBOM)
-	{
-		if (_monacoEditor != null)
-		{
-			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(endOfLinePreference, preserveBOM);
-			return value;
-		}
-
-		return string.Empty;
-	}
+	public Task<string> GetMonacoValueAsync(EndOfLinePreference endOfLinePreference, bool preserveBOM)
+		=> RunOnEditorAsync(async editor => await (await editor.GetModel()).GetValue(endOfLinePreference, preserveBOM), string.Empty);
 
 	/// <summary>
 	/// Gets editor text for a specific range.
@@ -183,31 +239,15 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <param name="range">The model range to read.</param>
 	/// <param name="endOfLinePreference">The end-of-line representation to use in the returned text.</param>
 	/// <returns>The text in the supplied range, or an empty string when the editor is not initialized.</returns>
-	public async Task<string> GetMonacoValueAsync(Range range, EndOfLinePreference endOfLinePreference)
-	{
-		if (_monacoEditor != null)
-		{
-			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValueInRange(range, endOfLinePreference);
-			return value;
-		}
-
-		return string.Empty;
-	}
+	public Task<string> GetMonacoValueAsync(Range range, EndOfLinePreference endOfLinePreference)
+		=> RunOnEditorAsync(async editor => await (await editor.GetModel()).GetValueInRange(range, endOfLinePreference), string.Empty);
 
 	/// <summary>
 	/// Gets the current editor selection.
 	/// </summary>
 	/// <returns>The current selection, or null when the editor is not initialized.</returns>
-	public async Task<Selection?> GetSelection()
-	{
-		if (_monacoEditor != null)
-		{
-			return await _monacoEditor.GetSelection().ConfigureAwait(true);
-		}
-
-		return null;
-	}
+	public Task<Selection?> GetSelection()
+		=> RunOnEditorAsync<Selection?>(async editor => await editor.GetSelection(), null);
 
 	/// <summary>
 	/// Returns signature help entries for the provided function.
@@ -226,21 +266,71 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime != null)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				await _module.InvokeVoidAsync("initialize", _objRef);
-				await RegisterCustomLanguagesAsync(_module).ConfigureAwait(true);
-
-				InitializeCache?.Invoke(_methodCache);
-
-				if (InitializeCacheAsync != null)
-				{
-					await InitializeCacheAsync(_methodCache).ConfigureAwait(true);
-				}
+				await PrepareMonacoAsync(JSRuntime).ConfigureAwait(true);
 			}
+			catch (Exception ex) when (IsBrowserUnavailable(ex))
+			{
+				_monacoFailedToLoad = true;
+			}
+
+			StateHasChanged();
 		}
+	}
+
+	// Waits for monaco, then sets up languages (and any custom themes a host defines with them) before the editor exists.
+	private async Task PrepareMonacoAsync(IJSRuntime jsRuntime)
+	{
+		_objRef = DotNetObjectReference.Create(this);
+		try
+		{
+			_module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+		if (_module is null)
+		{
+			return;
+		}
+
+		bool monacoLoaded;
+		try
+		{
+			monacoLoaded = await _module.InvokeAsync<bool>("waitForMonaco", _monacoLoadTimeoutMs).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
+
+		if (!monacoLoaded)
+		{
+			_monacoFailedToLoad = true;
+			return;
+		}
+
+		try
+		{
+			await _module.InvokeVoidAsync("initialize", _objRef);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+		await RegisterCustomLanguagesAsync(_module).ConfigureAwait(true);
+
+		InitializeCache?.Invoke(_methodCache);
+
+		if (InitializeCacheAsync != null)
+		{
+			await InitializeCacheAsync(_methodCache).ConfigureAwait(true);
+		}
+
+		_isMonacoReady = true;
 	}
 
 	// Allows custom languages to be registered, initialising each one the script accepts.
@@ -250,7 +340,16 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		RegisterLanguages?.Invoke(languages);
 		foreach (var language in languages)
 		{
-			var registered = await module.InvokeAsync<bool>("registerLanguage", language.Id, language);
+			bool registered;
+			try
+			{
+				registered = await module.InvokeAsync<bool>("registerLanguage", language.Id, language);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 			if (registered)
 			{
 				InitializeLanguage?.Invoke(language);
@@ -263,24 +362,30 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
-	private async Task OnMonacoEditorBlurAsync()
-	{
-		if (_monacoEditor != null && UpdateValueOnBlur)
-		{
-			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(EndOfLinePreference.LF, true);
-			await ValueChanged.InvokeAsync(value);
-		}
-	}
+	private Task OnMonacoEditorBlurAsync()
+		=> UpdateValueOnBlur ? ReportValueAsync() : Task.CompletedTask;
 
-	private async Task OnMonacoEditorContentChangedAsync()
+	private Task OnMonacoEditorContentChangedAsync()
+		=> UpdateValueOnBlur ? Task.CompletedTask : ReportValueAsync();
+
+	private async Task ReportValueAsync()
 	{
-		if (_monacoEditor != null && !UpdateValueOnBlur)
+		if (_monacoEditor is null)
 		{
-			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(EndOfLinePreference.LF, true);
-			await ValueChanged.InvokeAsync(value);
+			return;
 		}
+
+		string value;
+		try
+		{
+			value = await (await _monacoEditor.GetModel()).GetValue(EndOfLinePreference.LF, true);
+		}
+		catch (Exception ex) when (IsBrowserUnavailable(ex))
+		{
+			return;
+		}
+
+		await ValueChanged.InvokeAsync(value);
 	}
 
 	private Task OnMonacoEditorSelectionChangeAsync(CursorSelectionChangedEvent evt)
@@ -291,30 +396,45 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <summary>
 	/// Applies parameter-driven updates such as theme changes to the underlying editor.
 	/// </summary>
-	protected override async Task OnParametersSetAsync()
+	protected override Task OnParametersSetAsync() => ApplyThemeAsync();
+
+	// A theme can only reach the editor once BlazorMonaco has created it in the browser (OnDidInit), so one that
+	// arrives earlier is applied then; and it counts as applied only when the update succeeded, so it is retried.
+	private async Task ApplyThemeAsync()
 	{
+		if (string.IsNullOrEmpty(Theme) || Theme == _theme || !_isEditorInitialised || _monacoEditor is null)
+		{
+			return;
+		}
+
 		try
 		{
-			if (_monacoEditor != null)
-			{
-				// Always update the theme if it has changed, even if it's being set for the first time
-				if (!string.IsNullOrEmpty(Theme) && Theme != _theme)
-				{
-					_theme = Theme;
-					await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = _theme });
-				}
-			}
-			else if (!string.IsNullOrEmpty(Theme))
-			{
-				// Store the theme even if the editor isn't initialized yet
-				_theme = Theme;
-			}
+			await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = Theme });
+			_theme = Theme;
 		}
-		catch (JSException)
+		catch (Exception ex) when (IsBrowserUnavailable(ex))
 		{
-			// This can happen if the editor is disposed before the parameters are set.
-			// We can safely ignore this exception.
+			// See IsBrowserUnavailable.
 		}
+	}
+
+	private async Task OnMonacoEditorInitAsync()
+	{
+		_isEditorInitialised = true;
+
+		var pending = _pendingOptions.ToList();
+		_pendingOptions.Clear();
+		foreach (var options in pending)
+		{
+			await RunOnEditorAsync(editor => editor.UpdateOptions(options)).ConfigureAwait(true);
+		}
+
+		foreach (var (keyCode, ctrlKey, altKey, shiftKey) in _disabledKeys.ToList())
+		{
+			await RunOnModuleAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey).ConfigureAwait(true);
+		}
+
+		await ApplyThemeAsync().ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -334,13 +454,53 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// Replaces the entire editor value.
 	/// </summary>
 	/// <param name="value">The text to set in the editor.</param>
-	public async Task SetMonacoValueAsync(string value)
+	public Task SetMonacoValueAsync(string value)
 	{
-		if (_monacoEditor != null)
+		if (_monacoEditor is null)
 		{
-			var model = await _monacoEditor.GetModel();
-			await model.SetValue(value);
+			// Used when the editor is created, so a value set before then is not lost.
+			_pendingValue = value;
+			return Task.CompletedTask;
 		}
+
+		return RunOnEditorAsync(async editor => await (await editor.GetModel()).SetValue(value));
+	}
+
+	/// <summary>
+	/// Inserts text at the cursor, replacing any selected text, leaves the cursor at its end, as typing does, and
+	/// returns focus to the editor.
+	/// </summary>
+	/// <param name="text">The text to insert.</param>
+	public Task InsertTextAsync(string text)
+		=> RunOnEditorAsync(async editor =>
+		{
+			if (await editor.GetSelection() is { } selection)
+			{
+				await editor.ExecuteEdits(
+					"pd-monaco-editor",
+					[new IdentifiedSingleEditOperation { Range = selection, Text = text, ForceMoveMarkers = true }],
+					[CursorAfter(selection, text)]);
+				await editor.Focus();
+			}
+		});
+
+	/// <summary>Gets where the cursor goes once <paramref name="text"/> replaces <paramref name="selection"/>: at its end.</summary>
+	internal static Selection CursorAfter(Range selection, string text)
+	{
+		var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+		var line = selection.StartLineNumber + lines.Length - 1;
+		var column = (lines.Length == 1 ? selection.StartColumn : 1) + lines[^1].Length;
+		return new Selection
+		{
+			SelectionStartLineNumber = line,
+			SelectionStartColumn = column,
+			PositionLineNumber = line,
+			PositionColumn = column,
+			StartLineNumber = line,
+			StartColumn = column,
+			EndLineNumber = line,
+			EndColumn = column
+		};
 	}
 
 	/// <summary>
@@ -354,37 +514,30 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// </summary>
 	/// <param name="selection">The selection to apply.</param>
 	/// <param name="source">A source identifier for the selection change.</param>
-	public async Task SetSelectionAsync(Selection selection, string source)
-	{
-		if (_monacoEditor != null)
-		{
-			await _monacoEditor.SetSelection(selection, source);
-		}
-	}
+	public Task SetSelectionAsync(Selection selection, string source)
+		=> RunOnEditorAsync(editor => editor.SetSelection(selection, source));
 
 	/// <summary>
-	/// Updates editor options on the live Monaco instance.
+	/// Updates editor options on the live Monaco instance. Options given before the browser has created the editor
+	/// are applied again once it has.
 	/// </summary>
 	/// <param name="options">The option values to apply.</param>
-	public async Task UpdateOptions(EditorUpdateOptions options)
+	public Task UpdateOptions(EditorUpdateOptions options)
 	{
-		if (_monacoEditor != null)
+		if (!_isEditorInitialised)
 		{
-			await _monacoEditor.UpdateOptions(options).ConfigureAwait(true);
+			_pendingOptions.Add(options);
 		}
+
+		return RunOnEditorAsync(editor => editor.UpdateOptions(options));
 	}
 
 	/// <summary>
 	/// Forces the Monaco editor to recalculate its layout.
 	/// This should be called when the container size changes.
 	/// </summary>
-	public async Task ForceLayoutUpdateAsync()
-	{
-		if (_monacoEditor != null)
-		{
-			await _monacoEditor.Layout();
-		}
-	}
+	public Task ForceLayoutUpdateAsync()
+		=> RunOnEditorAsync(editor => editor.Layout());
 
 	/// <summary>
 	/// Disables a specific key binding combination in the Monaco editor.
@@ -408,18 +561,17 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	public Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey) => DisableKeyBindingAsync(keyCode, ctrlKey, altKey, false);
 
 	/// <summary>
-	/// Disables a specific key binding combination in the Monaco editor.
+	/// Disables a specific key binding combination in the Monaco editor. The key still reaches the page, so a shortcut
+	/// such as PDStudio's Ctrl+Enter works from inside the editor. Asked before the editor exists, it is applied once it does.
 	/// </summary>
 	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
 	/// <param name="ctrlKey">Whether Ctrl key is required</param>
 	/// <param name="altKey">Whether Alt key is required</param>
 	/// <param name="shiftKey">Whether Shift key is required</param>
-	public async Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
+	public Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
 	{
-		if (_module != null)
-		{
-			await _module.InvokeVoidAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
-		}
+		_disabledKeys.Add((keyCode, ctrlKey, altKey, shiftKey));
+		return RunOnModuleAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
 	}
 
 	/// <summary>
@@ -450,12 +602,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// <param name="ctrlKey">Whether Ctrl key is required</param>
 	/// <param name="altKey">Whether Alt key is required</param>
 	/// <param name="shiftKey">Whether Shift key is required</param>
-	public async Task EnableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
+	public Task EnableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
 	{
-		if (_module != null)
-		{
-			await _module.InvokeVoidAsync("enableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
-		}
+		_disabledKeys.Remove((keyCode, ctrlKey, altKey, shiftKey));
+		return RunOnModuleAsync("enableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
 	}
 
 	#region IAsyncDisposable

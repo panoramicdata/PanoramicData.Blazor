@@ -70,6 +70,11 @@ public partial class PDMessages : IChatInput
 	[Parameter] public MessageMetadataDisplayMode MessageMetadataDisplayMode { get; set; } = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
 
 	/// <summary>
+	/// Gets or sets how a reply's progress steps are shown while it is being composed.
+	/// </summary>
+	[Parameter] public ChatProgressDisplayMode ProgressDisplayMode { get; set; } = ChatProgressDisplayMode.List;
+
+	/// <summary>
 	/// Gets or sets whether to show the user icon for each message.
 	/// </summary>
 	[Parameter] public bool ShowMessageUserIcon { get; set; } = true;
@@ -106,6 +111,11 @@ public partial class PDMessages : IChatInput
 	[Parameter] public RenderFragment? InputAccessories { get; set; }
 
 	/// <summary>
+	/// Gets or sets the CSS classes of the toolbar's icons. Font Awesome by default.
+	/// </summary>
+	[Parameter] public PDChatIcons Icons { get; set; } = new();
+
+	/// <summary>
 	/// An event callback that is invoked when the text box gains (<c>true</c>) or loses (<c>false</c>) focus.
 	/// </summary>
 	[Parameter] public EventCallback<bool> InputFocusChanged { get; set; }
@@ -115,10 +125,39 @@ public partial class PDMessages : IChatInput
 	/// </summary>
 	[Parameter] public bool IsInputAutoFocused { get; set; } = true;
 
+	/// <summary>The most images one message may carry.</summary>
+	public static int MaxImages => 5;
+
+	private const int MaxImageBase64Length = 8 * 1024 * 1024;
+
+	private readonly Dictionary<string, StringBuilder> _imageChunks = [];
+
+	/// <summary>
+	/// Gets or sets whether pasting, dropping, picking and screenshot controls for images are offered. False by default.
+	/// </summary>
+	[Parameter] public bool IsImageInputOffered { get; set; }
+
+	/// <summary>
+	/// Gets or sets why images cannot be sent now. While set and the message has images, Send is disabled and this is
+	/// shown beside them; a message without images is sent as usual.
+	/// </summary>
+	[Parameter] public string? ImageBlockedReason { get; set; }
+
+	/// <summary>Gets or sets the images in the message being composed, oldest first.</summary>
+	[Parameter] public List<ChatImage> Images { get; set; } = [];
+
+	/// <summary>An event callback invoked when an image is added to or removed from <see cref="Images"/>.</summary>
+	[Parameter] public EventCallback<List<ChatImage>> ImagesChanged { get; set; }
+
 	private string _localInput = string.Empty;
 	private string _inputKey = Guid.NewGuid().ToString();
 
-	private bool CanSendLocal => IsInputPermitted && IsLive && !string.IsNullOrWhiteSpace(_localInput);
+	private bool HasImages => IsImageInputOffered && Images.Count > 0;
+
+	private bool IsHeldForImages => ImageBlockedReason is not null && HasImages;
+
+	private bool CanSendLocal => IsInputPermitted && IsLive && !IsHeldForImages
+		&& (!string.IsNullOrWhiteSpace(_localInput) || HasImages);
 
 	/// <inheritdoc />
 	public string Text => _localInput;
@@ -144,6 +183,128 @@ public partial class PDMessages : IChatInput
 
 	/// <inheritdoc />
 	public Task SendAsync() => OnSendClickedInternal();
+
+	/// <summary>Called from JavaScript for each image pasted, dropped, picked or captured.</summary>
+	/// <param name="contentType">The image's media type.</param>
+	/// <param name="base64">The image bytes as base64.</param>
+	/// <param name="name">A file name, when there is one.</param>
+	[JSInvokable]
+	public async Task OnImageAdded(string contentType, string base64, string? name)
+	{
+		if (!IsImageInputOffered)
+		{
+			return;
+		}
+
+		if (Images.Count >= MaxImages)
+		{
+			ImageNotice = $"A message can carry at most {MaxImages} images.";
+			StateHasChanged();
+			return;
+		}
+
+		ImageNotice = null;
+		await SetImagesAsync([.. Images, new ChatImage { ContentType = contentType, Base64Data = base64, Name = name }]);
+	}
+
+	/// <summary>
+	/// Called from JavaScript with one piece of an image. A hub refuses a message from the browser over a size set by
+	/// the host (32 KB by default), so an image arrives in pieces and is added when the last one has.
+	/// </summary>
+	/// <param name="key">Names the image the piece belongs to.</param>
+	/// <param name="chunk">The next piece of the image's base64.</param>
+	/// <param name="isLast">Whether this is the last piece.</param>
+	/// <param name="contentType">The image's media type.</param>
+	/// <param name="name">A file name, when there is one.</param>
+	[JSInvokable]
+	public async Task OnImageChunk(string key, string chunk, bool isLast, string contentType, string? name)
+	{
+		if (!_imageChunks.TryGetValue(key, out var pieces))
+		{
+			pieces = new StringBuilder();
+			_imageChunks[key] = pieces;
+		}
+
+		pieces.Append(chunk);
+		if (pieces.Length > MaxImageBase64Length)
+		{
+			_imageChunks.Remove(key);
+			await OnImageError("That image is too large.");
+			return;
+		}
+
+		if (!isLast)
+		{
+			return;
+		}
+
+		_imageChunks.Remove(key);
+		await OnImageAdded(contentType, pieces.ToString(), name);
+	}
+
+	/// <summary>Called from JavaScript when an image could not be added.</summary>
+	/// <param name="message">What went wrong, for the user.</param>
+	[JSInvokable]
+	public Task OnImageError(string message) => InvokeAsync(() =>
+	{
+		ImageNotice = message;
+		StateHasChanged();
+	});
+
+	/// <summary>Removes every image. Called by the parent after a message is sent.</summary>
+	public void ClearImages()
+	{
+		ImageNotice = null;
+		Images = [];
+		StateHasChanged();
+	}
+
+	private string? ImageNotice { get; set; }
+
+	private async Task SetImagesAsync(List<ChatImage> images)
+	{
+		Images = images;
+		await ImagesChanged.InvokeAsync(images);
+		StateHasChanged();
+	}
+
+	private Task RemoveImageAsync(int index)
+	{
+		ImageNotice = null;
+		return SetImagesAsync([.. Images.Where((_, i) => i != index)]);
+	}
+
+	private Task OnAttachClickedAsync()
+		=> InvokeImageActionAsync("openFilePicker", InputRef);
+
+	private Task OnFilePickerChangedAsync()
+		=> InvokeImageActionAsync("readPickedFiles", InputRef, _dotNetRef, MaxImages - Images.Count, MaxImages);
+
+	private Task OnScreenshotClickedAsync()
+		=> InvokeImageActionAsync("captureTab", _dotNetRef);
+
+	/// <summary>Calls the browser for an image button, showing a notice rather than ending the circuit if it fails.</summary>
+	/// <remarks>The browser reports a cancelled picker itself; this sees a timeout, such as a picker left open.</remarks>
+	private async Task InvokeImageActionAsync(string identifier, params object?[] args)
+	{
+		if (_module is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await _module.InvokeVoidAsync(identifier, args);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The page has gone.
+		}
+		catch (Exception ex) when (ex is JSException or OperationCanceledException)
+		{
+			ImageNotice = "The images could not be added. Try again.";
+		}
+	}
 
 	/// <summary>
 	/// Clears the textarea. Called by the parent after a message is sent.
@@ -178,11 +339,6 @@ public partial class PDMessages : IChatInput
 	protected override async Task OnParametersSetAsync()
 	{
 		await ScrollToBottomAsync();
-	}
-
-	private void OnInputChanged(ChangeEventArgs e)
-	{
-		_localInput = e.Value?.ToString() ?? string.Empty;
 	}
 
 	private async Task OnSendClickedInternal()

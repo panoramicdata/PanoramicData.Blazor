@@ -2,50 +2,95 @@ using AwesomeAssertions;
 using BlazorMonaco.Editor;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test.Components;
 
 /// <summary>
-/// Menu and editor tests for <see cref="PDStudio"/>.
+/// Examples, New and editor tests for <see cref="PDStudio"/>.
 /// </summary>
 public partial class PDStudioTests
 {
-	/// <summary>
-	/// Verifies that the examples on the File menu load code suited to the studio's language.
-	/// </summary>
-	[Theory]
-	[InlineData("sql", "LoadExample1", "SELECT * FROM customers")]
-	[InlineData("mssql", "LoadExample2", "GROUP BY c.id")]
-	[InlineData("ncalc", "LoadExample1", "Basic NCalc Expression Examples")]
-	[InlineData("ncalc", "LoadExample2", "Test Error Scenarios")]
-	[InlineData("html", "LoadExample1", "<h1>Hello World</h1>")]
-	[InlineData("html", "LoadExample2", "Sample Table")]
-	[InlineData("javascript", "LoadExample1", "console.log('Hello World!')")]
-	[InlineData("javascript", "LoadExample2", "function fibonacci")]
-	[InlineData("python", "LoadExample1", "Example 1 for python")]
-	[InlineData("python", "LoadExample2", "Example 2 for python")]
-	public async Task FileMenu_ExamplesSuitTheLanguage(string language, string example, string expected)
-	{
-		var studio = RenderStudio(new PDStudioOptions { Language = language });
+	private static readonly PDStudioExample[] _examples =
+	[
+		new("Any language", "-- shared"),
+		new("SQL only", "SELECT 1", "sql"),
+		new("NCalc only", "1 + 1", "ncalc")
+	];
 
-		await MenuAsync(studio, "File", example);
+	/// <summary>
+	/// Verifies that the Examples menu offers only the examples for the studio's language, and loads the chosen one.
+	/// </summary>
+	[Fact]
+	public async Task ExamplesMenu_OffersTheLanguagesExamplesAndLoadsTheChosenOne()
+	{
+		var studio = RenderStudio(new PDStudioOptions { Language = "SQL" }, p => p.Add(x => x.Examples, _examples));
+
+		ExampleNames(studio).Should().Equal("Any language", "SQL only");
+
+		await MenuAsync(studio, "Examples", "example-1");
 		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
-		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Contain(expected));
+		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Be("SELECT 1"));
+		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("Example loaded: SQL only"));
+	}
+
+	private static List<string> ExampleNames(IRenderedComponent<PDStudio> studio)
+		=> [.. studio.FindAll(".pddropdownmenuitem").Select(r => r.TextContent.Trim())];
+
+	/// <summary>
+	/// Verifies that the Examples menu follows a change of language after it has been shown.
+	/// </summary>
+	[Fact]
+	public void ExamplesMenu_FollowsALanguageChange()
+	{
+		var options = new PDStudioOptions { Language = "ncalc" };
+		var studio = RenderStudio(options, p => p.Add(x => x.Examples, _examples));
+
+		options.Language = "sql";
+		studio.Render(p => p.Add(x => x.Options, options));
+
+		ExampleNames(studio).Should().Equal("Any language", "SQL only");
+	}
+
+	/// <summary>
+	/// Verifies that there is no Examples menu when none of the examples is for the studio's language.
+	/// </summary>
+	[Fact]
+	public void ExamplesMenu_NoneForTheLanguage_IsLeftOut()
+	{
+		var studio = RenderStudio(new PDStudioOptions { Language = "html" }, p => p.Add(x => x.Examples, _examples[1..]));
+
+		studio.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that a key naming no example changes nothing.
+	/// </summary>
+	[Theory]
+	[InlineData("example-9")]
+	[InlineData("example-x")]
+	[InlineData("other")]
+	public async Task ExamplesMenu_UnknownKey_ChangesNothing(string key)
+	{
+		var studio = RenderStudio(new PDStudioOptions { Language = "sql" }, p => p.Add(x => x.Examples, _examples));
+		await TypeAsync(studio, "SELECT 2");
+
+		await MenuAsync(studio, "Examples", key);
+
+		studio.Instance.Code.Should().Be("SELECT 2");
 	}
 
 	/// <summary>
 	/// Verifies that New clears the code and results, so there is then nothing to execute.
 	/// </summary>
 	[Fact]
-	public async Task FileMenu_New_ClearsTheCode()
+	public async Task New_ClearsTheCode()
 	{
 		var studio = RenderStudio();
 		await TypeAsync(studio, "<p>Hi</p>");
 
-		await MenuAsync(studio, "File", "New");
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
 		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		_service.Calls.Should().BeEmpty();
@@ -54,39 +99,79 @@ public partial class PDStudioTests
 	}
 
 	/// <summary>
-	/// Verifies that Open and Save, not yet implemented, only log that they were chosen, and unknown keys do nothing.
+	/// Verifies that New asks first when the host wants it to, and keeps the code when the answer is no.
 	/// </summary>
 	[Fact]
-	public async Task FileMenu_OpenAndSave_OnlyLog()
+	public async Task New_WhenTheHostSaysNo_KeepsTheCode()
 	{
-		var studio = RenderStudio();
+		var asked = 0;
+		var studio = RenderStudio(more: p => p.Add(x => x.ConfirmNewAsync, () =>
+		{
+			asked++;
+			return Task.FromResult(false);
+		}));
+		await TypeAsync(studio, "SELECT 1");
 
-		await MenuAsync(studio, "File", "Open");
-		await MenuAsync(studio, "File", "Save");
-		await MenuAsync(studio, "File", "Unknown");
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
 
-		studio.WaitForAssertion(() => LogMessages(studio).Should()
-			.Equal("Open clicked (not implemented)", "Save clicked (not implemented)"));
+		asked.Should().Be(1);
+		studio.Instance.Code.Should().Be("SELECT 1");
+		LogMessages(studio).Should().NotContain("New document created");
 	}
 
 	/// <summary>
-	/// Verifies that the Logging menu sets the studio's default log level, treating unknown keys as Information.
+	/// Verifies that New clears the code once the host agrees.
 	/// </summary>
-	[Theory]
-	[InlineData("Debug", LogLevel.Debug)]
-	[InlineData("Info", LogLevel.Information)]
-	[InlineData("Warning", LogLevel.Warning)]
-	[InlineData("Error", LogLevel.Error)]
-	[InlineData("Verbose", LogLevel.Information)]
-	public async Task LoggingMenu_SetsTheLogLevel(string key, LogLevel expected)
+	[Fact]
+	public async Task New_WhenTheHostSaysYes_ClearsTheCode()
 	{
-		var options = new PDStudioOptions { DefaultLogLevel = LogLevel.Critical };
-		var studio = RenderStudio(options);
+		var studio = RenderStudio(more: p => p.Add(x => x.ConfirmNewAsync, () => Task.FromResult(true)));
+		await TypeAsync(studio, "SELECT 1");
 
-		await MenuAsync(studio, "Logging", key);
+		await ToolbarButton(studio, "new").ClickAsync(new MouseEventArgs());
 
-		options.DefaultLogLevel.Should().Be(expected);
-		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain($"Log level changed to {expected}"));
+		studio.Instance.Code.Should().BeEmpty();
+		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("New document created"));
+	}
+
+	/// <summary>
+	/// Verifies that a host offering New in its own menu, with the button hidden, gets the button's behaviour:
+	/// it asks first, then clears the code and the results.
+	/// </summary>
+	[Fact]
+	public async Task NewAsync_WithTheButtonHidden_AsksThenClearsTheCodeAndResults()
+	{
+		var asked = 0;
+		var studio = RenderStudio(new PDStudioOptions { ShowNewButton = false }, p => p.Add(x => x.ConfirmNewAsync, () =>
+		{
+			asked++;
+			return Task.FromResult(true);
+		}));
+		_service.Result = "<p>42 rows</p>";
+		await TypeAsync(studio, "SELECT 1");
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
+		studio.WaitForAssertion(() => studio.FindAll("iframe.pd-studio-results-iframe").Should().ContainSingle());
+
+		await studio.InvokeAsync(studio.Instance.NewAsync);
+
+		studio.FindComponents<PDToolbarButton>().Should().NotContain(b => b.Instance.Key == "new");
+		asked.Should().Be(1);
+		studio.Instance.Code.Should().BeEmpty();
+		studio.WaitForAssertion(() => studio.FindAll(".pd-studio-results-placeholder").Should().ContainSingle());
+	}
+
+	/// <summary>
+	/// Verifies that New called by the host keeps the code when the host's confirmation says no.
+	/// </summary>
+	[Fact]
+	public async Task NewAsync_WhenTheHostSaysNo_KeepsTheCode()
+	{
+		var studio = RenderStudio(more: p => p.Add(x => x.ConfirmNewAsync, () => Task.FromResult(false)));
+		await TypeAsync(studio, "SELECT 1");
+
+		await studio.InvokeAsync(studio.Instance.NewAsync);
+
+		studio.Instance.Code.Should().Be("SELECT 1");
 	}
 
 	/// <summary>
@@ -104,8 +189,20 @@ public partial class PDStudioTests
 		options.AutomaticLayout.Should().BeTrue();
 		options.ScrollBeyondLastLine.Should().BeFalse();
 		options.Minimap!.Enabled.Should().BeFalse();
+		options.Padding!.Top.Should().Be(6);
 		options.Folding.Should().BeTrue();
 		options.WordWrap.Should().Be("off");
+	}
+
+	/// <summary>
+	/// Verifies that the bar between the editor and the output is 4 pixels unless the options say otherwise.
+	/// </summary>
+	[Fact]
+	public void GutterSize_DefaultsTo4_AndFollowsTheOptions()
+	{
+		RenderStudio().FindComponent<PDSplitter>().Instance.GutterSize.Should().Be(4);
+
+		RenderStudio(new PDStudioOptions { GutterSize = 10 }).FindComponent<PDSplitter>().Instance.GutterSize.Should().Be(10);
 	}
 
 	/// <summary>

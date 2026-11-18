@@ -116,7 +116,7 @@
 
 </PDModal>
 
-<div class="pdfileexplorer @CssClass">
+<div class="pdfileexplorer @(ShowToolbar ? null : "pdfe-no-toolbar") @CssClass">
 
 	<div class="pdfe-toolbar @(ShowToolbar ? "" : "d-none")">
 		<PDToolbar Items="ToolbarItems"
@@ -130,6 +130,7 @@
 
 			<PDContextMenu Items="TreeContextItems"
 					   Enabled="ShowContextMenu"
+					   ExceptionHandler="ChildExceptionHandler"
 					   UpdateState="OnTreeContextMenuUpdateStateAsync"
 					   ItemClick="OnTreeContextMenuItemClickAsync">
 
@@ -162,7 +163,7 @@
 							ClearOnCollapse="true"
 							DataProvider="DataProvider"
 							Drop="OnDropAsync"
-							ExceptionHandler="OnException"
+							ExceptionHandler="ChildExceptionHandler"
 							IsDropValid="@((item, _) => item.CanAddItems)"
 							IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
 							ItemsLoaded="OnTreeItemsLoaded"
@@ -224,6 +225,7 @@
 
 			<PDContextMenu Items="TableContextItems"
 						   Enabled="ShowContextMenu"
+						   ExceptionHandler="ChildExceptionHandler"
 						   ShowOnMouseUp="true"
 						   UpdateState="OnTableContextMenuUpdateStateAsync"
 						   ItemClick="OnTableContextMenuItemClickAsync">
@@ -259,7 +261,7 @@
 							 DoubleClick="OnTableDoubleClickAsync"
 							 DownloadUrlFunc="DownloadUrlFunc"
 							 Drop="OnDropAsync"
-							 ExceptionHandler="OnException"
+							 ExceptionHandler="ChildExceptionHandler"
 							 ItemsLoaded="OnTableItemsLoaded"
 							 KeyDown="OnTableKeyDownAsync"
 							 KeyField="x => x.Path"
@@ -424,6 +426,7 @@
 			<PDSplitPanel Size="InitialPreviewSize" MinSize="0">
 
 				<PDFilePreview Item="_previewItem"
+							   IsVisible="PreviewPanelVisible"
 							   ExceptionHandler="ExceptionHandler"
 							   PreviewProvider="PreviewProvider" />
 

@@ -197,26 +197,65 @@ public partial class PDColorPicker : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
-				"import",
-				"./_content/PanoramicData.Blazor/PDColorPicker.razor.js"
-			).ConfigureAwait(true);
+			await ImportModuleAsync().ConfigureAwait(true);
 		}
 
 		if (_isOpen && Options.CloseOnOutsideClick && _module != null)
 		{
-			await _module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
+			await InitializeOpenPickerAsync(_module).ConfigureAwait(true);
+		}
+	}
 
-			// Get the actual dimensions of the SV container for accurate positioning
-			if (SvContainerRef.Id != null)
-			{
-				var bounds = await _module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
-				if (bounds != null)
-				{
-					_svWidth = bounds.Width;
-					_svHeight = bounds.Height;
-				}
-			}
+	private async Task ImportModuleAsync()
+	{
+		try
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
+					"import",
+					"./_content/PanoramicData.Blazor/PDColorPicker.razor.js"
+				).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+	}
+
+	private async Task InitializeOpenPickerAsync(IJSObjectReference module)
+	{
+		try
+		{
+			await module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+
+		// Get the actual dimensions of the SV container for accurate positioning
+		if (SvContainerRef.Id != null)
+		{
+			await MeasureSvContainerAsync(module).ConfigureAwait(true);
+		}
+	}
+
+	private async Task MeasureSvContainerAsync(IJSObjectReference module)
+	{
+		ElementBounds? bounds;
+		try
+		{
+			bounds = await module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+			return;
+		}
+
+		if (bounds != null)
+		{
+			_svWidth = bounds.Width;
+			_svHeight = bounds.Height;
 		}
 	}
 

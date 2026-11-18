@@ -23,6 +23,7 @@ public class DumbChatServiceVoiceTests
 		chat.AgentPickerAction!.DisplayText.Should().Be("[+] New Agent");
 		chat.Models.Should().HaveCount(2);
 		chat.WakePhrases.Should().BeNull();
+		chat.InterruptPhrases.Should().BeNull();
 		chat.VoiceIdleTimeout.Should().Be(TimeSpan.FromSeconds(10));
 		chat.VoiceAutoSendDelay.Should().Be(TimeSpan.FromMilliseconds(1000));
 		chat.IsReadAloudEnabled.Should().BeFalse();
@@ -55,6 +56,17 @@ public class DumbChatServiceVoiceTests
 		service.WakePhrases.Should().BeSameAs(phrases);
 	}
 
+	/// <summary>Verifies that an interrupt phrase set through the interface reaches the demo service rather than the default store.</summary>
+	[Fact]
+	public void Interrupt_phrases_set_through_the_interface_are_the_services_own()
+	{
+		using var service = new DumbChatService();
+
+		((IChatService)service).InterruptPhrases = _interruptPhrases;
+
+		service.InterruptPhrases.Should().BeSameAs(_interruptPhrases);
+	}
+
 	/// <summary>Verifies that the demo's picker action answers in the chat and leaves the agent unchanged.</summary>
 	[Fact]
 	public async Task The_demo_picker_action_answers_and_keeps_the_agent()
@@ -76,6 +88,8 @@ public class DumbChatServiceVoiceTests
 
 	private static readonly string[] _phrases = ["Hey DumbBot"];
 
+	private static readonly string[] _interruptPhrases = ["DumbBot"];
+
 	private static readonly Dictionary<string, Action<DumbChatService>> _changes = new()
 	{
 		[nameof(DumbChatService.VoiceEndpoints)] = service => service.VoiceEndpoints = null,
@@ -83,6 +97,7 @@ public class DumbChatServiceVoiceTests
 		[nameof(DumbChatService.AgentPickerAction)] = service => service.AgentPickerAction = null,
 		[nameof(DumbChatService.Models)] = service => service.Models = null,
 		[nameof(IChatService.WakePhrases)] = service => ((IChatService)service).WakePhrases = _phrases,
+		[nameof(IChatService.InterruptPhrases)] = service => ((IChatService)service).InterruptPhrases = _interruptPhrases,
 		[nameof(IChatService.VoiceIdleTimeout)] = service => ((IChatService)service).VoiceIdleTimeout = TimeSpan.FromSeconds(3),
 		[nameof(IChatService.VoiceAutoSendDelay)] = service => ((IChatService)service).VoiceAutoSendDelay = TimeSpan.FromMilliseconds(250),
 		[nameof(IChatService.IsReadAloudEnabled)] = service => ((IChatService)service).IsReadAloudEnabled = true,

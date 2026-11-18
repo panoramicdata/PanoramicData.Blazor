@@ -49,6 +49,7 @@
 				<tr><td><code>SnapOffset</code></td><td><code>int</code></td><td><code>30</code></td><td>Distance in pixels from minimum size at which the panel snaps</td></tr>
 				<tr><td><code>DragInterval</code></td><td><code>int</code></td><td><code>1</code></td><td>Number of pixels per drag step</td></tr>
 				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS classes for the container element</td></tr>
+				<tr><td><code>DragEnd</code></td><td><code>EventCallback&lt;double[]&gt;</code></td><td>-</td><td>Raised when the user stops dragging a gutter, with each panel's new size as a percentage, so the page can remember them and restore them with <code>SetSizesAsync</code></td></tr>
 			</tbody>
 		</table>
 
@@ -61,6 +62,23 @@
 				<tr><td><code>Size</code></td><td><code>int</code></td><td><code>1</code></td><td>Proportional size relative to all sibling panels (e.g. <code>Size="1"</code> and <code>Size="2"</code> gives 33%/67%)</td></tr>
 				<tr><td><code>MinSize</code></td><td><code>int</code></td><td><code>100</code></td><td>Minimum panel size in pixels</td></tr>
 				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS classes for the panel element</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="colours">
+		<h2 class="doc-section">Colours</h2>
+		<p>
+			The splitter bars take their colours from CSS variables, so a host can set them on <code>:root</code>, on a
+			theme class or on one splitter's <code>CssClass</code>. For example,
+			<code>body.theme-dark { --pd-splitter-gutter-bg: #495057; }</code> keeps the bars visible on a dark page.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>--pd-splitter-gutter-bg</code></td><td><code>#eee</code></td><td>The splitter bar</td></tr>
+				<tr><td><code>--pd-splitter-gutter-hover-bg</code></td><td><code>--bs-primary</code></td><td>The splitter bar under the pointer, so it can be found to drag</td></tr>
+				<tr><td><code>--pd-splitter-gutter-hover-delay</code></td><td><code>0.2s</code></td><td>How long the pointer rests on a bar before it fades to the hover colour, so passing over it does not flash. Pressing the bar shows the colour at once. <code>0s</code> starts the fade straight away.</td></tr>
 			</tbody>
 		</table>
 	</section>

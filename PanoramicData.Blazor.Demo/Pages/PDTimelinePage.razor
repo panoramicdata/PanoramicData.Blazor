@@ -97,6 +97,22 @@
 				<label class="form-check-label" for="moreDataCheck">More Data</label>
 			</div>
 
+			<div class="form-check ms-2">
+				<input type="checkbox" class="form-check-input" id="showMaxValueCheck" @bind="ShowMaxValue">
+				<label class="form-check-label" for="showMaxValueCheck">Show Max Value</label>
+			</div>
+
+			<div class="form-check ms-2">
+				<input type="checkbox" class="form-check-input" id="showGridLinesCheck" @bind="ShowGridLines">
+				<label class="form-check-label" for="showGridLinesCheck">Grid Lines</label>
+			</div>
+
+			<div class="d-flex align-items-center ms-2">
+				<label class="me-1" for="gridLineCountInput">Max Lines</label>
+				<input type="number" class="form-control form-control-sm" id="gridLineCountInput" min="1" max="20" style="width: 4.5rem;"
+					   disabled="@(!ShowGridLines)" @bind="GridLineCount" @bind:event="oninput">
+			</div>
+
 		</div>
 
 		<PDTimelineToolbar ShowRange="false"

@@ -43,14 +43,17 @@ public partial class PDStudioTests : BunitContext
 		return studio.InvokeAsync(() => editor.ValueChanged.InvokeAsync(code));
 	}
 
+	private static AngleSharp.Dom.IElement ToolbarButton(IRenderedComponent<PDStudio> studio, string key)
+		=> studio.FindComponents<PDToolbarButton>().Single(b => b.Instance.Key == key).Find("button.pdtoolbarbutton");
+
 	private static AngleSharp.Dom.IElement PlayButton(IRenderedComponent<PDStudio> studio)
-		=> studio.Find("button.pdtoolbarbutton");
+		=> ToolbarButton(studio, "play");
 
 	private static string Status(IRenderedComponent<PDStudio> studio)
 		=> studio.Find(".pd-studio-results-status .status-text").TextContent;
 
 	private static List<string> LogMessages(IRenderedComponent<PDStudio> studio)
-		=> [.. studio.FindAll(".log-message").Select(m => m.TextContent)];
+		=> [.. studio.FindAll(".pd-studio-message-text").Select(m => m.TextContent)];
 
 	private static Task MenuAsync(IRenderedComponent<PDStudio> studio, string menu, string key)
 	{
@@ -58,25 +61,29 @@ public partial class PDStudioTests : BunitContext
 		return studio.InvokeAsync(() => dropdown.Click.InvokeAsync(key));
 	}
 
+	private static List<string> Tabs(IRenderedComponent<PDStudio> studio)
+		=> [.. studio.FindAll(".pd-studio-tab").Select(t => t.FirstChild!.TextContent.Trim())];
+
 	/// <summary>
-	/// Verifies the default layout: both menus, the Execute button, a ready results panel and a log.
+	/// Verifies the default layout: New and Execute but no Examples menu without examples, a ready results panel, and Results and Messages tabs.
 	/// </summary>
 	[Fact]
-	public void Layout_HasMenusExecuteResultsAndLog()
+	public void Layout_HasNewExecuteAndResultsAndMessagesTabs()
 	{
 		var studio = RenderStudio(more: p => p.Add(x => x.CssClass, "my-studio"));
 
 		studio.Find(".pd-studio").ClassList.Should().Contain("my-studio");
-		studio.FindComponents<PDToolbarDropdown>().Select(d => d.Instance.Text).Should().Equal("File", "Logging");
-		studio.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
+		studio.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play", "new");
+		studio.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
+		studio.FindComponents<PDToolbarSeparator>().Should().BeEmpty("the groups mark the sections, and a separator wraps badly");
 		PlayButton(studio).TextContent.Should().Contain("Execute");
 		PlayButton(studio).ClassList.Should().Contain("btn-success");
 		Status(studio).Should().Be("Ready");
-		studio.Instance.LogComponent.Should().NotBeNull();
+		Tabs(studio).Should().Equal("Results", "Messages");
 	}
 
 	/// <summary>
-	/// Verifies that the menu, toolbar and log can each be left out, and custom toolbar content is added after a separator.
+	/// Verifies that the menu, toolbar and log can each be left out, and custom toolbar content is added with no separator of its own.
 	/// </summary>
 	[Fact]
 	public void Layout_PartsCanBeLeftOutOrAdded()
@@ -85,16 +92,14 @@ public partial class PDStudioTests : BunitContext
 			new PDStudioOptions { ShowMenu = false, IsLoggingVisible = false, ShowStatusBar = false },
 			p => p.Add(x => x.EditorToolbarContent, b => b.AddMarkupContent(0, "<span class=\"extra\">Extra</span>")));
 
-		withoutMenu.FindComponents<PDToolbarDropdown>().Should().BeEmpty();
-		withoutMenu.FindComponents<PDToolbarSeparator>().Should().ContainSingle();
+		withoutMenu.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("play");
+		withoutMenu.FindComponents<PDToolbarSeparator>().Should().BeEmpty();
 		withoutMenu.Find(".pd-studio-toolbar .extra").TextContent.Should().Be("Extra");
-		withoutMenu.FindComponents<PDLog>().Should().BeEmpty();
-		withoutMenu.Instance.LogComponent.Should().BeNull();
+		Tabs(withoutMenu).Should().Equal("Results");
 		withoutMenu.FindAll(".pd-studio-results-status").Should().BeEmpty();
 
 		var withoutToolbar = RenderStudio(new PDStudioOptions { ShowToolbar = false });
-		withoutToolbar.FindComponents<PDToolbarDropdown>().Should().HaveCount(2);
-		withoutToolbar.FindAll("button.pdtoolbarbutton").Should().BeEmpty();
+		withoutToolbar.FindComponents<PDToolbarButton>().Select(b => b.Instance.Key).Should().Equal("new");
 
 		var neither = RenderStudio(new PDStudioOptions { ShowToolbar = false, ShowMenu = false });
 		neither.FindAll(".pd-studio-toolbar").Should().BeEmpty();

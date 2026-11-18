@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using BlazorMonaco;
 using BlazorMonaco.Editor;
-using BlazorMonaco.Languages;
 using Bunit;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models.Monaco;
@@ -29,6 +28,7 @@ public class PDMonacoEditorTests : BunitContext
 	{
 		JSInterop.Mode = JSRuntimeMode.Loose;
 		_module = JSInterop.SetupModule(ModulePath);
+		_module.Setup<bool>("waitForMonaco", _ => true).SetResult(true);
 		JSInterop.Setup<TextModel>(invocation => invocation.Identifier.EndsWith("getInstanceModel", StringComparison.Ordinal))
 			.SetResult(new TextModel { Id = "model-1", Uri = "inmemory://model/1" });
 	}
@@ -172,6 +172,22 @@ public class PDMonacoEditorTests : BunitContext
 		received.Should().BeSameAs(selection);
 	}
 
+	/// <summary>Inserted text leaves the cursor at its end, as typing it would, on whichever line it ends.</summary>
+	[Theory]
+	[InlineData("[Calculate: value=1]", 3, 25)]
+	[InlineData("", 3, 5)]
+	[InlineData("line one\nline two", 4, 9)]
+	[InlineData("one\r\ntwo\r\n", 5, 1)]
+	public void Inserted_text_leaves_the_cursor_at_its_end(string text, int line, int column)
+	{
+		var selected = new Selection { StartLineNumber = 3, StartColumn = 5, EndLineNumber = 4, EndColumn = 2 };
+
+		var cursor = PDMonacoEditor.CursorAfter(selected, text);
+
+		(cursor.PositionLineNumber, cursor.PositionColumn).Should().Be((line, column));
+		(cursor.SelectionStartLineNumber, cursor.SelectionStartColumn).Should().Be((line, column), "nothing is left selected");
+	}
+
 	/// <summary>The value, a range of it and the selection are read from the editor.</summary>
 	[Fact]
 	public async Task Values_and_selection_are_read_from_the_editor()
@@ -234,26 +250,150 @@ public class PDMonacoEditorTests : BunitContext
 
 	/// <summary>A theme change after the editor exists is applied to it once, and an unchanged theme is not re-sent.</summary>
 	[Fact]
-	public void A_theme_change_updates_the_editor_once()
+	public async Task A_theme_change_updates_the_editor_once()
 	{
 		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "vs"));
+		await EditorCreatedAsync(component);
+		var atStartUp = UpdateOptionsCalls();
 
 		component.Render(parameters => parameters.Add(p => p.Theme, "vs-dark"));
 		component.Render(parameters => parameters.Add(p => p.Theme, "vs-dark"));
 
-		JSInterop.Invocations.Count(i => i.Identifier == "blazorMonaco.editor.updateOptions").Should().Be(1);
+		UpdateOptionsCalls().Should().Be(atStartUp + 1);
 	}
+
+	/// <summary>A theme that arrives while the browser is still creating the editor is applied once it exists,
+	/// rather than sent to an editor that is not there yet and then never sent again.</summary>
+	[Fact]
+	public void A_theme_set_while_the_editor_is_being_created_is_applied_once_it_exists()
+	{
+		// The browser has not finished creating the editor until this completes.
+		var create = JSInterop.SetupVoid("blazorMonaco.editor.create", _ => true);
+		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "sql-light"));
+
+		component.Render(parameters => parameters.Add(p => p.Theme, "sql-dark"));
+		UpdateOptionsCalls().Should().Be(0);
+
+		create.SetVoidResult();
+
+		component.WaitForAssertion(() => JSInterop.Invocations
+			.Where(i => i.Identifier == "blazorMonaco.editor.updateOptions")
+			.Should().ContainSingle().Which.Arguments[1]!.ToString().Should().Contain("sql-dark"));
+	}
+
+	/// <summary>Options given while the browser is still creating the editor are sent again once it exists, so they are
+	/// not lost to an editor that was not there yet.</summary>
+	[Fact]
+	public async Task Options_given_while_the_editor_is_being_created_are_applied_once_it_exists()
+	{
+		var create = JSInterop.SetupVoid("blazorMonaco.editor.create", _ => true);
+		var component = Render<PDMonacoEditor>();
+		await component.InvokeAsync(() => component.Instance.UpdateOptions(new EditorUpdateOptions { ReadOnly = true }));
+		var beforeCreation = UpdateOptionsCalls();
+
+		create.SetVoidResult();
+
+		component.WaitForAssertion(() => UpdateOptionsCalls().Should().Be(beforeCreation + 1));
+		JSInterop.Invocations.Last(i => i.Identifier == "blazorMonaco.editor.updateOptions")
+			.Arguments[1]!.ToString().Should().Contain("\"readOnly\":true");
+	}
+
+	/// <summary>Options given once the editor exists are sent once, and not again.</summary>
+	[Fact]
+	public async Task Options_given_once_the_editor_exists_are_sent_once()
+	{
+		var component = Render<PDMonacoEditor>();
+		await EditorCreatedAsync(component);
+		var atStartUp = UpdateOptionsCalls();
+
+		await component.InvokeAsync(() => component.Instance.UpdateOptions(new EditorUpdateOptions { ReadOnly = true }));
+		await EditorCreatedAsync(component);
+
+		UpdateOptionsCalls().Should().Be(atStartUp + 1);
+	}
+
+	/// <summary>A theme the editor was created with is not sent to it again.</summary>
+	[Fact]
+	public async Task The_creation_theme_is_not_sent_again()
+	{
+		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Theme, "vs-dark"));
+
+		await EditorCreatedAsync(component);
+
+		UpdateOptionsCalls().Should().Be(0);
+	}
+
+	// BlazorMonaco raises OnDidInit once the browser has created the editor.
+	private static Task EditorCreatedAsync(IRenderedComponent<PDMonacoEditor> component)
+		=> component.InvokeAsync(() => component.FindComponent<StandaloneCodeEditor>().Instance.OnDidInit.InvokeAsync());
+
+	/// <summary>A key disabled before Monaco has created the editor is given to it again once it has, as the first
+	/// request can reach a page where Monaco has not loaded; a key enabled again since is not.</summary>
+	[Fact]
+	public async Task Keys_disabled_before_the_editor_exists_are_given_to_it_once_it_does()
+	{
+		var component = Render<PDMonacoEditor>();
+		var editor = component.Instance;
+		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(13, ctrlKey: true));
+		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(9));
+		await component.InvokeAsync(() => editor.EnableKeyBindingAsync(9));
+
+		await EditorCreatedAsync(component);
+
+		_module.Invocations["disableKeyBinding"].Select(i => i.Arguments).Should().BeEquivalentTo(
+			[new object[] { 13, true, false, false }, new object[] { 9, false, false, false }, new object[] { 13, true, false, false }],
+			options => options.WithStrictOrdering());
+	}
+
+	/// <summary>Custom languages, and the themes a host defines with them, are set up before the editor is created,
+	/// so a custom theme exists when the editor asks for it.</summary>
+	[Fact]
+	public void Custom_languages_are_set_up_before_the_editor_is_created()
+	{
+		_module.Setup<bool>("registerLanguage", _ => true).SetResult(true);
+		var createdBeforeLanguage = true;
+
+		Render<PDMonacoEditor>(parameters => parameters
+			.Add(p => p.RegisterLanguages, languages => languages.Add(new Language { Id = "sql" }))
+			.Add(p => p.InitializeLanguageAsync, _ =>
+			{
+				createdBeforeLanguage = JSInterop.Invocations.Any(i => i.Identifier == "blazorMonaco.editor.create");
+				return Task.CompletedTask;
+			}));
+
+		createdBeforeLanguage.Should().BeFalse();
+		JSInterop.VerifyInvoke("blazorMonaco.editor.create");
+	}
+
+	/// <summary>If monaco never loads the editor is not created, which would throw where nothing can catch it, and a
+	/// message says so instead.</summary>
+	[Fact]
+	public void When_monaco_never_loads_the_editor_is_not_created()
+	{
+		using var context = new BunitContext();
+		context.JSInterop.Mode = JSRuntimeMode.Loose;
+		context.JSInterop.SetupModule(ModulePath).Setup<bool>("waitForMonaco", _ => true).SetResult(false);
+
+		var component = context.Render<PDMonacoEditor>();
+
+		component.Find(".pd-monacoeditor-unavailable").TextContent.Should().Contain("could not be loaded");
+		context.JSInterop.Invocations.Should().NotContain(i => i.Identifier == "blazorMonaco.editor.create");
+	}
+
+	private int UpdateOptionsCalls() => JSInterop.Invocations.Count(i => i.Identifier == "blazorMonaco.editor.updateOptions");
 
 	/// <summary>A JavaScript failure while applying a theme is swallowed.</summary>
 	[Fact]
-	public void A_theme_update_failure_is_ignored()
+	public async Task A_theme_update_failure_is_ignored()
 	{
 		JSInterop.SetupVoid("blazorMonaco.editor.updateOptions", _ => true).SetException(new JSException("gone"));
 		var component = Render<PDMonacoEditor>();
+		await EditorCreatedAsync(component);
 
 		var act = () => component.Render(parameters => parameters.Add(p => p.Theme, "hc-black"));
 
 		act.Should().NotThrow();
+		UpdateOptionsCalls().Should().Be(1);
 	}
 
 	/// <summary>After disposal the commands and reads do nothing.</summary>

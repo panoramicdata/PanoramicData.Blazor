@@ -53,10 +53,18 @@ public partial class PDFileExplorerTests
 
 		public FileExplorerItem Get(string path) => Items.Single(x => x.Path == path);
 
-		public override Task<DataResponse<FileExplorerItem>> GetDataAsync(DataRequest<FileExplorerItem> request, CancellationToken cancellationToken)
+		/// <summary>Awaited before a request is answered, given the request's folder, to hold an answer back.</summary>
+		public Func<string?, Task>? BeforeAnswer { get; set; }
+
+		public override async Task<DataResponse<FileExplorerItem>> GetDataAsync(DataRequest<FileExplorerItem> request, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 			Requests.Add(request.SearchText);
+			if (BeforeAnswer is not null)
+			{
+				await BeforeAnswer(request.SearchText).ConfigureAwait(true);
+			}
+
 			List<FileExplorerItem> items = request.SearchText switch
 			{
 				null => [.. Items.Select(Copy)],
@@ -69,7 +77,7 @@ public partial class PDFileExplorerTests
 				items = request.SortDirection == SortDirection.Descending ? [.. items.OrderByDescending(key)] : [.. items.OrderBy(key)];
 			}
 
-			return Task.FromResult(new DataResponse<FileExplorerItem>(items, items.Count));
+			return new DataResponse<FileExplorerItem>(items, items.Count);
 		}
 
 		private static FileExplorerItem Copy(FileExplorerItem x) => new()

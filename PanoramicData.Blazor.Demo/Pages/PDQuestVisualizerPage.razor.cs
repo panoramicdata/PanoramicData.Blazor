@@ -17,7 +17,14 @@ public partial class PDQuestVisualizerPage : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

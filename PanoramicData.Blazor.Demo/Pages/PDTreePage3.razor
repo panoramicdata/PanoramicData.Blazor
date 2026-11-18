@@ -1,8 +1,8 @@
-﻿@page "/pdtree3"
+@page "/pdtree3"
 @using PanoramicData.Blazor.Demo.Data
 
 <h1>PDTree 3</h1>
-<p class="text-muted">Example of tree that can be re-ordered by drag and drop.</p>
+<p class="text-muted">Example of a tree that can be reordered by drag and drop. The top quarter of a row drops before it, the bottom quarter after it, and the middle into it, shown by an insertion line or a highlight. People cannot have anything dropped into them, and dropping at the bottom of the last row in a group, left of its text, drops after the group.</p>
 
 <DemoSourceView SourceFiles="Pages/PDTreePage3.razor, Pages/PDTreePage3.razor.cs, Pages/PDTreePage3.ReOrder.cs, Data/TreeDataProvider.cs">
 
@@ -14,6 +14,8 @@
 				AllowDrag="true"
 				AllowDrop="true"
 				AllowDropInBetween="true"
+				AllowDropAfterParent="true"
+				IsDropPositionValid="IsDropPositionValid"
 				DataProvider="_treeDataProvider"
 				Drop="OnDrop"
 				IconCssClass="(item, _) => GetIconCssClass(item)"

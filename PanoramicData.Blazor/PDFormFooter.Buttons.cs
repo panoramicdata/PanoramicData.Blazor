@@ -5,6 +5,31 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDFormFooter<TItem> where TItem : class
 {
+	[Inject]
+	private ILogger<PDFormFooter<TItem>> Logger { get; set; } = new NullLogger<PDFormFooter<TItem>>();
+
+	/// <summary>
+	/// Runs a button's work so that a failure, in the data provider or the host's own handlers, goes to the form
+	/// rather than to Blazor, where it would end the user's circuit.
+	/// </summary>
+	private async Task RunAsync(Func<Task> action)
+	{
+		try
+		{
+			await action().ConfigureAwait(true);
+		}
+		catch (Exception ex)
+		{
+			if (Form is null)
+			{
+				Logger.LogError(ex, "Form footer: {ErrorMessage}", ex.Message);
+				return;
+			}
+
+			await Form.HandleExceptionAsync(ex).ConfigureAwait(true);
+		}
+	}
+
 	private async Task OnCancelAsync()
 	{
 		if (Form is { Item: TItem item } form)

@@ -99,7 +99,7 @@ public partial class PDKnob : PDAudioControl
 	/// <summary>
 	/// Gets the current indicator angle in degrees.
 	/// </summary>
-	protected double IndicatorAngle => StartAngle + ArcAngle * Value;
+	protected double IndicatorAngle => IsAngleMode ? AngleIndicatorDirection : StartAngle + ArcAngle * Value;
 	/// <summary>
 	/// Gets the indicator X coordinate.
 	/// </summary>
@@ -258,6 +258,11 @@ public partial class PDKnob : PDAudioControl
 	/// <returns>A list of tick marks.</returns>
 	protected List<Tick> GetTicks()
 	{
+		if (ShowTicks && IsAngleMode)
+		{
+			return GetAngleTicks();
+		}
+
 		var ticks = new List<Tick>();
 		if (ShowTicks && Mode == PDKnobMode.Volume)
 		{

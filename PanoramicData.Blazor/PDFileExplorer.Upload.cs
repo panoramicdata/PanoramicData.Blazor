@@ -12,7 +12,14 @@ public partial class PDFileExplorer
 			// ensure class is added to drop zone dialog to hide message
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("addClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+				try
+				{
+					await _commonModule.InvokeVoidAsync("addClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			// set current folder
@@ -244,7 +251,14 @@ public partial class PDFileExplorer
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		var tasks = new List<Task>
@@ -271,7 +285,14 @@ public partial class PDFileExplorer
 	{
 		if (_commonModule != null)
 		{
-			await _commonModule.InvokeVoidAsync("clickClosest", elementId, ".pddropzone").ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("clickClosest", elementId, ".pddropzone").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 }

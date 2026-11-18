@@ -153,6 +153,23 @@ public class PDFilePreviewTests : BunitContext
 	/// A preview provider returning a fixed result, recording which items are previewed and how often a spinner is asked for.
 	/// Both timings are zero so the spinner path is decided by whether the preview task has completed.
 	/// </summary>
+	/// <summary>Verifies that a hidden preview fetches nothing, and fetches the item chosen meanwhile once it shows.</summary>
+	[Fact]
+	public void A_hidden_preview_fetches_nothing_until_it_shows()
+	{
+		var provider = new FakePreviewProvider(new PreviewInfo { CssClass = "txt" });
+
+		var component = Render<PDFilePreview>(parameters => parameters
+			.Add(p => p.PreviewProvider, provider)
+			.Add(p => p.IsVisible, false)
+			.Add(p => p.Item, _item));
+		provider.PreviewedPaths.Should().BeEmpty();
+
+		component.Render(parameters => parameters.Add(p => p.IsVisible, true));
+
+		provider.PreviewedPaths.Should().Equal(_item.Path);
+	}
+
 	private sealed class FakePreviewProvider(Task<PreviewInfo> preview) : IPreviewProvider
 	{
 		public FakePreviewProvider(PreviewInfo info)

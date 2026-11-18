@@ -49,4 +49,27 @@ public interface IGlobalEventService
 	/// Gets the currently registered shortcut keys.
 	/// </summary>
 	IEnumerable<ShortcutKey> GetRegisteredShortcuts();
+
+	/// <summary>
+	/// Gets whether a <see cref="PDModal"/> is open.
+	/// </summary>
+	bool IsModalOpen => false;
+
+	/// <summary>
+	/// Records that a modal has opened.
+	/// </summary>
+	/// <param name="modal">The modal that opened.</param>
+	void ModalOpened(PDModal modal)
+	{
+		// A service that does not track modals never reports one open
+	}
+
+	/// <summary>
+	/// Records that a modal has closed.
+	/// </summary>
+	/// <param name="modal">The modal that closed.</param>
+	void ModalClosed(PDModal modal)
+	{
+		// A service that does not track modals never reports one open
+	}
 }

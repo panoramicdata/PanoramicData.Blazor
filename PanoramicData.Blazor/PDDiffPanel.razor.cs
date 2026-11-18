@@ -251,7 +251,19 @@ public partial class PDDiffPanel : IAsyncDisposable
 
 		// Model.setValue resets the scroll position, so swap the text in JavaScript and restore the scroll.
 		var module = await GetModuleAsync().ConfigureAwait(true);
-		await module.InvokeVoidAsync("setTexts", Id, _shownOriginal != original ? original : null, _shownModified != modified ? modified : null).ConfigureAwait(true);
+		if (module is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await module.InvokeVoidAsync("setTexts", Id, _shownOriginal != original ? original : null, _shownModified != modified ? modified : null).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 		(_shownOriginal, _shownModified) = (original, modified);
 	}
 
@@ -317,8 +329,17 @@ public partial class PDDiffPanel : IAsyncDisposable
 		}
 	}
 
-	private async Task<IJSObjectReference> GetModuleAsync()
-		=> _module ??= await JSRuntime!.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDiffPanel.razor.js").ConfigureAwait(true);
+	private async Task<IJSObjectReference?> GetModuleAsync()
+	{
+		try
+		{
+			return _module ??= await JSRuntime!.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDiffPanel.razor.js").ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			return null;
+		}
+	}
 
 	// Detaches the models from the diff widget and disposes the widget, then disposes the models.
 	private async Task ReleaseEditorAsync()
@@ -333,7 +354,10 @@ public partial class PDDiffPanel : IAsyncDisposable
 			{
 				_editorCreated = false;
 				var module = await GetModuleAsync().ConfigureAwait(true);
-				await module.InvokeVoidAsync("releaseEditor", Id).ConfigureAwait(true);
+				if (module is not null)
+				{
+					await module.InvokeVoidAsync("releaseEditor", Id).ConfigureAwait(true);
+				}
 			}
 		}
 		catch (Exception ex) when (ex is JSException or JSDisconnectedException)

@@ -1,119 +1,257 @@
-﻿@namespace PanoramicData.Blazor
+@namespace PanoramicData.Blazor
 @inherits PDComponentBase
 
-<div class="pd-studio @CssClass">
-	<PDSplitter Direction="SplitDirection.Vertical">
+<div class="pd-studio @(LeftPanelContent != null ? "pd-studio-with-left-panel" : null) @CssClass">
+	<div class="pd-studio-body">
+	@if (LeftPanelContent != null)
+	{
+		<div class="@LeftPanelCssClass" style="@LeftPanelStyle">@LeftPanelContent</div>
+		@if (ShowsLeftPanelHandle)
+		{
+			<div @ref="_leftPanelHandle"
+				 class="pd-studio-left-panel-handle gutter"
+				 role="separator"
+				 tabindex="0"
+				 aria-orientation="vertical"
+				 aria-label="@Options.LeftPanelResizeToolTip"
+				 aria-valuemin="@Rem(LeftPanelMinWidth)"
+				 aria-valuemax="@Rem(LeftPanelMaxWidth)"
+				 aria-valuenow="@LeftPanelWidthText"
+				 title="@Options.LeftPanelResizeToolTip"
+				 @ondblclick="ResetLeftPanelWidthAsync"></div>
+		}
+	}
+	<div class="pd-studio-main">
+	<PDSplitter Direction="SplitDirection.Vertical" GutterSize="@Options.GutterSize">
 
-		<!-- Top Panel: Menu/Toolbar + Editor + Results -->
-		<PDSplitPanel Size="@((int)Options.MainSplitSizes[0])">
-			<PDSplitter Direction="SplitDirection.Horizontal">
+		<!-- Top: toolbar and editor -->
+		<PDSplitPanel Size="@((int)Options.MainSplitSizes[0])" CssClass="pd-studio-editor-panel">
+			<div class="pd-studio-editor-wrapper">
+				@if (Options.ShowMenu || Options.ShowToolbar)
+				{
+					<PDToolbar ButtonSize="@Options.ButtonSize" CssClass="pd-studio-toolbar">
 
-				<!-- Left Section: Editor with Toolbar -->
-				<PDSplitPanel Size="@((int)Options.TopSplitSizes[0])" CssClass="pd-studio-editor-panel">
-					<div class="pd-studio-editor-wrapper">
-						<!-- Combined Menu and Execution Toolbar -->
-						@if (Options.ShowMenu || Options.ShowToolbar)
+						@ToolbarStartContent
+
+						@if (Options.ShowToolbar)
 						{
-							<PDToolbar ButtonSize="ButtonSizes.Small" CssClass="pd-studio-toolbar">
-								
-								<!-- Menu Items (if enabled) -->
-								@if (Options.ShowMenu)
+							<PDToolbarGroup ItemCssClass="pd-studio-execute-group" Label="@Options.ExecuteButtonText">
+								<PDToolbarButton Key="play"
+												 Text="@(IsPlayCancel ? Options.CancelButtonText : Options.ExecuteButtonText)"
+												 IconCssClass="@(IsPlayCancel ? Options.CancelButtonIconCssClass : Options.ExecuteButtonIconCssClass)"
+												 CssClass="@PlayCssClass"
+												 Size="@Options.ButtonSize"
+												 TextCssClass="@Options.ButtonTextCssClass"
+												 ToolTip="@(IsPlayCancel ? Options.CancelButtonText : Options.ExecuteButtonToolTip ?? Options.ExecuteButtonText)"
+												 IsEnabled="@IsPlayEnabled"
+												 Click="OnPlayCancelClick"
+												 ShortcutKey="@_executeShortcut" />
+								@if (ExecuteMenuItems is { Count: > 0 })
 								{
-									<PDToolbarDropdown Text="File" IconCssClass="fas fa-file" Click="OnFileMenuClick">
-										<PDMenuItem Text="New" Key="New" ShortcutKey="@(ShortcutKey.Create("ctrl-n"))" />
-										<PDMenuItem Text="Load Example 1" Key="LoadExample1" />
-										<PDMenuItem Text="Load Example 2" Key="LoadExample2" />
-										<PDMenuItem IsSeparator="true" />
-										<PDMenuItem Text="Open" Key="Open" ShortcutKey="@(ShortcutKey.Create("ctrl-o"))" IsDisabled="true" />
-										<PDMenuItem Text="Save" Key="Save" ShortcutKey="@(ShortcutKey.Create("ctrl-s"))" IsDisabled="true" />
-									</PDToolbarDropdown>
-									<PDToolbarDropdown Text="Logging" IconCssClass="fas fa-list" Click="OnLoggingMenuClick">
-										<PDMenuItem Text="Debug" Key="Debug" />
-										<PDMenuItem Text="Info" Key="Info" />
-										<PDMenuItem Text="Warning" Key="Warning" />
-										<PDMenuItem Text="Error" Key="Error" />
-									</PDToolbarDropdown>
+									<PDToolbarDropdown Key="execute-menu"
+													   CssClass="@ExecuteMenuCssClass"
+													   Size="@Options.ButtonSize"
+													   ToolTip="@(ExecuteMenuToolTip ?? string.Empty)"
+													   IsEnabled="@IsPlayEnabled"
+													   Items="@ExecuteMenuItems"
+													   Click="ExecuteMenuClick" />
 								}
-
-								<!-- Separator between menu and execution buttons (if both are shown) -->
-								@if (Options.ShowMenu && Options.ShowToolbar)
+								@ExecuteGroupContent
+								@if (Options.ShowCancelButton)
 								{
-									<PDToolbarSeparator />
+									<PDToolbarButton Key="cancel"
+													 Text="@Options.CancelButtonText"
+													 IconCssClass="@Options.CancelButtonIconCssClass"
+													 CssClass="@Options.CancelButtonCssClass"
+													 Size="@Options.ButtonSize"
+													 TextCssClass="@Options.ButtonTextCssClass"
+													 ToolTip="@Options.CancelButtonText"
+													 IsEnabled="@_isExecuting"
+													 Click="CancelExecution" />
 								}
-
-								<!-- Execution Buttons (if enabled) -->
-								@if (Options.ShowToolbar)
-								{
-									<PDToolbarButton Key="play"
-													 Text="@(_isExecuting ? "Cancel" : "Execute")"
-													 IconCssClass="@(_isExecuting ? "fas fa-stop" : "fas fa-play")"
-													 CssClass="@(_isExecuting ? "btn-danger" : "btn-success")"
-													 Click="OnPlayCancelClick"
-													 ShortcutKey="@_executeShortcut" />
-
-									<!-- Custom Toolbar Content -->
-									@if (EditorToolbarContent != null)
-									{
-										<PDToolbarSeparator />
-										@EditorToolbarContent
-									}
-								}
-
-							</PDToolbar>
+							</PDToolbarGroup>
 						}
 
-						<!-- Monaco Editor Container -->
-						<div class="pd-studio-editor-container">
-							<PDMonacoEditor @ref="EditorRef"
-											Language="@Options.Language"
-											Theme="@Options.Theme"
-											Value="@_currentCode"
-											ValueChanged="OnCodeChanged"
-											InitializeOptions="@GetMonacoInitializer"
-											InitializeCache="@InitializeMethodCache"
-											RegisterLanguages="@RegisterLanguages"
-											InitializeLanguageAsync="@InitializeLanguageAsync"
-											UpdateCacheAsync="@UpdateMethodCacheAsync" />
+						@* No separator between the groups: a separator wrapping on its own leaves a gap in a narrow toolbar *@
+						@if (HasMenuButtons)
+						{
+							<PDToolbarGroup ItemCssClass="pd-studio-menu-group" Label="@Options.NewButtonText">
+								@if (Options.ShowMenu && Options.ShowNewButton)
+								{
+									<PDToolbarButton Key="new"
+													 Text="@Options.NewButtonText"
+													 IconCssClass="@Options.NewButtonIconCssClass"
+													 CssClass="@Options.NewButtonCssClass"
+													 Size="@Options.ButtonSize"
+													 TextCssClass="@Options.ButtonTextCssClass"
+													 Click="NewAsync" />
+								}
+								@if (Options.ShowMenu && CurrentExamples.Count > 0)
+								{
+									<PDToolbarDropdown Text="@Options.ExamplesButtonText"
+													   IconCssClass="@Options.ExamplesButtonIconCssClass"
+													   CssClass="@Options.ExamplesButtonCssClass"
+													   Size="@Options.ButtonSize"
+													   TextCssClass="@Options.ButtonTextCssClass"
+													   Items="@ExampleMenuItems()"
+													   Click="OnExampleClick" />
+								}
+								@MenuGroupContent
+							</PDToolbarGroup>
+						}
 
-							<!-- Execution Overlay -->
-							@if (_isExecuting && !Options.IsEditingEnabledDuringExecution)
-							{
-								<div class="pd-studio-editor-overlay">
-									<div class="spinner-border" role="status">
-										<span class="visually-hidden">Executing...</span>
-									</div>
-								</div>
-							}
+						@* The host adds its own separator if it wants one *@
+						@EditorToolbarContent
+
+						@if (ToolbarEndContent != null)
+						{
+							<div class="pd-studio-toolbar-end">@ToolbarEndContent</div>
+						}
+
+					</PDToolbar>
+				}
+
+				<div class="pd-studio-editor-container" hidden="@(EditorContent is not null)">
+					<PDMonacoEditor @ref="EditorRef"
+									Language="@Options.Language"
+									Theme="@Options.Theme"
+									Value="@_currentCode"
+									ValueChanged="OnCodeChanged"
+									InitializeOptions="@GetMonacoInitializer"
+									InitializeCache="@InitializeMethodCache"
+									RegisterLanguages="@RegisterLanguages"
+									InitializeLanguageAsync="@InitializeLanguageAsync"
+									UpdateCacheAsync="@UpdateMethodCacheAsync" />
+
+					@if (_isExecuting && !Options.IsEditingEnabledDuringExecution)
+					{
+						<div class="pd-studio-editor-overlay">
+							<div class="spinner-border" role="status">
+								<span class="visually-hidden">Executing...</span>
+							</div>
 						</div>
-					</div>
-				</PDSplitPanel>
+					}
+				</div>
 
-				<!-- Right Section: Results -->
-				<PDSplitPanel Size="@((int)Options.TopSplitSizes[1])">
-					<PDStudioResults @ref="ResultsRef"
-									 Content="@_resultsContent"
-									 IsExecuting="@_isExecuting"
-									 ExecutionStatus="@_executionStatus"
-									 ShowStatusBar="@Options.ShowStatusBar" />
-				</PDSplitPanel>
-
-			</PDSplitter>
+				@if (EditorContent is not null)
+				{
+					<div class="pd-studio-editor-content">@EditorContent</div>
+				}
+			</div>
 		</PDSplitPanel>
 
-		<!-- Bottom Panel: PDLog Component -->
-		<PDSplitPanel Size="@(Options.IsLoggingVisible ? (int)Options.MainSplitSizes[1] : 0)">
+		<!-- Bottom: Results and Messages tabs -->
+		<PDSplitPanel Size="@((int)Options.MainSplitSizes[1])" CssClass="pd-studio-output-panel">
+			<div class="pd-studio-tabs" role="tablist">
+				@if (Options.ShowResultsTab)
+				{
+					<button type="button" role="tab" class="@TabCssClass(_resultsTab)" aria-selected="@AriaSelected(_resultsTab)" title="@Options.ResultsTabToolTip" @onclick="() => SelectTab(_resultsTab)">
+						@Options.ResultsTabTitle
+						@if (!string.IsNullOrWhiteSpace(Options.ResultsTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.ResultsTabIconCssClass)" aria-hidden="true"></i> }
+					</button>
+				}
+				@if (Options.IsLoggingVisible && !Options.MessagesTabLast)
+				{
+					@MessagesTab
+				}
+				@foreach (var tab in OutputTabs)
+				{
+					<button type="button" role="tab" class="@TabCssClass(tab.Key)" aria-selected="@AriaSelected(tab.Key)" title="@tab.ToolTip" @onclick="() => SelectTab(tab.Key)">
+						@tab.Title
+						@if (!string.IsNullOrWhiteSpace(tab.IconCssClass)) { <i class="pd-studio-tab-icon @(tab.IconCssClass)" aria-hidden="true"></i> }
+						@if (tab.Badge is { } badge)
+						{
+							@if (string.IsNullOrEmpty(badge.Text))
+							{
+								<span class="@BadgeCssClass(badge)" title="@badge.ToolTip" role="img" aria-label="@badge.ToolTip"></span>
+							}
+							else
+							{
+								<span class="@BadgeCssClass(badge)" title="@badge.ToolTip">@badge.Text</span>
+							}
+						}
+					</button>
+				}
+				@if (Options.IsLoggingVisible && Options.MessagesTabLast)
+				{
+					@MessagesTab
+				}
+			</div>
+
+			@if (Options.ShowResultsTab)
+			{
+				<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(_resultsTab))">
+					<PDStudioResults @ref="ResultsRef"
+									 Content="@_resultsContent"
+									 ResultSet="@_resultSet"
+									 IsExecuting="@_isExecuting"
+									 ExecutionStatus="@_executionStatus"
+									 ShowStatusBar="@Options.ShowStatusBar"
+									 IsDark="@Options.Theme.Contains("dark", StringComparison.OrdinalIgnoreCase)"
+									 StyleSheet="@Options.ResultsStyleSheet"
+									 PlaceholderText="@Options.ResultsPlaceholderText"
+									 OnResultRowClick="@OnResultRowClick" />
+				</div>
+			}
+
 			@if (Options.IsLoggingVisible)
 			{
-				<PDLog @ref="LogComponent"
-					   ShowTimestamp="true"
-					   ShowIcon="true"
-					   WordWrap="true" />
+				<div class="pd-studio-tab-panel pd-studio-messages" role="tabpanel" hidden="@(!IsTabActive(_messagesTab))">
+					<div class="pd-studio-messages-toolbar">
+						<select class="form-select form-select-sm pd-studio-messages-level @Options.MessagesFilterCssClass" aria-label="Message level" value="@MessageLevelValue" @onchange="OnMessageLevelChanged">
+							<option value="@LogLevel.Trace">All levels</option>
+							<option value="@LogLevel.Information">Information and above</option>
+							<option value="@LogLevel.Warning">Warnings and errors</option>
+							<option value="@LogLevel.Error">Errors</option>
+						</select>
+						<input type="search" class="form-control form-control-sm pd-studio-messages-search @Options.MessagesFilterCssClass" placeholder="Filter messages" aria-label="Filter messages" @bind="MessageSearch" @bind:event="oninput" />
+						<button type="button" class="btn btn-sm btn-secondary pd-studio-messages-clear" @onclick="ClearMessages">Clear</button>
+					</div>
+					<div class="pd-studio-messages-list">
+						@{ var shown = FilteredMessages.ToList(); }
+						@foreach (var message in shown)
+						{
+							<div class="pd-studio-message @LevelCssClass(message)">
+								<span class="pd-studio-message-time">@message.Timestamp.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
+								<i class="@LevelIcon(message)" aria-hidden="true"></i>
+								<span class="pd-studio-message-level">@LevelName(message)</span>
+								<span class="pd-studio-message-text">@message.Text</span>
+							</div>
+						}
+						@if (shown.Count == 0)
+						{
+							<div class="pd-studio-messages-empty">@(_messages.Count == 0 ? "No messages" : "No messages match the filter")</div>
+						}
+					</div>
+				</div>
 			}
-			else
+
+			@foreach (var tab in OutputTabs)
 			{
-				<div style="height: 0; min-height: 0; overflow: hidden; display: none;"></div>
+				<div class="pd-studio-tab-panel" role="tabpanel" hidden="@(!IsTabActive(tab.Key))">
+					@tab.Content
+				</div>
 			}
 		</PDSplitPanel>
 
 	</PDSplitter>
+	</div>
+	</div>
+
+	@if (FooterContent != null)
+	{
+		<div class="pd-studio-footer">@FooterContent</div>
+	}
 </div>
+
+@code {
+	// Before the host's own tabs, or after them with Options.MessagesTabLast
+	private RenderFragment MessagesTab => @<button type="button" role="tab" class="@TabCssClass(_messagesTab)" aria-selected="@AriaSelected(_messagesTab)" title="@Options.MessagesTabToolTip" @onclick="() => SelectTab(_messagesTab)">
+		@Options.MessagesTabTitle
+		@if (!string.IsNullOrWhiteSpace(Options.MessagesTabIconCssClass)) { <i class="pd-studio-tab-icon @(Options.MessagesTabIconCssClass)" aria-hidden="true"></i> }
+		@if (_messages.Count > 0)
+		{
+			<span class="@MessagesBadgeCssClass">@MessagesBadgeText</span>
+		}
+	</button>;
+}

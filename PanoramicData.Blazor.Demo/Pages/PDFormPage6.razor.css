@@ -1,0 +1,35 @@
+﻿/* Each switch on the page sets one group of the form's colour variables; they inherit into the form */
+.form-colours-demo.neutral-labels {
+	--pd-form-title-error-bg: var(--bs-tertiary-bg);
+	--pd-form-title-error-color: var(--bs-body-color);
+}
+
+.form-colours-demo.label-edges {
+	--pd-form-title-edge-width: 4px;
+	--pd-form-title-required-edge-color: var(--bs-warning);
+	--pd-form-title-invalid-edge-color: var(--bs-danger);
+}
+
+.form-colours-demo.quiet-status {
+	--pd-form-status-valid-bg: var(--bs-tertiary-bg);
+	--pd-form-status-valid-color: var(--bs-secondary-color);
+	--pd-form-status-required-bg: var(--bs-tertiary-bg);
+	--pd-form-status-required-color: var(--bs-warning-text-emphasis);
+	--pd-form-status-invalid-bg: var(--bs-tertiary-bg);
+	--pd-form-status-invalid-color: var(--bs-danger-text-emphasis);
+}
+
+.form-colours-demo.muted-helpers {
+	--pd-form-helper-color: var(--bs-secondary-color);
+}
+
+.form-colours-demo.footer-box {
+	--pd-form-footer-error-color: var(--bs-body-color);
+	--pd-form-footer-error-icon-color: var(--bs-danger);
+	--pd-form-footer-error-bg: var(--bs-body-bg);
+	--pd-form-footer-error-border-width: 1px 1px 1px 4px;
+	--pd-form-footer-error-border-color: var(--bs-border-color);
+	--pd-form-footer-error-edge-color: var(--bs-danger);
+	--pd-form-footer-error-padding: 0.375rem 0.75rem;
+	--pd-form-footer-error-radius: 0.375rem;
+}

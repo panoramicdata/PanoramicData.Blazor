@@ -27,8 +27,23 @@ public partial class Test : IAsyncDisposable
 	{
 		if (JSRuntime != null)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/Test.razor.js");
-			await _module.InvokeVoidAsync("init").ConfigureAwait(true);
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/Test.razor.js");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
+			try
+			{
+				await _module.InvokeVoidAsync("init").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 }

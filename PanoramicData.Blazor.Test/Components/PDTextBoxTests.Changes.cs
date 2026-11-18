@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -22,19 +23,59 @@ public partial class PDTextBoxTests
 		_changes.Should().Equal("typed", string.Empty);
 	}
 
-	/// <summary>With a debounce, a change event is ignored because the JS debounce reports the value instead.</summary>
+	/// <summary>With a debounce, a change event (leaving the box or pressing Enter) reports the value without waiting for the debounce.</summary>
 	[Fact]
-	public void Change_WithDebounce_IsIgnored()
+	public async Task Change_WithDebounce_ReportsTheValueAtOnce()
 	{
-		var component = Render<PDTextBox>(parameters => parameters
-			.Add(p => p.DebounceWait, 300)
-			.Add(p => p.ValueChanged, (string v) => _changes.Add(v)));
+		var component = RenderDebounced();
 
-		component.Find("input").Change("typed");
+		await component.Find("input").ChangeAsync(new ChangeEventArgs { Value = "typed" });
 
-		_changes.Should().BeEmpty();
-		component.Instance.Value.Should().BeEmpty();
+		_changes.Should().Equal("typed");
+		component.Instance.Value.Should().Be("typed");
 	}
+
+	/// <summary>The debounced report of typing a change event has already reported is skipped, but later typing is reported.</summary>
+	[Fact]
+	public async Task DebouncedInput_OfTypingAChangeReported_IsSkipped()
+	{
+		var component = RenderDebounced();
+
+		await component.Find("input").ChangeAsync(new ChangeEventArgs { Value = "typed" });
+		await component.InvokeAsync(() => component.Instance.OnDebouncedInput("typed"));
+		await component.InvokeAsync(() => component.Instance.OnDebouncedInput("typed more"));
+
+		_changes.Should().Equal("typed", "typed more");
+	}
+
+	/// <summary>A change to the value the debounce has already reported is not reported again.</summary>
+	[Fact]
+	public async Task Change_ToTheValueTheDebounceReported_IsNotReportedAgain()
+	{
+		var component = RenderDebounced();
+
+		await component.InvokeAsync(() => component.Instance.OnDebouncedInput("typed"));
+		await component.Find("input").ChangeAsync(new ChangeEventArgs { Value = "typed" });
+
+		_changes.Should().Equal("typed");
+	}
+
+	/// <summary>Once the parent has replaced the value, a change back to what the debounce reported is reported again.</summary>
+	[Fact]
+	public async Task Change_AfterTheParentReplacedTheValue_IsReported()
+	{
+		var component = RenderDebounced();
+
+		await component.InvokeAsync(() => component.Instance.OnDebouncedInput("typed"));
+		component.Render(parameters => parameters.Add(p => p.Value, "replaced"));
+		await component.Find("input").ChangeAsync(new ChangeEventArgs { Value = "typed" });
+
+		_changes.Should().Equal("typed", "typed");
+	}
+
+	private IRenderedComponent<PDTextBox> RenderDebounced() => Render<PDTextBox>(parameters => parameters
+		.Add(p => p.DebounceWait, 300)
+		.Add(p => p.ValueChanged, (string v) => _changes.Add(v)));
 
 	/// <summary>A debounce registers the input with the common JS module, which then reports the value.</summary>
 	[Fact]

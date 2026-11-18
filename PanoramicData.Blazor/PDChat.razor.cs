@@ -55,8 +55,8 @@ public partial class PDChat : JSModuleComponentBase
 	/// </summary>
 	private ChatFormContext FormContext => _formContext ??= new ChatFormContext
 	{
-		OnSubmitted = OnFormSubmittedAsync,
-		OnDismissed = OnFormDismissedAsync
+		OnSubmitted = Guarded<ChatFormSubmission>(OnFormSubmittedAsync, nameof(OnFormSubmittedAsync)),
+		OnDismissed = Guarded<Guid>(OnFormDismissedAsync, nameof(OnFormDismissedAsync))
 	};
 
 	private ChatFormContext? _formContext;
@@ -75,10 +75,24 @@ public partial class PDChat : JSModuleComponentBase
 	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
 
 	/// <summary>
-	/// Gets or sets the icon to display when the chat window is collapsed.
+	/// Gets or sets text, such as an emoji, shown on the minimised chat's button in place of <see cref="PDChatIcons.Launcher"/>.
 	/// </summary>
 	[Parameter]
-	public string CollapsedIcon { get; set; } = "💬";
+	public string? CollapsedIcon { get; set; }
+
+	/// <summary>
+	/// Gets or sets the CSS classes of the header's and toolbar's icons. Font Awesome by default.
+	/// </summary>
+	[Parameter]
+	public PDChatIcons Icons { get; set; } = new();
+
+	/// <summary>
+	/// Gets or sets the key that, pressed with Alt while focus is in the chat, cycles Voice Mode through Mic off and its
+	/// modes. A KeyboardEvent.code such as "KeyM", so it is the same physical key on every layout. Null, the default,
+	/// offers no shortcut.
+	/// </summary>
+	[Parameter]
+	public string? VoiceModeShortcutKey { get; set; }
 
 	/// <summary>
 	/// A function to select a user icon for a given message.
@@ -241,56 +255,48 @@ public partial class PDChat : JSModuleComponentBase
 	private void RequestRender() => _ = InvokeAsync(StateHasChanged);
 
 	private void OnServiceDockModeChanged(PDChatDockMode newDockMode)
-		=> _ = ChangeDockModeAsync(newDockMode);
+		=> RunServiceEvent(() => ChangeDockModeAsync(newDockMode), nameof(IChatService.OnDockModeChanged));
 
 	private void OnServiceMuteStatusChanged(bool isMuted)
-	{
-		// Sync local mute state with service
-		_isMuted = isMuted;
-		RequestRender();
-	}
+		=> RunServiceEvent(() =>
+		{
+			_isMuted = isMuted;
+			StateHasChanged();
+			return Task.CompletedTask;
+		}, nameof(IChatService.OnMuteStatusChanged));
 
 	// Configuration changed, trigger UI update and ensure parameters are synchronized
 	private void OnServiceConfigurationChanged() => RequestRender();
 
-	// This is an async void method because it is a synchronous event handler for
-	// ChatService.OnMessageReceived. Exceptions thrown here cannot be observed by the caller and
-	// would otherwise be posted to the renderer's synchronization context, surfacing as Blazor's
-	// "An unhandled error has occurred". During circuit teardown (page navigation or a dropped
-	// WebSocket) the JS interop calls below throw TaskCanceledException / JSDisconnectedException,
-	// so those teardown exceptions are swallowed here rather than crashing the circuit. See MS-24383.
-	private async void OnMessageReceived(ChatMessage message)
-	{
-		try
-		{
-			await OnMessageReceivedAsync(message);
-		}
-		catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException or ObjectDisposedException)
-		{
-			// Expected when the Blazor circuit / JS runtime is being torn down; nothing to do.
-		}
-	}
+	// MS-24383 Teardown exceptions from the JS calls below are expected while the circuit goes away.
+	private void OnMessageReceived(ChatMessage message)
+		=> RunServiceEvent(() => OnMessageReceivedAsync(message), nameof(IChatService.OnMessageReceived));
 
 	private async Task OnMessageReceivedAsync(ChatMessage message)
 	{
 		var isNewMessage = UpsertMessage(message);
 
-		await SpeakAnswerIfAwaitedAsync(message);
-
-		// Emit OnMessageReceived event for new messages
-		if (isNewMessage && OnMessageReceivedEvent.HasDelegate)
+		// The message is shown whatever fails after this.
+		try
 		{
-			await OnMessageReceivedEvent.InvokeAsync(message);
-		}
+			await SpeakAnswerIfAwaitedAsync(message);
 
-		if (ChatService.DockMode == PDChatDockMode.Minimized)
+			if (isNewMessage && OnMessageReceivedEvent.HasDelegate)
+			{
+				await RunGuardedAsync(() => OnMessageReceivedEvent.InvokeAsync(message), nameof(OnMessageReceivedEvent));
+			}
+
+			if (ChatService.DockMode == PDChatDockMode.Minimized)
+			{
+				await OnMessageReceivedWhileMinimizedAsync(message, isNewMessage);
+			}
+
+			await PlaySoundAsync(message);
+		}
+		finally
 		{
-			await OnMessageReceivedWhileMinimizedAsync(message, isNewMessage);
+			StateHasChanged();
 		}
-
-		await PlaySoundAsync(message);
-
-		await InvokeAsync(StateHasChanged);
 	}
 
 	/// <summary>
@@ -327,6 +333,7 @@ public partial class PDChat : JSModuleComponentBase
 		// and Thoughts once.
 		existing.Form = message.Form;
 		existing.FormSubmission = message.FormSubmission;
+		existing.SpokenMessage = message.SpokenMessage;
 
 		return false;
 	}
@@ -523,19 +530,12 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task SendCurrentMessageAsync()
 	{
-		if (string.IsNullOrWhiteSpace(_currentInput))
+		if (!HasSendableInput)
 		{
 			return;
 		}
 
-		var message = new ChatMessage
-		{
-			Id = Guid.NewGuid(),
-			Message = _currentInput,
-			Sender = User,
-			Type = MessageType.Normal,
-			Timestamp = DateTime.UtcNow
-		};
+		var message = CreateOutgoingMessage();
 
 		// Before sending, so a reply that arrives at once is still the one spoken.
 		await BeginSpokenExchangeAsync();
@@ -549,14 +549,40 @@ public partial class PDChat : JSModuleComponentBase
 			await OnMessageSent.InvokeAsync(message);
 		}
 
-		// Clear input locally
-		_currentInput = string.Empty;
-
-		// Clear the PDMessages component's textarea
-		MessagesComponent?.ClearInput();
+		ClearSentInput();
 	}
 
-	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
+	private bool HasSendableInput
+		=> !(ChatService.ImageInputBlockedReason is not null && HasPendingImages)
+		&& (!string.IsNullOrWhiteSpace(_currentInput) || HasPendingImages);
+
+	private ChatMessage CreateOutgoingMessage() => new()
+	{
+		Id = Guid.NewGuid(),
+		Message = _currentInput,
+		Images = HasPendingImages ? [.. _pendingImages] : null,
+		Sender = User,
+		Type = MessageType.Normal,
+		Timestamp = DateTime.UtcNow
+	};
+
+	private void ClearSentInput()
+	{
+		_currentInput = string.Empty;
+		_pendingImages = [];
+		MessagesComponent?.ClearInput();
+		MessagesComponent?.ClearImages();
+	}
+
+	private List<ChatImage> _pendingImages = [];
+
+	private bool HasPendingImages => ChatService.IsImageInputOffered && _pendingImages.Count > 0;
+
+	private void OnImagesChanged(List<ChatImage> images) => _pendingImages = images;
+
+	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive
+		&& (ChatService.ImageInputBlockedReason is null || !HasPendingImages)
+		&& (!string.IsNullOrWhiteSpace(_currentInput) || HasPendingImages);
 
 	private void OnTabAdded()
 	{
@@ -590,9 +616,7 @@ public partial class PDChat : JSModuleComponentBase
 	/// <inheritdoc />
 	public override async ValueTask DisposeAsync()
 	{
-		await DisposeVoiceAsync();
-
-		// Clean up event handlers
+		// Unsubscribed first, so a failure releasing the microphone cannot leave a singleton service holding this chat.
 		ChatService.OnMessageReceived -= OnMessageReceived;
 
 		if (ChatService.SupportsConversations)
@@ -603,6 +627,8 @@ public partial class PDChat : JSModuleComponentBase
 		ChatService.OnDockModeChanged -= OnServiceDockModeChanged;
 		ChatService.OnMuteStatusChanged -= OnServiceMuteStatusChanged;
 		ChatService.OnConfigurationChanged -= OnServiceConfigurationChanged;
+
+		await RunGuardedAsync(() => DisposeVoiceAsync().AsTask(), nameof(DisposeVoiceAsync));
 
 		// Clean up toast timers
 		ClearToasts();

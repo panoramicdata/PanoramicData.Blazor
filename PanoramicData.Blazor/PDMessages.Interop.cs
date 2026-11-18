@@ -20,33 +20,54 @@ public partial class PDMessages : IAsyncDisposable
 	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && !await ImportModuleAsync().ConfigureAwait(true))
 		{
-			_module =
-				await JSRuntime.InvokeAsync<IJSObjectReference>(
-					"import",
-					"./_content/PanoramicData.Blazor/PDMessages.razor.js")
-				.ConfigureAwait(true);
+			return;
 		}
 
 		await ScrollToBottomAsync();
 
 		if (!_enterHandlerAttached && _module is not null && InputRef.Context != null)
 		{
-			try
+			await AttachHandlersAsync(_module).ConfigureAwait(true);
+		}
+	}
+
+	private async Task<bool> ImportModuleAsync()
+	{
+		try
+		{
+			_module =
+				await JSRuntime.InvokeAsync<IJSObjectReference>(
+					"import",
+					"./_content/PanoramicData.Blazor/PDMessages.razor.js")
+				.ConfigureAwait(true);
+			return true;
+		}
+		catch (Exception ex) when (ex is JSException or JSDisconnectedException or OperationCanceledException)
+		{
+			// Without the module the messages still show; scrolling, Enter to send and images do not work.
+			return false;
+		}
+	}
+
+	private async Task AttachHandlersAsync(IJSObjectReference module)
+	{
+		try
+		{
+			_dotNetRef ??= DotNetObjectReference.Create(this);
+			await module.InvokeVoidAsync("attachEnterHandler", InputRef, _dotNetRef);
+			await module.InvokeVoidAsync("attachImageHandlers", InputRef, _dotNetRef);
+			await module.InvokeVoidAsync("attachFocusModality", InputRef);
+			_enterHandlerAttached = true;
+			if (IsInputAutoFocused)
 			{
-				_dotNetRef ??= DotNetObjectReference.Create(this);
-				await _module.InvokeVoidAsync("attachEnterHandler", InputRef, _dotNetRef);
-				_enterHandlerAttached = true;
-				if (IsInputAutoFocused)
-				{
-					await InputRef.FocusAsync();
-				}
+				await InputRef.FocusAsync();
 			}
-			catch (Exception)
-			{
-				// Ignore JS errors if the module or element is not yet available; will retry on next render
-			}
+		}
+		catch (Exception)
+		{
+			// Ignore JS errors if the module or element is not yet available; will retry on next render
 		}
 	}
 
@@ -60,6 +81,8 @@ public partial class PDMessages : IAsyncDisposable
 			if (_module is not null && InputRef.Context != null)
 			{
 				await _module.InvokeVoidAsync("detachEnterHandler", InputRef);
+				await _module.InvokeVoidAsync("detachImageHandlers", InputRef);
+				await _module.InvokeVoidAsync("detachFocusModality", InputRef);
 			}
 		}
 		catch (Exception)

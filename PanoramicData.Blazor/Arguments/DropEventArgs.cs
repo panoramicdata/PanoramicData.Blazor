@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Arguments;
+namespace PanoramicData.Blazor.Arguments;
 
 /// <summary>
 /// The DropEventArgs class provides information for PDDragContext events.
@@ -17,6 +17,7 @@ public class DropEventArgs
 		Payload = payload;
 		Ctrl = ctrl;
 		Before = null;
+		Position = DropPosition.Into;
 	}
 
 	/// <summary>
@@ -32,6 +33,33 @@ public class DropEventArgs
 		Payload = payload;
 		Ctrl = ctrl;
 		Before = before;
+		Position = before switch
+		{
+			true => DropPosition.Before,
+			false => DropPosition.After,
+			null => DropPosition.Into
+		};
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the DropEventArgs class with the drop position.
+	/// </summary>
+	/// <param name="target">Details on where the drop occurred.</param>
+	/// <param name="payload">Payload of the drop.</param>
+	/// <param name="ctrl">Was the control key pressed during the drop?</param>
+	/// <param name="position">Whether the item was dropped before, after or into the target; <see cref="Before"/> is set to match.</param>
+	public DropEventArgs(object? target, object? payload, bool ctrl, DropPosition position)
+	{
+		Target = target;
+		Payload = payload;
+		Ctrl = ctrl;
+		Position = position;
+		Before = position switch
+		{
+			DropPosition.Before => true,
+			DropPosition.After => false,
+			_ => null
+		};
 	}
 
 	/// <summary>
@@ -53,4 +81,10 @@ public class DropEventArgs
 	/// Gets whether the drop operation is before (true), after (false) or not relevant (null) to the Node specified.
 	/// </summary>
 	public bool? Before { get; }
+
+	/// <summary>
+	/// Gets whether the drop was before, after or into the target. It agrees with <see cref="Before"/>:
+	/// <see cref="DropPosition.Into"/> is a <c>null</c> <see cref="Before"/>.
+	/// </summary>
+	public DropPosition Position { get; }
 }

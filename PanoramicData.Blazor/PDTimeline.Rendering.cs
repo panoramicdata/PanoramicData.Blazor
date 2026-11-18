@@ -18,6 +18,25 @@ public partial class PDTimeline
 		return max;
 	}
 
+	/// <summary>The value shown by the maximum label: the configured maximum, or the untransformed total of the tallest bar.</summary>
+	private double GetMaxLabelValue(DataPoint[] points)
+	{
+		if (Options.YAxis.MaxValue.HasValue)
+		{
+			return Options.YAxis.MaxValue.Value;
+		}
+
+		var tallest = points
+			.Where(x => x != null && x.SeriesValues.Length > 0)
+			.MaxBy(x => x.SeriesValues.Sum(y => YValueTransform(y)));
+		return tallest?.SeriesValues.Sum() ?? 0;
+	}
+
+	private string FormatMaxLabel(double value) => value.ToString(Options.YAxis.MaxValueFormat, CultureInfo.CurrentCulture);
+
+	/// <summary>The Y pixel of a plotted value, where <paramref name="axisMax"/> is at the top of the plot.</summary>
+	private double PlotY(double value, double axisMax) => _canvasHeight - (value / axisMax * _canvasHeight);
+
 	private DataPoint[] GetViewPortDataPoints()
 	{
 		var points = new DataPoint[_viewportColumns];
@@ -59,6 +78,53 @@ public partial class PDTimeline
 	/// </summary>
 	public static class Utilities
 	{
+		/// <summary>
+		/// Gets gridline values below a maximum, at the smallest round step (1, 2 or 5 times a power of ten) that
+		/// gives no more than <paramref name="maxLines"/> lines.
+		/// </summary>
+		/// <param name="max">Value at the top of the axis.</param>
+		/// <param name="maxLines">Most lines to return.</param>
+		/// <returns>Ascending values strictly between zero and <paramref name="max"/>; empty when either argument is not positive.</returns>
+		public static double[] GridLineValues(double max, int maxLines)
+		{
+			if (maxLines <= 0 || !double.IsFinite(max) || max <= 0)
+			{
+				return [];
+			}
+
+			var step = RoundStep(max / maxLines);
+			var values = new List<double>();
+			for (var i = 1; i <= maxLines; i++)
+			{
+				var value = i * step;
+				if (value >= max * (1 - 1e-9))
+				{
+					break;
+				}
+
+				values.Add(value);
+			}
+
+			return [.. values];
+		}
+
+		private static double RoundStep(double rough)
+		{
+			var magnitude = Math.Pow(10, Math.Floor(Math.Log10(rough)));
+			var normalised = rough / magnitude;
+			if (normalised <= 1)
+			{
+				return magnitude;
+			}
+
+			if (normalised <= 2)
+			{
+				return 2 * magnitude;
+			}
+
+			return normalised <= 5 ? 5 * magnitude : 10 * magnitude;
+		}
+
 		/// <summary>
 		/// Builds an SVG arc path between two angles.
 		/// </summary>

@@ -34,6 +34,7 @@ public partial class PDChatTests
 		public bool ShowMessageUserName { get; set; } = true;
 		public bool ShowMessageTimestamp { get; set; } = true;
 		public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
+		public ChatProgressDisplayMode ProgressDisplayMode { get; set; } = ChatProgressDisplayMode.List;
 
 		[Obsolete("Required by the interface for backward compatibility; superseded by the toast API.")]
 		public bool ShowLastMessage { get; set; }
@@ -58,6 +59,10 @@ public partial class PDChatTests
 		public IReadOnlyList<PDChatAgentOption>? Agents { get; set; }
 		public PDChatPickerAction? AgentPickerAction { get; set; }
 		public IReadOnlyList<PDChatModelOption>? Models { get; set; }
+		public string? AnsweringModelName { get; set; }
+		public string? AnsweringModelDescription { get; set; }
+		public bool IsImageInputOffered { get; set; }
+		public string? ImageInputBlockedReason { get; set; }
 
 		public IReadOnlyList<ChatMessage> Messages => Store;
 		public bool SupportsConversations { get; init; }
@@ -66,7 +71,17 @@ public partial class PDChatTests
 		public IReadOnlyList<ChatMessage> GetMessages(Guid conversationId)
 			=> ConversationStore.TryGetValue(conversationId, out var messages) ? messages : [];
 
-		public void SendMessage(ChatMessage chatMessage) => Sent.Add(chatMessage);
+		public Exception? SendFailure { get; set; }
+
+		public void SendMessage(ChatMessage chatMessage)
+		{
+			if (SendFailure is not null)
+			{
+				throw SendFailure;
+			}
+
+			Sent.Add(chatMessage);
+		}
 
 		public void SendMessage(Guid conversationId, ChatMessage chatMessage)
 		{

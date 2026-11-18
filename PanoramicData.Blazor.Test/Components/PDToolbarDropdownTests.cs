@@ -34,6 +34,12 @@ public class PDToolbarDropdownTests : BunitContext
 			configure?.Invoke(parameters);
 		});
 
+	/// <summary>Verifies that the dropdown's tooltip reaches its button.</summary>
+	[Fact]
+	public void The_tooltip_is_shown_on_the_button()
+		=> RenderDropdown(StandardItems(), p => p.Add(x => x.ToolTip, "Open or save files"))
+			.Find("button.dropdown-toggle").GetAttribute("title").Should().Be("Open or save files");
+
 	private static List<MenuItem> StandardItems() =>
 	[
 		new MenuItem { Key = "open", Text = "Open", IconCssClass = "fas fa-folder", ShortcutKey = ShortcutKey.Create("ctrl-o") },
@@ -60,6 +66,21 @@ public class PDToolbarDropdownTests : BunitContext
 		component.Find("b.custom").TextContent.Should().Be("Custom");
 		component.Find("span.fas.fa-folder").Should().NotBeNull();
 		component.Markup.Should().Contain("Ctrl-O");
+	}
+
+	/// <summary>
+	/// Verifies that items keep an icon space, blank where an item has none, so text lines up when any item has an
+	/// icon, and that a menu with no icons at all has no icon space, which would only indent the text.
+	/// </summary>
+	[Fact]
+	public void IconSpace_IsKeptOnlyWhenSomeItemHasAnIcon()
+	{
+		var withIcons = RenderDropdown(StandardItems());
+		withIcons.FindAll(".pddropdownmenuitem-icon").Should().HaveCount(3);
+		withIcons.FindAll(".pddropdownmenuitem-icon.fa-fw").Should().HaveCount(2);
+
+		var withoutIcons = RenderDropdown([new MenuItem { Key = "a", Text = "Tables you can query" }, new MenuItem { Key = "b", Text = "Devices" }]);
+		withoutIcons.FindAll(".pddropdownmenuitem-icon").Should().BeEmpty();
 	}
 
 	/// <summary>
@@ -193,6 +214,43 @@ public class PDToolbarDropdownTests : BunitContext
 
 		component.WaitForAssertion(() => _clicks.Should().Equal("open"));
 	}
+
+	/// <summary>
+	/// Verifies that with IgnoreShortcutsWhileModalOpen a shortcut pressed while a modal is open raises nothing, and
+	/// works again once the modal has closed.
+	/// </summary>
+	[Fact]
+	public void IgnoreShortcutsWhileModalOpen_IgnoresAShortcutWhileAModalIsOpen()
+	{
+		var component = RenderDropdown(ShortcutItems(), p => p.Add(x => x.IgnoreShortcutsWhileModalOpen, true));
+		var modal = new PDModal();
+
+		Events.ModalOpened(modal);
+		Events.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+		Events.ModalClosed(modal);
+		Events.KeyUp(new KeyboardInfo { Key = "s", Code = "KeyS", CtrlKey = true });
+
+		// The shortcuts are dispatched in order, so a click from the ignored one would arrive first.
+		component.WaitForAssertion(() => _clicks.Should().Equal("save"), TimeSpan.FromSeconds(10));
+	}
+
+	/// <summary>Verifies that without IgnoreShortcutsWhileModalOpen a shortcut still works while a modal is open.</summary>
+	[Fact]
+	public void ByDefault_AShortcutWorksWhileAModalIsOpen()
+	{
+		var component = RenderDropdown(ShortcutItems());
+
+		Events.ModalOpened(new PDModal());
+		Events.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+
+		component.WaitForAssertion(() => _clicks.Should().Equal("open"));
+	}
+
+	private static List<MenuItem> ShortcutItems() =>
+	[
+		new MenuItem { Key = "open", Text = "Open", ShortcutKey = ShortcutKey.Create("ctrl-o") },
+		new MenuItem { Key = "save", Text = "Save", ShortcutKey = ShortcutKey.Create("ctrl-s") }
+	];
 
 	/// <summary>
 	/// Verifies that after disposal the dropdown no longer responds to shortcut keys.

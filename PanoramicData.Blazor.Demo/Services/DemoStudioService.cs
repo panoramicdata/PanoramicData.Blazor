@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NCalc;
 using NCalc.Exceptions;
 using System;
@@ -10,7 +10,7 @@ namespace PanoramicData.Blazor.Demo.Services;
 /// <summary>
 /// Enhanced demo implementation of IPDStudioService supporting multiple languages including NCalc.
 /// </summary>
-public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioService
+public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioResultSetService
 {
 	private const int _defaultTimeoutSeconds = 5;
 	private int _currentTimeoutSeconds = _defaultTimeoutSeconds;
@@ -483,6 +483,38 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		return errorBuilder.ToString();
 	}
 
+	/// <summary>
+	/// Returns SQL results as a table for the grid; other languages return null and are shown as HTML.
+	/// </summary>
+	public async Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken cancellationToken)
+	{
+		if (language is not ("sql" or "mssql"))
+		{
+			return null;
+		}
+
+		await Task.Delay(300, cancellationToken);
+		if (code.Contains("SUM", StringComparison.OrdinalIgnoreCase) || code.Contains("GROUP BY", StringComparison.OrdinalIgnoreCase))
+		{
+			return new PDStudioResultSet
+			{
+				Columns = [new("name", "text"), new("total_spent", "numeric")],
+				Rows = [["John Doe", 1234.56m], ["Jane Smith", 987.65m], ["Bob Johnson", 543.21m]],
+				Duration = TimeSpan.FromMilliseconds(42)
+			};
+		}
+
+		return new PDStudioResultSet
+		{
+			Columns = [new("name", "text"), new("city", "text"), new("email", "text"), new("joined", "date")],
+			Rows =
+			[
+				["John Doe", "London", "john@example.com", new DateTime(2024, 3, 1)],
+				["Jane Smith", "London", null, new DateTime(2025, 7, 15)]
+			],
+			Duration = TimeSpan.FromMilliseconds(23)
+		};
+	}
 	private static string GenerateSqlOutput(string sql)
 	{
 		// Mock SQL execution results

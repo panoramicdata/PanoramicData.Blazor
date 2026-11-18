@@ -192,6 +192,55 @@
 
 	</PDCardDeckGroup>
 
+	<hr />
+
+	<div>
+		<p>Example 8: Filtering, with the decks read again by the group's <code>RefreshAsync</code> as the filter changes</p>
+	</div>
+
+	<input type="search"
+		   class="form-control form-control-sm mb-2"
+		   placeholder="Filter by title"
+		   @bind="FilterText"
+		   @bind:event="oninput"
+		   @bind:after="ApplyFilterAsync" />
+
+	<PDCardDeckGroup @ref="FilteredGroup"
+					 DataProvider="TodoList8"
+					 CssClass="pd-kanbanboard"
+					 Transformation="MoveCardToRespectiveStatusAsync">
+
+		<PDCardDeck DataFunction="GetFilteredDataFunction(TodoProgress.BeingDefined)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="filtered-beingdefined">
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetFilteredDataFunction(TodoProgress.InProgress)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="filtered-inprogress">
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetFilteredDataFunction(TodoProgress.Done)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="filtered-done">
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+	</PDCardDeckGroup>
+
 	<EventView />
 
 	</ChildContent>

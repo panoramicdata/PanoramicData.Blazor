@@ -94,6 +94,6 @@ public partial class PDStudioTests
 		await RaiseAsync(studio, StudioExecutionEventType.Log, "Parsed 3 tokens");
 
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("Parsed 3 tokens"));
-		studio.Find(".log-entry i").ClassList.Should().Contain("text-warning");
+		studio.Find(".pd-studio-message").ClassList.Should().Contain("level-warning");
 	}
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography;
 
 namespace PanoramicData.Blazor.Services;
@@ -160,8 +159,9 @@ public partial class DumbChatService
 	/// </summary>
 	/// <remarks>
 	/// Deliberately one of each: single choice with descriptions, multiple choice with "Other", two
-	/// differently-shaped scales, and both text sizes including a pre-filled draft. If a change to
-	/// the form renderer breaks any kind, typing "form" into the demo shows it immediately.
+	/// differently-shaped scales, and both text sizes including a pre-filled draft. The two multi-line
+	/// questions are adjacent, so moving between them shows that each keeps its own answer. If a change
+	/// to the form renderer breaks any kind, typing "form" into the demo shows it immediately.
 	/// </remarks>
 	public static ChatForm BuildDemonstrationForm() => new()
 	{
@@ -196,6 +196,14 @@ public partial class DumbChatService
 				Header = "Shop",
 				Question = "Which shop do you buy it from?",
 				Kind = ChatFormAnswerKind.Text
+			},
+			new ChatFormQuestion
+			{
+				Id = "why",
+				Header = "Why",
+				Question = "Why that shop?",
+				Kind = ChatFormAnswerKind.Text,
+				IsMultiline = true
 			},
 			SummaryQuestion()
 		]

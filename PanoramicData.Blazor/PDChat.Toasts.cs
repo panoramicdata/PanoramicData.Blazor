@@ -87,9 +87,18 @@ public partial class PDChat
 		item.DismissTimer = new Timer(
 			state => _ = InvokeAsync(() => BeginDismiss(item)),
 			null,
-			TimeSpan.FromMilliseconds(Math.Max(0, remainingMs)),
+			TimerDue(remainingMs, Timeout.InfiniteTimeSpan),
 			Timeout.InfiniteTimeSpan);
 	}
+
+	// The longest due time a Timer accepts, about 49 days.
+	private const double MaxTimerDueMs = uint.MaxValue - 1d;
+
+	// A due time a Timer accepts: clamped to its range, or the fallback when the value is not a number or infinite.
+	private static TimeSpan TimerDue(double milliseconds, TimeSpan whenNotFinite)
+		=> double.IsFinite(milliseconds)
+			? TimeSpan.FromMilliseconds(Math.Clamp(milliseconds, 0, MaxTimerDueMs))
+			: whenNotFinite;
 
 	// Pauses a toast's auto-dismiss countdown (e.g. while the pointer hovers over it).
 	private static void PauseToast(ToastItem item)
@@ -139,7 +148,7 @@ public partial class PDChat
 		item.RemovalTimer = new Timer(
 			state => _ = InvokeAsync(() => RemoveToast(item)),
 			null,
-			TimeSpan.FromMilliseconds(Math.Max(1, exitMs)),
+			TimerDue(Math.Max(1, exitMs), TimeSpan.FromMilliseconds(1)),
 			Timeout.InfiniteTimeSpan);
 
 		RequestRender();

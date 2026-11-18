@@ -28,11 +28,18 @@ public partial class PDFilePreview
 	[Parameter]
 	public IPreviewProvider PreviewProvider { get; set; } = new DefaultPreviewProvider();
 
+	/// <summary>
+	/// Gets or sets whether the preview is showing. While it is not, nothing is fetched; the item chosen meanwhile is
+	/// fetched once it shows.
+	/// </summary>
+	[Parameter]
+	public bool IsVisible { get; set; } = true;
+
 	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		// cache last preview by path
-		if (Item?.Path == _lastPreviewPath)
+		if (!IsVisible || Item?.Path == _lastPreviewPath)
 		{
 			return;
 		}

@@ -17,6 +17,12 @@
 	line-height: 1.5;
 }
 
+/* A caret with no icon or text: as tall as a text, so a caret-only button matches the buttons beside it */
+.pd-dropdown button > .pd-dropdown-caret-only
+{
+	line-height: 1.5;
+}
+
 .pd-dropdown .dropdown-toggle::after
 {
 	display: none; /* Hide Bootstrap's default caret since we use our own */

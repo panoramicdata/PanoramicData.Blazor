@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PanoramicData.Blazor.Services;
+﻿namespace PanoramicData.Blazor.Services;
 
 /// <summary>
 /// The GlobalEventService provides a concrete implementation of the IGlobalEventService interface.
@@ -8,6 +6,7 @@ namespace PanoramicData.Blazor.Services;
 public class GlobalEventService : IGlobalEventService
 {
 	private readonly Dictionary<string, ShortcutKey> _registeredShortcuts = [];
+	private readonly HashSet<PDModal> _openModals = [];
 
 	/// <summary>
 	/// Event raised whenever the KeyDown event occurs.
@@ -66,4 +65,21 @@ public class GlobalEventService : IGlobalEventService
 	/// Gets the currently registered shortcut keys.
 	/// </summary>
 	public IEnumerable<ShortcutKey> GetRegisteredShortcuts() => [.. _registeredShortcuts.Values];
+
+	/// <summary>
+	/// Gets whether a <see cref="PDModal"/> is open.
+	/// </summary>
+	public bool IsModalOpen => _openModals.Count > 0;
+
+	/// <summary>
+	/// Records that a modal has opened.
+	/// </summary>
+	/// <param name="modal">The modal that opened.</param>
+	public void ModalOpened(PDModal modal) => _openModals.Add(modal);
+
+	/// <summary>
+	/// Records that a modal has closed.
+	/// </summary>
+	/// <param name="modal">The modal that closed.</param>
+	public void ModalClosed(PDModal modal) => _openModals.Remove(modal);
 }

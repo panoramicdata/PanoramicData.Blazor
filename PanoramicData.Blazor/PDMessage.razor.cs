@@ -58,6 +58,17 @@ public partial class PDMessage
 	/// </summary>
 	[Parameter] public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
+	/// <summary>
+	/// Gets or sets how the progress steps of a message being composed are shown.
+	/// </summary>
+	[Parameter] public ChatProgressDisplayMode ProgressDisplayMode { get; set; } = ChatProgressDisplayMode.List;
+
+	private bool IsProgressTicker => ProgressDisplayMode == ChatProgressDisplayMode.Ticker;
+
+	/// <summary>The positions of the steps the ticker shows: the one rolling out, if any, then the latest.</summary>
+	private static IEnumerable<int> TickerStepIndexes(int count)
+		=> Enumerable.Range(Math.Max(0, count - 2), Math.Min(count, 2));
+
 	private bool ShouldShowMetaOnRight() => MessageMetadataDisplayMode switch
 	{
 		MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft => Message.Sender.IsUser,
@@ -73,12 +84,28 @@ public partial class PDMessage
 	private bool ShouldShowAnyMetadata()
 		=> ShowMessageUserIcon || ShowMessageUserName || ShowMessageTimestamp;
 
-	/// <summary>The author image's source: the SVG as a data URI, else the URL, else null.</summary>
+	/// <summary>The author image's source: the SVG as a data URI, else the message's URL, else the sender's, else null.</summary>
 	private string? GetAuthorImageSource()
 		=> !string.IsNullOrWhiteSpace(Message.AuthorImageSvg)
 			? "data:image/svg+xml;base64," + Convert.ToBase64String(Encoding.UTF8.GetBytes(Message.AuthorImageSvg))
-			: string.IsNullOrWhiteSpace(Message.AuthorImageUrl) ? null : Message.AuthorImageUrl;
+			: FirstNonBlank(Message.AuthorImageUrl, Message.Sender.ImageUrl);
 
+	private static string? FirstNonBlank(params string?[] values)
+		=> values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
+
+	private const string DefaultTimestampFormat = "HH:mm:ss";
+
+	/// <summary>The timestamp in <see cref="MessageTimestampFormat"/>, or in the default when that format is invalid.</summary>
 	private string GetFormattedTimestamp()
-		=> Message.Timestamp.ToLocalTime().ToString(MessageTimestampFormat, CultureInfo.CurrentCulture);
+	{
+		var local = Message.Timestamp.ToLocalTime();
+		try
+		{
+			return local.ToString(MessageTimestampFormat, CultureInfo.CurrentCulture);
+		}
+		catch (FormatException)
+		{
+			return local.ToString(DefaultTimestampFormat, CultureInfo.CurrentCulture);
+		}
+	}
 }

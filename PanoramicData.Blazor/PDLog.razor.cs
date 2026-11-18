@@ -222,6 +222,13 @@ public partial class PDLog : ILogger
 		}
 
 		// TODO - Get this working
-		await _commonModule.InvokeVoidAsync("scrollToBottom", LogContainer);
+		try
+		{
+			await _commonModule.InvokeVoidAsync("scrollToBottom", LogContainer);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 }

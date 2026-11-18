@@ -120,4 +120,33 @@ public partial class PDFileExplorerTests
 		cut.Instance.PreviewPanelVisible.Should().BeTrue();
 		_splitter.Invocations["setSizes"].Should().BeEmpty();
 	}
+
+	/// <summary>A hidden preview fetches nothing; shown again, it fetches the row chosen while it was hidden.</summary>
+	[Fact]
+	public async Task OptionalOn_AHiddenPreview_FetchesOnlyOnceShown()
+	{
+		var provider = new RecordingPreviewProvider();
+		var cut = RenderExplorer(p => p
+			.Add(x => x.PreviewPanel, FilePreviewModes.OptionalOn)
+			.Add(x => x.PreviewProvider, provider));
+		await ClickToolbarAsync(cut, "preview");
+		provider.PreviewedPaths.Clear();
+
+		await SelectRowsAsync(cut, "/Docs");
+		provider.PreviewedPaths.Should().BeEmpty();
+
+		await ClickToolbarAsync(cut, "preview");
+		cut.WaitForAssertion(() => provider.PreviewedPaths.Should().Equal("/Docs"));
+	}
+
+	private sealed class RecordingPreviewProvider : DefaultPreviewProvider
+	{
+		public List<string?> PreviewedPaths { get; } = [];
+
+		public override Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
+		{
+			PreviewedPaths.Add(item?.Path);
+			return base.GetPreviewInfoAsync(item);
+		}
+	}
 }

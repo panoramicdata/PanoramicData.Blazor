@@ -64,6 +64,44 @@ public partial class PDFormFieldEditorTests
 		editor.FindAll("input[type=password]").Should().ContainSingle();
 	}
 
+	/// <summary>A password or sensitive text field with a debounce sends what is typed to the form once typing pauses, as a text field does.</summary>
+	[Theory]
+	[InlineData(true, false)]
+	[InlineData(false, true)]
+	public async Task PasswordField_WithADebounce_SendsTheValueWhenTypingPauses(bool isPassword, bool isSensitive)
+	{
+		var common = JSInterop.SetupModule(JSInteropVersionHelper.CommonJsUrl);
+		common.Mode = JSRuntimeMode.Loose;
+		var field = FieldFor(p => p.Name);
+		field.IsPassword = isPassword;
+		field.IsSensitive = (_, _) => isSensitive;
+		var editor = RenderEditor(field, debounceWait: 300);
+
+		var textBox = editor.FindComponent<PDTextBox>();
+		textBox.Find("input").GetAttribute("type").Should().Be("password");
+		var call = common.VerifyInvoke("debounceInput");
+		call.Arguments[0].Should().Be(textBox.Instance.Id);
+		call.Arguments[1].Should().Be(300);
+
+		await textBox.InvokeAsync(() => textBox.Instance.OnDebouncedInput("secret"));
+
+		editor.Instance.Form.GetFieldValue(field, true).Should().Be("secret");
+	}
+
+	/// <summary>A sensitive field that does not hold text keeps a plain password input, which converts what is entered to the field's type.</summary>
+	[Fact]
+	public void SensitiveNumberField_KeepsAPasswordInputThatConvertsTheValue()
+	{
+		var field = FieldFor(p => p.Age);
+		field.IsSensitive = (_, _) => true;
+		var editor = RenderEditor(field, debounceWait: 300);
+
+		editor.FindComponents<PDTextBox>().Should().BeEmpty();
+		editor.Find("input[type=password]").Change("42");
+
+		editor.Instance.Form.Delta["Age"].Should().Be(42);
+	}
+
 	/// <summary>An edit template replaces the built-in editor and is given the form's item.</summary>
 	[Fact]
 	public void EditTemplate_ReplacesTheEditor()

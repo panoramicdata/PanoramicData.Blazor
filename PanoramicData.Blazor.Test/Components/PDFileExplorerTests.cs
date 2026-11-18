@@ -88,6 +88,18 @@ public partial class PDFileExplorerTests : BunitContext
 		cut.Instance.FileItems.Should().HaveCount(3);
 	}
 
+	/// <summary>Without its toolbar the explorer says so, so that its panes can take the toolbar's height.</summary>
+	[Fact]
+	public void WithoutTheToolbar_TheExplorerHasTheNoToolbarClass()
+	{
+		var withToolbar = RenderExplorer();
+		var withoutToolbar = RenderExplorer(p => p.Add(x => x.ShowToolbar, false));
+
+		withToolbar.Find("div.pdfileexplorer").ClassList.Should().NotContain("pdfe-no-toolbar");
+		withoutToolbar.Find("div.pdfileexplorer").ClassList.Should().Contain("pdfe-no-toolbar");
+		withoutToolbar.Find("div.pdfe-toolbar").ClassList.Should().Contain("d-none");
+	}
+
 	/// <summary>A whitespace new-folder name is rejected as a parameter.</summary>
 	[Fact]
 	public void BlankNewFolderName_Throws()

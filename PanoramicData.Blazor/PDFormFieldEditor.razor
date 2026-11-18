@@ -9,7 +9,7 @@
 	{
 		<PDFormCheckBox CssClass="ms-nullable"
 						Value="_hasValue"
-						ValueChanged="OnHasNullValueChanged" />
+						ValueChanged="(x) => GuardAsync(() => OnHasNullValueChanged(x))" />
 	}
 
 	@if (Field.EditTemplate != null)
@@ -18,14 +18,30 @@
 	}
 	else if (Field.IsPassword || Field.IsSensitive(Form?.Item, Form))
 	{
-		<input @onblur="() => Field.SuppressErrors = false"
-			   @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)"
-			   autocomplete="@Field.AutoComplete"
-			   class="form-control @GetEditorClass(Field)"
-			   disabled="@IsReadOnly(Field)"
-			   maxlength="@(Field.MaxLength ?? -1)"
-			   type="password"
-			   value="@Form?.GetFieldStringValue(Field)" />
+		if (fieldType?.FullName == "System.String")
+		{
+			<PDTextBox CssClass="@GetEditorClass(Field)"
+					   AutoComplete="@Field.AutoComplete"
+					   Blur="() => Field.SuppressErrors = false"
+					   ShowClearButton="false"
+					   Type="PDInputType.Password"
+					   MaxLength="@Field.MaxLength"
+					   IsEnabled="!IsReadOnly(Field)"
+					   Value="@(Form?.GetFieldStringValue(Field))"
+					   ValueChanged="(x) => SetValueAsync(x)"
+					   DebounceWait="DebounceWait" />
+		}
+		else
+		{
+			<input @onblur="() => Field.SuppressErrors = false"
+				   @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)"
+				   autocomplete="@Field.AutoComplete"
+				   class="form-control @GetEditorClass(Field)"
+				   disabled="@IsReadOnly(Field)"
+				   maxlength="@(Field.MaxLength ?? -1)"
+				   type="password"
+				   value="@Form?.GetFieldStringValue(Field)" />
+		}
 	}
 	else if (fieldType?.FullName == "System.DateTime")
 	{
@@ -35,7 +51,7 @@
 					ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt1 ? opt1.ShowTime : false)"
 					TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.TimeStepSecs : 1)"
 					Value="@(Form!.GetFieldValue<DateTime>(Field))"
-					ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
+					ValueChanged="(x) => SetValueAsync(x)" />
 	}
 	else if (fieldType?.FullName == "System.DateTimeOffset")
 	{
@@ -46,12 +62,12 @@
 						  ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.ShowTime : false)"
 						  TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt3 ? opt3.TimeStepSecs : 1)"
 						  Value="@(Form!.GetFieldValue<DateTimeOffset>(Field))"
-						  ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
+						  ValueChanged="(x) => SetValueAsync(x)" />
 	}
 	else if (Field.Options != null)
 	{
 		<select @onblur="() => Field.SuppressErrors = false"
-				@oninput="(x) => OnSelectInputChanged(x, Field)"
+				@oninput="(x) => GuardAsync(() => OnSelectInputChanged(x, Field))"
 				class="form-select @GetEditorClass(Field)"
 				disabled="@IsReadOnly(Field)">
 			@{
@@ -78,7 +94,7 @@
 					Rows="@Field.TextAreaRows"
 					MaxLength="@(Field.MaxLength ?? -1)"
 					Value="@(Form?.GetFieldStringValue(Field))"
-					ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+					ValueChanged="(x) => SetValueAsync(x)"
 					DebounceWait="DebounceWait" />
 	}
 	else if (Field.IsImage)
@@ -97,7 +113,7 @@
 							OffText="@boolOpt.OffText"
 							OnText="@boolOpt.OnText"
 							Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-							ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
+							ValueChanged="(x) => SetValueAsync((bool)x)" />
 		}
 		else
 		{
@@ -105,13 +121,13 @@
 							Disabled="@IsReadOnly(Field)"
 							Label="@Field.Label"
 							Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                            ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
+                            ValueChanged="(x) => SetValueAsync(x)" />
 		}
 	}
 	else if (fieldType?.IsEnum == true)
 	{
 		<select @onblur="() => Field.SuppressErrors = false"
-				@oninput="(x) => Form?.SetFieldValueAsync(Field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask"
+				@oninput="(x) => GuardAsync(() => Form?.SetFieldValueAsync(Field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask)"
 				class="form-select @GetEditorClass(Field)"
 				disabled="@IsReadOnly(Field)">
 			@foreach (var option in GetEnumValues(Field))
@@ -135,7 +151,7 @@
 							Rows="@fso.Rows"
 							MaxLength="@(Field.MaxLength ?? -1)"
 							Value="@(Form?.GetFieldStringValue(Field))"
-							ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+							ValueChanged="(x) => SetValueAsync(x)"
 							DebounceWait="DebounceWait" />
 			}
 			else if (fso.Editor == FieldStringOptions.Editors.Monaco)
@@ -171,7 +187,7 @@
 					   Placeholder="@Field.Label"
 					   IsEnabled="!IsReadOnly(Field)"
 					   Value="@(Form?.GetFieldStringValue(Field))"
-					   ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+					   ValueChanged="(x) => SetValueAsync(x)"
 					   DebounceWait="DebounceWait" />
 		}
 	}
@@ -183,7 +199,7 @@
 				   ShowClearButton="false"
 				   IsEnabled="!IsReadOnly(Field)"
 				   Value="@(Form?.GetFieldStringValue(Field))"
-				   ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+				   ValueChanged="(x) => SetValueAsync(x)"
 				   DebounceWait="DebounceWait" />
 	}
 	else

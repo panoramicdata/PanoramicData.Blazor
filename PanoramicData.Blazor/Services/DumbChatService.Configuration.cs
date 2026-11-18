@@ -17,6 +17,7 @@ public partial class DumbChatService
 	private bool _autoRestoreOnNewMessage;
 	private bool _useFullWidthMessages = true;
 	private MessageMetadataDisplayMode _messageMetadataDisplayMode = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
+	private ChatProgressDisplayMode _progressDisplayMode = ChatProgressDisplayMode.List;
 	private bool _showMessageUserIcon = true;
 	private bool _showMessageUserName = true;
 	private bool _showMessageTimestamp = true;
@@ -132,6 +133,13 @@ public partial class DumbChatService
 	{
 		get => _messageMetadataDisplayMode;
 		set => SetConfiguration(ref _messageMetadataDisplayMode, value);
+	}
+
+	/// <summary>Gets or sets how a reply's progress steps are shown, which the demo page switches.</summary>
+	public ChatProgressDisplayMode ProgressDisplayMode
+	{
+		get => _progressDisplayMode;
+		set => SetConfiguration(ref _progressDisplayMode, value);
 	}
 
 	/// <inheritdoc />

@@ -53,6 +53,23 @@
 			</thead>
 			<tbody>
 				<tr>
+					<td><code>AllowDropInBetween</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Reorder by dragging: the top quarter of a row drops before it, the bottom quarter after it (after its subtree when it has children) and the middle into it, shown by an insertion line or a highlight. Without <code>AllowDrop</code> the row splits into halves. <code>DropEventArgs.Position</code> reports the position, and <code>Before</code> agrees with it.</td>
+				</tr>
+				<tr>
+					<td><code>IsDropPositionValid</code></td>
+					<td><code>Func&lt;TItem, object?, DropPosition, bool&gt;?</code></td>
+					<td>null</td>
+					<td>Consulted for each position while reordering; refusing <code>Into</code> splits the row into before and after halves. <code>IsDropValid</code> still applies to <code>Into</code>.</td>
+				</tr>
+				<tr>
+					<td><code>AllowDropAfterParent</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Dropping at the bottom of a group's last row, with the pointer left of its text, drops after the group.</td>
+				</tr>				<tr>
 					<td><code>TItem</code></td>
 					<td>Type parameter</td>
 					<td>-</td>
@@ -186,4 +203,21 @@
 		</table>
 	</section>
 
+	<section id="colours">
+		<h2 class="doc-section">Colours</h2>
+		<p>
+			A node's selection and shape come from CSS variables, so a host can set them on <code>:root</code> or on a
+			theme class. The hover and the selection share the shape, so rounding one rounds both. For example,
+			<code>body.theme-dark { --pd-tree-selected-bg: #2a3a5c; --pd-tree-node-radius: 0.25em; }</code>.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>--pd-tree-selected-bg</code></td><td><code>#007bff</code></td><td>The selected node's background</td></tr>
+				<tr><td><code>--pd-tree-selected-color</code></td><td><code>inherit</code></td><td>The selected node's text</td></tr>
+				<tr><td><code>--pd-tree-node-radius</code></td><td><code>0</code></td><td>The corner radius of a node's hover and selection</td></tr>
+				<tr><td><code>--pd-tree-node-inset-end</code></td><td><code>0</code></td><td>The gap between a node's hover and selection and the end of the tree, so rounded corners stay clear of the panel's edge</td></tr>
+			</tbody>
+		</table>
+	</section>
 </div>

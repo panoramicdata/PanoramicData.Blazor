@@ -35,6 +35,15 @@
 	cursor: move;
 }
 
+.tl-grid-line, .tl-max-value {
+	pointer-events: none;
+}
+
+.tl-max-value text {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
 .tl-selection-handle {
 	cursor: col-resize;
 }

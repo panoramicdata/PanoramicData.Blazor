@@ -213,8 +213,22 @@ public partial class PDFilter : IAsyncDisposable
 		{
 			// can happen before lost focus and hence text value not updated
 			// so force focus to filter button and perform click
-			await _commonModule.InvokeVoidAsync("focus", _id).ConfigureAwait(true);
-			await _commonModule.InvokeVoidAsync("click", _id).ConfigureAwait(true);
+			try
+			{
+				await _commonModule.InvokeVoidAsync("focus", _id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+			try
+			{
+				await _commonModule.InvokeVoidAsync("click", _id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

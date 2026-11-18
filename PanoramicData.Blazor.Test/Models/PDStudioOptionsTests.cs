@@ -25,6 +25,7 @@ public class PDStudioOptionsTests
 		options.IsEditingEnabledDuringExecution.Should().BeTrue();
 		options.ExecutionTimeoutSeconds.Should().Be(30);
 		options.CustomProperties.Should().BeEmpty();
+		options.LeftPanelResizeToolTip.Should().Be("Drag to resize the panel, or double-click to give it its usual width");
 	}
 
 	/// <summary>All members round-trip.</summary>

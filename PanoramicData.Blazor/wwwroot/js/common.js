@@ -206,6 +206,12 @@ export function clearInlineStyle(element) {
 	}
 }
 
+export function clearInlineStyles(elements) {
+	for (const element of elements ?? []) {
+		clearInlineStyle(element);
+	}
+}
+
 export function initDragImage(id) {
 	var el = document.getElementById(id);
 	if (!el || el._dragImageInitialized) return;
@@ -236,4 +242,13 @@ function onDragStart(evt) {
 	if (url) {
 		evt.dataTransfer.setData("DownloadURL", url);
 	}
+}
+
+// PDTree reordering: a row's top and height, and the left edge of its content, in client pixels.
+export function getTreeRowBounds(header, content) {
+	if (!header || !content) {
+		return null;
+	}
+	const row = header.getBoundingClientRect();
+	return [row.top, row.height, content.getBoundingClientRect().left];
 }

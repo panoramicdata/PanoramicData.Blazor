@@ -67,8 +67,8 @@ public partial class PDModalTests
 	public async Task A_departed_javascript_side_is_tolerated(bool disconnected)
 	{
 		Exception failure = disconnected ? new JSDisconnectedException("gone") : new ObjectDisposedException("modal");
-		var runtime = new FailingRuntime(failure);
-		Services.AddSingleton<IJSRuntime>(runtime);
+		var module = new FailingObject(failure);
+		Services.AddSingleton<IJSRuntime>(new ModuleOnlyRuntime(module));
 		var component = Render<PDModal>();
 
 		var act = async () =>
@@ -80,14 +80,14 @@ public partial class PDModalTests
 		};
 
 		await act.Should().NotThrowAsync();
-		runtime.Module.Calls.Select(call => call.Identifier).Should().Contain(["initialize", "show"]);
+		module.Calls.Select(call => call.Identifier).Should().Contain(["initialize", "show"]);
 	}
 
 	/// <summary>Verifies that a failed module import leaves a dialog that renders and ignores show requests.</summary>
 	[Fact]
 	public async Task A_failed_import_leaves_an_inert_dialog()
 	{
-		Services.AddSingleton<IJSRuntime>(new OfflineRuntime());
+		Services.AddSingleton<IJSRuntime>(new OfflineJsRuntime());
 		var component = Render<PDModal>(parameters => parameters.Add(p => p.Title, "Still here"));
 
 		await component.InvokeAsync(component.Instance.ShowAsync);
@@ -95,57 +95,18 @@ public partial class PDModalTests
 		component.Find(".modal-title").TextContent.Should().Be("Still here");
 	}
 
-	/// <summary>A runtime that cannot import anything.</summary>
-	private sealed class OfflineRuntime : IJSRuntime
-	{
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
-		}
-	}
-
-	/// <summary>A runtime whose modules initialise but then fail every call with the given exception.</summary>
-	private sealed class FailingRuntime(Exception failure) : IJSRuntime
-	{
-		/// <summary>Gets the module handed out on every import.</summary>
-		public FailingObject Module { get; } = new(failure);
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> identifier == "import"
-				? ValueTask.FromResult((TValue)(object)Module)
-				: throw new InvalidOperationException($"Unexpected JS call '{identifier}' with {args?.Length ?? 0} args.");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
-		}
-	}
-
 	/// <summary>A JS object that hands itself back on initialise and fails everything else.</summary>
-	private sealed class FailingObject(Exception failure) : IJSObjectReference
+	private sealed class FailingObject(Exception failure) : FakeJsObject
 	{
 		/// <summary>Gets each call made on this object, with the number of arguments it was given.</summary>
 		public List<(string Identifier, int ArgumentCount)> Calls { get; } = [];
 
-		public ValueTask DisposeAsync() => ValueTask.FromException(failure);
+		public override ValueTask DisposeAsync() => ValueTask.FromException(failure);
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+		public override object? Resolve(string identifier, object?[] args)
 		{
-			Calls.Add((identifier, args?.Length ?? 0));
-			return identifier == "initialize"
-				? ValueTask.FromResult((TValue)(object)this)
-				: ValueTask.FromException<TValue>(failure);
-		}
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
+			Calls.Add((identifier, args.Length));
+			return identifier == "initialize" ? this : throw failure;
 		}
 	}
 }

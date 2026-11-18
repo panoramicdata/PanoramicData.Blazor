@@ -181,7 +181,14 @@ public partial class PDRange : IAsyncDisposable
 			_dragRangeOrigin = Range.End;
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, SvgRangeHandleEnd).ConfigureAwait(true);
+				try
+				{
+					await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, SvgRangeHandleEnd).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 	}
@@ -236,7 +243,14 @@ public partial class PDRange : IAsyncDisposable
 			_dragRangeOrigin = Range.Start;
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, SvgRangeHandleStart).ConfigureAwait(true);
+				try
+				{
+					await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, SvgRangeHandleStart).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 	}

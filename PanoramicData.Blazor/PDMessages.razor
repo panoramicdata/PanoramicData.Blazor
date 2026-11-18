@@ -6,14 +6,22 @@
 		{
 			foreach (var message in Messages)
 			{
-				<PDMessage Message="message"
-						   UserIconSelector="UserIconSelector"
-						   UseFullWidthMessages="UseFullWidthMessages"
-						   MessageMetadataDisplayMode="MessageMetadataDisplayMode"
-						   ShowMessageUserIcon="ShowMessageUserIcon"
-						   ShowMessageUserName="ShowMessageUserName"
-						   ShowMessageTimestamp="ShowMessageTimestamp"
-						   MessageTimestampFormat="@MessageTimestampFormat" />
+				<PDMessageErrorBoundary>
+					<ChildContent>
+						<PDMessage Message="message"
+								   UserIconSelector="UserIconSelector"
+								   UseFullWidthMessages="UseFullWidthMessages"
+								   MessageMetadataDisplayMode="MessageMetadataDisplayMode"
+								   ShowMessageUserIcon="ShowMessageUserIcon"
+								   ShowMessageUserName="ShowMessageUserName"
+								   ShowMessageTimestamp="ShowMessageTimestamp"
+								   MessageTimestampFormat="@MessageTimestampFormat"
+								   ProgressDisplayMode="ProgressDisplayMode" />
+					</ChildContent>
+					<ErrorContent>
+						<div class="pdchat-message-failed" role="alert">This message could not be shown.</div>
+					</ErrorContent>
+				</PDMessageErrorBoundary>
 			}
 		}
 	</div>
@@ -22,20 +30,47 @@
 		@* Every control sits in this thin bar, so the text box below has the whole width. *@
 		<div class="chat-input-accessories" role="toolbar">
 			@InputAccessories
+			@if (IsInputPermitted && IsImageInputOffered)
+			{
+				<span class="pdchat-toolbar-group pdchat-image-buttons">
+					<button type="button" class="pdchat-toolbar-btn pdchat-image-attach" @onclick="OnAttachClickedAsync" title="Attach images" aria-label="Attach images"><i class="@Icons.Attach" aria-hidden="true"></i></button>
+					<button type="button" class="pdchat-toolbar-btn pdchat-image-screenshot" @onclick="OnScreenshotClickedAsync" title="Add a screenshot of this tab" aria-label="Add a screenshot of this tab"><i class="@Icons.Screenshot" aria-hidden="true"></i></button>
+				</span>
+				<input type="file" class="pdchat-image-file-input" accept="image/*" multiple hidden @onchange="OnFilePickerChangedAsync" />
+			}
 			@if (IsInputPermitted)
 			{
-				<button class="btn btn-sm btn-secondary chat-send" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
+				@* The label keeps Send named when a narrow toolbar hides its text. *@
+				<button type="button" class="btn btn-sm btn-primary chat-send" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)" title="Send" aria-label="Send"><i class="@Icons.Send" aria-hidden="true"></i><span class="chat-send-text">Send</span></button>
 			}
 		</div>
 	}
 	@if (IsInputPermitted)
 	{
+		@if (IsImageInputOffered && (Images.Count > 0 || ImageNotice is not null))
+		{
+			<div class="pdchat-image-strip" role="list" aria-label="Images in this message">
+				@for (var i = 0; i < Images.Count; i++)
+				{
+					var index = i;
+					<figure class="pdchat-image-thumb" role="listitem">
+						<img src="@Images[index].DataUri" alt="@(Images[index].Name ?? $"Image {index + 1}")" />
+						<figcaption>@(index + 1)</figcaption>
+						<button type="button" class="pdchat-image-remove" title="Remove image @(index + 1)" aria-label="Remove image @(index + 1)" @onclick="() => RemoveImageAsync(index)">×</button>
+					</figure>
+				}
+				@if (IsHeldForImages || ImageNotice is not null)
+				{
+					<div class="pdchat-image-notice" role="alert"><i class="@Icons.Warning" aria-hidden="true"></i>@(IsHeldForImages ? ImageBlockedReason : ImageNotice)</div>
+				}
+			</div>
+		}
 		<div class="chat-input-container">
 			<textarea
 				@key="_inputKey"
 				@ref="InputRef"
-				value="@_localInput"
-				@oninput="OnInputChanged"
+				@bind="_localInput"
+				@bind:event="oninput"
 				@onfocus="() => SetInputFocusedAsync(true)"
 				@onblur="() => SetInputFocusedAsync(false)"
 				placeholder="Type a message..."

@@ -121,6 +121,23 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets or sets the phrases that interrupt an answer being read aloud, such as "Merlin", or null or empty (the
+	/// default) for half duplex: the microphone hears nothing while an answer is read. Matching ignores case and
+	/// punctuation.
+	/// </summary>
+	/// <remarks>
+	/// When set, the microphone stays open while an answer is read aloud, but everything it hears goes only to a matcher
+	/// for these phrases: it is never typed or sent. Hearing one stops the answer and starts listening, with the text
+	/// box unchanged; the rest of that utterance is discarded and what is said after the next pause is dictated as
+	/// usual. An answer that itself contains one of the phrases is read half duplex, so it cannot interrupt itself.
+	/// </remarks>
+	IReadOnlyList<string>? InterruptPhrases
+	{
+		get => ChatServiceDefaultState.For(this).InterruptPhrases;
+		set => ChatServiceDefaultState.For(this).InterruptPhrases = value;
+	}
+
+	/// <summary>
 	/// Gets or sets how long Voice Mode may listen without hearing a word before the microphone goes dormant to wait
 	/// for one of the <see cref="WakePhrases"/>. Applies only when they are set. Defaults to ten seconds.
 	/// </summary>
@@ -165,6 +182,16 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets or sets how Voice Mode listens and sends, as last chosen by the user. Defaults to
+	/// <see cref="PDChatVoiceMode.Hal"/>. A host that implements it can remember the choice for each user.
+	/// </summary>
+	PDChatVoiceMode VoiceMode
+	{
+		get => ChatServiceDefaultState.For(this).VoiceMode;
+		set => ChatServiceDefaultState.For(this).VoiceMode = value;
+	}
+
+	/// <summary>
 	/// Gets the models the user may choose to answer, or null (the default) when the host offers no choice.
 	/// A picker is shown in the input toolbar only when there are two or more.
 	/// </summary>
@@ -179,6 +206,28 @@ public interface IChatService : IDisposable
 		get => ChatServiceDefaultState.For(this).SelectedModelId;
 		set => ChatServiceDefaultState.For(this).SelectedModelId = value;
 	}
+
+	/// <summary>
+	/// Gets the name of the model that answered the latest turn, shown in the input toolbar after the model picker, or
+	/// null (the default) to show nothing.
+	/// </summary>
+	string? AnsweringModelName => null;
+
+	/// <summary>Gets the tooltip for <see cref="AnsweringModelName"/>, or null (the default) for none.</summary>
+	string? AnsweringModelDescription => null;
+
+	/// <summary>
+	/// Gets whether the user may add images to a message: pasted, dropped, picked or captured from the screen. False by
+	/// default, so a host that cannot use images shows none of the controls.
+	/// </summary>
+	bool IsImageInputOffered => false;
+
+	/// <summary>
+	/// Gets why images cannot be sent right now, such as the selected model not accepting them, or null (the default)
+	/// when they can. While it is set, a message with images keeps them but Send is disabled and this is shown beside
+	/// them; a message without images is sent as usual.
+	/// </summary>
+	string? ImageInputBlockedReason => null;
 
 	/// <summary>
 	/// Gets or sets whether the chat should auto-restore when new messages arrive.
@@ -214,6 +263,12 @@ public interface IChatService : IDisposable
 	/// Gets or sets the format string for message timestamps.
 	/// </summary>
 	string MessageTimestampFormat { get; set; }
+
+	/// <summary>
+	/// Gets how a reply's progress steps are shown while it is being composed: <see cref="ChatProgressDisplayMode.List"/>
+	/// by default.
+	/// </summary>
+	ChatProgressDisplayMode ProgressDisplayMode => ChatProgressDisplayMode.List;
 
 	/// <summary>
 	/// Gets or sets whether the last message should be shown as a preview when the chat is minimized and a new message arrives.

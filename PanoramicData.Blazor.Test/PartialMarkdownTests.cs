@@ -88,6 +88,32 @@ public class PartialMarkdownTests
 		result.Writing.Should().Be("table");
 	}
 
+	/// <summary>
+	/// Verifies that a reply opening with a table, its first row still being written, shows nothing yet rather than
+	/// throwing.
+	/// </summary>
+	[Theory]
+	[InlineData("| Dev")]
+	[InlineData("| Device | St")]
+	[InlineData("|")]
+	public void A_reply_that_opens_with_a_half_written_table_row_shows_nothing_yet(string partial)
+	{
+		var result = PartialMarkdown.Trim(partial);
+
+		result.Content.Should().BeEmpty();
+		result.Writing.Should().Be("table");
+	}
+
+	/// <summary>Verifies that a reply opening with a complete header row, but no delimiter row yet, shows nothing yet.</summary>
+	[Fact]
+	public void A_reply_that_opens_with_a_table_header_alone_shows_nothing_yet()
+	{
+		var result = PartialMarkdown.Trim("| Device | Status |");
+
+		result.Content.Should().BeEmpty();
+		result.Writing.Should().Be("table");
+	}
+
 	/// <summary>Verifies that a complete table survives trimming.</summary>
 	[Fact]
 	public void A_complete_table_is_kept()

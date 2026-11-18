@@ -50,6 +50,8 @@ internal sealed class ChatServiceDefaultState
 
 	public IReadOnlyList<string>? WakePhrases { get; set; }
 
+	public IReadOnlyList<string>? InterruptPhrases { get; set; }
+
 	public TimeSpan VoiceIdleTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
 	public string? SelectedAgentId { get; set; }
@@ -57,6 +59,8 @@ internal sealed class ChatServiceDefaultState
 	public string? SelectedModelId { get; set; }
 
 	public bool IsReadAloudEnabled { get; set; }
+
+	public PDChatVoiceMode VoiceMode { get; set; } = PDChatVoiceMode.Hal;
 
 	/// <summary>
 	/// Gets or sets the handlers subscribed to the default <see cref="IChatService.OnConversationMessageReceived"/>.

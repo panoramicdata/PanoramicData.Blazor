@@ -36,12 +36,12 @@ else if (Form.Mode != FormModes.Hidden)
 
 					<div class="input-group">
 						@* label *@
-						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldGroup.HasErrors(Form) ? "alert-danger" : "")" title="@fieldDescription">
+						<div class="input-group-text d-flex align-items-start justify-content-between title-box @GetTitleCssClass(fieldGroup)" title="@fieldDescription">
 							<span>@fieldGroup.GetTitle(Form?.GetItemWithUpdates())</span>
 							<div class="helpers">
 								@foreach (var f in fieldGroup.Fields.Where(x => !string.IsNullOrWhiteSpace(x.HelpUrl)))
 								{
-									<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
+									<i class="pd-form-help-icon pd-form-helper fas fa-external-link-alt cursor-pointer"
 										@onclick="() => OnHelpUrlClick(f)"></i>
 								}
 								@foreach (var f in fieldGroup.Fields.Where(x => x.Helper != null))
@@ -51,13 +51,13 @@ else if (Form.Mode != FormModes.Hidden)
 									: f.Helper!.IconCssClass2(Form.Item);
 									var css = $"{(f.Helper.Click == null ? "" : "cursor-pointer")}";
 									var tooltip = Form?.Item is null || f.Helper.ToolTip2 is null ? f.Helper.ToolTip : f.Helper.ToolTip2(Form.Item);
-									<i class="pd-form-help-icon text-info pt-1 ms-1 @iconCssCls @css"
+									<i class="pd-form-help-icon pd-form-helper pt-1 ms-1 @iconCssCls @css"
 										@onclick="async () => await OnHelperClick(f).ConfigureAwait(true)"
 										title="@tooltip"></i>
 								}
 								@if (fieldGroup.Fields.Any(x => x.ShowCopyButton(Form?.Item)))
 								{
-									<PDClipboard CssClass="ms-1 text-info" Text="@(Form?.GetFieldStringValue(fieldGroup.Fields))" />
+									<PDClipboard CssClass="ms-1 pd-form-helper" Text="@(Form?.GetFieldStringValue(fieldGroup.Fields))" />
 								}
 							</div>
 						</div>
@@ -74,7 +74,7 @@ else if (Form.Mode != FormModes.Hidden)
 						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
 						{
 							var cssCls = GetValidationCssClass(fieldGroup.Fields);
-							<span class="d-table input-group-text align-items-start @cssCls">
+							<span class="d-table input-group-text align-items-start pd-form-status @cssCls">
 								<i class="@GetValidationIconForCssClass(cssCls)"></i>
 							</span>
 						}
@@ -96,7 +96,7 @@ else if (Form.Mode != FormModes.Hidden)
 								{
 									foreach (var message in Form.Errors[fn])
 									{
-										<div class="small text-danger pd-form-field-form-error-message mt-1 user-select-none">@message</div>
+										<div class="small pd-form-field-form-error-message mt-1 user-select-none">@message</div>
 									}
 								}
 							}

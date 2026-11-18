@@ -13,6 +13,16 @@ public partial class PDModalPage
 	protected PDModal CustomButtonsModal { get; set; } = null!;
 	protected PDModal AwaitModal { get; set; } = null!;
 	protected PDModal NoEscapeModal { get; set; } = null!;
+	protected PDModal RecentModal { get; set; } = null!;
+	protected PDModal RestoreModal { get; set; } = null!;
+
+	private bool IgnoreMenuShortcuts { get; set; } = true;
+
+	private List<MenuItem> FileMenuItems { get; } =
+	[
+		new() { Key = "recent", Text = "Open Recent...", IconCssClass = "fas fa-fw fa-folder-open", ShortcutKey = ShortcutKey.Create("ctrl-alt-KeyO") },
+		new() { Key = "restore", Text = "Restore Auto-Saved...", IconCssClass = "fas fa-fw fa-history", ShortcutKey = ShortcutKey.Create("ctrl-alt-KeyR") }
+	];
 
 	private string? _customButtonResult;
 	private string? _awaitedResult;
@@ -32,6 +42,12 @@ public partial class PDModalPage
 		var result = await AwaitModal.ShowAndWaitResultAsync();
 		_awaitedResult = result;
 		EventManager?.Add(new Event("AwaitResult", new EventArgument("Key", result)));
+	}
+
+	private Task OnFileMenuClick(string key)
+	{
+		EventManager?.Add(new Event("FileMenuClick", new EventArgument("Key", key)));
+		return key == "recent" ? RecentModal.ShowAsync() : RestoreModal.ShowAsync();
 	}
 
 	// kept for demo source compatibility

@@ -1,7 +1,8 @@
 <div class="pd-knob-documentation">
 	<section id="overview">
 		<h2 class="doc-section">Overview</h2>
-		<p><code>PDKnob</code> is a rotary knob control for analog-style value adjustment.</p>
+		<p><code>PDKnob</code> is a rotary knob control for analogue-style value adjustment.</p>
+		<p>The <code>Angle</code> mode is a full-circle dial for a direction, such as a gradient angle: it turns round and round with no stop and no jump at 360, and is a slider for the keyboard and screen readers.</p>
 	</section>
 	<section id="parameters">
 		<h2 class="doc-section">Parameters</h2>
@@ -12,6 +13,15 @@
 				<tr><td><code>Min</code></td><td><code>double</code></td><td>Minimum value</td></tr>
 				<tr><td><code>Max</code></td><td><code>double</code></td><td>Maximum value</td></tr>
 				<tr><td><code>Label</code></td><td><code>string</code></td><td>Knob label</td></tr>
+				<tr><td><code>Mode</code></td><td><code>PDKnobMode</code></td><td><code>Volume</code>, <code>Balance</code>, <code>Gain</code> or <code>Angle</code></td></tr>
+				<tr><td><code>Angle</code></td><td><code>double</code></td><td>The value in degrees in the <code>Angle</code> mode; bind it with <code>@@bind-Angle</code></td></tr>
+				<tr><td><code>AngleZeroDirection</code></td><td><code>double</code></td><td>Where the pointer points at 0, in degrees clockwise from pointing right (default 0)</td></tr>
+				<tr><td><code>AngleClockwise</code></td><td><code>bool</code></td><td>Whether the angle increases clockwise (default true)</td></tr>
+				<tr><td><code>AngleWrap</code></td><td><code>bool</code></td><td>Report the angle normalised to 0 up to 360 (default true), or as a running total so 370 differs from 10</td></tr>
+				<tr><td><code>AngleStep</code></td><td><code>double</code></td><td>Step the angle snaps to while dragging (hold Shift to move freely) and the arrow keys move by; 0 means no snapping and 1 degree per key</td></tr>
+				<tr><td><code>AngleLargeStep</code></td><td><code>double</code></td><td>Step for Page Up and Page Down (default 15)</td></tr>
+				<tr><td><code>DefaultAngle</code></td><td><code>double</code></td><td>Angle a double-click resets to (default 0)</td></tr>
+				<tr><td><code>AriaLabel</code></td><td><code>string</code></td><td>Accessible name of the angle dial; <code>Label</code> is used when not set</td></tr>
 			</tbody>
 		</table>
 	</section>

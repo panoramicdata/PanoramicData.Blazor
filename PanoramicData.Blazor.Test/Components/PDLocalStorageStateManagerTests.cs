@@ -166,40 +166,19 @@ public class PDLocalStorageStateManagerTests : BunitContext
 		public int Page { get; set; }
 	}
 
-	/// <summary>A JS runtime whose only job is to hand out one module on import.</summary>
-	private sealed class ModuleOnlyRuntime(IJSObjectReference module) : IJSRuntime
-	{
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> identifier == "import"
-				? ValueTask.FromResult((TValue)module)
-				: throw new InvalidOperationException($"Unexpected JS call '{identifier}' with {args?.Length ?? 0} args.");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
-		}
-	}
-
 	/// <summary>A module whose disposal fails the way it does once the circuit has gone.</summary>
-	private sealed class DisconnectedModule : IJSObjectReference
+	private sealed class DisconnectedModule : FakeJsObject
 	{
 		public int DisposeAttempts { get; private set; }
 
-		public ValueTask DisposeAsync()
+		public override ValueTask DisposeAsync()
 		{
 			DisposeAttempts++;
 			throw new JSDisconnectedException("The circuit has disconnected.");
 		}
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> throw new JSDisconnectedException($"{identifier} with {args?.Length ?? 0} argument(s): the circuit has disconnected.");
-
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
-		}
+		public override object? Resolve(string identifier, object?[] args)
+			=> throw new JSDisconnectedException($"{identifier} with {args.Length} argument(s): the circuit has disconnected.");
 	}
 
 	/// <summary>Captures the cascaded state manager.</summary>

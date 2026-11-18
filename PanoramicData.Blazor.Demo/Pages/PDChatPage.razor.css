@@ -1,0 +1,12 @@
+/* Bootstrap has no purple button, so this matches the critical message's colour. */
+.btn-critical {
+	--bs-btn-color: #fff;
+	--bs-btn-bg: #6f42c1;
+	--bs-btn-border-color: #6f42c1;
+	--bs-btn-hover-color: #fff;
+	--bs-btn-hover-bg: #5e38a4;
+	--bs-btn-hover-border-color: #59359a;
+	--bs-btn-active-color: #fff;
+	--bs-btn-active-bg: #59359a;
+	--bs-btn-active-border-color: #533291;
+}

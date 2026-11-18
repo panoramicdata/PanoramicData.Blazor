@@ -40,6 +40,9 @@ public class ChatMessage
 	/// </remarks>
 	public string? AuthorImageSvg { get; set; }
 
+	/// <summary>Gets or sets images attached to this message, shown full width under its text.</summary>
+	public IReadOnlyList<ChatImage>? Images { get; set; }
+
 	/// <summary>Gets or sets the semantic type of this message, which controls its visual presentation.</summary>
 	public required MessageType Type { get; set; } = MessageType.Normal;
 
@@ -83,6 +86,12 @@ public class ChatMessage
 	/// </para>
 	/// </remarks>
 	public string? PartialMessage { get; set; }
+
+	/// <summary>
+	/// Gets or sets plain text to read aloud in place of <see cref="Message"/>, or null (the default) to read the
+	/// message itself. The displayed message is unaffected; an empty value reads nothing.
+	/// </summary>
+	public string? SpokenMessage { get; set; }
 
 	/// <summary>
 	/// Gets or sets optional per-message overrides for the toast shown when this message arrives while the

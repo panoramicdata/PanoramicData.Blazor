@@ -57,7 +57,14 @@ public partial class PDAnimation : IDisposable
 		// Load the Javascript module
 		if (firstRender)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDAnimation.razor.js").ConfigureAwait(true);
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDAnimation.razor.js").ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		await UpdatePositionAsync();
@@ -72,7 +79,16 @@ public partial class PDAnimation : IDisposable
 	{
 		if (_module is not null)
 		{
-			var newPosition = await _module.InvokeAsync<ElementPosition?>("getPosition", Id);
+			ElementPosition? newPosition;
+			try
+			{
+				newPosition = await _module.InvokeAsync<ElementPosition?>("getPosition", Id);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
 
 			// Could not find position, or same position as the last moved one: no need to update
 			if (newPosition is null || newPosition.Equals(_positions.LastOrDefault()))
@@ -110,7 +126,14 @@ public partial class PDAnimation : IDisposable
 		}
 
 		_lastAnimationTrigger = DateTime.Now.TimeOfDay;
-		await _module!.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime, GetAnimationStyle());
+		try
+		{
+			await _module!.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime, GetAnimationStyle());
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 
 		_positions.Clear();
 	}
@@ -131,7 +154,14 @@ public partial class PDAnimation : IDisposable
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("cancelAnimation", Id);
+			try
+			{
+				await _module.InvokeVoidAsync("cancelAnimation", Id);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 

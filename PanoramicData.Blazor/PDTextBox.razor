@@ -8,6 +8,7 @@
 		   disabled="@(!IsEnabled)"
 		   readonly="@IsReadOnly"
 		   placeholder="@Placeholder"
+		   maxlength="@MaxLength"
            @bind="Value" @bind:event="oninput" @onkeyup="OnKeypress" />
 }
 else
@@ -21,6 +22,7 @@ else
 		   disabled="@(!IsEnabled)"
 		   readonly="@IsReadOnly"
 		   placeholder="@Placeholder"
+		   maxlength="@MaxLength"
 		   @onchange="OnChange" />
 }
 @if (IsVisible)

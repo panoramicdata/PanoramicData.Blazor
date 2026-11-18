@@ -8,7 +8,19 @@ namespace PanoramicData.Blazor.Services;
 /// <param name="jsRuntime">The <see cref="IJSRuntime"/> used to invoke the browser confirmation dialog.</param>
 public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelService
 {
-    private readonly Task<IJSObjectReference>? _loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).AsTask();
+    private readonly Task<IJSObjectReference?>? _loadCommonJsTask = LoadCommonJsAsync(jsRuntime);
+
+    private static async Task<IJSObjectReference?> LoadCommonJsAsync(IJSRuntime jsRuntime)
+    {
+        try
+        {
+            return await jsRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+        }
+        catch (JSDisconnectedException)
+        {
+            return null;
+        }
+    }
 
 	/// <summary>
 	/// Event raised before a navigation occurs.
@@ -39,7 +51,14 @@ public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelSe
             var commonModule = await _loadCommonJsTask.ConfigureAwait(true);
             if (commonModule != null)
             {
-                return await commonModule.InvokeAsync<bool>("confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
+                try
+                {
+                    return await commonModule.InvokeAsync<bool>("confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
+                }
+                catch (JSDisconnectedException)
+                {
+                    // The circuit is gone, so the operation proceeds as it does with no module.
+                }
             }
         }
 

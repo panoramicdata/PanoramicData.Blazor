@@ -25,7 +25,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 				</span>
 				@if (Form.HelpTextMode == HelpTextMode.Toggle)
 				{
-					<i class="fas fa-question-circle text-info" @onclick="() => { if (Form != null) { Form.ShowHelp = !Form.ShowHelp; } }"></i>
+					<i class="fas fa-question-circle pd-form-header-help" @onclick="() => { if (Form != null) { Form.ShowHelp = !Form.ShowHelp; } }"></i>
 				}
 			}
 			else if (Form.Mode == FormModes.Cancel)
@@ -68,7 +68,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 				</span>
 				@if (Form.HelpTextMode == HelpTextMode.Toggle)
 				{
-					<i class="fas fa-question-circle text-info" @onclick="() => { if (Form != null) { Form.ShowHelp = !Form.ShowHelp; } }"></i>
+					<i class="fas fa-question-circle pd-form-header-help" @onclick="() => { if (Form != null) { Form.ShowHelp = !Form.ShowHelp; } }"></i>
 				}
 			}
 		</div>

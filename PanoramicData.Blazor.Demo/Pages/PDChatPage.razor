@@ -128,6 +128,15 @@
 					</div>
 
 					<div class="mb-3">
+						<label class="form-label small">Progress Steps:</label>
+						<select @bind="ProgressDisplayMode" class="form-select form-select-sm">
+							<option value="@ChatProgressDisplayMode.List">List, every step</option>
+							<option value="@ChatProgressDisplayMode.Ticker">Ticker, the latest step</option>
+						</select>
+						<div class="form-text">How a reply's steps show while it is composed. Try the Progress Steps button.</div>
+					</div>
+
+					<div class="mb-3">
 						<label class="form-label small">Timestamp Format:</label>
 						<input type="text" @bind="ChatService.MessageTimestampFormat" class="form-control form-control-sm" placeholder="Enter timestamp format">
 						<div class="form-text">Examples: HH:mm:ss, yyyy-MM-dd HH:mm, dd/MM/yyyy HH:mm:ss</div>
@@ -330,6 +339,12 @@
 								<label class="form-check-label small" for="wakePhraseCheck">Wake Phrase</label>
 							</div>
 						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsInterruptPhraseOn" id="interruptPhraseCheck">
+								<label class="form-check-label small" for="interruptPhraseCheck">Interrupt Phrase</label>
+							</div>
+						</div>
 					</div>
 
 					<div class="row mt-2">
@@ -347,6 +362,12 @@
 						<label class="form-label small">Wake Phrases (comma-separated):</label>
 						<input type="text" @bind="WakePhraseText" class="form-control form-control-sm" placeholder="Hey DumbBot, OK DumbBot">
 						<div class="form-text">With Wake Phrase on, the microphone goes dormant after the idle time and types nothing until it hears one of these. It is still streaming audio while dormant.</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label small">Interrupt Phrases (comma-separated):</label>
+						<input type="text" @bind="InterruptPhraseText" class="form-control form-control-sm" placeholder="DumbBot">
+						<div class="form-text">With Interrupt Phrase on, saying one of these while an answer is read aloud stops it. Anything else heard meanwhile is ignored. An answer that says the phrase itself cannot be interrupted by voice.</div>
 					</div>
 
 					<div class="small text-muted">
@@ -377,7 +398,7 @@
 							</button>
 						</div>
 						<div class="col-6">
-							<button class="btn btn-info btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_infoText, MessageType.Normal)">
+							<button class="btn btn-info btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_infoText, MessageType.Information)">
 								<i class="fas fa-info-circle me-1"></i>Info
 							</button>
 						</div>
@@ -392,13 +413,18 @@
 							</button>
 						</div>
 						<div class="col-6">
-							<button class="btn btn-dark btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_criticalText, MessageType.Critical)">
+							<button class="btn btn-critical btn-sm w-100 mb-2" @onclick="() => SendBotMessage(_criticalText, MessageType.Critical)">
 								<i class="fas fa-fire me-1"></i>Critical
 							</button>
 						</div>
 						<div class="col-6">
-							<button class="btn btn-success btn-sm w-100 mb-2" @onclick="SendTypingMessage">
+							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="SendTypingMessage">
 								<i class="fas fa-keyboard me-1"></i>Typing
+							</button>
+						</div>
+						<div class="col-12">
+							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="SendProgressStepsMessage">
+								<i class="fas fa-list-ol me-1"></i>Progress Steps
 							</button>
 						</div>
 						<div class="col-12">

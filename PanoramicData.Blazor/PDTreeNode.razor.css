@@ -4,7 +4,8 @@
 }
 
 .pdtreenode .selected {
-	background-color: #007bff;
+	background-color: var(--pd-tree-selected-bg, #007bff);
+	color: var(--pd-tree-selected-color, inherit);
 }
 
 .pdtreenode .pdtreenode_child_content {
@@ -18,10 +19,13 @@
 	white-space: nowrap;
 }
 
+/* The hover and the selection share this shape, so a host can round both and keep them clear of the panel's edge */
 .pdtreenode .pdtreenode_header .pdtreenode_content {
 	width: 100%;
 	padding-left: 3px;
 	margin-left: 3px;
+	margin-right: var(--pd-tree-node-inset-end, 0);
+	border-radius: var(--pd-tree-node-radius, 0);
 }
 
 .pdtreenode .pdtreenode_content:not(.selected):hover {
@@ -48,4 +52,26 @@
 	background-color: var(--bs-danger-bg-subtle, #f8d7da);
 	outline: 1px dashed var(--bs-danger, #dc3545);
 	border-radius: 3px;
+}
+
+/* insertion line for reordering by drag: a zero-height anchor so showing it never moves the rows */
+.pdtreenode-reorder .pdtree-drop-anchor {
+	position: relative;
+	height: 0;
+}
+
+.pdtreenode-reorder .pdtree-drop-line {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -1px;
+	height: 2px;
+	background-color: var(--bs-primary, #0d6efd);
+	border-radius: 1px;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.pdtreenode-reorder .pdtree-drop-line.invalid {
+	background-color: var(--bs-danger, #dc3545);
 }

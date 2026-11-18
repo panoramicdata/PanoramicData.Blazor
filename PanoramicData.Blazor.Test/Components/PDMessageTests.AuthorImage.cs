@@ -100,6 +100,48 @@ public partial class PDMessageTests
 	}
 
 	/// <summary>
+	/// Verifies that a sender's image is shown when the message has none of its own, in every layout.
+	/// </summary>
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public void SenderImageUrl_IsShown_WhenTheMessageHasNoImage(bool fullWidth)
+	{
+		var message = Message(fromUser: true);
+		var withSenderImage = new ChatMessage
+		{
+			Id = message.Id,
+			Sender = new ChatMessageSender { Name = "Ann", IsUser = true, ImageUrl = "/faces/ann.png" },
+			Message = message.Message,
+			Type = message.Type,
+			Timestamp = message.Timestamp
+		};
+
+		var component = RenderMessage(withSenderImage, p => p.Add(x => x.UseFullWidthMessages, fullWidth));
+
+		component.Find("img.pdchat-author-image").GetAttribute("src").Should().Be("/faces/ann.png");
+	}
+
+	/// <summary>
+	/// Verifies that the message's own image wins over its sender's.
+	/// </summary>
+	[Fact]
+	public void MessageImage_WinsOverTheSenderImage()
+	{
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Sender = new ChatMessageSender { Name = "Ann", IsUser = true, ImageUrl = "/faces/ann.png" },
+			Message = "Hello there",
+			Type = MessageType.Normal,
+			AuthorImageUrl = "/faces/message.png"
+		};
+
+		var component = RenderMessage(message);
+
+		component.Find("img.pdchat-author-image").GetAttribute("src").Should().Be("/faces/message.png");
+	}
+	/// <summary>
 	/// Verifies that the demo bot's face is a well-formed SVG document.
 	/// </summary>
 	[Fact]

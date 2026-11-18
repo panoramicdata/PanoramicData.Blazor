@@ -170,7 +170,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			Console.WriteLine("PDGraph: Updating configuration via JavaScript");
 			if (Module != null && _graphData != null)
 			{
-				await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData, ClusteringConfig).ConfigureAwait(true);
+				try
+				{
+					await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData, ClusteringConfig).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 		else
@@ -178,7 +185,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			Console.WriteLine($"PDGraph: Updating physics parameters to Convergence: {ConvergenceThreshold:F3}, Damping: {Damping:F3}");
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updatePhysicsParameters", Id, ConvergenceThreshold, Damping).ConfigureAwait(true);
+				try
+				{
+					await Module.InvokeVoidAsync("updatePhysicsParameters", Id, ConvergenceThreshold, Damping).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 	}
@@ -190,7 +204,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		{
 			// Create a DotNet object reference for JavaScript interop
 			_objRef = DotNetObjectReference.Create(this);
-			await Module.InvokeVoidAsync("initialize", Id, _objRef, ClusteringConfig).ConfigureAwait(true);
+			try
+			{
+				await Module.InvokeVoidAsync("initialize", Id, _objRef, ClusteringConfig).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 
 			// If we have data already, initialize the layout after module loads
 			if (_graphData?.Nodes != null)
@@ -266,7 +287,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	{
 		if (Module != null && _nodePositions.TryGetValue(nodeId, out var position))
 		{
-			await Module.InvokeVoidAsync("centerOnNode", Id, position.X, position.Y).ConfigureAwait(true);
+			try
+			{
+				await Module.InvokeVoidAsync("centerOnNode", Id, position.X, position.Y).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -278,7 +306,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	{
 		if (Module != null)
 		{
-			await Module.InvokeVoidAsync("fitToView", Id).ConfigureAwait(true);
+			try
+			{
+				await Module.InvokeVoidAsync("fitToView", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -302,7 +337,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			ConvergenceThreshold = convergenceThreshold;
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updatePhysicsParameters", Id, convergenceThreshold).ConfigureAwait(true);
+				try
+				{
+					await Module.InvokeVoidAsync("updatePhysicsParameters", Id, convergenceThreshold).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 		}
 		finally
@@ -339,7 +381,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			// ✅ FIXED: Use updateConfiguration to preserve positions while updating styling
 			if (Module != null && _graphData != null)
 			{
-				await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData).ConfigureAwait(true);
+				try
+				{
+					await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			StateHasChanged();
@@ -370,7 +419,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		if (Module != null)
 		{
 			// Pass the convergence threshold parameter
-			await Module.InvokeVoidAsync("regenerateLayout", Id, _graphData, ConvergenceThreshold, ClusteringConfig).ConfigureAwait(true);
+			try
+			{
+				await Module.InvokeVoidAsync("regenerateLayout", Id, _graphData, ConvergenceThreshold, ClusteringConfig).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 	}
 
@@ -379,7 +435,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	{
 		if (Module != null)
 		{
-			await Module.InvokeVoidAsync("destroy", Id).ConfigureAwait(true);
+			try
+			{
+				await Module.InvokeVoidAsync("destroy", Id).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
 		}
 
 		_objRef?.Dispose();
@@ -402,8 +465,22 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			// ✅ FIXED: Update selection in JavaScript without regenerating layout
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updateSelection", Id, node.Id, "node").ConfigureAwait(true);
-				await Module.InvokeVoidAsync("setFocusNode", Id, node.Id).ConfigureAwait(true);
+				try
+				{
+					await Module.InvokeVoidAsync("updateSelection", Id, node.Id, "node").ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
+				try
+				{
+					await Module.InvokeVoidAsync("setFocusNode", Id, node.Id).ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			await NodeClick.InvokeAsync(node).ConfigureAwait(true);
@@ -432,7 +509,14 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			// ✅ FIXED: Update selection in JavaScript without regenerating layout
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updateSelection", Id, edge.Id, "edge").ConfigureAwait(true);
+				try
+				{
+					await Module.InvokeVoidAsync("updateSelection", Id, edge.Id, "edge").ConfigureAwait(true);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 
 			await EdgeClick.InvokeAsync(edge).ConfigureAwait(true);

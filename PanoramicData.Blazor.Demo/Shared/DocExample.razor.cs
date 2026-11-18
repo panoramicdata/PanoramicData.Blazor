@@ -124,7 +124,6 @@ public partial class DocExample
 			// Reset after 2 seconds
 			await Task.Delay(2000).ConfigureAwait(true);
 			_copied = false;
-			StateHasChanged();
 		}
 		catch
 		{

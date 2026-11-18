@@ -1,13 +1,16 @@
 ﻿<PDModal @ref="Modal"
 		 Title="@_modalTitle"
 		 ButtonClick="OnButtonClick"
+		 BodyCssClass="p-0"
 		 Buttons="_toolbarItems"
+		 ButtonSize="ButtonSize"
 		 CloseOnEscape="CloseOnEscape"
 		 HideOnBackgroundClick="HideOnBackgroundClick"
 		 Size="Size">
 
 	<div class="pdfilemodalexplorer" style="height: @Height">
 		<PDFileExplorer @ref="FileExplorer"
+						ButtonSize="ButtonSize"
 						DataProvider="DataProvider"
 						AllowDrag="false"
 						AllowDrop="false"
@@ -32,6 +35,7 @@
 
 <PDModal @ref="ModalConfirm"
 		 Title="Confirm Overwrite"
+		 ButtonSize="ButtonSize"
 		 HideOnBackgroundClick="HideOnBackgroundClick"
 		 Buttons="_confirmToolbarItems">
 	<span>Are you sure you wish to overwrite '<b>@_filenameTextbox.Value</b>'?</span>

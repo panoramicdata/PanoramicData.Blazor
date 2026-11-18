@@ -33,7 +33,7 @@ public partial class PDStudioTests
 
 		studio.WaitForAssertion(() => executed.Should().Equal("SELECT 1"));
 		_service.Calls.Should().Equal(("SELECT 1", "sql", 7));
-		states.Should().Equal(true);
+		studio.WaitForAssertion(() => states.Should().Equal(true, false));
 		studio.Find("iframe.pd-studio-results-iframe").GetAttribute("srcdoc").Should().Contain("<p>42 rows</p>");
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("Code execution completed successfully"));
 	}
@@ -82,9 +82,11 @@ public partial class PDStudioTests
 		_service.Block = true;
 		await TypeAsync(studio, "sleep(10)");
 
+		PlayButton(studio).ClassList.Should().Contain("pd-studio-execute");
+
 		var running = PlayButton(studio).ClickAsync(new());
 		studio.WaitForAssertion(() => PlayButton(studio).TextContent.Should().Contain("Cancel"));
-		PlayButton(studio).ClassList.Should().Contain("btn-danger");
+		PlayButton(studio).ClassList.Should().Contain("btn-danger").And.Contain("pd-studio-execute");
 		studio.FindAll(".pd-studio-editor-overlay").Should().ContainSingle();
 
 		await PlayButton(studio).ClickAsync(new());
@@ -131,7 +133,25 @@ public partial class PDStudioTests
 		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Be("2 * 3"));
 	}
 
-	private sealed class FakeStudioService : IPDStudioService
+	/// <summary>
+	/// Verifies that Ctrl+Enter is taken from the editor, whose own is Insert Line Below, as soon as the editor exists,
+	/// rather than after a guessed delay that a slowly loading Monaco could outlast.
+	/// </summary>
+	[Fact]
+	public async Task CtrlEnter_IsTakenFromTheEditor_OnceItExists()
+	{
+		ComponentFactories.Clear();
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js");
+		module.Setup<bool>("waitForMonaco", _ => true).SetResult(true);
+		var studio = RenderStudio();
+		studio.WaitForState(() => studio.FindComponents<BlazorMonaco.Editor.StandaloneCodeEditor>().Count > 0);
+
+		await studio.InvokeAsync(() => studio.FindComponent<BlazorMonaco.Editor.StandaloneCodeEditor>().Instance.OnDidInit.InvokeAsync());
+
+		module.Invocations["disableKeyBinding"].Select(i => i.Arguments).Should().ContainEquivalentOf(new object[] { 13, true, false, false });
+	}
+
+	private sealed class FakeStudioService : IPDStudioResultSetService
 	{
 		private EventHandler<StudioExecutionEventArgs>? _executionEvent;
 
@@ -144,6 +164,19 @@ public partial class PDStudioTests
 		public List<(string Code, string Language, int Timeout)> Calls { get; } = [];
 
 		public string Result { get; set; } = "<p>Done</p>";
+
+		/// <summary>Tabular results to return; null makes the studio fall back to <see cref="Result"/>.</summary>
+		public PDStudioResultSet? ResultSet { get; set; }
+
+		public Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken _)
+		{
+			if (ResultSet is not null)
+			{
+				Calls.Add((code, language, timeoutSeconds));
+			}
+
+			return Failure is not null && ResultSet is not null ? throw Failure : Task.FromResult(ResultSet);
+		}
 
 		public Exception? Failure { get; set; }
 
@@ -179,7 +212,15 @@ public partial class PDStudioTests
 			}
 
 			cancellationToken.ThrowIfCancellationRequested();
+			if (RaiseCompletedOnFinish)
+			{
+				Raise(new StudioExecutionEventArgs { EventType = StudioExecutionEventType.Completed, Status = "done" });
+			}
+
 			return Failure is null ? Result : throw Failure;
 		}
+
+		/// <summary>Raises a Completed event as the run finishes, as a service that reports its own progress does.</summary>
+		public bool RaiseCompletedOnFinish { get; set; }
 	}
 }

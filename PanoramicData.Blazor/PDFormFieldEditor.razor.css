@@ -1,12 +1,18 @@
+/* The frame around a field's editor; a host can match it to its own control borders */
 .editor {
 	align-items: center;
-	border-bottom: 1px solid #ced4da;
-	border-top: 1px solid #ced4da;
-	border-right: 1px solid #ced4da;
+	border-bottom: 1px solid var(--pd-form-editor-border-color, #ced4da);
+	border-top: 1px solid var(--pd-form-editor-border-color, #ced4da);
+	border-right: 1px solid var(--pd-form-editor-border-color, #ced4da);
 	display: flex;
 	flex: 1 1;
 	padding: 0 2px;
 	vertical-align: middle;
+}
+
+/* Bootstrap 5.3's dark mode: its own border colour, as its inputs have, unless the host sets the variable */
+[data-bs-theme="dark"] .editor {
+	border-color: var(--pd-form-editor-border-color, var(--bs-border-color, #495057));
 }
 
 /* The editors are mostly child components (PDTextBox, PDDateTime, Monaco, ...), so the rules that

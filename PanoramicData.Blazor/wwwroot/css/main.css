@@ -1,4 +1,4 @@
-﻿.cursor-pointer {
+.cursor-pointer {
   cursor: pointer;
 }
 
@@ -157,7 +157,8 @@
 
 /* PDSplitter - the gutters are created by split.js */
 .pdsplitter .gutter {
-  background-color: #eee;
+  background-color: var(--pd-splitter-gutter-bg, var(--bs-border-color, #eee));
+  transition: background-color 0.1s ease-out;
 }
 
 .pdsplitter .gutter-vertical {
@@ -166,6 +167,32 @@
 
 .pdsplitter .gutter-horizontal {
   cursor: col-resize;
+}
+
+/* PDStudio themes its own splitter bars */
+.pd-studio .pdsplitter > .gutter {
+  background-color: var(--pd-studio-gutter-bg, var(--pd-splitter-gutter-bg, var(--bs-tertiary-bg, #eee)));
+}
+
+/* Highlights the splitter bar under the pointer after a short delay, so passing over it does not flash */
+.pdsplitter .gutter:hover,
+.pdsplitter .gutter:active {
+  background-color: var(--pd-splitter-gutter-hover-bg, var(--bs-primary, #0d6efd));
+  transition: background-color 0.15s ease-in var(--pd-splitter-gutter-hover-delay, 0.2s);
+}
+
+.pdsplitter .gutter:active {
+  transition-delay: 0s;
+}
+
+/* Execute becomes Cancel while code runs; one width for both stops the rest of the toolbar shifting */
+.pd-studio .pdtoolbarbutton.pd-studio-execute {
+	min-width: var(--pd-studio-execute-min-width, 5.5rem);
+}
+
+/* Inside PDStudio the editor needs no border of its own: the studio's panel draws one */
+.pd-studio .pd-studio-editor-container .pd-monacoeditor {
+  border: none;
 }
 
 /* PDFilePreview - the preview content is MarkupString */
@@ -372,6 +399,26 @@
   box-shadow: none !important;
 }
 
+/* Below 768px a chat docked to the side is too narrow for its own header, so it covers the page as Fullscreen does. */
+@media (max-width: 767px) {
+  .pdchat-container-wrapper.pdchat-container-wrapper:not(.pdchat-split-inactive) .pdchat-chat-panel {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 10000 !important;
+  }
+
+  .pdchat-container-wrapper.pdchat-container-wrapper:not(.pdchat-split-inactive) .pdchat-content-panel {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+
+  .pdchat-container-wrapper.pdchat-container-wrapper:not(.pdchat-split-inactive) .pdchat-container-splitter > .gutter {
+    display: none !important;
+  }
+}
+
 /* PDList */
 .pd-list .filter input {
   border-top-right-radius: 0 !important;
@@ -462,12 +509,27 @@
 }
 
 /* PDFileExplorer */
+
+/* The top folder sits a little below whatever is above the tree, rather than against it */
 .pdfileexplorer.pdfileexplorer .pdtree {
   height: 0;
+  box-sizing: border-box;
+  padding-top: 0.5rem;
 }
 
+/* The top folder lines up with the toolbar's first button: the toolbar's padding, less the drop zone's 1px border */
+.pdfileexplorer.pdfileexplorer .pdtree > .pdtreenode {
+  padding-left: calc(0.5rem - 1px);
+}
+
+/* The splitter takes the height the toolbar leaves */
 .pdfileexplorer.pdfileexplorer .pdsplitter.horizontal {
-  height: calc(100% - 50px);
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.pdfileexplorer.pdfileexplorer.pdfe-no-toolbar .pdsplitter.horizontal {
+  height: 100%;
 }
 
 /* Suppress the whole-panel Dropzone.js hover highlight on the tree side;
@@ -486,12 +548,32 @@
 }
 
 /* PDFileModal */
+
+/* The dialog's body has no padding (p-0), so the toolbar's own spacing is the only spacing and the panes run edge to edge */
 .pdfilemodalexplorer.pdfilemodalexplorer .pdfileexplorer {
   height: 100%;
+  padding-bottom: 0;
 }
 
 .pdfilemodalexplorer.pdfilemodalexplorer .pdsplitter {
   flex-grow: 1;
+}
+
+/* PDFormFooter - no padding needed, modal-footer / page context already provides it */
+.pd-form-footer.pd-form-footer .pdtoolbar {
+  flex-wrap: nowrap;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* In the dialog the toolbar's buttons and the top folder line up with the title and the footer's buttons, 1rem in */
+.pdfilemodalexplorer.pdfilemodalexplorer .pdfe-toolbar .pdtoolbar {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.pdfilemodalexplorer.pdfilemodalexplorer .pdtree > .pdtreenode {
+  padding-left: calc(1rem - 1px);
 }
 
 /* PDFilter */
@@ -608,13 +690,6 @@
 /* override disabled grey out */
 .pd-form-field-editor.editor.readonly .form-control:disabled {
   border-radius: 0 !important;
-}
-
-/* PDFormFooter - no padding needed, modal-footer / page context already provides it */
-.pd-form-footer.pd-form-footer .pdtoolbar {
-  flex-wrap: nowrap;
-  padding: 0;
-  flex-shrink: 0;
 }
 
 /* PDMonacoEditor */
@@ -792,12 +867,17 @@
   flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
-/* Ensure dropdown toggles have proper styling */
+/* Ensure dropdown toggles have proper styling. No gap between the parts: a label after an icon is spaced as a
+   PDToolbarButton's is, so a host's text class such as ps-2 spaces both alike, and the caret keeps its own margin */
 .pdtoolbar .pdtoolbaritem .dropdown-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--pd-toolbar-dropdown-gap, 0);
   border-radius: var(--bs-border-radius, 0.375rem); /* Rounded corners */
+}
+
+.pdtoolbar .pdtoolbaritem .dropdown-toggle > .icon + span {
+  padding-left: var(--pd-toolbar-dropdown-label-gap, 0.25rem);
 }
 
 /* Ensure dropdown menus overflow properly */
@@ -813,6 +893,25 @@
   white-space: nowrap;
 }
 
+/* PDToolbarGroup - its items' buttons meet edge to edge, with rounded outer corners only */
+.pdtoolbar .pdtoolbargroup > .pdtoolbaritem {
+	padding: 0;
+}
+
+/* .btn rather than .pdtoolbarbutton, which PDToolbarDropdown's button does not have. The divider keeps
+   buttons of one colour apart; set --pd-toolbar-group-divider-color to change it. */
+.pdtoolbar .pdtoolbargroup > .pdtoolbaritem:not(:first-child) .btn {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	margin-left: calc(var(--bs-border-width, 1px) * -1);
+	border-left-color: var(--pd-toolbar-group-divider-color, rgba(0, 0, 0, 0.3));
+}
+
+.pdtoolbar .pdtoolbargroup > .pdtoolbaritem:not(:last-child) .btn {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
 /* Mobile is already handled by wrapping - adjust for smaller screens */
 @media (max-width: 768px) {
   .pdtoolbar .pdtoolbaritem {
@@ -824,4 +923,43 @@
     max-width: none; /* Remove max-width constraint on mobile */
     min-width: 0; /* Allow full shrinking on mobile */
   }
+}
+
+/* PDMessage - the progress ticker's clock. A registration is global, so it cannot live in PDMessage.razor.css. */
+@property --pdchat-progress-seconds {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --pdchat-progress-minutes {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+/* PDStudio's toolbar and its separators are PDToolbar markup, so they are styled here */
+.pd-studio .pdtoolbar.pd-studio-toolbar {
+  padding: var(--pd-studio-toolbar-padding, 0.375rem var(--_pds-toolbar-padding-x, 0));
+  border-bottom: var(--pd-studio-toolbar-border-bottom, 1px solid var(--_pds-border-color));
+}
+
+/* Spacing from the gap, not each item's padding, so a wrapped row starts level with the first */
+.pd-studio .pdtoolbar.pd-studio-toolbar {
+	column-gap: 0.75rem;
+}
+
+.pd-studio .pdtoolbar.pd-studio-toolbar > .pdtoolbaritem {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.pd-studio .pdtoolbar.pd-studio-toolbar .pdts-bar {
+  border-left-color: var(--pd-studio-separator-color, var(--bs-secondary, #6c757d));
+}
+
+/* A hidden first item, such as an Up button turned off, must not leave the next one indented */
+.pdtoolbar .pdtoolbaritem.pd-hidden:first-child + .pdtoolbaritem,
+.pdtoolbar .pdtoolbaritem.d-none:first-child + .pdtoolbaritem {
+  padding-left: 0;
 }

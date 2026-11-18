@@ -68,6 +68,13 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	// A card dropped before the script's drop listener is in place would never reach the group's transformation.
 	private bool _canDrag;
 
+	// The card ids in order when a drag began, outside a group; null when no drag is waiting to be reported.
+	private List<Guid>? _orderAtDragStart;
+
+	// The card the selection last moved past. Its further dragovers are ignored until another card is dragged over,
+	// as over a slow connection they arrive after the move and would swap the selection straight back.
+	private Guid? _cardJustPassedId;
+
 	/// <summary>Gets the injected logger for this component.</summary>
 	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
 
@@ -139,6 +146,27 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	public bool ShowLoadingElapsedTime { get; set; } = true;
 
 	/// <summary>
+	/// Raised by a deck outside a <see cref="PDCardDeckGroup{TCard}"/> when the user changes the order of its cards,
+	/// with the cards in their new order and each <see cref="ICard.DeckPosition"/> set. Inside a group, see
+	/// <see cref="PDCardDeckGroup{TCard}.Transformation"/> instead.
+	/// </summary>
+	[Parameter]
+	public EventCallback<IReadOnlyList<TCard>> CardsReordered { get; set; }
+
+	/// <summary>
+	/// Whether, in a deck outside a <see cref="PDCardDeckGroup{TCard}"/>, Alt+Up and Alt+Down move the selected cards one
+	/// place, raising <see cref="CardsReordered"/>. Defaults to false.
+	/// </summary>
+	[Parameter]
+	public bool KeyboardReorder { get; set; }
+
+	/// <summary>
+	/// Raised when the user presses Delete with cards selected, with the selected cards. The deck removes nothing itself.
+	/// </summary>
+	[Parameter]
+	public EventCallback<IReadOnlyList<TCard>> DeleteRequested { get; set; }
+
+	/// <summary>
 	/// The parent deck group that this deck belongs to, if any. This is used for migrating cards between decks.
 	/// </summary>
 	[CascadingParameter]
@@ -161,7 +189,59 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 				async (MouseEventArgs _) => await RegisterDestination());
 		}
 
+		// The deck takes focus only when a key does something, so other decks add no tab stops.
+		if (CanReorderByKeyboard || DeleteRequested.HasDelegate)
+		{
+			dict.Add("tabindex", "0");
+			dict.Add("onkeydown", (KeyboardEventArgs e) => OnKeyDownAsync(e));
+		}
+
 		return dict;
+	}
+
+	private bool CanReorderByKeyboard => KeyboardReorder && Parent is null;
+
+	private async Task OnKeyDownAsync(KeyboardEventArgs args)
+	{
+		if (!IsEnabled || Selection.Count == 0)
+		{
+			return;
+		}
+
+		if (args.Key == "Delete" && DeleteRequested.HasDelegate)
+		{
+			await DeleteRequested.InvokeAsync([.. Selection]);
+		}
+		else if (IsReorderKey(args))
+		{
+			await MoveSelectionAsync(args.Key == "ArrowUp" ? -1 : 1);
+		}
+	}
+
+	private bool IsReorderKey(KeyboardEventArgs args) => args.AltKey && CanReorderByKeyboard && args.Key is "ArrowUp" or "ArrowDown";
+
+	// Each selected card swaps with the card beside it, leading edge first, so a block moves together. Nothing moves
+	// once a selected card is at the end it is moving towards.
+	private async Task MoveSelectionAsync(int offset)
+	{
+		List<int> indexes = [.. Selection.Select(card => Cards.IndexOf(card)).Where(index => index >= 0).Order()];
+		if (indexes.Count == 0 || (offset < 0 ? indexes[0] == 0 : indexes[^1] == Cards.Count - 1))
+		{
+			return;
+		}
+
+		if (offset > 0)
+		{
+			indexes.Reverse();
+		}
+
+		foreach (var index in indexes)
+		{
+			(Cards[index], Cards[index + offset]) = (Cards[index + offset], Cards[index]);
+		}
+
+		await NotifyReorderedAsync();
+		StateHasChanged();
 	}
 
 	private string GetDeckCss()
@@ -177,36 +257,64 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (!firstRender)
 		{
-			// The cards come first, so a full page load shows them without waiting for the script to download.
-			await RefreshAsync();
-			if (_disposed)
-			{
-				return;
-			}
+			return;
+		}
 
-			Parent?.RegisterDeckAsChild(this);
+		// The cards come first, so a full page load shows them without waiting for the script to download.
+		await RefreshAsync();
+		if (_disposed)
+		{
+			return;
+		}
 
-			_dotNetRef = DotNetObjectReference.Create(this);
+		Parent?.RegisterDeckAsChild(this);
+
+		_dotNetRef = DotNetObjectReference.Create(this);
+		await ImportJsModuleAsync();
+
+		// Disposed while the module was loading: register nothing that would outlive the deck.
+		if (_disposed)
+		{
+			await DisposeAsync().ConfigureAwait(true);
+			return;
+		}
+
+		await InvokeListenerRegistrationAsync("registerValidDragOperationListeners");
+		await InvokeListenerRegistrationAsync("registerInvalidDragOperationListeners");
+
+		_canDrag = true;
+		StateHasChanged();
+	}
+
+	private async Task ImportJsModuleAsync()
+	{
+		try
+		{
 			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
 				"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+	}
 
-			// Disposed while the module was loading: register nothing that would outlive the deck.
-			if (_disposed)
-			{
-				await DisposeAsync().ConfigureAwait(true);
-				return;
-			}
+	private async Task InvokeListenerRegistrationAsync(string identifier)
+	{
+		if (_jsModule is null)
+		{
+			return;
+		}
 
-			if (_jsModule != null)
-			{
-				await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", DeckElement, _dotNetRef);
-				await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", DeckElement, _dotNetRef);
-			}
-
-			_canDrag = true;
-			StateHasChanged();
+		try
+		{
+			await _jsModule.InvokeVoidAsync(identifier, DeckElement, _dotNetRef);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
 		}
 	}
 
@@ -253,7 +361,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	[JSInvokable]
 	public Task InitiateTransformAsync()
 		=> Parent?.InitiateTransformAsync()
-		?? Task.CompletedTask;
+		?? CompleteReorderAsync();
 
 
 	#region Card Called Events
@@ -297,6 +405,8 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
+		_orderAtDragStart = Parent is null ? [.. Cards.Select(deckCard => deckCard.Id)] : null;
+		_cardJustPassedId = null;
 		ClearAnimationPositions();
 		Parent?.ClearAllSelectionExceptActive(this);
 		Parent?.SetSourceDeck(this);
@@ -313,17 +423,24 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		await InvokeAsync(StateHasChanged);
 	}
 
-	internal void OnDragEnd(DragEventArgs e, TCard card)
+	internal async Task OnDragEndAsync(DragEventArgs e, TCard card)
 	{
 		DragState.Reset();
+		await CompleteReorderAsync();
 		StateHasChanged();
 	}
 
 	internal async Task NotifyDragPositionAsync(DragEventArgs e, TCard card)
 	{
-		if (!DragState.IsDragging)
+		if (!DragState.IsDragging || card.Id == _cardJustPassedId)
 		{
 			return;
+		}
+
+		var isSelected = Selection.Contains(card);
+		if (isSelected)
+		{
+			_cardJustPassedId = null;
 		}
 
 		ClearAnimationPositions();
@@ -345,6 +462,10 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		}
 
 		DragState.TargetIndex = cardIndex;
+		if (!isSelected)
+		{
+			_cardJustPassedId = card.Id;
+		}
 
 		await UpdateCardPositionsAsync(movingDown);
 
@@ -439,6 +560,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	internal async Task AddCardsAsync(List<TCard> selection)
 	{
 		DragState.IsDragging = true;
+		_cardJustPassedId = null;
 		await CancelAnimations();
 
 		// Create the new cards
@@ -564,7 +686,16 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		}
 	}
 
-	internal async Task RefreshAsync()
+	/// <summary>
+	/// Reads this deck's cards again from <see cref="DataFunction"/> and shows them, for when something outside the deck,
+	/// such as a filter, changes which cards it holds. A selected card that the deck no longer holds is deselected.
+	/// </summary>
+	/// <remarks>
+	/// In a <see cref="PDCardDeckGroup{TCard}"/>, prefer <see cref="PDCardDeckGroup{TCard}.RefreshAsync"/>, which also waits
+	/// for a drop that is still being saved.
+	/// </remarks>
+	/// <returns>A task that completes when the deck shows its new cards.</returns>
+	public async Task RefreshAsync()
 	{
 		DataLoaded = false;
 		Cards.Clear();
@@ -576,6 +707,12 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 			.ToList();
 
 		Cards = newOrder;
+
+		// A new list rather than an edit, as a move in progress may still be reading the old one
+		Selection = [.. Selection
+			.Select(selected => Cards.FindIndex(card => card.Id == selected.Id))
+			.Where(index => index >= 0)
+			.Select(index => Cards[index])];
 		DataLoaded = true;
 
 		// Always re-render: a deck outside a group has nothing else to render it once its data arrives.
@@ -592,6 +729,27 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 			var card = Cards[index];
 			card.DeckPosition = index;
 		}
+	}
+
+	// A drag ends with both the document's drop and the dragged card's dragend, in either order: the first reports it.
+	private async Task CompleteReorderAsync()
+	{
+		if (_orderAtDragStart is not { } orderAtDragStart)
+		{
+			return;
+		}
+
+		_orderAtDragStart = null;
+		if (!orderAtDragStart.SequenceEqual(Cards.Select(card => card.Id)))
+		{
+			await NotifyReorderedAsync();
+		}
+	}
+
+	private async Task NotifyReorderedAsync()
+	{
+		UpdateCardDeckPositions();
+		await CardsReordered.InvokeAsync([.. Cards]);
 	}
 
 	/// <summary>

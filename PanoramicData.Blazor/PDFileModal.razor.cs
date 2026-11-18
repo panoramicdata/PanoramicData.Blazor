@@ -107,6 +107,16 @@ public partial class PDFileModal
 	[Parameter] public ModalSizes Size { get; set; } = ModalSizes.Large;
 
 	/// <summary>
+	/// Gets or sets the size of every button in the dialog: the explorer's toolbar, the foot of the modal and its overwrite confirmation.
+	/// </summary>
+	[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
+
+	/// <summary>
+	/// Gets or sets the icon on the buttons that dismiss the dialog: Cancel, and No when asked whether to overwrite.
+	/// </summary>
+	[Parameter] public string CancelButtonIconCssClass { get; set; } = "fas fa-fw fa-times";
+
+	/// <summary>
 	/// Gets or sets whether the modal should hide when the background is clicked.
 	/// </summary>
 	[Parameter] public bool HideOnBackgroundClick { get; set; }
@@ -167,6 +177,13 @@ public partial class PDFileModal
 		_filenameTextbox.KeypressEvent = true;
 		_filenameTextbox.ValueChanged = OnFilenameChanged;
 		_filenameTextbox.Keypress = OnFilenameKeypress;
+	}
+
+	/// <inheritdoc />
+	protected override void OnParametersSet()
+	{
+		_cancelButton.IconCssClass = CancelButtonIconCssClass;
+		_noButton.IconCssClass = CancelButtonIconCssClass;
 	}
 
 	private string? GetItemIconCssClassInternal(FileExplorerItem item) => GetItemIconCssClass is null ? null : GetItemIconCssClass(item);

@@ -102,6 +102,7 @@ public partial class DumbChatService : IChatService, IDisposable
 			// Issue #106: copied by hand like the rest, so a new payload must be added here too.
 			existing.Form = chatMessage.Form;
 			existing.FormSubmission = chatMessage.FormSubmission;
+			existing.SpokenMessage = chatMessage.SpokenMessage;
 		}
 
 		OnConversationMessageReceived?.Invoke(conversationId, chatMessage);

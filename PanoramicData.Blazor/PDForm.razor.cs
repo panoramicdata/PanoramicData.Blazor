@@ -10,6 +10,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
 	private bool _showHelp;
 	private IJSObjectReference? _module;
+	private IJSObjectReference? _commonModule;
+	private bool _unloadListenerArmed;
 	private readonly List<PDFormFieldEditor<TItem>> _fieldEditors = [];
 
 	/// <summary>
@@ -20,6 +22,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
+
+	[Inject] private IServiceProvider ServiceProvider { get; set; } = default!;
 
 	/// <summary>
 	/// Injected log service.
@@ -87,7 +91,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Parameter] public EventCallback<TItem> Updated { get; set; }
 
 	/// <summary>
-	/// Event raised whenever an error occurs.
+	/// Event raised whenever an error occurs, including an exception's message when ExceptionHandler is not set.
 	/// </summary>
 	[Parameter] public EventCallback<string> Error { get; set; }
 
@@ -112,7 +116,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Parameter] public EventCallback<CustomValidateArgs<TItem>> CustomValidate { get; set; }
 
 	/// <summary>
-	/// Gets or sets a delegate to be called if an exception occurs.
+	/// Gets or sets a delegate to be called if an exception occurs. When neither this nor Error is set, a registered
+	/// <see cref="IPDFormExceptionHandler"/> is called instead.
 	/// </summary>
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
@@ -172,6 +177,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			try
 			{
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
 			}
 			catch
 			{
@@ -232,10 +238,52 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Centralized method to process exceptions.
 	/// </summary>
 	/// <param name="ex">Exception that has been raised.</param>
+	/// <remarks>Never throws: an exception reaching a Blazor event handler ends the user's circuit.</remarks>
 	public async Task HandleExceptionAsync(Exception ex)
 	{
 		Logger.LogError(ex, "Exception occurred: {ErrorMessage}", ex.Message);
-		await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+		try
+		{
+			if (ExceptionHandler.HasDelegate)
+			{
+				await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+			}
+			else if (Error.HasDelegate)
+			{
+				await Error.InvokeAsync(ex.Message).ConfigureAwait(true);
+			}
+			else if (ServiceProvider.GetService<IPDFormExceptionHandler>() is { } applicationHandler)
+			{
+				await applicationHandler.HandleExceptionAsync(ex).ConfigureAwait(true);
+			}
+		}
+		catch (Exception handlerException)
+		{
+			Logger.LogError(handlerException, "Form {Id}: the exception handler failed", Id);
+		}
+	}
+
+	/// <summary>
+	/// Runs a call to the browser that only tidies the page, so that its failure never stops the form working.
+	/// </summary>
+	/// <returns>True if the call succeeded.</returns>
+	private async Task<bool> TryBrowserCallAsync(Func<Task> call)
+	{
+		try
+		{
+			await call().ConfigureAwait(true);
+			return true;
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit has gone, and the page with it.
+			return false;
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Form {Id}: a call to the browser failed", Id);
+			return false;
+		}
 	}
 
 	/// <summary>
@@ -276,13 +324,30 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	}
 
 	/// <summary>
+	/// Tells the browser module to arm or disarm the unload prompt.
+	/// </summary>
+	private async Task SetModuleUnloadListenerAsync(IJSObjectReference module, bool enabled)
+	{
+		try
+		{
+			await module.InvokeVoidAsync("setUnloadListener", Id, enabled).ConfigureAwait(true);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+	}
+
+	/// <summary>
 	/// Arms or disarms the prompt shown when leaving the page with unsaved changes, if the form asks for one.
 	/// </summary>
 	private async Task SetUnloadListenerAsync(bool enabled)
 	{
-		if (ConfirmOnUnload && _module != null)
+		// Skipping a disarm when never armed saves a browser round trip on every form open.
+		if (ConfirmOnUnload && _module is { } module && (enabled || _unloadListenerArmed)
+			&& await TryBrowserCallAsync(() => SetModuleUnloadListenerAsync(module, enabled)).ConfigureAwait(true))
 		{
-			await _module.InvokeVoidAsync("setUnloadListener", Id, enabled).ConfigureAwait(true);
+			_unloadListenerArmed = enabled;
 		}
 	}
 
@@ -520,10 +585,36 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	private async Task ResetAllEditorCssAsync()
 	{
-		foreach (var editor in _fieldEditors.ToList())
+		// Each JS call is a browser round trip, slow far from the server, so make at most one.
+		// An editor the browser has not shown yet cannot have been resized.
+		var editors = _fieldEditors.Where(x => x.IsRendered).ToList();
+		if (editors.Count == 0)
 		{
-			await editor.ResetEditorCssAsync();
+			return;
 		}
+
+		if (_commonModule is not { } common)
+		{
+			foreach (var editor in editors)
+			{
+				await TryBrowserCallAsync(editor.ResetEditorCssAsync).ConfigureAwait(true);
+			}
+
+			return;
+		}
+
+		var elements = editors.Select(x => x.EditorDiv).ToArray();
+		await TryBrowserCallAsync(async () =>
+		{
+			try
+			{
+				await common.InvokeVoidAsync("clearInlineStyles", elements).ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+		}).ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -535,24 +626,20 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			GC.SuppressFinalize(this);
 			NavigationCancelService.BeforeNavigate -= NavigationService_BeforeNavigate;
-			if (_module != null)
+			if (_module is { } module)
 			{
 				if (ConfirmOnUnload)
 				{
-					try
-					{
-						// The beforeunload listener is shared, module-level state keyed by form id and
-						// outlives this component - without this disarm, a dirty form disposed by
-						// navigation leaves the "Exit and lose changes?" prompt armed for the whole tab.
-						await _module.InvokeVoidAsync("setUnloadListener", Id, false).ConfigureAwait(true);
-					}
-					catch (JSDisconnectedException)
-					{
-						// The Blazor circuit has already disconnected. The page and its listener are gone - benign; ignore.
-					}
+					// The listener is module-level state that outlives the form, so a dirty form must disarm it.
+					await TryBrowserCallAsync(() => SetModuleUnloadListenerAsync(module, false)).ConfigureAwait(true);
 				}
 
-				await _module.DisposeAsync().ConfigureAwait(true);
+				await TryBrowserCallAsync(() => module.DisposeAsync().AsTask()).ConfigureAwait(true);
+			}
+
+			if (_commonModule is { } common)
+			{
+				await TryBrowserCallAsync(() => common.DisposeAsync().AsTask()).ConfigureAwait(true);
 			}
 		}
 		catch

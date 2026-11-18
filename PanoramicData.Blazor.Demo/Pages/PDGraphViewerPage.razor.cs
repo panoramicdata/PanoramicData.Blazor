@@ -190,7 +190,6 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 		_selectedEdge = null;
 		EventManager?.Add(new Event($"✅ Node clicked: {node.Label} (ID: {node.Id})"));
 		Console.WriteLine($"Node click event fired: {node.Label}");
-		StateHasChanged();
 	}
 
 	private void OnEdgeClick(GraphEdge edge)
@@ -199,7 +198,6 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 		_selectedEdge = edge;
 		EventManager?.Add(new Event($"✅ Edge clicked: {edge.Id} ({edge.FromNodeId} → {edge.ToNodeId})"));
 		Console.WriteLine($"Edge click event fired: {edge.Id}");
-		StateHasChanged();
 	}
 
 	private void OnSelectionChanged((GraphNode? Node, GraphEdge? Edge) selection)
@@ -215,7 +213,6 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 
 		EventManager?.Add(new Event($"✅ Selection changed: {selectionInfo}"));
 		Console.WriteLine($"Selection changed: {selectionInfo}");
-		StateHasChanged();
 	}
 
 	// ✅ FIXED: Don't trigger updates here - this should be read-only
@@ -226,7 +223,6 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 		_clusteringConfig = config.Clustering;
 		_damping = config.Damping;
 		EventManager?.Add(new Event("Graph configuration changed"));
-		StateHasChanged();
 	}
 
 	public void Dispose()

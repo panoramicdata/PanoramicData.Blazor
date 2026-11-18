@@ -10,6 +10,30 @@ public partial class PDTable<TItem>
 			: [.. ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString() ?? string.Empty))];
 
 	/// <summary>
+	/// Scrolls the row with the given key into view, moving the table no further than needed to show it. Scrolling only
+	/// helps the eye, so a connection that has closed is not reported as a failure.
+	/// </summary>
+	/// <param name="key">Row key value.</param>
+	public async Task ScrollItemIntoViewAsync(string key)
+	{
+		if (_commonModule is null || string.IsNullOrWhiteSpace(key))
+		{
+			return;
+		}
+
+		// A key such as a file path is not a valid CSS identifier, so the row is matched on its id attribute
+		var escapedKey = key.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
+		try
+		{
+			await _commonModule.InvokeVoidAsync("scrollIntoViewEx", $"#{Id} tr[id=\"{escapedKey}\"]", "auto", "nearest", "nearest").ConfigureAwait(true);
+		}
+		catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException)
+		{
+			// The page closed while scrolling
+		}
+	}
+
+	/// <summary>
 	/// Clears the current selection.
 	/// </summary>
 	public async Task ClearSelectionAsync()

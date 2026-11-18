@@ -26,7 +26,9 @@ public partial class PDMessagesTests
 		component.Find("textarea").HasAttribute("disabled").Should().BeFalse();
 		component.Find("button").HasAttribute("disabled").Should().BeTrue();
 
-		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "hello" }));
+		// A re-render between Find and the event leaves a stale handler id, so the input is retried on the fresh element
+		await component.InvokeAsync(() => { });
+		component.WaitForAssertion(() => component.Find("textarea").Input(new ChangeEventArgs { Value = "hello" }), TimeSpan.FromSeconds(10));
 		component.WaitForAssertion(() => component.Find("button").HasAttribute("disabled").Should().BeFalse(), TimeSpan.FromSeconds(10));
 	}
 
