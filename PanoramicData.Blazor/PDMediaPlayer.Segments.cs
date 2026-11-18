@@ -40,13 +40,15 @@ public partial class PDMediaPlayer
 	public IReadOnlyList<PDMediaSegment> VisibleSegments => _visibleSegments;
 
 	/// <summary>
-	/// Gets the visible segments that contain the current position, in time order.
+	/// Gets the visible segments that contain the current position plus <see cref="SeekLead"/>, in time order. The lead is added, as it
+	/// is for <see cref="CurrentMarker"/>, so that a segment that has just been selected (which puts the playhead the lead before it)
+	/// is the current one rather than the segment before it.
 	/// </summary>
-	public IReadOnlyList<PDMediaSegment> CurrentSegments => MediaSegmentNavigator.Active(_visibleSegments, DisplayPosition);
+	public IReadOnlyList<PDMediaSegment> CurrentSegments => MediaSegmentNavigator.Active(_visibleSegments, MarkerCursor);
 
 	/// <summary>
-	/// Gets the current segment: the latest-starting visible segment that contains the current position, or
-	/// <c>null</c> between segments.
+	/// Gets the current segment: the latest-starting visible segment that contains the current position plus
+	/// <see cref="SeekLead"/>, or <c>null</c> between segments.
 	/// </summary>
 	public PDMediaSegment? CurrentSegment => CurrentSegments is { Count: > 0 } active ? active[^1] : null;
 
