@@ -149,7 +149,7 @@ export function makeSpectrogram(decoded, options) {
 		decoded.sampleRate,
 		options,
 	);
-	return {
+	const result = {
 		image: paintSpectrogram(analysis),
 		frames: analysis.frames,
 		bins: analysis.bins,
@@ -157,4 +157,5 @@ export function makeSpectrogram(decoded, options) {
 		seconds: (analysis.frames * options.hopSize) / decoded.sampleRate,
 		maxHz: analysis.maxHz,
 	};
+	return result;
 }

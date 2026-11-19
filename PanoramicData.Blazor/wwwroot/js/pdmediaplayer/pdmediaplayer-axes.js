@@ -64,8 +64,9 @@ export function frequencyStep(spanHz) {
 
 export function scales(l) {
 	const hzSpan = l.maxHz - l.minHz;
-	return {
+	const result = {
 		x: (t) => l.left + ((t - l.start) / l.seconds) * l.pw,
 		y: (hz) => l.top + l.ph - ((hz - l.minHz) / hzSpan) * l.ph,
 	};
+	return result;
 }

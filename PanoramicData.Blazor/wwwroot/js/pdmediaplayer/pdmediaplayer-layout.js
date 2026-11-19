@@ -35,7 +35,7 @@ export function createLive(options, bins, columnSeconds) {
 	const canvas = document.createElement("canvas");
 	canvas.width = capacity;
 	canvas.height = bins;
-	return {
+	const result = {
 		bins,
 		columnSeconds,
 		capacity,
@@ -44,6 +44,7 @@ export function createLive(options, bins, columnSeconds) {
 		context: canvas.getContext("2d"),
 		count: 0,
 	};
+	return result;
 }
 
 export function liveEnd(live) {
@@ -142,7 +143,7 @@ export function layout(v) {
 	}
 	const top = 8;
 	const bottom = 22;
-	return {
+	const result = {
 		dpr,
 		width,
 		height,
@@ -153,6 +154,7 @@ export function layout(v) {
 		...timeRange(v),
 		...frequencyRange(v),
 	};
+	return result;
 }
 
 export function fromPixel(v, e) {
@@ -163,8 +165,9 @@ export function fromPixel(v, e) {
 	if (x < 0 || y < 0 || x > l.pw || y > l.ph) {
 		return null;
 	}
-	return {
+	const result = {
 		seconds: l.start + (x / l.pw) * l.seconds,
 		hz: l.minHz + (1 - y / l.ph) * (l.maxHz - l.minHz),
 	};
+	return result;
 }
