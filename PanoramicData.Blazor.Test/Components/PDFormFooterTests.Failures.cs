@@ -69,6 +69,9 @@ public partial class PDFormFooterTests
 	private sealed class ThrowingProvider : DataProviderBase<Person>
 	{
 		public override Task<OperationResponse> CreateAsync(Person person, CancellationToken cancellationToken)
-			=> throw new HttpRequestException($"The server is down for {person.GetType().Name}");
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			throw new HttpRequestException($"The server is down for {person.GetType().Name}");
+		}
 	}
 }
