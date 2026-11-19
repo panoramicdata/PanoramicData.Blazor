@@ -23,7 +23,7 @@ public partial class PDTreeTests : BunitContext
 		Services.AddPanoramicDataBlazor();
 	}
 
-	private IRenderedComponent<PDTree<Item>> RenderItemTree(Action<ComponentParameterCollectionBuilder<PDTree<Item>>>? configure = null, bool allowSelection = true)
+	private IRenderedComponent<PDTree<Item>> RenderItemTree(Action<ComponentParameterCollectionBuilder<PDTree<Item>>>? configure = null, bool allowSelection = true, Action<TreeNode<Item>>? onSelection = null, bool withExceptionHandler = true)
 	{
 		var tree = Render<PDTree<Item>>(parameters =>
 		{
@@ -33,8 +33,16 @@ public partial class PDTreeTests : BunitContext
 				.Add(p => p.ParentKeyField, item => item.ParentId ?? string.Empty)
 				.Add(p => p.TextField, item => item.Name)
 				.Add(p => p.AllowSelection, allowSelection)
-				.Add(p => p.SelectionChange, node => _selections.Add(node))
-				.Add(p => p.ExceptionHandler, ex => _exceptions.Add(ex));
+				.Add(p => p.SelectionChange, node =>
+				{
+					_selections.Add(node);
+					onSelection?.Invoke(node);
+				});
+			if (withExceptionHandler)
+			{
+				parameters.Add(p => p.ExceptionHandler, ex => _exceptions.Add(ex));
+			}
+
 			configure?.Invoke(parameters);
 		});
 		tree.WaitForAssertion(() => tree.Instance.RootNode.Nodes.Should().NotBeNull());

@@ -31,7 +31,7 @@ public partial class PDTabSetTests : BunitContext
 		buttons[0].QuerySelector("i.pdtabset-tab-icon")!.ClassList.Should().Contain("fa-1");
 		buttons[1].QuerySelector("i").Should().BeNull();
 		buttons[0].GetAttribute("style").Should().Contain("min-width:50px").And.Contain("max-width:90px");
-		component.Find(".pdtabset-content").TextContent.Should().Be("One content");
+		ContentText(component).Should().Be("One content");
 		component.FindAll(".pdtabset-tab-close").Should().BeEmpty();
 		component.FindAll(".pdtabset-addtab").Should().BeEmpty();
 		component.Find(".pdtabset-tab-container").GetAttribute("draggable").Should().Be("false");
@@ -47,12 +47,12 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.OnTabSelected, (PDTab tab) => selected.Add(tab.Title))
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { OnSelected = () => tabSelected++ })));
 
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
 		selected.Should().Equal("Two");
 		tabSelected.Should().Be(1);
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
-		component.Find(".pdtabset-content").TextContent.Should().Be("Two content");
+		ActiveTitle(component).Should().Be("Two");
+		ContentText(component).Should().Be("Two content");
 	}
 
 	/// <summary>Selecting a tab with no OnTabSelected handler still selects it.</summary>
@@ -61,9 +61,9 @@ public partial class PDTabSetTests : BunitContext
 	{
 		var component = Render<PDTabSet>(parameters => parameters.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
 
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 	}
 
 	/// <summary>SelectTabById selects a tab by its id and reports whether it was found.</summary>
@@ -76,7 +76,7 @@ public partial class PDTabSetTests : BunitContext
 
 		var found = await component.InvokeAsync(() => component.Instance.SelectTabById(id));
 		found.Should().BeTrue();
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 
 		(await component.InvokeAsync(() => component.Instance.SelectTabById(id))).Should().BeTrue();
 		(await component.InvokeAsync(() => component.Instance.SelectTabById(Guid.NewGuid()))).Should().BeFalse();
@@ -91,12 +91,12 @@ public partial class PDTabSetTests : BunitContext
 		var component = Render<PDTabSet>(parameters => parameters
 			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id }, new Spec("Three"))));
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("One");
+		ActiveTitle(component).Should().Be("One");
 
 		component.Render(parameters => parameters.Add(p => p.SelectedTabId, id));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
-		component.Find(".pdtabset-content").TextContent.Should().Be("Two content");
+		ActiveTitle(component).Should().Be("Two");
+		ContentText(component).Should().Be("Two content");
 		changes.Should().BeEmpty();
 	}
 
@@ -109,8 +109,8 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.SelectedTabId, id)
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
-		component.Find(".pdtabset-content").TextContent.Should().Be("Two content");
+		ActiveTitle(component).Should().Be("Two");
+		ContentText(component).Should().Be("Two content");
 	}
 
 	/// <summary>A requested tab that is added later is selected when it appears.</summary>
@@ -121,13 +121,13 @@ public partial class PDTabSetTests : BunitContext
 		var component = Render<PDTabSet>(parameters => parameters
 			.Add(p => p.SelectedTabId, id)
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("One");
+		ActiveTitle(component).Should().Be("One");
 
 		component.Render(parameters => parameters
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"), new Spec("Late") { Id = id })));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Late");
-		component.Find(".pdtabset-content").TextContent.Should().Be("Late content");
+		ActiveTitle(component).Should().Be("Late");
+		ContentText(component).Should().Be("Late content");
 	}
 
 	/// <summary>A new SelectedTabId and the tab it names arriving in the same render selects that tab.</summary>
@@ -142,7 +142,7 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.SelectedTabId, id)
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"), new Spec("Late") { Id = id })));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Late");
+		ActiveTitle(component).Should().Be("Late");
 	}
 
 	/// <summary>Clicking a tab raises SelectedTabIdChanged with its id, alongside OnTabSelected.</summary>
@@ -157,7 +157,7 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.OnTabSelected, (PDTab tab) => selected.Add(tab.Title))
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
 
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
 		changes.Should().Equal(id);
 		selected.Should().Equal("Two");
@@ -173,7 +173,7 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
 		SetTabId(component.FindComponents<PDTab>()[1].Instance, Guid.Empty);
 
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
 		changes.Should().ContainSingle().Which.Should().BeNull();
 	}
@@ -191,17 +191,17 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
 			.Add(p => p.ChildContent, Tabs(new Spec("One") { Id = one }, new Spec("Two") { Id = two })));
 
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 		hostValue = changes[^1];
 		component.Render(parameters => parameters.Add(p => p.SelectedTabId, hostValue));
 
 		changes.Should().Equal(two);
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 
 		hostValue = one;
 		component.Render(parameters => parameters.Add(p => p.SelectedTabId, hostValue));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("One");
+		ActiveTitle(component).Should().Be("One");
 		changes.Should().Equal(two);
 	}
 
@@ -213,11 +213,11 @@ public partial class PDTabSetTests : BunitContext
 		var component = Render<PDTabSet>(parameters => parameters
 			.Add(p => p.SelectedTabId, one)
 			.Add(p => p.ChildContent, Tabs(new Spec("One") { Id = one }, new Spec("Two"))));
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
 		component.Render(parameters => parameters.Add(p => p.SelectedTabId, one));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 	}
 
 	/// <summary>An unknown SelectedTabId leaves the current selection unchanged and does not throw.</summary>
@@ -227,12 +227,12 @@ public partial class PDTabSetTests : BunitContext
 		var id = Guid.NewGuid();
 		var component = Render<PDTabSet>(parameters => parameters
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
 		var act = () => component.Render(parameters => parameters.Add(p => p.SelectedTabId, Guid.NewGuid()));
 
 		act.Should().NotThrow();
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 	}
 
 	/// <summary>A pending request that never found its tab does not override a tab the user picks afterwards.</summary>
@@ -243,12 +243,12 @@ public partial class PDTabSetTests : BunitContext
 		var component = Render<PDTabSet>(parameters => parameters
 			.Add(p => p.SelectedTabId, id)
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 
 		component.Render(parameters => parameters
 			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"), new Spec("Late") { Id = id })));
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 	}
 
 	/// <summary>Closing the selected tab raises SelectedTabIdChanged with the tab it falls back to, then null when none is left.</summary>
@@ -262,13 +262,13 @@ public partial class PDTabSetTests : BunitContext
 			.Add(p => p.IsTabClosingEnabled, true)
 			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
 			.Add(p => p.ChildContent, Tabs(new Spec("One") { Id = one }, new Spec("Two") { Id = two })));
-		component.FindAll("button.pdtabset-tab")[1].Click();
+		SecondTab(component).Click();
 		changes.Should().Equal(two);
 
 		component.FindAll(".pdtabset-tab-close")[1].Click();
 
 		changes.Should().Equal(two, one);
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("One");
+		ActiveTitle(component).Should().Be("One");
 	}
 
 	/// <summary>Closing a tab that is not selected does not raise SelectedTabIdChanged.</summary>
@@ -314,7 +314,7 @@ public partial class PDTabSetTests : BunitContext
 		(await component.InvokeAsync(() => component.Instance.SelectTabById(id))).Should().BeTrue();
 		(await component.InvokeAsync(() => component.Instance.SelectTabById(Guid.NewGuid()))).Should().BeFalse();
 
-		component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent.Should().Be("Two");
+		ActiveTitle(component).Should().Be("Two");
 		changes.Should().Equal(id);
 	}
 
@@ -332,6 +332,15 @@ public partial class PDTabSetTests : BunitContext
 
 	private static List<string> Titles(IRenderedComponent<PDTabSet> component)
 		=> [.. component.FindAll(".pdtabset-tab-title").Select(t => t.TextContent)];
+
+	private static string ActiveTitle(IRenderedComponent<PDTabSet> component)
+		=> component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent;
+
+	private static string ContentText(IRenderedComponent<PDTabSet> component)
+		=> component.Find(".pdtabset-content").TextContent;
+
+	private static AngleSharp.Dom.IElement SecondTab(IRenderedComponent<PDTabSet> component)
+		=> component.FindAll("button.pdtabset-tab")[1];
 
 	private static RenderFragment Tabs(params Spec[] specs) => builder =>
 	{
