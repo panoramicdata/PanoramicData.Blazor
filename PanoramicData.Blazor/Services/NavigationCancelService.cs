@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor.Services;
 /// <param name="jsRuntime">The <see cref="IJSRuntime"/> used to invoke the browser confirmation dialog.</param>
 public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelService
 {
-    private readonly Task<IJSObjectReference?>? _loadCommonJsTask = LoadCommonJsAsync(jsRuntime);
+	private Task<IJSObjectReference?>? _loadCommonJsTask;
 
     private static async Task<IJSObjectReference?> LoadCommonJsAsync(IJSRuntime jsRuntime)
     {
@@ -45,8 +45,11 @@ public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelSe
         // ask listening code if operation should be canceled
         var args = new BeforeNavigateEventArgs { Target = target };
         BeforeNavigate?.Invoke(this, args);
-        if (args.Cancel && _loadCommonJsTask != null)
-        {
+		if (args.Cancel)
+		{
+			// Imported on first use: JS interop is unavailable while Blazor Server prerenders.
+			_loadCommonJsTask ??= LoadCommonJsAsync(jsRuntime);
+
             // allow user option to override and perform operation regardless
             var commonModule = await _loadCommonJsTask.ConfigureAwait(true);
             if (commonModule != null)

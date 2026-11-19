@@ -55,4 +55,28 @@ public class NavigationCancelServiceTests : BunitContext
 		result.Should().Be(userConfirms);
 		_module.VerifyInvoke("confirm");
 	}
+
+	/// <summary>Constructing the service must not touch JS interop, which is unavailable while prerendering.</summary>
+	[Fact]
+	public void Constructor_DoesNotInvokeJavaScript()
+	{
+		_ = new NavigationCancelService(JSInterop.JSRuntime);
+
+		JSInterop.Invocations.Should().BeEmpty();
+	}
+
+	/// <summary>The module is imported once, on first use, and reused for later confirmations.</summary>
+	[Fact]
+	public async Task ProceedAsync_CancelledTwice_ImportsModuleOnce()
+	{
+		_module.Setup<bool>("confirm", "Changes have been made, continue and lose those changes?").SetResult(true);
+		var service = new NavigationCancelService(JSInterop.JSRuntime);
+		service.BeforeNavigate += (_, args) => args.Cancel = true;
+
+		await service.ProceedAsync();
+		await service.ProceedAsync();
+
+		JSInterop.Invocations.Count(i => i.Identifier == "import").Should().Be(1);
+		_module.Invocations.Count(i => i.Identifier == "confirm").Should().Be(2);
+	}
 }
