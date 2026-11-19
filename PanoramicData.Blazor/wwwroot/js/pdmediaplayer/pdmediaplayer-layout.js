@@ -96,15 +96,19 @@ export function nowSeconds(v) {
 export function timeRange(v) {
 	const windowSeconds = v.options.windowSeconds;
 	const view = v.view.time;
+	let start = 0;
+	let seconds = 1;
 	if (windowSeconds > 0) {
-		const span = view ? view.span : windowSeconds;
-		const back = view ? view.back : 0;
-		return { start: nowSeconds(v) - back - span, seconds: span };
+		seconds = view ? view.span : windowSeconds;
+		start = nowSeconds(v) - (view ? view.back : 0) - seconds;
+	} else if (view) {
+		start = view.start;
+		seconds = view.span;
+	} else {
+		seconds = plotSeconds(v) || 1;
 	}
-	if (view) {
-		return { start: view.start, seconds: view.span };
-	}
-	return { start: 0, seconds: plotSeconds(v) || 1 };
+	const range = { start, seconds };
+	return range;
 }
 
 export function fullMaxHz(v) {
