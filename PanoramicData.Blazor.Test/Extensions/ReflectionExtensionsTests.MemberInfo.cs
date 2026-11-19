@@ -84,7 +84,8 @@ public partial class ReflectionExtensionsTests
 
 		public string Name { get; set; } = string.Empty;
 
-		public int Age { get; set; }
+		private int _age;
+		public int Age { get => _age; set => _age = value; }
 
 		public event EventHandler? Changed;
 

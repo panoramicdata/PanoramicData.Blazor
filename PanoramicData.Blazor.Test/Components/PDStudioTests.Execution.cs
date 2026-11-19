@@ -166,10 +166,12 @@ public partial class PDStudioTests
 		public string Result { get; set; } = "<p>Done</p>";
 
 		/// <summary>Tabular results to return; null makes the studio fall back to <see cref="Result"/>.</summary>
-		public PDStudioResultSet? ResultSet { get; set; }
+		private PDStudioResultSet? _resultSet;
+		public PDStudioResultSet? ResultSet { get => _resultSet; set => _resultSet = value; }
 
-		public Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken _)
+		public Task<PDStudioResultSet?> ExecuteResultSetAsync(string code, string language, int timeoutSeconds, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
 			if (ResultSet is not null)
 			{
 				Calls.Add((code, language, timeoutSeconds));
@@ -221,6 +223,7 @@ public partial class PDStudioTests
 		}
 
 		/// <summary>Raises a Completed event as the run finishes, as a service that reports its own progress does.</summary>
-		public bool RaiseCompletedOnFinish { get; set; }
+		private bool _raiseCompletedOnFinish;
+		public bool RaiseCompletedOnFinish { get => _raiseCompletedOnFinish; set => _raiseCompletedOnFinish = value; }
 	}
 }

@@ -54,7 +54,8 @@ public partial class PDFileExplorerTests
 		public FileExplorerItem Get(string path) => Items.Single(x => x.Path == path);
 
 		/// <summary>Awaited before a request is answered, given the request's folder, to hold an answer back.</summary>
-		public Func<string?, Task>? BeforeAnswer { get; set; }
+		private Func<string?, Task>? _beforeAnswer;
+		public Func<string?, Task>? BeforeAnswer { get => _beforeAnswer; set => _beforeAnswer = value; }
 
 		public override async Task<DataResponse<FileExplorerItem>> GetDataAsync(DataRequest<FileExplorerItem> request, CancellationToken cancellationToken)
 		{

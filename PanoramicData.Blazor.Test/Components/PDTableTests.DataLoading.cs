@@ -152,12 +152,12 @@ public partial class PDTableTests
 	[Fact]
 	public async Task A_failing_PageChanged_handler_is_passed_to_ExceptionHandler()
 	{
-		static void FailToChangePage(PageCriteria _) => throw new InvalidOperationException("Paging failed");
+		static void FailToChangePage() => throw new InvalidOperationException("Paging failed");
 		var criteria = new PageCriteria(1, 2);
 		var failures = new List<Exception>();
 		var table = RenderTable(p => p
 			.Add(x => x.PageCriteria, criteria)
-			.Add(x => x.PageChanged, c => FailToChangePage(c))
+			.Add(x => x.PageChanged, _ => FailToChangePage())
 			.Add(x => x.ExceptionHandler, failures.Add));
 
 		await table.InvokeAsync(() => criteria.Page = 2);

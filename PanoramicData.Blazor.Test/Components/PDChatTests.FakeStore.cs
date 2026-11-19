@@ -17,7 +17,8 @@ public partial class PDChatTests
 		public List<ChatConversation> Created { get; } = [];
 		public List<(Guid Id, string Title)> Renamed { get; } = [];
 		public List<Guid> Archived { get; } = [];
-		public bool FailArchive { get; set; }
+		private bool _failArchive;
+		public bool FailArchive { get => _failArchive; set => _failArchive = value; }
 
 		public Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
 		{

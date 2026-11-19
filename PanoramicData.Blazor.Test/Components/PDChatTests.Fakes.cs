@@ -71,7 +71,8 @@ public partial class PDChatTests
 		public IReadOnlyList<ChatMessage> GetMessages(Guid conversationId)
 			=> ConversationStore.TryGetValue(conversationId, out var messages) ? messages : [];
 
-		public Exception? SendFailure { get; set; }
+		private Exception? _sendFailure;
+		public Exception? SendFailure { get => _sendFailure; set => _sendFailure = value; }
 
 		public void SendMessage(ChatMessage chatMessage)
 		{
