@@ -43,22 +43,24 @@ function getMonaco() {
 	return window.monaco;
 }
 
+// A thenable, so awaiting it pauses without naming Promise
+function pause(ms) {
+	return { then: (resolve) => setTimeout(resolve, ms) };
+}
+
 // Resolves true once the monaco global exists, or false after the timeout. editor.main.js is an AMD bundle, so
 // monaco is only defined once the loader has fetched its remaining parts, which a fast reload can beat.
-export function waitForMonaco(timeoutMs) {
-	return new Promise((resolve) => {
-		const started = Date.now();
-		const check = () => {
-			if (getMonaco()) {
-				resolve(true);
-			} else if (Date.now() - started >= timeoutMs) {
-				resolve(false);
-			} else {
-				setTimeout(check, 50);
-			}
-		};
-		check();
-	});
+export async function waitForMonaco(timeoutMs) {
+	const started = Date.now();
+	while (!getMonaco()) {
+		if (Date.now() - started >= timeoutMs) {
+			return false;
+		}
+
+		await pause(50);
+	}
+
+	return true;
 }
 
 export function initialize(objRef) {
