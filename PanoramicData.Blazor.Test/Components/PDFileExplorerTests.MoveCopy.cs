@@ -13,6 +13,9 @@ public partial class PDFileExplorerTests
 	private static void WaitForConflictPrompt(IRenderedComponent<PDFileExplorer> cut, string message)
 		=> cut.WaitForAssertion(() => Modal(cut, "Move / Copy Conflict").Find(".modal-body").TextContent.Should().Contain(message));
 
+	private void AssertSingleUpdate(string path, bool copy)
+		=> _provider.Updates.Should().ContainSingle().Which.Delta.Should().Contain("Path", path).And.Contain("Copy", copy);
+
 	/// <summary>Ctrl+C then Ctrl+V in the table copies the selection into the current folder when no folder is selected.</summary>
 	[Fact]
 	public async Task TableKeys_CopyPaste_IntoCurrentFolder()
@@ -25,7 +28,7 @@ public partial class PDFileExplorerTests
 
 		await KeyDownTableAsync(cut, "KeyV", ctrl: true);
 
-		_provider.Updates.Should().ContainSingle().Which.Delta.Should().Contain("Path", "/Empty/a.docx").And.Contain("Copy", true);
+		AssertSingleUpdate("/Empty/a.docx", true);
 	}
 
 	/// <summary>Ctrl+X then Ctrl+V into a single selected folder moves the items, and the clipboard is then empty.</summary>
@@ -41,7 +44,7 @@ public partial class PDFileExplorerTests
 		await KeyDownTableAsync(cut, "KeyV", ctrl: true);
 		await KeyDownTableAsync(cut, "KeyV", ctrl: true);
 
-		_provider.Updates.Should().ContainSingle().Which.Delta.Should().Contain("Path", "/Docs/Sub/b.xlsx").And.Contain("Copy", false);
+		AssertSingleUpdate("/Docs/Sub/b.xlsx", false);
 	}
 
 	/// <summary>Table keys are ignored while a row is being edited.</summary>
@@ -69,7 +72,7 @@ public partial class PDFileExplorerTests
 
 		await KeyDownTreeAsync(cut, "KeyV", ctrl: true);
 
-		_provider.Updates.Should().ContainSingle().Which.Delta.Should().Contain("Path", "/Empty/Sub").And.Contain("Copy", true);
+		AssertSingleUpdate("/Empty/Sub", true);
 		Tree(cut).Instance.RootNode.Find("/Empty/Sub").Should().NotBeNull();
 	}
 
@@ -91,7 +94,7 @@ public partial class PDFileExplorerTests
 		await KeyDownTreeAsync(cut, "KeyV", ctrl: true);
 		await KeyDownTreeAsync(cut, "KeyV", ctrl: true);
 
-		_provider.Updates.Should().ContainSingle().Which.Delta.Should().Contain("Path", "/Empty/Sub").And.Contain("Copy", false);
+		AssertSingleUpdate("/Empty/Sub", false);
 	}
 
 	/// <summary>Tree keys are ignored while the selected node is being edited.</summary>
@@ -120,7 +123,7 @@ public partial class PDFileExplorerTests
 
 		await ClickMenuAsync(TreeMenu(cut), "Paste");
 
-		_provider.Updates.Should().ContainSingle().Which.Delta.Should().Contain("Path", "/Empty/Sub").And.Contain("Copy", false);
+		AssertSingleUpdate("/Empty/Sub", false);
 		cut.Instance.FolderPath.Should().Be("/Empty");
 	}
 

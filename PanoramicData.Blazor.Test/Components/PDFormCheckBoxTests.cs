@@ -10,13 +10,19 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDFormCheckBoxTests : BunitContext
 {
+	private IRenderedComponent<PDFormCheckBox> RenderBox(List<bool> reported, Action<ComponentParameterCollectionBuilder<PDFormCheckBox>>? configure = null)
+		=> Render<PDFormCheckBox>(parameters =>
+		{
+			configure?.Invoke(parameters);
+			parameters.Add(p => p.ValueChanged, (bool value) => reported.Add(value));
+		});
+
 	/// <summary>Verifies that clicking an unchecked box checks it and reports the new value.</summary>
 	[Fact]
 	public async Task Clicking_toggles_the_value_and_raises_ValueChanged()
 	{
 		var reported = new List<bool>();
-		var component = Render<PDFormCheckBox>(parameters => parameters
-			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
+		var component = RenderBox(reported);
 
 		await component.Find("i.fa-square").ClickAsync(new MouseEventArgs());
 
@@ -29,9 +35,7 @@ public class PDFormCheckBoxTests : BunitContext
 	public async Task Clicking_a_checked_box_unchecks_it()
 	{
 		var reported = new List<bool>();
-		var component = Render<PDFormCheckBox>(parameters => parameters
-			.Add(p => p.Value, true)
-			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
+		var component = RenderBox(reported, p => p.Add(x => x.Value, true));
 
 		await component.Find("i.fa-check-square").ClickAsync(new MouseEventArgs());
 
@@ -46,8 +50,7 @@ public class PDFormCheckBoxTests : BunitContext
 	public async Task Space_and_Enter_toggle_the_value(string code)
 	{
 		var reported = new List<bool>();
-		var component = Render<PDFormCheckBox>(parameters => parameters
-			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
+		var component = RenderBox(reported);
 
 		await component.Find(".pdformcheckbox").KeyPressAsync(new KeyboardEventArgs { Code = code });
 
@@ -59,8 +62,7 @@ public class PDFormCheckBoxTests : BunitContext
 	public async Task Other_keys_do_not_toggle_the_value()
 	{
 		var reported = new List<bool>();
-		var component = Render<PDFormCheckBox>(parameters => parameters
-			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
+		var component = RenderBox(reported);
 
 		await component.Find(".pdformcheckbox").KeyPressAsync(new KeyboardEventArgs { Code = "KeyA" });
 
@@ -76,9 +78,7 @@ public class PDFormCheckBoxTests : BunitContext
 	public async Task A_disabled_box_ignores_input_and_leaves_the_tab_order()
 	{
 		var reported = new List<bool>();
-		var component = Render<PDFormCheckBox>(parameters => parameters
-			.Add(p => p.Disabled, true)
-			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
+		var component = RenderBox(reported, p => p.Add(x => x.Disabled, true));
 
 		await component.Find("i").ClickAsync(new MouseEventArgs());
 		await component.Find(".pdformcheckbox").KeyPressAsync(new KeyboardEventArgs { Code = "Space" });
