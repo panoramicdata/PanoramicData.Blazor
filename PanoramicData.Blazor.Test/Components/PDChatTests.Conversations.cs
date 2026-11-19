@@ -123,8 +123,7 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Opening_another_conversation_adds_and_selects_its_tab()
 	{
-		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
+		var (component, store, service) = RenderFirstOpen();
 
 		await SidebarRow(component, "Second").ClickAsync(new());
 
@@ -137,8 +136,7 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Opening_an_open_conversation_does_not_duplicate_it()
 	{
-		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
+		var (component, _, _) = RenderFirstOpen();
 
 		await SidebarRow(component, "First").ClickAsync(new());
 
@@ -149,10 +147,8 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Selecting_a_tab_shows_its_transcript()
 	{
-		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
-		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
+		var (component, _, _) = RenderFirstOpen();
+		await OpenSecondAsync(component);
 
 		await Tab(component, "First").ClickAsync(new());
 
@@ -163,10 +159,8 @@ public partial class PDChatTests
 	[Fact]
 	public async Task A_background_reply_marks_its_tab_unread()
 	{
-		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
-		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
+		var (component, store, service) = RenderFirstOpen();
+		await OpenSecondAsync(component);
 
 		await component.InvokeAsync(() => service.ReceiveFor(store.First.Id, Message("Answer")));
 
@@ -181,8 +175,7 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Replies_for_the_current_or_an_unopened_conversation_mark_nothing()
 	{
-		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
+		var (component, store, service) = RenderFirstOpen();
 
 		await component.InvokeAsync(() => service.ReceiveFor(store.First.Id, Message("Here")));
 		await component.InvokeAsync(() => service.ReceiveFor(store.Second.Id, Message("Elsewhere")));
@@ -194,14 +187,12 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Closing_tabs_falls_back_then_shows_the_empty_state()
 	{
-		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
-		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
+		var (component, _, _) = RenderFirstOpen();
+		await OpenSecondAsync(component);
 
-		await Tab(component, "Second").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
+		await CloseTabAsync(component, "Second");
 		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
-		await Tab(component, "First").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
+		await CloseTabAsync(component, "First");
 
 		component.WaitForAssertion(() => component.Find(".pdchat-conversation-none-open").Should().NotBeNull(), Patience);
 		component.FindAll(".pdchat-message").Should().BeEmpty();
@@ -211,12 +202,10 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Closing_a_background_tab_keeps_the_selection()
 	{
-		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
-		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
+		var (component, _, _) = RenderFirstOpen();
+		await OpenSecondAsync(component);
 
-		await Tab(component, "First").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
+		await CloseTabAsync(component, "First");
 
 		component.WaitForAssertion(() => TabTitles(component).Should().Equal("Second"), Patience);
 		ActiveTabTitle(component).Should().Be("Second");
@@ -226,9 +215,8 @@ public partial class PDChatTests
 	[Fact]
 	public async Task The_empty_state_starts_a_new_conversation()
 	{
-		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
-		await Tab(component, "First").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
+		var (component, store, service) = RenderFirstOpen();
+		await CloseTabAsync(component, "First");
 
 		await component.Find(".pdchat-conversation-none-open button").ClickAsync(new());
 
@@ -241,8 +229,7 @@ public partial class PDChatTests
 	[Fact]
 	public async Task The_add_tab_button_starts_a_new_conversation()
 	{
-		var (component, store, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
+		var (component, store, _) = RenderFirstOpen();
 
 		await component.Find(".pdchat-conversation-tabset .pdtabset-addtab").ClickAsync(new());
 
@@ -253,8 +240,7 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Renaming_a_tab_writes_through_to_the_store()
 	{
-		var (component, store, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
+		var (component, store, _) = RenderFirstOpen();
 
 		await Tab(component, "First").DoubleClickAsync(new MouseEventArgs());
 		await component.Find(".pdtabset-tab-rename-input").InputAsync(new ChangeEventArgs { Value = "Renamed" });
@@ -268,8 +254,7 @@ public partial class PDChatTests
 	[Fact]
 	public async Task Archiving_archives_and_closes_the_tab()
 	{
-		var (component, store, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
+		var (component, store, _) = RenderFirstOpen();
 
 		await ToolbarButton(component, "Archive").ClickAsync(new());
 

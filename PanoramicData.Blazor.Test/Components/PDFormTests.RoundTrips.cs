@@ -23,6 +23,14 @@ public partial class PDFormTests
 			.Add(p => p.Form, form.Instance)
 			.Add(p => p.Field, field));
 
+	private static Task EditNamedAsync(IRenderedComponent<PDForm<Person>> form, string name)
+		=> EditAsync(form, new Person { Name = name }, FormModes.Edit);
+
+	private static ElementReference[] ClearedEditors(BunitJSModuleInterop common)
+		=> common.Invocations["clearInlineStyles"].Should().ContainSingle()
+			.Which.Arguments.Should().ContainSingle()
+			.Which.Should().BeOfType<ElementReference[]>().Subject;
+
 	/// <summary>Opening a form clears the inline style of every editor it shows in a single call.</summary>
 	[Fact]
 	public async Task EditItemAsync_ClearsTheEditorsInOneCall()
@@ -33,12 +41,9 @@ public partial class PDFormTests
 		RenderEditor(form, AddField(form, p => p.Notes));
 		RenderEditor(form, AddField(form, p => p.Age));
 
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
-		common.Invocations["clearInlineStyles"].Should().ContainSingle()
-			.Which.Arguments.Should().ContainSingle()
-			.Which.Should().BeOfType<ElementReference[]>()
-			.Which.Should().HaveCount(3);
+		ClearedEditors(common).Should().HaveCount(3);
 		common.Invocations["clearInlineStyle"].Should().BeEmpty();
 	}
 
@@ -51,12 +56,9 @@ public partial class PDFormTests
 		RenderEditor(form, AddField(form, p => p.Name));
 		form.Instance.RegisterFieldEditor(new PDFormFieldEditor<Person>());
 
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
-		common.Invocations["clearInlineStyles"].Should().ContainSingle()
-			.Which.Arguments.Should().ContainSingle()
-			.Which.Should().BeOfType<ElementReference[]>()
-			.Which.Should().ContainSingle();
+		ClearedEditors(common).Should().ContainSingle();
 	}
 
 	/// <summary>Opening a form with no unsaved changes leaves the unload guard alone.</summary>
@@ -66,8 +68,8 @@ public partial class PDFormTests
 		var form = RenderForm();
 		AddField(form, p => p.Name);
 
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
-		await EditAsync(form, new Person { Name = "Bob" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
+		await EditNamedAsync(form, "Bob");
 
 		_module.Invocations["setUnloadListener"].Should().BeEmpty();
 	}
@@ -78,11 +80,11 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
 
-		await EditAsync(form, new Person { Name = "Cy" }, FormModes.Edit);
-		await EditAsync(form, new Person { Name = "Di" }, FormModes.Edit);
+		await EditNamedAsync(form, "Cy");
+		await EditNamedAsync(form, "Di");
 
 		UnloadListenerCalls(true).Should().Be(1);
 		UnloadListenerCalls(false).Should().Be(1);

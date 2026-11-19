@@ -9,6 +9,19 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public partial class PDFileModalTests
 {
+	private async Task<IRenderedComponent<PDFileModal>> OpenSaveAsAsync(string? typed = null)
+	{
+		var component = RenderModal();
+		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
+		if (typed is not null)
+		{
+			await TypeFilenameAsync(component, typed);
+		}
+
+		return component;
+	}
+
 	/// <summary>Verifies that save mode shows the save title and button, and the initial filename.</summary>
 	[Fact]
 	public async Task Save_mode_shows_the_initial_filename()
@@ -28,11 +41,8 @@ public partial class PDFileModalTests
 	[Fact]
 	public async Task Saving_reports_the_folder_and_filename()
 	{
-		var component = RenderModal();
-		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
+		var component = await OpenSaveAsAsync("new.md");
 
-		await TypeFilenameAsync(component, "new.md");
 		await OkButton(component).ClickAsync(new());
 
 		_results.Should().Equal("/new.md");
@@ -42,10 +52,7 @@ public partial class PDFileModalTests
 	[Fact]
 	public async Task The_save_button_follows_the_typed_filename()
 	{
-		var component = RenderModal();
-		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-
-		await TypeFilenameAsync(component, "new.md");
+		var component = await OpenSaveAsAsync("new.md");
 		OkButton(component).HasAttribute("disabled").Should().BeFalse();
 
 		await TypeFilenameAsync(component, " ");
@@ -56,11 +63,8 @@ public partial class PDFileModalTests
 	[Fact]
 	public async Task Enter_in_the_filename_box_saves()
 	{
-		var component = RenderModal();
-		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
+		var component = await OpenSaveAsAsync("new.md");
 
-		await TypeFilenameAsync(component, "new.md");
 		await FilenameBox(component).KeyUpAsync(new KeyboardEventArgs { Code = "Enter", Key = "Enter" });
 
 		component.WaitForAssertion(() => _results.Should().Equal("/new.md"), Patience);
@@ -70,10 +74,7 @@ public partial class PDFileModalTests
 	[Fact]
 	public async Task Confirming_an_overwrite_reports_the_path()
 	{
-		var component = RenderModal();
-		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
-		await TypeFilenameAsync(component, "readme.txt");
+		var component = await OpenSaveAsAsync("readme.txt");
 
 		var save = OkButton(component).ClickAsync(new());
 		component.WaitForAssertion(() => _results.Should().BeEmpty(), Patience);
@@ -88,10 +89,7 @@ public partial class PDFileModalTests
 	[Fact]
 	public async Task Declining_an_overwrite_reports_nothing()
 	{
-		var component = RenderModal();
-		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
-		await TypeFilenameAsync(component, "readme.txt");
+		var component = await OpenSaveAsAsync("readme.txt");
 
 		var save = OkButton(component).ClickAsync(new());
 		await ConfirmButton(component, "No").ClickAsync(new());

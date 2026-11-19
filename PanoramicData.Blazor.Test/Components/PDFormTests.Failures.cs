@@ -12,6 +12,16 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public partial class PDFormTests
 {
+	private static Task HandleAsync(IRenderedComponent<PDForm<Person>> form, Exception? failure = null)
+		=> form.InvokeAsync(() => form.Instance.HandleExceptionAsync(failure ?? new InvalidOperationException("The server is down")));
+
+	private RecordingFormExceptionHandler RegisterApplicationHandler(bool throws = false)
+	{
+		var applicationHandler = new RecordingFormExceptionHandler { Throws = throws };
+		Services.AddSingleton<IPDFormExceptionHandler>(applicationHandler);
+		return applicationHandler;
+	}
+
 	/// <summary>A browser that cannot clear the editors' styles still lets the form open.</summary>
 	[Fact]
 	public async Task EditItemAsync_WhenClearingStylesFails_StillOpensTheForm()
@@ -49,7 +59,7 @@ public partial class PDFormTests
 		var errors = new List<string>();
 		var form = RenderForm(p => p.Add(x => x.Error, (string message) => errors.Add(message)));
 
-		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(new InvalidOperationException("The server is down")));
+		await HandleAsync(form);
 
 		errors.Should().Equal("The server is down");
 	}
@@ -65,7 +75,7 @@ public partial class PDFormTests
 			.Add(x => x.ExceptionHandler, (Exception ex) => handled.Add(ex)));
 		var failure = new InvalidOperationException("The server is down");
 
-		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(failure));
+		await HandleAsync(form, failure);
 
 		handled.Should().Equal(failure);
 		errors.Should().BeEmpty();
@@ -75,12 +85,11 @@ public partial class PDFormTests
 	[Fact]
 	public async Task HandleExceptionAsync_WithNothingWired_CallsTheRegisteredHandler()
 	{
-		var applicationHandler = new RecordingFormExceptionHandler();
-		Services.AddSingleton<IPDFormExceptionHandler>(applicationHandler);
+		var applicationHandler = RegisterApplicationHandler();
 		var form = RenderForm();
 		var failure = new InvalidOperationException("The server is down");
 
-		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(failure));
+		await HandleAsync(form, failure);
 
 		applicationHandler.Handled.Should().Equal(failure);
 	}
@@ -91,13 +100,12 @@ public partial class PDFormTests
 	[InlineData(false)]
 	public async Task HandleExceptionAsync_WithItsOwnHandling_LeavesTheRegisteredHandlerAlone(bool wiresExceptionHandler)
 	{
-		var applicationHandler = new RecordingFormExceptionHandler();
-		Services.AddSingleton<IPDFormExceptionHandler>(applicationHandler);
+		var applicationHandler = RegisterApplicationHandler();
 		var form = wiresExceptionHandler
 			? RenderForm(p => p.Add(x => x.ExceptionHandler, (Exception _) => { }))
 			: RenderForm(p => p.Add(x => x.Error, (string _) => { }));
 
-		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(new InvalidOperationException("The server is down")));
+		await HandleAsync(form);
 
 		applicationHandler.Handled.Should().BeEmpty();
 	}
@@ -106,10 +114,10 @@ public partial class PDFormTests
 	[Fact]
 	public async Task HandleExceptionAsync_WhenTheRegisteredHandlerThrows_DoesNotThrow()
 	{
-		Services.AddSingleton<IPDFormExceptionHandler>(new RecordingFormExceptionHandler { Throws = true });
+		RegisterApplicationHandler(throws: true);
 		var form = RenderForm();
 
-		var act = () => form.InvokeAsync(() => form.Instance.HandleExceptionAsync(new InvalidOperationException("The server is down")));
+		var act = () => HandleAsync(form);
 
 		await act.Should().NotThrowAsync();
 	}
@@ -120,7 +128,7 @@ public partial class PDFormTests
 	{
 		var form = RenderForm(p => p.Add(x => x.ExceptionHandler, (Exception _) => throw new InvalidOperationException("The handler failed")));
 
-		var act = () => form.InvokeAsync(() => form.Instance.HandleExceptionAsync(new InvalidOperationException("The server is down")));
+		var act = () => HandleAsync(form);
 
 		await act.Should().NotThrowAsync();
 	}

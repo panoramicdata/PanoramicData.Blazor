@@ -22,24 +22,7 @@ public partial class PDTreeTests
 	}
 
 	private IRenderedComponent<PDTree<Item>> RenderFailingTree(bool withExceptionHandler)
-	{
-		var tree = Render<PDTree<Item>>(parameters =>
-		{
-			parameters
-				.Add(p => p.DataProvider, _provider)
-				.Add(p => p.KeyField, item => item.Id)
-				.Add(p => p.ParentKeyField, item => item.ParentId ?? string.Empty)
-				.Add(p => p.TextField, item => item.Name)
-				.Add(p => p.AllowSelection, true)
-				.Add(p => p.SelectionChange, node => FailToSelectB(node));
-			if (withExceptionHandler)
-			{
-				parameters.Add(p => p.ExceptionHandler, _exceptions.Add);
-			}
-		});
-		tree.WaitForAssertion(() => tree.Instance.RootNode.Nodes.Should().NotBeNull());
-		return tree;
-	}
+		=> RenderItemTree(onSelection: FailToSelectB, withExceptionHandler: withExceptionHandler);
 
 	private static Task ArrowDownAsync(IRenderedComponent<PDTree<Item>> tree)
 		=> tree.Find("div.pdtree").TriggerEventAsync("onkeydown", new KeyboardEventArgs { Code = "ArrowDown", Key = "ArrowDown" });
