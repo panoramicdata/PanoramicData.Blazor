@@ -11,7 +11,9 @@ internal sealed record RefreshRow(int Id, string Name);
 /// <summary>An in-memory provider that honours search text, sort and paging, as a real one does.</summary>
 internal sealed class RefreshRowProvider(int rowCount) : DataProviderBase<RefreshRow>
 {
-	public List<RefreshRow> Rows { get; set; } = [.. new RefreshRow[] { new(1, "Alpha"), new(2, "Beta"), new(3, "Gamma"), new(4, "Delta") }.Take(rowCount)];
+	private static readonly RefreshRow[] _defaultRows = [new(1, "Alpha"), new(2, "Beta"), new(3, "Gamma"), new(4, "Delta")];
+
+	public List<RefreshRow> Rows { get; set; } = [.. _defaultRows.Take(rowCount)];
 
 	public override Task<DataResponse<RefreshRow>> GetDataAsync(DataRequest<RefreshRow> request, CancellationToken cancellationToken)
 	{
