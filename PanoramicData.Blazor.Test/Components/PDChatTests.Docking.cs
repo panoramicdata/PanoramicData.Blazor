@@ -75,9 +75,9 @@ public partial class PDChatTests
 			.Add(x => x.OnChatMinimized, () => events.Add("minimised"))
 			.Add(x => x.OnChatRestored, () => events.Add("restored")));
 
-		await component.Find(".pdchat-close").ClickAsync(new MouseEventArgs());
+		await ClickElementAsync(component, ".pdchat-close");
 		service.DockMode.Should().Be(PDChatDockMode.Minimized);
-		await component.Find(".pdchat-toggle-collapsed").ClickAsync(new MouseEventArgs());
+		await ClickElementAsync(component, ".pdchat-toggle-collapsed");
 
 		service.DockMode.Should().Be(PDChatDockMode.TopLeft);
 		events.Should().Equal("minimised", "restored");

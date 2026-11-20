@@ -50,7 +50,7 @@ public partial class PDChatTests
 		await component.Find(".pdchat-voice-mode-picker select").ChangeAsync(new ChangeEventArgs { Value = "Dictate" });
 		await component.Find(".pdchat-voice-mode-picker select").ChangeAsync(new ChangeEventArgs { Value = "MicOff" });
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		((IChatService)service).VoiceMode.Should().Be(PDChatVoiceMode.Dictate);
 		module.Invocations["start"].Should().HaveCount(2);
@@ -141,9 +141,9 @@ public partial class PDChatTests
 		var service = new FakeChatService { IsImageInputOffered = true };
 		var component = RenderChat(service);
 		await AddImagesAsync(component, 2);
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "What changed?" });
+		await InputTextAsync(component, "What changed?");
 
-		await component.Find(".chat-send").ClickAsync(new());
+		await ClickElementAsync(component, ".chat-send");
 
 		var sent = service.Sent.Should().ContainSingle().Subject;
 		sent.Message.Should().Be("What changed?");
@@ -161,7 +161,7 @@ public partial class PDChatTests
 		await AddImagesAsync(component, 1);
 
 		component.Find(".chat-send").HasAttribute("disabled").Should().BeFalse();
-		await component.Find(".chat-send").ClickAsync(new());
+		await ClickElementAsync(component, ".chat-send");
 
 		service.Sent.Should().ContainSingle().Which.Images.Should().ContainSingle();
 	}
@@ -173,7 +173,7 @@ public partial class PDChatTests
 		var service = new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." };
 		var component = RenderChat(service);
 		await AddImagesAsync(component, 1);
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Look" });
+		await InputTextAsync(component, "Look");
 
 		component.Find(".pdchat-image-notice").TextContent.Should().Be("This model cannot take images.");
 		component.Find(".chat-send").HasAttribute("disabled").Should().BeTrue();
@@ -189,10 +189,10 @@ public partial class PDChatTests
 	{
 		var service = new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." };
 		var component = RenderChat(service);
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Hello" });
+		await InputTextAsync(component, "Hello");
 
 		component.Find(".chat-send").HasAttribute("disabled").Should().BeFalse();
-		await component.Find(".chat-send").ClickAsync(new());
+		await ClickElementAsync(component, ".chat-send");
 
 		var sent = service.Sent.Should().ContainSingle().Subject;
 		sent.Message.Should().Be("Hello");
@@ -220,14 +220,14 @@ public partial class PDChatTests
 		var service = new FakeChatService { IsImageInputOffered = true, ImageInputBlockedReason = "This model cannot take images." };
 		var component = RenderChat(service);
 		await AddImagesAsync(component, 1);
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Look" });
+		await InputTextAsync(component, "Look");
 
-		await component.Find(".pdchat-image-remove").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-image-remove");
 		await LetPDMessagesSettleAsync();
 
 		component.FindAll(".pdchat-image-notice").Should().BeEmpty();
 		component.Find(".chat-send").HasAttribute("disabled").Should().BeFalse();
-		await component.Find(".chat-send").ClickAsync(new());
+		await ClickElementAsync(component, ".chat-send");
 		service.Sent.Should().ContainSingle().Which.Images.Should().BeNull();
 	}
 
@@ -239,10 +239,10 @@ public partial class PDChatTests
 		var component = RenderChat(service);
 		var messages = component.FindComponent<PDMessages>();
 
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Typed" });
+		await InputTextAsync(component, "Typed");
 		await component.InvokeAsync(() => messages.Instance.OnEnterPressed());
 		await LetPDMessagesSettleAsync();
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Spoken" });
+		await InputTextAsync(component, "Spoken");
 		await component.InvokeAsync(() => messages.Instance.SendAsync());
 
 		service.Sent.Select(message => message.Message).Should().Equal("Typed", "Spoken");

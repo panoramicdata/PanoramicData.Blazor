@@ -126,7 +126,7 @@ public partial class PDChatTests
 		await TypeAndSendAsync(component, "Is it done?");
 		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
 
-		await component.Find("textarea").FocusAsync(new FocusEventArgs());
+		await FocusTextBoxAsync(component);
 		await HearAsync(component, _heardWhileSpeaking);
 
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Speaking);
@@ -162,9 +162,20 @@ public partial class PDChatTests
 		service.Sent.Should().ContainSingle("only the question was sent");
 	}
 
+	// The service raises its change events by queueing a render, which can run between a Find and the event it
+	// dispatches and replace the handler the found element names. Finding inside the dispatcher runs after that render.
+	private static Task InputTextAsync(IRenderedComponent<PDChat> component, string text)
+		=> component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = text }));
+
+	private static Task FocusTextBoxAsync(IRenderedComponent<PDChat> component)
+		=> component.InvokeAsync(() => component.Find("textarea").FocusAsync(new FocusEventArgs()));
+
+	private static Task ClickElementAsync(IRenderedComponent<PDChat> component, string selector)
+		=> component.InvokeAsync(() => component.Find(selector).ClickAsync(new MouseEventArgs()));
+
 	private static async Task TypeAndSendAsync(IRenderedComponent<PDChat> component, string text)
 	{
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = text });
-		await component.Find(".chat-input-accessories .chat-send").ClickAsync(new MouseEventArgs());
+		await InputTextAsync(component, text);
+		await ClickElementAsync(component, ".chat-input-accessories .chat-send");
 	}
 }

@@ -131,7 +131,7 @@ public partial class PDChatTests
 	{
 		var service = InterruptService();
 		var component = await RenderSpeakingAsync(service);
-		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "A draft" }));
+		await InputTextAsync(component, "A draft");
 
 		await SayAsync(component, Merlin);
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);
@@ -244,7 +244,7 @@ public partial class PDChatTests
 		var service = InterruptService();
 		var component = await RenderSpeakingAsync(service, "Merlin is done.");
 
-		await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-read-aloud-toggle");
 
 		module.Invocations["stopSpeaking"].Should().ContainSingle();
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
@@ -259,7 +259,7 @@ public partial class PDChatTests
 		var service = InterruptService();
 		var component = await RenderSpeakingAsync(service);
 
-		await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-read-aloud-toggle");
 		await SayAsync(component, "Is", "it", "done?");
 
 		module.Invocations["stopSpeaking"].Should().ContainSingle("only the control stopped it");
@@ -332,7 +332,7 @@ public partial class PDChatTests
 		var module = SetUpVoiceModule();
 		var component = await RenderSpeakingAsync(InterruptService());
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 		await SayAsync(component, Merlin);
 
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Off);
