@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDTimeline keeps a selected range centred when it is zoomed in or out with the zoom buttons or Ctrl with the mouse wheel. Before, the viewport stayed centred on wherever it had been, so a selection could end up off to one side or out of view after zooming.</PackageReleaseNotes>
+    <PackageReleaseNotes>The file explorer preview details show a file or folder name exactly as written. Before, DefaultPreviewProvider and FileExplorerPreviewProvider wrote the name unescaped, so entity text such as &amp;lt;b&amp;gt; in a name was shown decoded and markup in a name could render as an element. The default provider's folder heading also shows the whole name instead of cutting it at the last dot.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
