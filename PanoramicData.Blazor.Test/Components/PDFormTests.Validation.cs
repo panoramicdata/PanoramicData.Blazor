@@ -11,6 +11,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public partial class PDFormTests
 {
+	private static Task DisposeFormAsync(IRenderedComponent<PDForm<Person>> form)
+		=> form.InvokeAsync(() => form.Instance.DisposeAsync().AsTask());
+
+	private static Task ShowHelpAsync(IRenderedComponent<PDForm<Person>> form)
+		=> form.InvokeAsync(() => form.Instance.ShowHelp = true);
+
 	/// <summary>
 	/// Verifies that numeric limits on a field produce errors for values outside them, and none inside.
 	/// </summary>
@@ -152,7 +158,7 @@ public partial class PDFormTests
 
 		await SetValueAsync(form, field, "Bob");
 		await SetValueAsync(form, field, "Ann");
-		await form.InvokeAsync(() => form.Instance.DisposeAsync().AsTask());
+		await DisposeFormAsync(form);
 
 		_module.Invocations["setUnloadListener"].Should().BeEmpty();
 	}
@@ -191,7 +197,7 @@ public partial class PDFormTests
 		await SetValueAsync(form, field, "Bob");
 		var disarmedBefore = UnloadListenerCalls(false);
 
-		await form.InvokeAsync(() => form.Instance.DisposeAsync().AsTask());
+		await DisposeFormAsync(form);
 
 		UnloadListenerCalls(false).Should().Be(disarmedBefore + 1);
 		(await navigation.ProceedAsync("/elsewhere")).Should().BeTrue();
@@ -207,7 +213,7 @@ public partial class PDFormTests
 		var form = RenderForm(p => p.Add(x => x.ExceptionHandler, ex => handled = ex));
 		var exception = new InvalidOperationException("boom");
 
-		await form.InvokeAsync(() => form.Instance.HandleExceptionAsync(exception));
+		await HandleAsync(form, exception);
 
 		handled.Should().BeSameAs(exception);
 	}
@@ -220,10 +226,10 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var before = form.RenderCount;
-		await form.InvokeAsync(() => form.Instance.ShowHelp = true);
+		await ShowHelpAsync(form);
 		var afterChange = form.RenderCount;
 
-		await form.InvokeAsync(() => form.Instance.ShowHelp = true);
+		await ShowHelpAsync(form);
 
 		form.Instance.ShowHelp.Should().BeTrue();
 		afterChange.Should().BeGreaterThan(before);
