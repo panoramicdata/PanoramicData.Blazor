@@ -59,6 +59,27 @@ public class DefaultPreviewProviderTests
 			.And.Contain("Modified: 07/06/24 08:09:10");
 	}
 
+	/// <summary>A folder's whole name is shown as written: markup in it creates no element and a dot does not cut it short.</summary>
+	[Theory]
+	[InlineData("/docs/<b>bold&co", "&lt;b&gt;bold&amp;co")]
+	[InlineData("/docs/&lt;b&gt;", "&amp;lt;b&amp;gt;")]
+	[InlineData("/docs/v1.2", "v1.2")]
+	public async Task GetPreviewInfoAsync_FolderName_IsShownAsText(string path, string markup)
+	{
+		var html = (await new DefaultPreviewProvider().GetPreviewInfoAsync(Folder(path))).HtmlContent.Value;
+
+		html.Should().Contain($"<span class=\"h1 user-select-none\">{markup}</span>").And.NotContain("<b>");
+	}
+
+	/// <summary>Markup in a file's name creates no element.</summary>
+	[Fact]
+	public async Task GetPreviewInfoAsync_FileName_IsShownAsText()
+	{
+		var html = (await new DefaultPreviewProvider().GetPreviewInfoAsync(File("/docs/<i>x&y.bin"))).HtmlContent.Value;
+
+		html.Should().Contain("<span class=\"h1 user-select-none\">&lt;i&gt;x&amp;y</span>").And.NotContain("<i>");
+	}
+
 	/// <summary>A file that cannot be downloaded for preview shows its name, type, size and dates.</summary>
 	[Fact]
 	public async Task GetPreviewInfoAsync_OtherFile_ShowsDetails()

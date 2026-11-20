@@ -4,7 +4,6 @@ using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.PreviewProviders;
 using PanoramicData.Blazor.Services;
-using System.Net.Http;
 
 namespace PanoramicData.Blazor.Test.PreviewProviders;
 
@@ -93,5 +92,29 @@ public partial class FileExplorerPreviewProviderTests : BunitContext
 		var info = await provider.GetPreviewInfoAsync(Item("/docs/Reports", FileExplorerItemType.Directory));
 
 		info.HtmlContent.Value.Should().Contain("fa fa-fw fa-folder").And.Contain(">Reports</span>").And.Contain(">Folder</span>");
+	}
+
+	/// <summary>Markup and entity text in a folder's name are shown as written, not interpreted.</summary>
+	[Theory]
+	[InlineData("/docs/<b>bold&co", "&lt;b&gt;bold&amp;co")]
+	[InlineData("/docs/&lt;b&gt;", "&amp;lt;b&amp;gt;")]
+	public async Task FolderName_IsShownAsText(string path, string markup)
+	{
+		var provider = new FileExplorerPreviewProvider { FileExplorer = RenderExplorer(FilePreviewModes.OptionalOff) };
+
+		var html = (await provider.GetPreviewInfoAsync(Item(path, FileExplorerItemType.Directory))).HtmlContent.Value;
+
+		html.Should().Contain($"<span class=\"h1 user-select-none\">{markup}</span>").And.NotContain("<b>");
+	}
+
+	/// <summary>Markup in a file's name creates no element.</summary>
+	[Fact]
+	public async Task FileName_IsShownAsText()
+	{
+		var provider = new FileExplorerPreviewProvider { FileExplorer = RenderExplorer(FilePreviewModes.OptionalOff) };
+
+		var html = (await provider.GetPreviewInfoAsync(Item("/docs/<i>x&y.bin"))).HtmlContent.Value;
+
+		html.Should().Contain("<span class=\"h1 user-select-none\">&lt;i&gt;x&amp;y</span>").And.NotContain("<i>");
 	}
 }

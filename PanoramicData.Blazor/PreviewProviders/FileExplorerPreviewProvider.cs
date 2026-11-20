@@ -1,5 +1,5 @@
 ﻿using Humanizer;
-using System.Net.Http;
+using System.Net;
 
 namespace PanoramicData.Blazor.PreviewProviders;
 
@@ -133,13 +133,13 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 
 			if (item.EntryType == FileExplorerItemType.Directory)
 			{
-				details.Add($"<span class=\"h1 user-select-none\">{item.Name}</span>");
+				details.Add($"<span class=\"h1 user-select-none\">{WebUtility.HtmlEncode(item.Name)}</span>");
 				details.Add("<span class=\"h4 user-select-none\">Folder</span>");
 			}
 			else
 			{
-				details.Add($"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>");
-				details.Add($"<span class=\"h4 user-select-none\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>");
+				details.Add($"<span class=\"h1 user-select-none\">{WebUtility.HtmlEncode(Path.GetFileNameWithoutExtension(item.Name))}</span>");
+				details.Add($"<span class=\"h4 user-select-none\">{WebUtility.HtmlEncode(Path.GetExtension(item.Name)[1..].ToUpperInvariant())} File</span>");
 				details.Add($"<span class=\"user-select-none\" title=\"{item.FileSize:N0} bytes\">{item.FileSize.Bytes().Humanize(CultureInfo.InvariantCulture)}</span>");
 			}
 
