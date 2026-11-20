@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using Markdig;
+using System.Net;
 
 namespace PanoramicData.Blazor.PreviewProviders;
 
@@ -128,7 +129,7 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 		{
 			return
 			[
-				$"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
+				$"<span class=\"h1 user-select-none\">{WebUtility.HtmlEncode(item.Name)}</span>",
 				"<span class=\"h4 user-select-none\">Folder</span>",
 				$"<span class=\"text-small text-muted user-select-none\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
 				$"<span class=\"text-small text-muted user-select-none\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
@@ -137,8 +138,8 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 
 		return
 		[
-			$"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
-			$"<span class=\"h4 user-select-none\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>",
+			$"<span class=\"h1 user-select-none\">{WebUtility.HtmlEncode(Path.GetFileNameWithoutExtension(item.Name))}</span>",
+			$"<span class=\"h4 user-select-none\">{WebUtility.HtmlEncode(Path.GetExtension(item.Name)[1..].ToUpperInvariant())} File</span>",
 			$"<span class=\"user-select-none\" title=\"{item.FileSize:N0} bytes\">{item.FileSize.Bytes().Humanize(CultureInfo.InvariantCulture)}</span>",
 			$"<span class=\"text-small text-muted user-select-none\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
 			$"<span class=\"text-small text-muted user-select-none\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
