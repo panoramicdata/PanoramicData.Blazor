@@ -28,7 +28,7 @@
 					</style>
 				}
 				<div class="pd-studio-demo-container">
-					<PDStudio @ref="_studio"
+					<PDStudio @ref="Studio"
 							  StudioService="@StudioService"
 							  Options="@StudioOptions"
 							  Examples="@Examples"
@@ -326,7 +326,7 @@
 		<div class="fw-semibold mb-1">EditorContent</div>
 		<p class="small mb-0">
 			The host's own content, here in place of the code editor. The code editor is hidden, not removed,
-			so its @(_studio?.Code.Length ?? 0) characters of code are still there when this is turned off.
+			so its @(Studio?.Code.Length ?? 0) characters of code are still there when this is turned off.
 		</p>
 	</div>;
 }

@@ -5,7 +5,13 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFormPage6
 {
-	private PDForm<FormColoursModel>? _form;
+	private PDForm<FormColoursModel>? _formInstance;
+
+	private PDForm<FormColoursModel>? Form
+	{
+		get => _formInstance;
+		set => _formInstance = value;
+	}
 	private bool _dark;
 	private bool _neutralLabels;
 	private bool _labelEdges;
@@ -44,9 +50,9 @@ public partial class PDFormPage6
 
 	private async Task ResetFormAsync()
 	{
-		if (_form is not null)
+		if (Form is not null)
 		{
-			await _form.EditItemAsync(new FormColoursModel(), FormModes.Create).ConfigureAwait(true);
+			await Form.EditItemAsync(new FormColoursModel(), FormModes.Create).ConfigureAwait(true);
 		}
 	}
 

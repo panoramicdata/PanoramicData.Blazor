@@ -6,7 +6,13 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDStudio
 {
-	private ElementReference _leftPanelHandle;
+	private ElementReference _leftPanelHandleReference;
+
+	private ElementReference LeftPanelHandle
+	{
+		get => _leftPanelHandleReference;
+		set => _leftPanelHandleReference = value;
+	}
 	private string? _initializedLeftPanelHandleId;
 	private IJSObjectReference? _leftPanelModule;
 	private DotNetObjectReference<PDStudio>? _leftPanelReference;
@@ -95,7 +101,7 @@ public partial class PDStudio
 	}
 
 	private string? UninitializedLeftPanelHandleId
-		=> ShowsLeftPanelHandle && _leftPanelHandle.Id is { } id && id != _initializedLeftPanelHandleId ? id : null;
+		=> ShowsLeftPanelHandle && LeftPanelHandle.Id is { } id && id != _initializedLeftPanelHandleId ? id : null;
 
 	private async Task ConnectLeftPanelHandleAsync()
 	{
@@ -105,7 +111,7 @@ public partial class PDStudio
 			_leftPanelReference ??= DotNetObjectReference.Create(this);
 			if (_leftPanelModule != null)
 			{
-				await _leftPanelModule.InvokeVoidAsync("initializeLeftPanelHandle", _leftPanelHandle, _leftPanelReference).ConfigureAwait(true);
+				await _leftPanelModule.InvokeVoidAsync("initializeLeftPanelHandle", LeftPanelHandle, _leftPanelReference).ConfigureAwait(true);
 			}
 		}
 		catch (JSDisconnectedException)
