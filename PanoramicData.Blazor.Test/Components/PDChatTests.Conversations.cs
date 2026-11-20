@@ -40,7 +40,7 @@ public partial class PDChatTests
 		var service = new FakeChatService { DockMode = PDChatDockMode.FullScreen };
 		var component = RenderChat(service);
 
-		await component.Find(".pdchat-canvas-flex .pdtabset-addtab").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-canvas-flex .pdtabset-addtab");
 
 		component.WaitForAssertion(() => component.Find(".pdchat-canvas-flex .pdtabset-tab-rename-input").GetAttribute("value").Should().Be("New Tab"), Patience);
 		var editor = component.FindComponent<PDMonacoEditor>().Instance;
@@ -218,7 +218,7 @@ public partial class PDChatTests
 		var (component, store, service) = RenderFirstOpen();
 		await CloseTabAsync(component, "First");
 
-		await component.Find(".pdchat-conversation-none-open button").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-conversation-none-open button");
 
 		component.WaitForAssertion(() => TabTitles(component).Should().Equal(ChatConversation.UntitledDisplayName), Patience);
 		store.Created.Should().ContainSingle();
@@ -231,7 +231,7 @@ public partial class PDChatTests
 	{
 		var (component, store, _) = RenderFirstOpen();
 
-		await component.Find(".pdchat-conversation-tabset .pdtabset-addtab").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-conversation-tabset .pdtabset-addtab");
 
 		component.WaitForAssertion(() => store.Created.Should().ContainSingle(), Patience);
 	}
@@ -269,10 +269,10 @@ public partial class PDChatTests
 	{
 		var (component, _, _) = RenderConversations();
 
-		await component.Find(".pdchat-conversation-toolbar-btn[title='Hide conversations']").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-conversation-toolbar-btn[title='Hide conversations']");
 		component.FindAll(".pdchat-conversation-sidebar-pane").Should().BeEmpty();
 
-		await component.Find(".pdchat-conversation-toolbar-btn[title='Show conversations']").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-conversation-toolbar-btn[title='Show conversations']");
 		component.FindAll(".pdchat-conversation-sidebar-pane").Should().ContainSingle();
 	}
 

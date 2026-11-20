@@ -65,7 +65,7 @@ public partial class PDChatTests
 		VoiceModuleImports().Should().BeEmpty();
 		module.Invocations.Should().BeEmpty();
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		VoiceModuleImports().Should().ContainSingle();
 		module.Invocations["start"].Should().ContainSingle();
@@ -91,7 +91,7 @@ public partial class PDChatTests
 		var module = SetUpVoiceModule();
 		var component = RenderChat(VoiceService());
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		module.Invocations["start"].Should().ContainSingle().Which.Arguments[0].Should().Be("/voice/listen");
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
@@ -168,7 +168,7 @@ public partial class PDChatTests
 		var module = SetUpVoiceModule();
 		var service = VoiceService();
 		var component = await RenderListeningAsync(service);
-		await component.Find("textarea").FocusAsync(new FocusEventArgs());
+		await FocusTextBoxAsync(component);
 
 		await SayAsync(component, "Is", "it", "done?");
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);
@@ -176,7 +176,7 @@ public partial class PDChatTests
 		service.Sent.Should().BeEmpty();
 		component.Find(".pdchat-voice-status").TextContent.Trim().Should().Be("Listening. You are editing, so press Send when ready.");
 
-		await component.Find(".chat-input-accessories .chat-send").ClickAsync(new MouseEventArgs());
+		await ClickElementAsync(component, ".chat-input-accessories .chat-send");
 
 		service.Sent.Should().ContainSingle().Which.Message.Should().Be("Is it done?");
 		module.Invocations["pause"].Should().ContainSingle().Which.Arguments[0].Should().Be(true);
@@ -192,7 +192,7 @@ public partial class PDChatTests
 		var component = await RenderListeningAsync(service);
 
 		await SayAsync(component, "Is", "it", "done?");
-		await component.Find("textarea").FocusAsync(new FocusEventArgs());
+		await FocusTextBoxAsync(component);
 		await component.Find("textarea").BlurAsync(new FocusEventArgs());
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);
 
@@ -226,7 +226,7 @@ public partial class PDChatTests
 		var component = await RenderListeningAsync(service);
 
 		await SayAsync(component, "Is", "it", "done?");
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);
 
 		service.Sent.Should().BeEmpty();
@@ -296,7 +296,7 @@ public partial class PDChatTests
 		var module = SetUpVoiceModule();
 		var component = await RenderListeningAsync(VoiceService());
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		module.Invocations["stop"].Should().ContainSingle();
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Off);
@@ -311,7 +311,7 @@ public partial class PDChatTests
 		_ = module.SetupVoid("start", _ => true).SetException(new JSException("NotAllowedError"));
 		var component = RenderChat(VoiceService());
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Off);
 		component.Find(".pdchat-voice-status").TextContent.Should().Contain("microphone could not be opened");
@@ -341,11 +341,11 @@ public partial class PDChatTests
 		var module = SetUpVoiceModule();
 		var service = VoiceService(readAloud: false);
 		var component = RenderChat(service);
-		await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-read-aloud-toggle");
 		((IChatService)service).IsReadAloudEnabled.Should().BeTrue();
 
-		await component.Find("textarea").InputAsync(new Microsoft.AspNetCore.Components.ChangeEventArgs { Value = "Is it done?" });
-		await component.Find(".chat-input-accessories .chat-send").ClickAsync(new MouseEventArgs());
+		await InputTextAsync(component, "Is it done?");
+		await ClickElementAsync(component, ".chat-input-accessories .chat-send");
 		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
 
 		module.Invocations["speak"].Should().ContainSingle().Which.Arguments[1].Should().Be("Yes.");
@@ -364,7 +364,7 @@ public partial class PDChatTests
 		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Speaking);
 
-		await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-read-aloud-toggle");
 
 		module.Invocations["stopSpeaking"].Should().ContainSingle();
 		module.Invocations["pause"].Select(call => call.Arguments[0]).Should().Equal(true, false);
@@ -384,12 +384,12 @@ public partial class PDChatTests
 
 		if (muted)
 		{
-			await component.Find(".pdchat-mute-toggle").ClickAsync(new());
+			await ClickElementAsync(component, ".pdchat-mute-toggle");
 		}
 
 		if (readAloud)
 		{
-			await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+			await ClickElementAsync(component, ".pdchat-read-aloud-toggle");
 		}
 
 		service.IsMuted.Should().Be(muted);
@@ -450,7 +450,7 @@ public partial class PDChatTests
 	private async Task<IRenderedComponent<PDChat>> RenderListeningAsync(FakeChatService service)
 	{
 		var component = RenderChat(service);
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 		return component;
 	}
 
@@ -481,7 +481,7 @@ public partial class PDChatTests
 		service.VoiceEndpoints = simulated;
 		var component = RenderChat(service);
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		VoiceModuleImports().Should().BeEmpty();
 		module.Invocations["start"].Should().ContainSingle();

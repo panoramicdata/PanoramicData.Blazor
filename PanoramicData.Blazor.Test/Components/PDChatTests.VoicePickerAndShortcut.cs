@@ -41,7 +41,7 @@ public partial class PDChatTests
 		await component.Find(".pdchat-voice-mode-picker select").ChangeAsync(new ChangeEventArgs { Value = "MicOff" });
 		PickerValue(component).Should().Be("MicOff");
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		PickerValue(component).Should().Be(mode.ToString());
 	}

@@ -19,13 +19,13 @@ public partial class PDChatTests
 		var service = new FakeChatService { SendFailure = new InvalidOperationException("send failed") };
 		var component = RenderChat(service);
 
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Hi" });
-		await component.Find(".chat-send").ClickAsync(new());
+		await InputTextAsync(component, "Hi");
+		await ClickElementAsync(component, ".chat-send");
 
 		logger.Entries.Should().ContainSingle(e => e.Level == LogLevel.Error)
 			.Which.Exception!.Message.Should().Be("send failed");
 		service.SendFailure = null;
-		await component.Find(".chat-send").ClickAsync(new());
+		await ClickElementAsync(component, ".chat-send");
 		service.Sent.Should().ContainSingle().Which.Message.Should().Be("Hi");
 	}
 

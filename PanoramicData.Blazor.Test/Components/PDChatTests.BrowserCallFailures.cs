@@ -21,7 +21,7 @@ public partial class PDChatTests
 		module.SetupVoid("start", _ => true).SetException(new TaskCanceledException());
 		var component = RenderChat(VoiceService());
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		component.Find(".pdchat-voice-toggle").GetAttribute("aria-pressed").Should().Be("false");
 		component.Markup.Should().Contain("The microphone could not be opened");
@@ -36,7 +36,7 @@ public partial class PDChatTests
 		module.SetupVoid("captureTab", _ => true).SetException(new TaskCanceledException());
 		var component = RenderChat(new FakeChatService { IsImageInputOffered = true });
 
-		await component.Find(".pdchat-image-screenshot").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-image-screenshot");
 
 		component.WaitForAssertion(
 			() => component.Find(".pdchat-image-notice").TextContent.Should().Contain("could not be added"),
