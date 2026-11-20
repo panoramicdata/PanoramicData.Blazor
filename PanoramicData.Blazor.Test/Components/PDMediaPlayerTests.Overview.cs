@@ -15,17 +15,29 @@ public partial class PDMediaPlayerTests
 		new() { Start = TimeSpan.FromSeconds(5), Duration = TimeSpan.FromSeconds(1), MidiNote = 64, Voice = "melody" }
 	];
 
+	private IRenderedComponent<PDMediaPlayer> RenderSpectrogram(Action<ComponentParameterCollectionBuilder<PDMediaPlayer>>? configure = null)
+		=> RenderPlayer(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			configure?.Invoke(p);
+		});
+
+	private Task<IRenderedComponent<PDMediaPlayer>> RenderNotesAsync(Action<ComponentParameterCollectionBuilder<PDMediaPlayer>>? configure = null)
+		=> RenderReadyAsync(p =>
+		{
+			p.Add(x => x.ShowSpectrogram, true);
+			p.Add(x => x.ShowNotes, true);
+			p.Add(x => x.Notes, OverviewNotes());
+			configure?.Invoke(p);
+		}, duration: 10);
+
 	/// <summary>The overview bar is absent by default and shows with its handles when asked for.</summary>
 	[Fact]
 	public void Overview_ShowsOnlyWhenAskedFor()
 	{
-		RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true)).FindAll(".pdmp-overview").Should().BeEmpty();
+		RenderSpectrogram().FindAll(".pdmp-overview").Should().BeEmpty();
 
-		var cut = RenderPlayer(p =>
-		{
-			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.ShowSpectrogramOverview, true);
-		});
+		var cut = RenderSpectrogram(p => p.Add(x => x.ShowSpectrogramOverview, true));
 
 		cut.FindAll(".pdmp-overview").Should().HaveCount(1);
 		cut.FindAll(".pdmp-overview-window").Should().HaveCount(1);
@@ -44,16 +56,12 @@ public partial class PDMediaPlayerTests
 	[Fact]
 	public void SeekBar_FollowsTheViewOnlyWhenAskedTo()
 	{
-		var plain = RenderPlayer(p => p.Add(x => x.ShowSpectrogram, true));
+		var plain = RenderSpectrogram();
 		plain.FindAll(".pdmp-track .pdmp-view-inner").Should().HaveCount(1);
 		plain.FindAll(".pdmp-track.pdmp-follow-view").Should().BeEmpty();
 		plain.FindAll(".pdmp-segment-lanes.pdmp-follow-view").Should().BeEmpty();
 
-		var follows = RenderPlayer(p =>
-		{
-			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.SeekBarFollowsView, true);
-		});
+		var follows = RenderSpectrogram(p => p.Add(x => x.SeekBarFollowsView, true));
 		follows.FindAll(".pdmp-track.pdmp-follow-view").Should().HaveCount(1);
 		follows.FindAll(".pdmp-track.pdmp-follow-view .pdmp-seek").Should().HaveCount(1);
 	}
@@ -62,22 +70,11 @@ public partial class PDMediaPlayerTests
 	[Fact]
 	public async Task PianoRoll_FollowsTheViewOnlyWhenAskedTo()
 	{
-		var plain = await RenderReadyAsync(p =>
-		{
-			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.ShowNotes, true);
-			p.Add(x => x.Notes, OverviewNotes());
-		}, duration: 10);
+		var plain = await RenderNotesAsync();
 		plain.FindAll(".pdmp-note-grid .pdmp-view-inner .pdmp-note").Should().HaveCount(2);
 		plain.FindAll(".pdmp-follow-view").Should().BeEmpty();
 
-		var follows = await RenderReadyAsync(p =>
-		{
-			p.Add(x => x.ShowSpectrogram, true);
-			p.Add(x => x.ShowNotes, true);
-			p.Add(x => x.Notes, OverviewNotes());
-			p.Add(x => x.NotesFollowView, true);
-		}, duration: 10);
+		var follows = await RenderNotesAsync(p => p.Add(x => x.NotesFollowView, true));
 		follows.FindAll(".pdmp-note-grid.pdmp-follow-view").Should().HaveCount(1);
 		follows.FindAll(".pdmp-note-times.pdmp-follow-view .pdmp-view-inner span").Should().NotBeEmpty();
 		follows.FindAll(".pdmp-pitch-labels .pdmp-view-inner").Should().BeEmpty();
