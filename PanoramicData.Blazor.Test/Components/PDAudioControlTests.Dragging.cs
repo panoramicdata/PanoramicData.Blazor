@@ -10,6 +10,22 @@ namespace PanoramicData.Blazor.Test.Components;
 /// </summary>
 public partial class PDAudioControlTests
 {
+	private IRenderedComponent<TestAudioControl> RenderDraggable(Action<ComponentParameterCollectionBuilder<TestAudioControl>>? configure = null)
+	{
+		JSInterop.SetupModule(AudioModulePath);
+		return RenderControl(p =>
+		{
+			p.Add(x => x.ModulePath, AudioModulePath);
+			configure?.Invoke(p);
+		});
+	}
+
+	private static void PointerDownOn(IRenderedComponent<TestAudioControl> cut)
+		=> cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
+
+	private static Task MoveAsync(IRenderedComponent<TestAudioControl> cut, int y)
+		=> cut.InvokeAsync(() => cut.Instance.OnPointerMove(y));
+
 	/// <summary>A pointer down registers drag events with the module, passing a .NET reference.</summary>
 	[Fact]
 	public void PointerDown_RegistersDragEventsWithTheModule()
@@ -17,7 +33,7 @@ public partial class PDAudioControlTests
 		var module = JSInterop.SetupModule(AudioModulePath);
 		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
+		PointerDownOn(cut);
 
 		module.Invocations["registerAudioControlEvents"].Should().ContainSingle()
 			.Which.Arguments[0].Should().BeOfType<DotNetObjectReference<PDAudioControl>>();
@@ -30,8 +46,8 @@ public partial class PDAudioControlTests
 		var module = JSInterop.SetupModule(AudioModulePath);
 		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
+		PointerDownOn(cut);
+		PointerDownOn(cut);
 
 		module.Invocations["registerAudioControlEvents"].Should().ContainSingle();
 	}
@@ -43,7 +59,7 @@ public partial class PDAudioControlTests
 		var module = JSInterop.SetupModule(AudioModulePath);
 		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.IsEnabled, false));
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
+		PointerDownOn(cut);
 
 		module.Invocations.Should().BeEmpty();
 	}
@@ -54,8 +70,8 @@ public partial class PDAudioControlTests
 	{
 		var cut = RenderControl();
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
-		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(0));
+		PointerDownOn(cut);
+		await MoveAsync(cut, 0);
 
 		_values.Should().BeEmpty();
 	}
@@ -64,12 +80,11 @@ public partial class PDAudioControlTests
 	[Fact]
 	public async Task PointerMove_DuringDrag_ChangesValueByDistance()
 	{
-		JSInterop.SetupModule(AudioModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.Value, 0.2));
+		var cut = RenderDraggable(p => p.Add(x => x.Value, 0.2));
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
-		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(70));
-		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(-500));
+		PointerDownOn(cut);
+		await MoveAsync(cut, 70);
+		await MoveAsync(cut, -500);
 
 		_values.Should().HaveCount(2);
 		_values[0].Should().BeApproximately(0.4, 1e-9);
@@ -80,11 +95,10 @@ public partial class PDAudioControlTests
 	[Fact]
 	public async Task PointerMove_WithSnapping_QuantisesTheValue()
 	{
-		JSInterop.SetupModule(AudioModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.Value, 0).Add(x => x.SnapPoints, 5));
+		var cut = RenderDraggable(p => p.Add(x => x.Value, 0).Add(x => x.SnapPoints, 5));
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
-		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(80));
+		PointerDownOn(cut);
+		await MoveAsync(cut, 80);
 
 		_values.Should().Equal(0.25);
 	}
@@ -93,11 +107,10 @@ public partial class PDAudioControlTests
 	[Fact]
 	public async Task PointerMove_WithNoChange_ReportsNothing()
 	{
-		JSInterop.SetupModule(AudioModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.Value, 0.5));
+		var cut = RenderDraggable(p => p.Add(x => x.Value, 0.5));
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
-		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(100));
+		PointerDownOn(cut);
+		await MoveAsync(cut, 100);
 
 		_values.Should().BeEmpty();
 	}
@@ -106,12 +119,11 @@ public partial class PDAudioControlTests
 	[Fact]
 	public async Task PointerUp_EndsTheDrag()
 	{
-		JSInterop.SetupModule(AudioModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
+		var cut = RenderDraggable();
 
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
+		PointerDownOn(cut);
 		cut.Instance.OnPointerUp(100);
-		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(0));
+		await MoveAsync(cut, 0);
 
 		_values.Should().BeEmpty();
 	}
@@ -120,9 +132,8 @@ public partial class PDAudioControlTests
 	[Fact]
 	public async Task Dispose_AfterDrag_DoesNotThrow()
 	{
-		JSInterop.SetupModule(AudioModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
-		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
+		var cut = RenderDraggable();
+		PointerDownOn(cut);
 
 		var act = async () => await cut.Instance.DisposeAsync();
 
