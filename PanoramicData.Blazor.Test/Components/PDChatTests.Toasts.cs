@@ -122,7 +122,7 @@ public partial class PDChatTests
 		var component = RenderChat(service);
 		await component.InvokeAsync(() => service.Receive(Message("Open me")));
 
-		await component.Find(".pdchat-toast").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-toast");
 
 		service.DockMode.Should().Be(PDChatDockMode.BottomRight);
 		component.FindAll(".pdchat-toast").Should().BeEmpty();
@@ -142,7 +142,7 @@ public partial class PDChatTests
 		var component = RenderChat(service);
 		await component.InvokeAsync(() => service.Receive(Message("Bye")));
 
-		await component.Find(".pdchat-toast-close").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-toast-close");
 
 		var toast = component.Find(".pdchat-toast");
 		toast.ClassList.Should().Contain("toast-exit-fade");
@@ -157,7 +157,7 @@ public partial class PDChatTests
 		var component = RenderChat(service);
 		await component.InvokeAsync(() => service.Receive(Message("Bye")));
 
-		await component.Find(".pdchat-toast-close").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-toast-close");
 
 		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().BeEmpty(), Patience);
 	}

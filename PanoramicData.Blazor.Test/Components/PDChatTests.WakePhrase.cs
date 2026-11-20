@@ -191,8 +191,8 @@ public partial class PDChatTests
 		var service = WakeService();
 		((IChatService)service).VoiceIdleTimeout = _briefIdle;
 		var component = RenderChat(service);
-		await component.Find("textarea").FocusAsync(new FocusEventArgs());
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await FocusTextBoxAsync(component);
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
@@ -211,7 +211,7 @@ public partial class PDChatTests
 		((IChatService)service).VoiceIdleTimeout = TimeSpan.FromMilliseconds(150);
 		var component = await RenderListeningAsync(service);
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 		await Task.Delay(_settle, Xunit.TestContext.Current.CancellationToken);
 
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Off);
@@ -225,7 +225,7 @@ public partial class PDChatTests
 		var module = SetUpVoiceModule();
 		var component = await RenderDormantAsync(WakeService());
 
-		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+		await ClickElementAsync(component, ".pdchat-voice-toggle");
 
 		module.Invocations["stop"].Should().ContainSingle();
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Off);

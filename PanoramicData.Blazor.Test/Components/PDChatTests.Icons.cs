@@ -146,7 +146,7 @@ public partial class PDChatTests
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Paused);
 		component.FindAll(".pdchat-voice-toggle .pdchat-voice-paused-badge").Should().ContainSingle();
 
-		await component.Find("textarea").FocusAsync(new FocusEventArgs());
+		await FocusTextBoxAsync(component);
 
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
 		component.FindAll(".pdchat-voice-toggle .pdchat-voice-paused-badge").Should().BeEmpty();
@@ -159,9 +159,9 @@ public partial class PDChatTests
 		SetUpVoiceModule();
 		var service = VoiceService();
 		var component = await RenderInModeAsync(service, PDChatVoiceMode.Dictate);
-		await component.Find("textarea").FocusAsync(new FocusEventArgs());
-		await component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "Is it done?" });
-		await component.Find(".chat-input-accessories .chat-send").ClickAsync(new MouseEventArgs());
+		await FocusTextBoxAsync(component);
+		await InputTextAsync(component, "Is it done?");
+		await ClickElementAsync(component, ".chat-input-accessories .chat-send");
 
 		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
 
