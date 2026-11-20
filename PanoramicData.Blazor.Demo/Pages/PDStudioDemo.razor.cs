@@ -162,7 +162,8 @@ public partial class PDStudioDemo : IDisposable
 	private bool ShowEndContent { get; set; } = true;
 	private bool ShowLeftPanel { get; set; } = true;
 	private bool ResizableLeftPanel { get; set; } = true;
-	private double? LeftPanelWidth { get; set; }
+	private double? _leftPanelWidthValue;
+	private double? LeftPanelWidth { get => _leftPanelWidthValue; set => _leftPanelWidthValue = value; }
 	private bool ShowFooter { get; set; } = true;
 	private bool ShowAboutTab { get; set; } = true;
 	private bool ShowEditorContent { get; set; }
@@ -193,28 +194,34 @@ public partial class PDStudioDemo : IDisposable
 		new() { Key = "time", Text = "Insert the time at the cursor", IconCssClass = "fas fa-fw fa-clock" }
 	];
 
-	private PDStudio? _studio;
+	private PDStudio? _studioInstance;
+
+	private PDStudio? Studio
+	{
+		get => _studioInstance;
+		set => _studioInstance = value;
+	}
 
 	// SetCodeAsync replaces the code, as opening a file would; InsertTextAsync adds at the cursor.
 	private async Task OnFileMenuClick(string key)
 	{
-		if (_studio is null)
+		if (Studio is null)
 		{
 			return;
 		}
 
 		if (key == "sample")
 		{
-			await _studio.SetCodeAsync(Examples.FirstOrDefault(e => e.IsFor(StudioOptions.Language))?.Code ?? string.Empty);
+			await Studio.SetCodeAsync(Examples.FirstOrDefault(e => e.IsFor(StudioOptions.Language))?.Code ?? string.Empty);
 		}
 		else if (key == "time")
 		{
-			await _studio.InsertTextAsync(DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
+			await Studio.InsertTextAsync(DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
 		}
 	}
 
 	private Task InsertExampleAsync(PDStudioExample example)
-		=> _studio?.InsertTextAsync(example.Code) ?? Task.CompletedTask;
+		=> Studio?.InsertTextAsync(example.Code) ?? Task.CompletedTask;
 
 	private void OnLeftPanelWidthChanged()
 		=> AddEvent("Left panel", LeftPanelWidth is { } width

@@ -25,18 +25,18 @@ public partial class PDStudioDemo
 	private async Task OnEditorReadOnlyChanged(ChangeEventArgs args)
 	{
 		EditorReadOnly = args.Value is true;
-		if (_studio is not null)
+		if (Studio is not null)
 		{
-			await _studio.UpdateEditorOptionsAsync(new EditorUpdateOptions { ReadOnly = EditorReadOnly });
+			await Studio.UpdateEditorOptionsAsync(new EditorUpdateOptions { ReadOnly = EditorReadOnly });
 		}
 	}
 
 	private async Task OnEditorTabSizeChanged(ChangeEventArgs args)
 	{
-		if (int.TryParse(args.Value?.ToString(), out var tabSize) && _studio is not null)
+		if (int.TryParse(args.Value?.ToString(), out var tabSize) && Studio is not null)
 		{
 			EditorTabSize = tabSize;
-			await _studio.UpdateEditorOptionsAsync(new EditorUpdateOptions { DetectIndentation = false, TabSize = tabSize });
+			await Studio.UpdateEditorOptionsAsync(new EditorUpdateOptions { DetectIndentation = false, TabSize = tabSize });
 		}
 	}
 
