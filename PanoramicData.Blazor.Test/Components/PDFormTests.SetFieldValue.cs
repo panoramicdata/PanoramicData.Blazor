@@ -25,8 +25,8 @@ public partial class PDFormTests
 		object? notified = null;
 		field.ValueChanged += (_, value) => notified = value;
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Cy"));
+		await SetValueAsync(form, field, "Bob");
+		await SetValueAsync(form, field, "Cy");
 
 		form.Instance.Delta.Should().ContainKey("Name").WhoseValue.Should().Be("Cy");
 		form.Instance.HasChanges.Should().BeTrue();
@@ -45,11 +45,11 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 		var disarmedBefore = UnloadListenerCalls(false);
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Ann"));
+		await SetValueAsync(form, field, "Bob");
+		await SetValueAsync(form, field, "Ann");
 
 		form.Instance.Delta.Should().BeEmpty();
 		form.Instance.HasChanges.Should().BeFalse();
@@ -69,7 +69,7 @@ public partial class PDFormTests
 		var field = AddField(form, p => p.Notes);
 		await EditAsync(form, new Person { Notes = original }, FormModes.Edit);
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, entered));
+		await SetValueAsync(form, field, entered);
 
 		form.Instance.Delta.Should().BeEmpty();
 		updates.Should().Be(0);
@@ -85,7 +85,7 @@ public partial class PDFormTests
 		var field = AddField(form, p => p.Age);
 		await EditAsync(form, new Person { Name = "Ann", Age = 30 }, FormModes.Edit);
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, 42L));
+		await SetValueAsync(form, field, 42L);
 
 		form.Instance.Delta["Age"].Should().Be(42);
 		form.Instance.GetFieldValue<int>("Age").Should().Be(42);
@@ -122,9 +122,9 @@ public partial class PDFormTests
 		var field = AddField(form, p => p.Name);
 		var unbound = new FormField<Person>();
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await SetValueAsync(form, field, "Bob");
 		await EditAsync(form, new Person(), FormModes.Edit);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(unbound, "Bob"));
+		await SetValueAsync(form, unbound, "Bob");
 
 		form.Instance.Delta.Should().BeEmpty();
 	}

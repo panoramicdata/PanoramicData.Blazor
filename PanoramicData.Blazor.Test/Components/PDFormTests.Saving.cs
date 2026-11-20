@@ -25,7 +25,7 @@ public partial class PDFormTests
 		var field = AddField(form, p => p.Name);
 		var person = new Person();
 		await EditAsync(form, person, FormModes.Create);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Dee"));
+		await SetValueAsync(form, field, "Dee");
 
 		var saved = await form.InvokeAsync(() => form.Instance.SaveAsync());
 
@@ -46,7 +46,7 @@ public partial class PDFormTests
 		var field = AddField(form, p => p.Name);
 		var person = new Person { Name = "Ann" };
 		await EditAsync(form, person, FormModes.Edit);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await SetValueAsync(form, field, "Bob");
 
 		var saved = await form.InvokeAsync(() => form.Instance.SaveAsync());
 

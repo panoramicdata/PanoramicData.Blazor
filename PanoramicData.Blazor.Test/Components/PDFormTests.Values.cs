@@ -18,8 +18,8 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await EditNamedAsync(form, "Ann");
+		await SetValueAsync(form, field, "Bob");
 
 		form.Instance.GetFieldValue("Name").Should().Be("Bob");
 		form.Instance.GetFieldValue("Name", false).Should().Be("Ann");
@@ -103,7 +103,7 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
 		form.Instance.GetField("Nope").Should().BeNull();
 		form.Instance.GetFieldValue("Nope").Should().BeNull();
@@ -120,12 +120,12 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 		var armedBefore = UnloadListenerCalls(true);
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Cy"));
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Di"));
+		await SetValueAsync(form, field, "Bob");
+		await SetValueAsync(form, field, "Cy");
+		await SetValueAsync(form, field, "Di");
 
 		UnloadListenerCalls(true).Should().Be(armedBefore + 1);
 	}
@@ -141,7 +141,7 @@ public partial class PDFormTests
 		form.Instance.GetItemWithUpdates().Should().BeNull();
 		var person = new Person { Name = "Ann", Age = 3 };
 		await EditAsync(form, person, FormModes.Edit);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await SetValueAsync(form, field, "Bob");
 
 		var clone = form.Instance.GetItemWithUpdates();
 

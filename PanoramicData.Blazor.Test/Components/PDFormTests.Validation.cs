@@ -26,7 +26,7 @@ public partial class PDFormTests
 			f.MaxValue = 150;
 			f.MinValue = 0;
 		});
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
 		var typed = await form.InvokeAsync(() => form.Instance.ValidateFieldAsync(field, age));
 
@@ -49,7 +49,7 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var field = AddField(form, p => p.Age);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
 		var typed = await form.InvokeAsync(() => form.Instance.ValidateFieldAsync(field, "not a number"));
 
@@ -126,8 +126,8 @@ public partial class PDFormTests
 	{
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, string.Empty));
+		await EditNamedAsync(form, "Ann");
+		await SetValueAsync(form, field, string.Empty);
 		var resets = 0;
 		form.Instance.ResetRequested += (_, _) => resets++;
 		var disarmedBefore = UnloadListenerCalls(false);
@@ -148,10 +148,10 @@ public partial class PDFormTests
 	{
 		var form = RenderForm(p => p.Add(x => x.ConfirmOnUnload, false));
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Ann"));
+		await SetValueAsync(form, field, "Bob");
+		await SetValueAsync(form, field, "Ann");
 		await form.InvokeAsync(() => form.Instance.DisposeAsync().AsTask());
 
 		_module.Invocations["setUnloadListener"].Should().BeEmpty();
@@ -169,10 +169,10 @@ public partial class PDFormTests
 		var form = RenderForm();
 		var navigation = Services.GetRequiredService<INavigationCancelService>();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
 		(await navigation.ProceedAsync("/elsewhere")).Should().BeTrue();
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await SetValueAsync(form, field, "Bob");
 
 		(await navigation.ProceedAsync("/elsewhere")).Should().BeFalse();
 		common.VerifyInvoke("confirm");
@@ -187,8 +187,8 @@ public partial class PDFormTests
 		var form = RenderForm();
 		var navigation = Services.GetRequiredService<INavigationCancelService>();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await EditNamedAsync(form, "Ann");
+		await SetValueAsync(form, field, "Bob");
 		var disarmedBefore = UnloadListenerCalls(false);
 
 		await form.InvokeAsync(() => form.Instance.DisposeAsync().AsTask());
@@ -243,7 +243,7 @@ public partial class PDFormTests
 		var person = new Person { Name = "Ann" };
 		form.Instance.SetItem(person);
 		await form.InvokeAsync(() => form.Instance.SetMode(FormModes.Edit));
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, string.Empty));
+		await SetValueAsync(form, field, string.Empty);
 		form.Instance.Errors.Should().NotBeEmpty();
 
 		await form.InvokeAsync(() => form.Instance.SetMode(FormModes.Create));
