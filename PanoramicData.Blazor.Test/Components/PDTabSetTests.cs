@@ -19,11 +19,10 @@ public partial class PDTabSetTests : BunitContext
 	[Fact]
 	public void Tabs_render_with_icon_css_widths_and_first_content()
 	{
-		var component = Render<PDTabSet>(parameters => parameters
+		var component = RenderTabs(parameters => parameters
 			.Add(p => p.CssClass, "outer")
 			.Add(p => p.TabMinWidth, "50px")
-			.Add(p => p.TabMaxWidth, "90px")
-			.Add(p => p.ChildContent, Tabs(new Spec("One") { Icon = "fas fa-1", Css = "first" }, new Spec("Two"))));
+			.Add(p => p.TabMaxWidth, "90px"), new Spec("One") { Icon = "fas fa-1", Css = "first" }, new Spec("Two"));
 
 		component.Find(".pdtabset").ClassList.Should().Contain("outer");
 		var buttons = component.FindAll("button.pdtabset-tab");
@@ -43,9 +42,8 @@ public partial class PDTabSetTests : BunitContext
 	{
 		var selected = new List<string>();
 		var tabSelected = 0;
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.OnTabSelected, (PDTab tab) => selected.Add(tab.Title))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { OnSelected = () => tabSelected++ })));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.OnTabSelected, (PDTab tab) => selected.Add(tab.Title)), new Spec("One"), new Spec("Two") { OnSelected = () => tabSelected++ });
 
 		SecondTab(component).Click();
 
@@ -59,7 +57,7 @@ public partial class PDTabSetTests : BunitContext
 	[Fact]
 	public void Selecting_without_a_handler_still_selects()
 	{
-		var component = Render<PDTabSet>(parameters => parameters.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
+		var component = RenderTabs(new Spec("One"), new Spec("Two"));
 
 		SecondTab(component).Click();
 
@@ -71,8 +69,7 @@ public partial class PDTabSetTests : BunitContext
 	public async Task SelectTabById_selects_known_ids_only()
 	{
 		var id = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
+		var component = RenderTabs(new Spec("One"), new Spec("Two") { Id = id });
 
 		var found = await component.InvokeAsync(() => component.Instance.SelectTabById(id));
 		found.Should().BeTrue();
@@ -88,9 +85,8 @@ public partial class PDTabSetTests : BunitContext
 	{
 		var id = Guid.NewGuid();
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id }, new Spec("Three"))));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One"), new Spec("Two") { Id = id }, new Spec("Three"));
 		ActiveTitle(component).Should().Be("One");
 
 		component.Render(parameters => parameters.Add(p => p.SelectedTabId, id));
@@ -105,9 +101,8 @@ public partial class PDTabSetTests : BunitContext
 	public void SelectedTabId_on_first_render_selects_that_tab()
 	{
 		var id = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabId, id)
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabId, id), new Spec("One"), new Spec("Two") { Id = id });
 
 		ActiveTitle(component).Should().Be("Two");
 		ContentText(component).Should().Be("Two content");
@@ -118,9 +113,8 @@ public partial class PDTabSetTests : BunitContext
 	public void SelectedTabId_selects_a_tab_added_later()
 	{
 		var id = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabId, id)
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabId, id), new Spec("One"), new Spec("Two"));
 		ActiveTitle(component).Should().Be("One");
 
 		component.Render(parameters => parameters
@@ -135,8 +129,7 @@ public partial class PDTabSetTests : BunitContext
 	public void SelectedTabId_and_its_tab_arriving_together_selects_the_tab()
 	{
 		var id = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
+		var component = RenderTabs(new Spec("One"), new Spec("Two"));
 
 		component.Render(parameters => parameters
 			.Add(p => p.SelectedTabId, id)
@@ -152,10 +145,9 @@ public partial class PDTabSetTests : BunitContext
 		var id = Guid.NewGuid();
 		var changes = new List<Guid?>();
 		var selected = new List<string>();
-		var component = Render<PDTabSet>(parameters => parameters
+		var component = RenderTabs(parameters => parameters
 			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.OnTabSelected, (PDTab tab) => selected.Add(tab.Title))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
+			.Add(p => p.OnTabSelected, (PDTab tab) => selected.Add(tab.Title)), new Spec("One"), new Spec("Two") { Id = id });
 
 		SecondTab(component).Click();
 
@@ -168,9 +160,8 @@ public partial class PDTabSetTests : BunitContext
 	public void Clicking_a_tab_with_an_empty_id_raises_SelectedTabIdChanged_with_null()
 	{
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One"), new Spec("Two"));
 		SetTabId(component.FindComponents<PDTab>()[1].Instance, Guid.Empty);
 
 		SecondTab(component).Click();
@@ -186,10 +177,9 @@ public partial class PDTabSetTests : BunitContext
 		var two = Guid.NewGuid();
 		Guid? hostValue = one;
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
+		var component = RenderTabs(parameters => parameters
 			.Add(p => p.SelectedTabId, hostValue)
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One") { Id = one }, new Spec("Two") { Id = two })));
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One") { Id = one }, new Spec("Two") { Id = two });
 
 		SecondTab(component).Click();
 		hostValue = changes[^1];
@@ -210,9 +200,8 @@ public partial class PDTabSetTests : BunitContext
 	public void An_unchanged_SelectedTabId_does_not_undo_a_user_selection()
 	{
 		var one = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabId, one)
-			.Add(p => p.ChildContent, Tabs(new Spec("One") { Id = one }, new Spec("Two"))));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabId, one), new Spec("One") { Id = one }, new Spec("Two"));
 		SecondTab(component).Click();
 
 		component.Render(parameters => parameters.Add(p => p.SelectedTabId, one));
@@ -225,8 +214,7 @@ public partial class PDTabSetTests : BunitContext
 	public void An_unknown_SelectedTabId_leaves_the_selection_unchanged()
 	{
 		var id = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
+		var component = RenderTabs(new Spec("One"), new Spec("Two") { Id = id });
 		SecondTab(component).Click();
 
 		var act = () => component.Render(parameters => parameters.Add(p => p.SelectedTabId, Guid.NewGuid()));
@@ -240,9 +228,8 @@ public partial class PDTabSetTests : BunitContext
 	public void A_pending_request_does_not_override_a_later_user_selection()
 	{
 		var id = Guid.NewGuid();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabId, id)
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabId, id), new Spec("One"), new Spec("Two"));
 		SecondTab(component).Click();
 
 		component.Render(parameters => parameters
@@ -258,10 +245,9 @@ public partial class PDTabSetTests : BunitContext
 		var one = Guid.NewGuid();
 		var two = Guid.NewGuid();
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
+		var component = RenderTabs(parameters => parameters
 			.Add(p => p.IsTabClosingEnabled, true)
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One") { Id = one }, new Spec("Two") { Id = two })));
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One") { Id = one }, new Spec("Two") { Id = two });
 		SecondTab(component).Click();
 		changes.Should().Equal(two);
 
@@ -276,10 +262,9 @@ public partial class PDTabSetTests : BunitContext
 	public void Closing_an_unselected_tab_does_not_raise_SelectedTabIdChanged()
 	{
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
+		var component = RenderTabs(parameters => parameters
 			.Add(p => p.IsTabClosingEnabled, true)
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two"))));
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One"), new Spec("Two"));
 
 		component.FindAll(".pdtabset-tab-close")[1].Click();
 
@@ -291,10 +276,9 @@ public partial class PDTabSetTests : BunitContext
 	public void Closing_the_last_tab_raises_SelectedTabIdChanged_with_null()
 	{
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
+		var component = RenderTabs(parameters => parameters
 			.Add(p => p.IsTabClosingEnabled, true)
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"))));
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One"));
 
 		component.Find(".pdtabset-tab-close").Click();
 
@@ -307,9 +291,8 @@ public partial class PDTabSetTests : BunitContext
 	{
 		var id = Guid.NewGuid();
 		var changes = new List<Guid?>();
-		var component = Render<PDTabSet>(parameters => parameters
-			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed))
-			.Add(p => p.ChildContent, Tabs(new Spec("One"), new Spec("Two") { Id = id })));
+		var component = RenderTabs(parameters => parameters
+			.Add(p => p.SelectedTabIdChanged, (Guid? changed) => changes.Add(changed)), new Spec("One"), new Spec("Two") { Id = id });
 
 		(await component.InvokeAsync(() => component.Instance.SelectTabById(id))).Should().BeTrue();
 		(await component.InvokeAsync(() => component.Instance.SelectTabById(Guid.NewGuid()))).Should().BeFalse();
@@ -322,7 +305,7 @@ public partial class PDTabSetTests : BunitContext
 	[Fact]
 	public void A_tab_without_an_id_is_given_one()
 	{
-		var component = Render<PDTabSet>(parameters => parameters.Add(p => p.ChildContent, Tabs(new Spec("One"))));
+		var component = RenderTabs(new Spec("One"));
 
 		component.FindComponent<PDTab>().Instance.Id.Should().NotBe(Guid.Empty);
 	}
@@ -332,6 +315,16 @@ public partial class PDTabSetTests : BunitContext
 
 	private static List<string> Titles(IRenderedComponent<PDTabSet> component)
 		=> [.. component.FindAll(".pdtabset-tab-title").Select(t => t.TextContent)];
+
+	private IRenderedComponent<PDTabSet> RenderTabs(params Spec[] specs)
+		=> Render<PDTabSet>(parameters => parameters.Add(p => p.ChildContent, Tabs(specs)));
+
+	private IRenderedComponent<PDTabSet> RenderTabs(Action<ComponentParameterCollectionBuilder<PDTabSet>> configure, params Spec[] specs)
+		=> Render<PDTabSet>(parameters =>
+		{
+			configure(parameters);
+			parameters.Add(p => p.ChildContent, Tabs(specs));
+		});
 
 	private static string ActiveTitle(IRenderedComponent<PDTabSet> component)
 		=> component.Find("button.pdtabset-tab.active .pdtabset-tab-title").TextContent;
