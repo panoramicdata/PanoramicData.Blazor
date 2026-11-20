@@ -26,6 +26,9 @@ public partial class PDFormTests
 	private static Task EditNamedAsync(IRenderedComponent<PDForm<Person>> form, string name)
 		=> EditAsync(form, new Person { Name = name }, FormModes.Edit);
 
+	private static Task SetValueAsync(IRenderedComponent<PDForm<Person>> form, FormField<Person> field, object? value)
+		=> form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, value));
+
 	private static ElementReference[] ClearedEditors(BunitJSModuleInterop common)
 		=> common.Invocations["clearInlineStyles"].Should().ContainSingle()
 			.Which.Arguments.Should().ContainSingle()
@@ -81,7 +84,7 @@ public partial class PDFormTests
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
 		await EditNamedAsync(form, "Ann");
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await SetValueAsync(form, field, "Bob");
 
 		await EditNamedAsync(form, "Cy");
 		await EditNamedAsync(form, "Di");

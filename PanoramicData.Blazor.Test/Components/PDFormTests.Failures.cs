@@ -32,7 +32,7 @@ public partial class PDFormTests
 		var form = RenderForm();
 		RenderEditor(form, AddField(form, p => p.Name));
 
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
 		form.Instance.Mode.Should().Be(FormModes.Edit);
 		Renderer.UnhandledException.IsCompleted.Should().BeFalse();
@@ -45,9 +45,9 @@ public partial class PDFormTests
 		_module.SetupVoid("setUnloadListener", _ => true).SetException(new JSException("The page has gone"));
 		var form = RenderForm();
 		var field = AddField(form, p => p.Name);
-		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		await EditNamedAsync(form, "Ann");
 
-		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await SetValueAsync(form, field, "Bob");
 
 		form.Instance.Delta.Should().ContainKey(nameof(Person.Name));
 	}
