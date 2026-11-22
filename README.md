@@ -34,6 +34,22 @@ More will follow, as *we* need them.  However, we are much more excited to see:
 
 Please do contribute!
 
+## Breaking changes
+
+### Pixel height utilities renamed
+
+The pixel height utilities in `main.css` (and `main.min.css`) no longer reuse Bootstrap's class names. `.h-100` (`height: 100px`) previously overrode Bootstrap's `.h-100` (`height: 100%`) for any consumer that loaded this stylesheet after Bootstrap. The series is renamed to match the existing `.w-100-px` and `.mh-100-px` utilities:
+
+| Old class | New class |
+|---|---|
+| `.h-100` | `.h-100-px` |
+| `.h-200` | `.h-200-px` |
+| `.h-300` | `.h-300-px` |
+| `.h-400` | `.h-400-px` |
+| `.h-500` | `.h-500-px` |
+
+If your markup used `h-100` to mean 100px, change it to `h-100-px`; markup written for Bootstrap's `h-100` now behaves as Bootstrap documents. The same applies to `h-200` to `h-500`.
+
 ## Dependencies
 
 - Bootstrap (*a default Library in a new blazor project*) >= **5.1.3**
