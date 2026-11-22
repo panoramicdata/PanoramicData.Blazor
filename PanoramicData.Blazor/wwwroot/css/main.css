@@ -29,23 +29,23 @@
   resize: horizontal;
 }
 
-.h-100 {
+.h-100-px {
   height: 100px !important;
 }
 
-.h-200 {
+.h-200-px {
   height: 200px !important;
 }
 
-.h-300 {
+.h-300-px {
   height: 300px !important;
 }
 
-.h-400 {
+.h-400-px {
   height: 400px !important;
 }
 
-.h-500 {
+.h-500-px {
   height: 500px !important;
 }
 
