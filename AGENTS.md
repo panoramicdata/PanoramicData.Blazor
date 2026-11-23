@@ -564,7 +564,8 @@ dotnet build /t:Rebuild # Ensures search is up to date
 - [ ] Verify change doesn't break existing functionality
 
 #### Verify before claiming completion
-- **Verify** that work is complete with targeted testing; if a test cannot run, say so in the summary.
+- **Verify** that work is complete with targeted testing.
+- If a test cannot run, say so in the summary.
 - **Check demo page** - does the component still work?
 - **Run build** - does it compile without errors?
 - **Search for references** - did you update all usages?
