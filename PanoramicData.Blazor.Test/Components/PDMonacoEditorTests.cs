@@ -71,6 +71,25 @@ public class PDMonacoEditorTests : BunitContext
 	}
 
 	/// <summary>
+	/// The editor failing as it starts after its page has been left, when the editor and its error boundary have
+	/// already been removed, does not end the circuit either.
+	/// </summary>
+	[Fact]
+	public async Task An_editor_that_fails_after_its_page_is_left_leaves_the_circuit_running()
+	{
+		var attachingListeners = JSInterop.SetupVoid("blazorMonaco.editor.setEventListener", _ => true);
+		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Id, "ed"));
+		component.WaitForAssertion(() => JSInterop.VerifyInvoke("blazorMonaco.editor.setEventListener"));
+
+		await DisposeComponentsAsync();
+		attachingListeners.SetException(new JSException("Couldn't find the editor with id: ed editors.length: 0"));
+		await Renderer.Dispatcher.InvokeAsync(() => { });
+
+		var circuitEndedBy = Renderer.UnhandledException.IsCompleted ? (await Renderer.UnhandledException).Message : null;
+		circuitEndedBy.Should().BeNull("an editor that fails after its page has gone must not end the circuit");
+	}
+
+	/// <summary>
 	/// Registered languages are passed to the module and, once accepted, initialised; languages the module
 	/// refuses are not; both cache initialisers then run.
 	/// </summary>
