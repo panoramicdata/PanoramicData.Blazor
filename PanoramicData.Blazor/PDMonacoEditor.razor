@@ -1,17 +1,31 @@
 ﻿<div class="pd-monacoeditor">
 	@if (_isMonacoReady)
 	{
-		<StandaloneCodeEditor @ref="_monacoEditor"
-							  CssClass="resizable"
-							  ConstructionOptions="_ => GetOptions()"
-							  Id="@Id"
-							  OnDidInit="OnMonacoEditorInitAsync"
-							  OnDidChangeCursorSelection="OnMonacoEditorSelectionChangeAsync"
-							  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
-							  OnDidChangeModelContent="OnMonacoEditorContentChangedAsync" />
+		@* The editor's own start-up can fail, as when its page is left before Monaco has wired it up; without a boundary
+		   that ends the circuit *@
+		<ErrorBoundary>
+			<ChildContent>
+				<StandaloneCodeEditor @ref="_monacoEditor"
+									  CssClass="resizable"
+									  ConstructionOptions="_ => GetOptions()"
+									  Id="@Id"
+									  OnDidInit="OnMonacoEditorInitAsync"
+									  OnDidChangeCursorSelection="OnMonacoEditorSelectionChangeAsync"
+									  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
+									  OnDidChangeModelContent="OnMonacoEditorContentChangedAsync" />
+			</ChildContent>
+			<ErrorContent>
+				@_unavailable
+			</ErrorContent>
+		</ErrorBoundary>
 	}
 	else if (_monacoFailedToLoad)
 	{
-		<div class="pd-monacoeditor-unavailable">The code editor could not be loaded. Refresh the page to try again.</div>
+		@_unavailable
 	}
 </div>
+
+@code {
+	private static readonly RenderFragment _unavailable =
+		@<div class="pd-monacoeditor-unavailable">The code editor could not be loaded. Refresh the page to try again.</div>;
+}

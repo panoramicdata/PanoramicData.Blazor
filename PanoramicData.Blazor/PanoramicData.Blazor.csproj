@@ -28,7 +28,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>The file explorer preview details show a file or folder name exactly as written. Before, DefaultPreviewProvider and FileExplorerPreviewProvider wrote the name unescaped, so entity text such as &amp;lt;b&amp;gt; in a name was shown decoded and markup in a name could render as an element. The default provider's folder heading also shows the whole name instead of cutting it at the last dot.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDMonacoEditor no longer ends a Blazor Server circuit when its Monaco editor fails as it starts, as it does when the page is left before the editor has finished loading: it shows its could-not-load message instead. Before, the failure escaped the editor&apos;s own first render, which ends the circuit.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
