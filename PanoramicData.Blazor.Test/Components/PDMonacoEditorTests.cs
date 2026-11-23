@@ -54,6 +54,23 @@ public class PDMonacoEditorTests : BunitContext
 	}
 
 	/// <summary>
+	/// The editor failing as it starts, as it does when its page is left before Monaco has wired up its events, shows
+	/// the could-not-load message instead of ending the circuit.
+	/// </summary>
+	[Fact]
+	public void An_editor_that_fails_as_it_starts_shows_a_message_and_leaves_the_circuit_running()
+	{
+		JSInterop.SetupVoid("blazorMonaco.editor.setEventListener", _ => true)
+			.SetException(new JSException("Couldn't find the editor with id: ed editors.length: 0"));
+
+		var component = Render<PDMonacoEditor>(parameters => parameters.Add(p => p.Id, "ed"));
+
+		component.WaitForAssertion(() => component.Find(".pd-monacoeditor-unavailable").TextContent
+			.Should().Be("The code editor could not be loaded. Refresh the page to try again."));
+		Renderer.UnhandledException.IsCompleted.Should().BeFalse("an editor that fails must not end the circuit");
+	}
+
+	/// <summary>
 	/// Registered languages are passed to the module and, once accepted, initialised; languages the module
 	/// refuses are not; both cache initialisers then run.
 	/// </summary>
