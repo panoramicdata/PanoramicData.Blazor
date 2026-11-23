@@ -1,5 +1,13 @@
 # Agent instructions
 
+## Glossary
+
+- NET: .NET, Microsoft's developer platform; this is a product name.
+- WASM: WebAssembly, the browser runtime that runs .NET code.
+- DOM: Document Object Model, the browser's page tree.
+- SPA: single-page application.
+- PD: the PanoramicData prefix used for component names.
+
 ## Identity
 
 You are a senior C# and Blazor engineer who maintains PanoramicData.Blazor.
@@ -80,21 +88,21 @@ List the files changed and how you verified the change, for example:
 
 ---
 
-### 🚨 CRITICAL BUILD RULE
+### 🚨 CRITICAL: build rule
 
 **Build individual projects when making component changes, build the full solution only for verification.**
 
 ```sh
-# ✅ CORRECT: Build only the component library
+ # ✅ CORRECT: Build only the component library
 dotnet build PanoramicData.Blazor/PanoramicData.Blazor.csproj
 
-# ✅ CORRECT: Run the demo to test changes
+ # ✅ CORRECT: Run the demo to test changes
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 
-# ✅ CORRECT: Run tests
+ # ✅ CORRECT: Run tests
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj
 
-# ⚠️ USE SPARINGLY: Full solution build
+ # ⚠️ Use sparingly: Full solution build
 dotnet build PanoramicData.Blazor.slnx
 ```
 
@@ -164,14 +172,14 @@ PDTimeline.razor.js    # JS interop for DOM measurements
 #### 1. Making Component Changes
 
 ```sh
-# 1. Make changes to component in PanoramicData.Blazor/
-# 2. Build the component library
+ # 1. Make changes to component in PanoramicData.Blazor/
+ # 2. Build the component library
 dotnet build PanoramicData.Blazor/PanoramicData.Blazor.csproj
 
-# 3. Run demo to verify
+ # 3. Run demo to verify
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 
-# 4. Navigate to: https://localhost:5301/component-name
+ # 4. Navigate to: https://localhost:5301/component-name
 ```
 
 #### 2. Adding New Components
@@ -191,13 +199,13 @@ dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 #### 3. Testing
 
 ```sh
-# Run all tests
+ # Run all tests
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj
 
-# Run specific test class
+ # Run specific test class
 dotnet test --filter "FullyQualifiedName~FilterTests"
 
-# Run with detailed output
+ # Run with detailed output
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj -v detailed
 ```
 
@@ -326,19 +334,19 @@ dotNetRef.invokeMethodAsync('MethodName', arg1, arg2);
 #### Debugging Components
 
 ```sh
-# 1. Add Debug.WriteLine statements for troubleshooting
-System.Diagnostics.Debug.WriteLine($"[DEBUG] Variable: {value}");
+ # 1. Add Debug.WriteLine statements for troubleshooting
+System.Diagnostics.Debug.WriteLine($"[Debug] Variable: {value}");
 
-# 2. Run demo in debug mode
-# In Visual Studio: F5
-# Or with dotnet CLI:
+ # 2. Run demo in debug mode
+ # In Visual Studio: F5
+ # Or with dotnet CLI:
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 
-# 3. Check browser developer console for JS errors
-# F12 in browser -> Console tab
+ # 3. Check browser developer console for JS errors
+ # F12 in browser -> Console tab
 
-# 4. Remove debug statements before committing
-# Search for: System.Diagnostics.Debug.WriteLine
+ # 4. Remove debug statements before committing
+ # Search for: System.Diagnostics.Debug.WriteLine
 ```
 
 ---
@@ -428,7 +436,7 @@ if (_module != null)
 ```
 PDComponent.razor
 PDComponent.razor.cs
-PDComponent.razor.js  ← Must be here, not in wwwroot/
+PDComponent.razor.js  ← Place here, not in wwwroot/ (ask the maintainer before making an exception)
 ```
 
 ---
@@ -511,42 +519,42 @@ The real versions of these tests are in `PanoramicData.Blazor.Test/Components/PD
 #### Most Common Commands
 
 ```sh
-# Build component library
+ # Build component library
 dotnet build PanoramicData.Blazor/PanoramicData.Blazor.csproj
 
-# Run demo (Razor Pages)
+ # Run demo (Razor Pages)
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 
-# Run demo (WASM - slower startup)
+ # Run demo (WASM - slower startup)
 dotnet run --project PanoramicData.Blazor.WebAssembly/Server/PanoramicData.Blazor.WebAssembly.Server.csproj
 
-# Run tests
+ # Run tests
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj
 
-# Search for component usage
-# (Useful for understanding component patterns)
+ # Search for component usage
+ # (Useful for understanding component patterns)
 dotnet build /t:Rebuild # Ensures search is up to date
 ```
 
 #### File Search Patterns
 
 ```sh
-# Find all component definitions
-# Search: *.razor files in PanoramicData.Blazor/
+ # Find all component definitions
+ # Search: *.razor files in PanoramicData.Blazor/
 
-# Find component demos
-# Search: *Page.razor in PanoramicData.Blazor.Demo/Pages/
+ # Find component demos
+ # Search: *Page.razor in PanoramicData.Blazor.Demo/Pages/
 
-# Find JavaScript interop
-# Search: *.razor.js files
+ # Find JavaScript interop
+ # Search: *.razor.js files
 
-# Find models/DTOs
-# Search: PanoramicData.Blazor/Models/
+ # Find models/DTOs
+ # Search: PanoramicData.Blazor/Models/
 ```
 
 ---
 
-### 🚨 Before Starting ANY Task
+### 🚨 Before starting any task
 
 #### Mandatory Checklist
 - [ ] Understand which component(s) you're modifying
@@ -555,8 +563,8 @@ dotnet build /t:Rebuild # Ensures search is up to date
 - [ ] Consider if change needs unit tests
 - [ ] Verify change doesn't break existing functionality
 
-#### Never Claim Victory Prematurely
-- **ALWAYS verify** work is complete with targeted testing
+#### Verify before claiming completion
+- **Verify** that work is complete with targeted testing; if a test cannot run, say so in the summary.
 - **Check demo page** - does the component still work?
 - **Run build** - does it compile without errors?
 - **Search for references** - did you update all usages?
@@ -685,40 +693,40 @@ This repository has been analyzed for component development patterns. When worki
 
 #### Branch Naming
 ```sh
-# Feature branches
+ # Feature branches
 feature/descriptive-name
 
-# Bug fix branches  
+ # Bug fix branches  
 bug/john/timeline-selection-fix  # Current branch example
 
-# Release branches
+ # Release branches
 release/v1.2.3
 ```
 
 #### Commit Messages
 ```sh
-# ✅ GOOD: Clear, descriptive
+ # ✅ GOOD: Clear, descriptive
 git commit -m "Fix SetSelection clamping to use RoundedMinDateTime"
 git commit -m "Add unit tests for PDTimeline selection edge cases"
 git commit -m "Update PDTimelinePage demo with new features"
 
-# ❌ AVOID: Vague or too brief
+ # ❌ AVOID: Vague or too brief
 git commit -m "fix bug"
 git commit -m "updates"
 ```
 
 #### Before Committing
 ```sh
-# 1. Remove debug statements
-# Search for: System.Diagnostics.Debug.WriteLine
+ # 1. Remove debug statements
+ # Search for: System.Diagnostics.Debug.WriteLine
 
-# 2. Verify build
+ # 2. Verify build
 dotnet build PanoramicData.Blazor/PanoramicData.Blazor.csproj
 
-# 3. Run tests (if any)
+ # 3. Run tests (if any)
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj
 
-# 4. Test in demo
+ # 4. Test in demo
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 ```
 
@@ -734,7 +742,7 @@ The publish script and API key file live in the **solution root** (not inside a 
 **To publish a new version:**
 
 ```sh
-# From the solution root
+ # From the solution root
 .\publish-nuget.ps1
 ```
 
