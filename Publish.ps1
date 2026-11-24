@@ -6,6 +6,9 @@ param(
 
 $InformationPreference = 'Continue'
 
+# Act on this script's own repository, whatever directory it was started from.
+Set-Location -LiteralPath $PSScriptRoot
+
 # Ensure we are on the main branch
 $branch = git rev-parse --abbrev-ref HEAD
 if ($branch -ne 'main') {
@@ -54,9 +57,20 @@ if (-not $SkipPublishVerification) {
 # Only projects git tracks in this checkout are considered. A recursive file search also walks
 # git-ignored folders such as .claude/worktrees/, where each agent worktree holds a full checkout
 # on its own branch: versioning one of those yields a version that is not a public release.
-$packableProject = git ls-files '*.csproj' |
-	Where-Object { (Test-Path $_) -and (Get-Content $_ -Raw) -match '<PackageReference\s+Include="Nerdbank\.GitVersioning"' } |
+$projects = git ls-files '*.csproj' | Where-Object { Test-Path $_ }
+$packableProject = $projects |
+	Where-Object { (Get-Content $_ -Raw) -match 'Nerdbank\.GitVersioning' } |
 	Select-Object -First 1
+if (-not $packableProject) {
+	# Nerdbank may be referenced once, from a Directory.Build.props; any project it covers has the same
+	# version, but a packable one is preferred.
+	$prefixes = @(git ls-files '*Directory.Build.props' |
+		Where-Object { (Split-Path $_ -Leaf) -eq 'Directory.Build.props' -and (Test-Path $_) -and (Get-Content $_ -Raw) -match 'Nerdbank\.GitVersioning' } |
+		ForEach-Object { $_.Substring(0, $_.Length - 'Directory.Build.props'.Length) })
+	$covered = @($projects | Where-Object { $project = $_; @($prefixes | Where-Object { $project.StartsWith($_, [StringComparison]::Ordinal) }).Count -gt 0 })
+	$packableProject = @($covered | Where-Object { (Get-Content $_ -Raw) -notmatch '<IsPackable>\s*false\s*</IsPackable>' }) + $covered |
+		Select-Object -First 1
+}
 if (-not $packableProject) {
 	Write-Error "Could not find a tracked project referencing Nerdbank.GitVersioning."
 	exit 1

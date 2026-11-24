@@ -12,7 +12,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <Authors>Panoramic Data Limited</Authors>
-    <Copyright>Copyright © Panoramic Data Limited 2020-2026</Copyright>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageIcon>Panoramic Data.png</PackageIcon>
     <PackageTags>blazor components</PackageTags>

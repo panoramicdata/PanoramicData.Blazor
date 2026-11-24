@@ -2,7 +2,7 @@
 
 [![NuGet version](https://img.shields.io/nuget/v/PanoramicData.Blazor.svg)](https://www.nuget.org/packages/PanoramicData.Blazor/)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/grade/PanoramicData.Blazor)](https://app.codacy.com/gh/panoramicdata/PanoramicData.Blazor/dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/852321d906bf412990a2f34430d2ddef)](https://app.codacy.com/gh/panoramicdata/PanoramicData.Blazor/dashboard)
 
 # PanoramicData.Blazor
 
