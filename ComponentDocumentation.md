@@ -880,6 +880,8 @@ This component has no public parameters.
 | TableContextMenuClick | EventCallback<MenuItemEventArgs> | Event raised whenever the user clicks on a context menu item from the table. |
 | TableContextItems | List<MenuItem> | Sets the Table context menu items. |
 | TableDownloadRequest | EventCallback<TableSelectionEventArgs<FileExplorerItem>> | Event raised when user requests to download one or more files. |
+| TableSortChanged | EventCallback<SortCriteria> | Event raised whenever the user sorts the file table by a column. |
+| TableSortCriteria | SortCriteria? | Gets or sets the column and direction the file table is first sorted by. Name, ascending, when not set. |
 | ToolbarClick | EventCallback<string> | Event raised whenever the user clicks on a toolbar button. |
 | ToolbarItems | List<ToolbarItem> | Sets the Table context menu items. |
 | TreeContextMenuClick | EventCallback<MenuItemEventArgs> | Event raised whenever the user clicks on a context menu item from the tree. |

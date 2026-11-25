@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDMonacoEditor no longer ends a Blazor Server circuit when its Monaco editor fails as it starts, as it does when the page is left before the editor has finished loading: it shows its could-not-load message instead. Before, the failure escaped the editor&apos;s own first render, which ends the circuit.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDFileExplorer can start its file table sorted by a chosen column and direction, through the new TableSortCriteria parameter, and reports each column sort the user makes through the new TableSortChanged event, so an application can remember the sort a user last chose. Without them the table starts sorted by Name, ascending, as before.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
