@@ -14,7 +14,7 @@ public partial class PDFileExplorer : IAsyncDisposable, IHandleEvent
 {
 	private static int _idSequence;
 	private int _itemNavigation;
-	private readonly SortCriteria _tableSort = new("Name", SortDirection.Ascending);
+	private SortCriteria _tableSort = new("Name", SortDirection.Ascending);
 	private readonly MenuItem _menuOpen = new() { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
 	private readonly MenuItem _menuDownload = new() { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
 	private readonly MenuItem _menuNewFolder = new() { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
@@ -397,6 +397,17 @@ public partial class PDFileExplorer : IAsyncDisposable, IHandleEvent
 	[Parameter] public EventCallback<TableSelectionEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
 
 	/// <summary>
+	/// Event raised whenever the user sorts the file table by a column.
+	/// </summary>
+	[Parameter] public EventCallback<SortCriteria> TableSortChanged { get; set; }
+
+	/// <summary>
+	/// Gets or sets the column and direction the file table is first sorted by. Name, ascending, when not set.
+	/// </summary>
+	/// <remarks>Read once, when the explorer initializes. The key is a column id, such as Name or Modified.</remarks>
+	[Parameter] public SortCriteria? TableSortCriteria { get; set; }
+
+	/// <summary>
 	/// Event raised whenever the user clicks on a toolbar button.
 	/// </summary>
 	[Parameter] public EventCallback<string> ToolbarClick { get; set; }
@@ -487,6 +498,7 @@ public partial class PDFileExplorer : IAsyncDisposable, IHandleEvent
 	protected override Task OnInitializedAsync()
 	{
 		Id = $"pdfe{Interlocked.Increment(ref _idSequence)}";
+		_tableSort = InitialTableSort(TableSortCriteria);
 
 		// bind the default provider (or a supplied, unbound FileExplorerPreviewProvider) to this explorer,
 		// and use any other supplied provider exactly as given

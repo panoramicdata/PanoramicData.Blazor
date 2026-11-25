@@ -33,6 +33,17 @@ public partial class PDFileExplorer
 	}
 
 	/// <summary>
+	/// Returns a copy of the requested starting sort, since the table changes its sort in place, or Name ascending.
+	/// </summary>
+	private static SortCriteria InitialTableSort(SortCriteria? requested)
+		=> requested is { Key: var key } && !string.IsNullOrWhiteSpace(key)
+			? new SortCriteria(key, requested.Direction)
+			: new SortCriteria("Name", SortDirection.Ascending);
+
+	private Task OnTableSortChangedAsync(SortCriteria criteria)
+		=> TableSortChanged.InvokeAsync(criteria);
+
+	/// <summary>
 	/// Returns the special ".." item leading up from the selected folder, when it is wanted and there is a parent.
 	/// </summary>
 	private FileExplorerItem? GetParentFolderItem()
