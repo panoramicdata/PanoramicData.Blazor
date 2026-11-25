@@ -59,13 +59,13 @@ if (-not $SkipPublishVerification) {
 # on its own branch: versioning one of those yields a version that is not a public release.
 $projects = git ls-files '*.csproj' | Where-Object { Test-Path $_ }
 $packableProject = $projects |
-	Where-Object { (Get-Content $_ -Raw) -match 'Nerdbank\.GitVersioning' } |
+	Where-Object { (Get-Content $_ -Raw) -match '<PackageReference\s+Include="Nerdbank\.GitVersioning"' } |
 	Select-Object -First 1
 if (-not $packableProject) {
 	# Nerdbank may be referenced once, from a Directory.Build.props; any project it covers has the same
 	# version, but a packable one is preferred.
 	$prefixes = @(git ls-files '*Directory.Build.props' |
-		Where-Object { (Split-Path $_ -Leaf) -eq 'Directory.Build.props' -and (Test-Path $_) -and (Get-Content $_ -Raw) -match 'Nerdbank\.GitVersioning' } |
+		Where-Object { (Split-Path $_ -Leaf) -eq 'Directory.Build.props' -and (Test-Path $_) -and (Get-Content $_ -Raw) -match '<PackageReference\s+Include="Nerdbank\.GitVersioning"' } |
 		ForEach-Object { $_.Substring(0, $_.Length - 'Directory.Build.props'.Length) })
 	$covered = @($projects | Where-Object { $project = $_; @($prefixes | Where-Object { $project.StartsWith($_, [StringComparison]::Ordinal) }).Count -gt 0 })
 	$packableProject = @($covered | Where-Object { (Get-Content $_ -Raw) -notmatch '<IsPackable>\s*false\s*</IsPackable>' }) + $covered |
