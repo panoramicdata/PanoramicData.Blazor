@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDFileExplorer can start its file table sorted by a chosen column and direction, through the new TableSortCriteria parameter, and reports each column sort the user makes through the new TableSortChanged event, so an application can remember the sort a user last chose. Without them the table starts sorted by Name, ascending, as before.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDButton and PDToolbarButton can show a small badge after their text, such as a count, through the new BadgeText parameter, with BadgeCssClass to add classes to it and the --pd-button-badge-bg and --pd-button-badge-color custom properties to recolour it. Without BadgeText no badge is shown, so existing buttons are unchanged.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
