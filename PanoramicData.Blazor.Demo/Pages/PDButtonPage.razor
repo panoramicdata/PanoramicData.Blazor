@@ -54,6 +54,23 @@
     </div>
 
 
+    <div class="mt-2 d-flex gap-2">
+        <PDButton Text="Messages"
+                  IconCssClass="fas fa-fw fa-envelope"
+                  CssClass="btn btn-secondary"
+                  BadgeText="@MessagesBadgeText"
+                  ToolTip="Click me to add one to the badge"
+                  Click="() => MessageCount++">
+        </PDButton>
+        <PDButton Text="Clear"
+                  CssClass="btn btn-secondary"
+                  BadgeText="new"
+                  BadgeCssClass="bg-success"
+                  ToolTip="Click me to clear the Messages badge, which disappears at zero"
+                  Click="() => MessageCount = 0">
+        </PDButton>
+    </div>
+
     <div class="mt-2">
         <PDLinkButton Text="Launch 1"
                       IconCssClass="fas fa-fw fa-external-link-alt"

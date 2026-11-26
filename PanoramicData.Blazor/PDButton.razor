@@ -32,6 +32,7 @@
 			}
 
 			<span class="@textPaddingClass @TextCssClass">@Text.GetShortcutMarkup()</span>
+			@Badge
 		}
 		else
 		{
@@ -60,10 +61,18 @@ else
 				<span class="icon @GetIconCssClass()"></span>
 			}
 			<span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
+			@Badge
 		}
 		else
 		{
 			@ChildContent
 		}
 	</a>
+}
+
+@code {
+	// After the text, in both the button and the link
+	private RenderFragment? Badge => string.IsNullOrWhiteSpace(BadgeText)
+		? null
+		: @<span class="pd-button-badge @BadgeCssClass">@BadgeText</span>;
 }

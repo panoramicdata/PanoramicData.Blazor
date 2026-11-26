@@ -11,6 +11,11 @@ public partial class PDButtonPage : IAsyncDisposable
 	private readonly ShortcutKey _shortcut5 = ShortcutKey.Create("Shift-Ctrl-Digit5");
 	protected int Counter { get; set; }
 
+	protected int MessageCount { get; set; } = 3;
+
+	// No badge at zero
+	private string MessagesBadgeText => MessageCount == 0 ? string.Empty : MessageCount.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
