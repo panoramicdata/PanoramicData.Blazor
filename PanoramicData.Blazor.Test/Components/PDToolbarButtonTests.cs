@@ -189,4 +189,18 @@ public class PDToolbarButtonTests : BunitContext
 		cut.Find("span.icon").ClassList.Should().Contain("fa-play");
 		cut.Find("span.txt").TextContent.Should().Contain("Go");
 	}
+
+	/// <summary>The badge text and CSS are passed through to the inner button.</summary>
+	[Fact]
+	public void Badge_IsPassedThrough()
+	{
+		var cut = Render<PDToolbarButton>(p => p
+			.Add(x => x.Text, "Variables")
+			.Add(x => x.BadgeText, "7")
+			.Add(x => x.BadgeCssClass, "bg-info"));
+
+		var badge = cut.Find("button > span.pd-button-badge");
+		badge.TextContent.Should().Be("7");
+		badge.ClassList.Should().Contain("bg-info");
+	}
 }

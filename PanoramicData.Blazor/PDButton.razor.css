@@ -14,3 +14,20 @@
 {
 	line-height: 1.5;	/* Match bootstrap line-height (unit-less) so that buttons with icons only maintain the correct height */
 }
+
+/* The optional badge; consumers recolour it through the two custom properties */
+.pd-button > .pd-button-badge
+{
+	display: inline-block;
+	min-width: 1.5em;
+	margin-left: 0.4em;
+	padding: 0 0.45em;
+	border-radius: 999px;
+	font-size: 0.75em;
+	line-height: 1.5;
+	text-align: center;
+	vertical-align: 0.1em;
+	font-variant-numeric: tabular-nums;
+	background-color: var(--pd-button-badge-bg, var(--bs-primary, #0d6efd));
+	color: var(--pd-button-badge-color, #fff);
+}

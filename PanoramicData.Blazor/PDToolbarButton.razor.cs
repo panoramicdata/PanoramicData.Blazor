@@ -46,6 +46,16 @@ public partial class PDToolbarButton : IToolbarItem, IEnablable
 	[Parameter] public string TextCssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets short text, such as a count, shown in a badge after the button's text. No badge is shown when empty.
+	/// </summary>
+	[Parameter] public string BadgeText { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets or sets CSS classes added to the badge, for example to colour it.
+	/// </summary>
+	[Parameter] public string BadgeCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Gets or sets the tooltip for the toolbar item.
 	/// </summary>
 	[Parameter] public string ToolTip { get; set; } = string.Empty;

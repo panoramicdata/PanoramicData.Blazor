@@ -27,6 +27,16 @@ public partial class PDButton : IEnablable, IDisposable
 	[Parameter] public Dictionary<string, object> Attributes { get; set; } = [];
 
 	/// <summary>
+	/// CSS classes added to the badge, for example to colour it.
+	/// </summary>
+	[Parameter] public string BadgeCssClass { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Short text, such as a count, shown in a badge after the button's text. No badge is shown when empty.
+	/// </summary>
+	[Parameter] public string BadgeText { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Custom content to display instead of the standard text and icon.
 	/// </summary>
 	[Parameter]
