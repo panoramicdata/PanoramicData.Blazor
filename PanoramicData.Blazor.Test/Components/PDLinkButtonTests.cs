@@ -109,7 +109,7 @@ public class PDLinkButtonTests : BunitContext
 	[InlineData("main.min.css")]
 	public void Stylesheets_GiveToolbarLinkButtonsTheButtonsHeightAndCorners(string file)
 	{
-		var css = File.ReadAllText(Path.Combine(PackagingGuardTests.RepositoryRoot, "PanoramicData.Blazor", "wwwroot", "css", file));
+		var css = File.ReadAllText(Path.Combine(PackagingGuardTests.RepositoryRoot, "PanoramicData.Blazor", "wwwroot", "css", Path.GetFileName(file)));
 
 		var rule = Regex.Match(css, @"\.pdtoolbar \.pdtoolbaritem \.pdtoolbarlinkbutton\s*\{(?<body>[^}]*)\}");
 
