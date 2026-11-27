@@ -1,0 +1,5 @@
+/* As PDButton does, so an icon-only link is as tall as an icon-only button rather than Font Awesome's line-height of 1 (#399) */
+.pd-button > span
+{
+	line-height: 1.5;
+}

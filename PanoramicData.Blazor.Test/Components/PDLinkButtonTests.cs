@@ -118,6 +118,26 @@ public class PDLinkButtonTests : BunitContext
 		rule.Groups["body"].Value.Should().MatchRegex(@"border-radius:\s*var\(--bs-border-radius,\s*0?\.375rem\)");
 	}
 
+	/// <summary>
+	/// A link's spans take the same line height as a PDButton's, so an icon-only link is as tall as an icon-only
+	/// button beside it rather than Font Awesome's line-height of 1 (#399).
+	/// </summary>
+	[Fact]
+	public void Stylesheet_GivesTheLinksSpansTheButtonsLineHeight()
+	{
+		LineHeightOfSpans("PDLinkButton.razor.css").Should().NotBeNull().And.Be(LineHeightOfSpans("PDButton.razor.css"));
+	}
+
+	private static string? LineHeightOfSpans(string stylesheet)
+	{
+		var path = Path.Combine(PackagingGuardTests.RepositoryRoot, "PanoramicData.Blazor", stylesheet);
+		var rule = File.Exists(path)
+			? Regex.Match(File.ReadAllText(path), @"\.pd-button\s*>\s*span\s*\{(?<body>[^}]*)\}")
+			: Match.Empty;
+		var lineHeight = Regex.Match(rule.Groups["body"].Value, @"line-height:\s*(?<value>[^;]+);");
+		return lineHeight.Success ? lineHeight.Groups["value"].Value.Trim() : null;
+	}
+
 	/// <summary>The size maps onto the Bootstrap button size classes.</summary>
 	[Theory]
 	[InlineData(ButtonSizes.Small, "btn-sm")]
