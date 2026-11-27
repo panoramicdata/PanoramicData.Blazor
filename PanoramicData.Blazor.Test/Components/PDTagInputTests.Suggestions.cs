@@ -24,6 +24,19 @@ public partial class PDTagInputTests
 		ActiveSuggestion(component).Should().Be("Green");
 	}
 
+	/// <summary>Verifies that a suggestion longer than MaxTagLength, which would be refused, is never offered.</summary>
+	[Fact]
+	public async Task Suggestions_longer_than_MaxTagLength_are_not_offered()
+	{
+		var component = RenderInput(p => p
+			.Add(x => x.MaxTagLength, 10)
+			.Add(x => x.Suggestions, ["Production", "Development", "Test"]));
+
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
+
+		Suggestions(component).Should().Equal("Production", "Test");
+	}
+
 	/// <summary>Verifies that typing filters the suggestions to those containing the text.</summary>
 	[Fact]
 	public async Task Typing_filters_the_suggestions()

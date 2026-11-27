@@ -41,6 +41,7 @@
 				   class="pd-taginput-input"
 				   value="@_text"
 				   placeholder="@(_values.Count == 0 ? Placeholder : string.Empty)"
+				   aria-invalid="@(_isInvalid ? "true" : null)"
 				   @oninput="OnInputAsync"
 				   @onkeydown="OnKeyDownAsync"
 				   @onfocus="OnFocus"
@@ -66,5 +67,10 @@
 				</li>
 			}
 		</ul>
+	}
+
+	@if (_rejectionText is not null)
+	{
+		<div class="pd-taginput-message" role="alert">@_rejectionText</div>
 	}
 </div>

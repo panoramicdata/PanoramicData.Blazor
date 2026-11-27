@@ -66,6 +66,47 @@ public partial class PDTagInputTests
 		component.Find(".pd-taginput-dropdown").Should().NotBeNull();
 	}
 
+	/// <summary>Verifies that CommitPendingAsync adds the typed text at once, so a Save straight after typing keeps it.</summary>
+	[Fact]
+	public async Task CommitPendingAsync_adds_the_typed_tag()
+	{
+		var component = RenderInput();
+
+		await TypeAsync(component, "pending");
+		await component.InvokeAsync(component.Instance.CommitPendingAsync);
+
+		Tags(component).Should().Equal("pending");
+		_emitted.Should().ContainSingle().Which.Should().Equal("pending");
+	}
+
+	/// <summary>Verifies that CommitPendingAsync with nothing typed changes nothing.</summary>
+	[Fact]
+	public async Task CommitPendingAsync_with_nothing_typed_does_nothing()
+	{
+		var component = RenderInput(p => p.Add(x => x.Values, ["alpha"]));
+
+		await component.InvokeAsync(component.Instance.CommitPendingAsync);
+
+		Tags(component).Should().Equal("alpha");
+		_emitted.Should().BeEmpty();
+	}
+
+	/// <summary>Verifies that a blur already under way does not commit the text a second time after CommitPendingAsync.</summary>
+	[Fact]
+	public async Task CommitPendingAsync_cancels_the_pending_blur_commit()
+	{
+		var component = RenderInput();
+
+		await TypeAsync(component, "pending");
+		var blur = component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
+		await component.InvokeAsync(component.Instance.CommitPendingAsync);
+		await blur;
+
+		Tags(component).Should().Equal("pending");
+		_rejected.Should().BeEmpty();
+		_emitted.Should().ContainSingle();
+	}
+
 	/// <summary>Verifies that a new list supplied by the parent replaces the tags shown.</summary>
 	[Fact]
 	public void A_new_list_from_the_parent_replaces_the_tags()

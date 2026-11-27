@@ -16,6 +16,8 @@ public partial class PDTagInputPage
 	protected List<string> SuggestionTags { get; set; } = ["Production"];
 	protected List<string> RestrictedTags { get; set; } = [];
 	protected List<string> LimitedTags { get; set; } = [];
+	protected List<string> MessageTags { get; set; } = [];
+	protected PDTagInput? MessageTagInput { get; set; }
 	protected List<string> TemplateTags { get; set; } = ["Demo"];
 	protected List<string> ThemedTags { get; set; } = ["Production", "Test"];
 	private readonly List<string> _fixedTags = ["Production", "Training", "Demo"];
@@ -36,6 +38,14 @@ public partial class PDTagInputPage
 	private void OnTagRejected(TagRejectedEventArgs args)
 	{
 		OnLogEvent($"TagRejected: '{args.Tag}' ({args.Reason})");
+	}
+
+	private async Task OnCommitPendingAsync()
+	{
+		if (MessageTagInput is not null)
+		{
+			await MessageTagInput.CommitPendingAsync();
+		}
 	}
 
 	private void OnWizardComplete()

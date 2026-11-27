@@ -893,6 +893,12 @@
 	white-space: nowrap;
 }
 
+/* A toolbar link button matches the toolbar buttons beside it (#399) */
+.pdtoolbar .pdtoolbaritem .pdtoolbarlinkbutton {
+	border-radius: var(--bs-border-radius, 0.375rem);
+	height: 100%;
+}
+
 /* PDToolbarGroup - its items' buttons meet edge to edge, with rounded outer corners only */
 .pdtoolbar .pdtoolbargroup > .pdtoolbaritem {
 	padding: 0;

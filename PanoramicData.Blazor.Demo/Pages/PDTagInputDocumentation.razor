@@ -57,6 +57,9 @@
 				<tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>true</td><td>When false the input is hidden and tags cannot be changed</td></tr>
 				<tr><td><code>IsReadOnly</code></td><td><code>bool</code></td><td>false</td><td>Tags are displayed but cannot be added or removed</td></tr>
 				<tr><td><code>Placeholder</code></td><td><code>string</code></td><td>Add tag...</td><td>Placeholder text shown when no tags are present</td></tr>
+				<tr><td><code>PreferTypedText</code></td><td><code>bool</code></td><td>false</td><td>Enter adds an exact match or the typed text, rather than the highlighted suggestion, unless that suggestion was chosen with the arrow keys</td></tr>
+				<tr><td><code>ShowRejectionMessage</code></td><td><code>bool</code></td><td>false</td><td>Show under the box why a tag was refused, and warn while the typed text is longer than <code>MaxTagLength</code></td></tr>
+				<tr><td><code>RejectionMessage</code></td><td><code>Func&lt;TagRejectedEventArgs, string&gt;?</code></td><td>null</td><td>Replaces the default wording of the rejection message</td></tr>
 				<tr><td><code>TagTemplate</code></td><td><code>RenderFragment&lt;string&gt;?</code></td><td>null</td><td>Custom chip content; receives the tag text as context</td></tr>
 				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the root element</td></tr>
 			</tbody>
@@ -86,6 +89,7 @@
 			</thead>
 			<tbody>
 				<tr><td><code>FocusAsync()</code></td><td><code>Task</code></td><td>Moves focus to the tag input element</td></tr>
+				<tr><td><code>CommitPendingAsync()</code></td><td><code>Task</code></td><td>Adds the typed text as a tag now, as leaving the box would; call it before saving</td></tr>
 			</tbody>
 		</table>
 	</section>
@@ -97,7 +101,7 @@
 				<tr><th>Key</th><th>Action</th></tr>
 			</thead>
 			<tbody>
-				<tr><td><kbd>Enter</kbd></td><td>Add the highlighted suggestion, or commit the typed text</td></tr>
+				<tr><td><kbd>Enter</kbd></td><td>Add the highlighted suggestion, or commit the typed text. With <code>PreferTypedText</code>, an exact match or the typed text wins unless a suggestion was chosen with the arrow keys</td></tr>
 				<tr><td><kbd>,</kbd></td><td>Commit the typed text (pasted comma-separated lists are split)</td></tr>
 				<tr><td><kbd>Backspace</kbd></td><td>Remove the last tag when the input is empty</td></tr>
 				<tr><td><kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd></td><td>Open the suggestions dropdown and move the highlight</td></tr>
@@ -110,7 +114,8 @@
 		<h2 class="doc-section">CSS Variables</h2>
 		<p>
 			All colours default to Bootstrap theme variables, so the component follows light/dark mode
-			automatically. Override any variable on the component (inline <code>style</code>) or in a stylesheet.
+			automatically. Override any variable on the component (inline <code>style</code>), in a stylesheet, or on any
+			ancestor such as a theme class on <code>body</code>.
 		</p>
 		<table class="table table-sm doc-props-table">
 			<thead>
@@ -146,6 +151,8 @@
 				<tr><td><code>--pd-taginput-dropdown-shadow</code></td><td>Bootstrap shadow</td><td>Dropdown box shadow</td></tr>
 				<tr><td><code>--pd-taginput-dropdown-max-height</code></td><td>14rem</td><td>Maximum dropdown height before scrolling</td></tr>
 				<tr><td><code>--pd-taginput-input-min-width</code></td><td>8ch</td><td>Minimum width of the inline text input</td></tr>
+				<tr><td><code>--pd-taginput-message-color</code></td><td>--bs-danger</td><td>Rejection message text colour</td></tr>
+				<tr><td><code>--pd-taginput-message-font-size</code></td><td>0.875em</td><td>Rejection message font size</td></tr>
 			</tbody>
 		</table>
 	</section>
