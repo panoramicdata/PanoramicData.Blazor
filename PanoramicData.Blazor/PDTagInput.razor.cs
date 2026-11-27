@@ -305,7 +305,8 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 	private void ApplyFilter()
 	{
-		var unused = (Suggestions ?? []).Where(s => !ContainsValue(s));
+		// A suggestion longer than MaxTagLength would only be refused, so it is never offered
+		var unused = (Suggestions ?? []).Where(s => !ContainsValue(s) && (MaxTagLength <= 0 || s.Length <= MaxTagLength));
 		var search = _text.Trim();
 		_filteredSuggestions = search.Length == 0
 			? [.. unused]

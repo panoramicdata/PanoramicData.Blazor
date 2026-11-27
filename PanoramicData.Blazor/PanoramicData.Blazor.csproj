@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDTagInput gains three opt-in options: PreferTypedText, so Enter adds an exact match or the typed text rather than a longer suggestion containing it; ShowRejectionMessage and RejectionMessage, which say under the box why a tag was refused; and CommitPendingAsync, which adds text typed just before a Save. A refused tag now sets aria-invalid, and every --pd-taginput-* variable can be set on any ancestor, such as a theme. An icon-only PDToolbarLinkButton now matches the height and width of a PDToolbarButton beside it (#399).</PackageReleaseNotes>
+    <PackageReleaseNotes>PDTagInput gains three opt-in options: PreferTypedText, so Enter adds an exact match or the typed text rather than a longer suggestion containing it; ShowRejectionMessage and RejectionMessage, which say under the box why a tag was refused; and CommitPendingAsync, which adds text typed just before a Save. A suggestion longer than MaxTagLength is no longer offered, a refused tag now sets aria-invalid, and every --pd-taginput-* variable can be set on any ancestor, such as a theme. An icon-only PDToolbarLinkButton now matches the height and width of a PDToolbarButton beside it (#399).</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
