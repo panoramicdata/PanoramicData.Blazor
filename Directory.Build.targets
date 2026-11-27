@@ -1,0 +1,32 @@
+<Project>
+
+	<!-- Opt-in Codacy parity: dotnet build -p:CodacyParity=true shows, as warnings, what Codacy would report.
+	     Off by default, so normal builds and CI are unchanged. -->
+	<PropertyGroup Condition="'$(CodacyParity)' == 'true'">
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<MSBuildTreatWarningsAsErrors>false</MSBuildTreatWarningsAsErrors>
+		<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(CodacyParity)' == 'true' And '$(ManagePackageVersionsCentrally)' == 'true'">
+		<PackageReference Include="SonarAnalyzer.CSharp" VersionOverride="10.37.0.15768" PrivateAssets="all" />
+		<PackageReference Include="Meziantou.Analyzer" VersionOverride="3.0.342" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(CodacyParity)' == 'true' And '$(ManagePackageVersionsCentrally)' != 'true'">
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="10.37.0.15768" PrivateAssets="all" />
+		<PackageReference Include="Meziantou.Analyzer" Version="3.0.342" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(CodacyParity)' == 'true'">
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)build/CodeMetricsConfig.txt" />
+	</ItemGroup>
+
+	<!-- The SDK builds its analyzer config list before this file is evaluated, so add ours just before compiling. -->
+	<Target Name="AddCodacyParityConfig" BeforeTargets="CoreCompile" Condition="'$(CodacyParity)' == 'true'">
+		<ItemGroup>
+			<EditorConfigFiles Include="$(MSBuildThisFileDirectory)build/codacy-parity.globalconfig" />
+		</ItemGroup>
+	</Target>
+
+</Project>
