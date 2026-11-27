@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDButton and PDToolbarButton can show a small badge after their text, such as a count, through the new BadgeText parameter, with BadgeCssClass to add classes to it and the --pd-button-badge-bg and --pd-button-badge-color custom properties to recolour it. Without BadgeText no badge is shown, so existing buttons are unchanged.</PackageReleaseNotes>
+    <PackageReleaseNotes>The badge on PDButton and PDToolbarButton now sits a count level with the button's text, at the same height as before. Its padding and line height can be changed through the new --pd-button-badge-padding and --pd-button-badge-line-height custom properties.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
