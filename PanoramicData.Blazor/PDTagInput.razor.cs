@@ -14,6 +14,8 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	private bool _showDropdown;
 	private bool _isInvalid;
 	private int _activeIndex = -1;
+	private bool _highlightChosen;
+	private string? _rejectionText;
 
 	/// <summary>
 	/// Gets or sets the tag text input element, set by the component markup.
@@ -122,6 +124,39 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	/// </summary>
 	[Parameter] public EventCallback<TagRejectedEventArgs> TagRejected { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether Enter adds an exact match or the typed text rather than the highlighted suggestion, unless the
+	/// user chose that suggestion with the arrow keys. Defaults to false, where Enter adds the highlighted suggestion.
+	/// </summary>
+	[Parameter] public bool PreferTypedText { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether a message under the box says why a tag was refused, and warns while the typed text is
+	/// longer than MaxTagLength. Defaults to false.
+	/// </summary>
+	[Parameter] public bool ShowRejectionMessage { get; set; }
+
+	/// <summary>
+	/// Gets or sets an optional function giving the message shown for a refused tag, in place of the default wording.
+	/// </summary>
+	[Parameter] public Func<TagRejectedEventArgs, string>? RejectionMessage { get; set; }
+
+	/// <summary>
+	/// Adds the typed text as a tag now, as leaving the box would. Call it before saving, so text typed just before a
+	/// Save is kept.
+	/// </summary>
+	public async Task CommitPendingAsync()
+	{
+		_blurToken?.Cancel();
+		if (_text.Trim().Length == 0)
+		{
+			return;
+		}
+
+		await TryAddTagAsync(_text).ConfigureAwait(true);
+		StateHasChanged();
+	}
+
 	private StringComparison Comparison => CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
 	/// <inheritdoc />
@@ -177,6 +212,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 		_values.Add(tag);
 		_text = string.Empty;
+		_highlightChosen = false;
 		ApplyFilter();
 		_showDropdown = _showDropdown && _filteredSuggestions.Count > 0;
 		await EmitValuesAsync().ConfigureAwait(true);
@@ -221,8 +257,30 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 	private async Task RejectAsync(string tag, TagRejectionReason reason)
 	{
+		var rejection = new TagRejectedEventArgs(tag, reason);
 		_isInvalid = true;
-		await TagRejected.InvokeAsync(new TagRejectedEventArgs(tag, reason)).ConfigureAwait(true);
+		_rejectionText = ShowRejectionMessage ? MessageFor(rejection) : null;
+		await TagRejected.InvokeAsync(rejection).ConfigureAwait(true);
+	}
+
+	private string MessageFor(TagRejectedEventArgs rejection)
+		=> RejectionMessage?.Invoke(rejection) ?? rejection.Reason switch
+		{
+			TagRejectionReason.Duplicate => $"\"{rejection.Tag}\" is already added.",
+			TagRejectionReason.TooLong => string.Create(CultureInfo.CurrentCulture, $"Tags can be up to {MaxTagLength} characters."),
+			TagRejectionReason.MaxTagsReached => string.Create(CultureInfo.CurrentCulture, $"The most tags allowed is {MaxTags}."),
+			_ => "Choose a tag from the list."
+		};
+
+	// Warns while the text is too long, before anything is committed, so the tag is never refused by surprise
+	private void WarnIfTooLong()
+	{
+		var typed = _text.Trim();
+		if (ShowRejectionMessage && MaxTagLength > 0 && typed.Length > MaxTagLength)
+		{
+			_isInvalid = true;
+			_rejectionText = MessageFor(new TagRejectedEventArgs(typed, TagRejectionReason.TooLong));
+		}
 	}
 
 	private async Task RemoveTagAsync(string tag)
@@ -258,6 +316,8 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	private async Task OnInputAsync(ChangeEventArgs e)
 	{
 		_isInvalid = false;
+		_rejectionText = null;
+		_highlightChosen = false;
 		_text = e.Value?.ToString() ?? string.Empty;
 
 		// Commas commit pending text as tags (also handles pasted comma-separated lists)
@@ -272,6 +332,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 			_text = parts[^1];
 		}
 
+		WarnIfTooLong();
 		ApplyFilter();
 		_showDropdown = _filteredSuggestions.Count > 0;
 	}
@@ -308,7 +369,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 	private async Task OnEnterKeyAsync()
 	{
-		if (_showDropdown && _activeIndex >= 0 && _activeIndex < _filteredSuggestions.Count)
+		if (HasHighlight && !TypedTextWins())
 		{
 			await TryAddTagAsync(_filteredSuggestions[_activeIndex]).ConfigureAwait(true);
 		}
@@ -317,6 +378,15 @@ public partial class PDTagInput : ComponentBase, IDisposable
 			await TryAddTagAsync(_text).ConfigureAwait(true);
 		}
 	}
+
+	private bool HasHighlight => _showDropdown && _activeIndex >= 0 && _activeIndex < _filteredSuggestions.Count;
+
+	// An exact match, or free text, wins over a highlight the user did not pick with the arrow keys
+	private bool TypedTextWins()
+		=> PreferTypedText
+			&& !_highlightChosen
+			&& _text.Trim().Length > 0
+			&& (AllowFreeText || FindSuggestion(_text.Trim()) is not null);
 
 	private async Task OnBackspaceKeyAsync()
 	{
@@ -331,6 +401,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		if (_showDropdown && _filteredSuggestions.Count > 0)
 		{
 			_activeIndex = (_activeIndex - 1 + _filteredSuggestions.Count) % _filteredSuggestions.Count;
+			_highlightChosen = true;
 		}
 	}
 
@@ -345,6 +416,8 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		{
 			_activeIndex = (_activeIndex + 1) % _filteredSuggestions.Count;
 		}
+
+		_highlightChosen = _showDropdown;
 	}
 
 	private void OnFocus()

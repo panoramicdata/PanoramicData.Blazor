@@ -51,7 +51,7 @@
 	<h4>Limits</h4>
 	<p class="text-muted">
 		<code>MaxTags="5"</code> and <code>MaxTagLength="10"</code>.
-		Violations fire <code>TagRejected</code> and briefly outline the control in red.
+		Violations fire <code>TagRejected</code> and outline the control in red until you type again.
 	</p>
 
 	<PDTagInput @bind-Values="LimitedTags"
@@ -59,6 +59,24 @@
 				MaxTagLength="10"
 				Placeholder="Max 5 tags, 10 chars each..."
 				TagRejected="OnTagRejected" />
+
+	<hr />
+	<h4>Typed Text and Messages</h4>
+	<p class="text-muted">
+		<code>PreferTypedText="true"</code>: type <code>Dev</code> and press <kbd>Enter</kbd> to add Dev, not Development; press
+		<kbd>ArrowDown</kbd> first to choose the suggestion instead. <code>ShowRejectionMessage="true"</code> says why a tag
+		was refused, and warns while you type past 15 characters. The button adds the typed text, as a form's Save would.
+	</p>
+
+	<PDTagInput @ref="MessageTagInput"
+				@bind-Values="MessageTags"
+				Suggestions="_scheduleSuggestions"
+				MaxTagLength="15"
+				PreferTypedText="true"
+				ShowRejectionMessage="true"
+				Placeholder="Try Dev, then Production twice..."
+				TagRejected="OnTagRejected" />
+	<button type="button" class="btn btn-sm btn-secondary mt-2" @onclick="OnCommitPendingAsync">Commit Typed Text</button>
 
 	<hr />
 	<h4>Read-Only and Disabled</h4>

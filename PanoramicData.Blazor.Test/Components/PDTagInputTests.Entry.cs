@@ -121,6 +121,73 @@ public partial class PDTagInputTests
 		Tags(component).Should().Equal("Green");
 	}
 
+	/// <summary>Verifies that with PreferTypedText, Enter adds the exact match rather than an earlier suggestion containing the text.</summary>
+	[Fact]
+	public async Task Prefer_typed_text_adds_the_exact_match_not_an_earlier_containing_suggestion()
+	{
+		var component = RenderPreferTypedText(allowFreeText: true);
+
+		await TypeAsync(component, "test");
+		await PressAsync(component, "Enter");
+
+		Tags(component).Should().Equal("Test");
+	}
+
+	/// <summary>Verifies that with PreferTypedText, Enter adds the typed text when no suggestion matches it exactly.</summary>
+	[Fact]
+	public async Task Prefer_typed_text_adds_the_typed_text_when_nothing_matches_exactly()
+	{
+		var component = RenderPreferTypedText(allowFreeText: true);
+
+		await TypeAsync(component, "Dev");
+		await PressAsync(component, "Enter");
+
+		Tags(component).Should().Equal("Dev");
+	}
+
+	/// <summary>Verifies that with PreferTypedText, Enter adds a suggestion the user chose with the arrow keys.</summary>
+	[Fact]
+	public async Task Prefer_typed_text_adds_the_suggestion_chosen_with_the_arrow_keys()
+	{
+		var component = RenderPreferTypedText(allowFreeText: true);
+
+		await TypeAsync(component, "Dev");
+		await PressAsync(component, "ArrowDown");
+		await PressAsync(component, "Enter");
+
+		Tags(component).Should().Equal("Development");
+	}
+
+	/// <summary>Verifies that with PreferTypedText but no free text, Enter still adds the highlighted suggestion.</summary>
+	[Fact]
+	public async Task Prefer_typed_text_without_free_text_adds_the_highlighted_suggestion()
+	{
+		var component = RenderPreferTypedText(allowFreeText: false);
+
+		await TypeAsync(component, "Dev");
+		await PressAsync(component, "Enter");
+
+		Tags(component).Should().Equal("Development");
+	}
+
+	/// <summary>Verifies that without PreferTypedText, Enter keeps adding the first suggestion containing the text.</summary>
+	[Fact]
+	public async Task Without_prefer_typed_text_enter_adds_the_highlighted_suggestion()
+	{
+		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Test-EU", "Test", "Development", "ReRun"]));
+
+		await TypeAsync(component, "Test");
+		await PressAsync(component, "Enter");
+
+		Tags(component).Should().Equal("Test-EU");
+	}
+
+	private IRenderedComponent<PDTagInput> RenderPreferTypedText(bool allowFreeText)
+		=> RenderInput(p => p
+			.Add(x => x.Suggestions, ["Test-EU", "Test", "Development", "ReRun"])
+			.Add(x => x.AllowFreeText, allowFreeText)
+			.Add(x => x.PreferTypedText, true));
+
 	/// <summary>Verifies that the remove button removes its tag and reports the removal.</summary>
 	[Fact]
 	public async Task The_remove_button_removes_its_tag()
