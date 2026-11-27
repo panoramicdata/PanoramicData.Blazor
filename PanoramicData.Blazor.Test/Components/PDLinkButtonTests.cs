@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,49 @@ public class PDLinkButtonTests : BunitContext
 		var component = Render<PDLinkButton>(parameters => parameters
 			.Add(p => p.IconCssClass, iconCssClass));
 
-		component.FindAll("span.pe-1").Count.Should().Be(expectIcon ? 1 : 0);
+		component.FindAll("a > span").Count.Should().Be(expectIcon ? 2 : 1);
+	}
+
+	/// <summary>An icon-only link has no padding after its icon, so the icon sits centred like a PDButton's (#399).</summary>
+	[Fact]
+	public void IconOnly_HasNoPaddingAfterTheIcon()
+	{
+		var component = Render<PDLinkButton>(parameters => parameters
+			.Add(p => p.IconCssClass, "fas fa-home"));
+
+		var icon = component.Find("a > span");
+		icon.ClassList.Should().Contain(["fas", "fa-home"]);
+		icon.ClassList.Should().NotContain("pe-1");
+	}
+
+	/// <summary>A link with text keeps the gap between its icon and its text.</summary>
+	[Fact]
+	public void WithText_KeepsThePaddingAfterTheIcon()
+	{
+		var component = Render<PDLinkButton>(parameters => parameters
+			.Add(p => p.IconCssClass, "fas fa-home")
+			.Add(p => p.Text, "Home"));
+
+		component.Find("a > span").ClassList.Should().Contain("pe-1");
+	}
+
+	/// <summary>
+	/// The toolbar gives a link button the same height and corners as a toolbar button, in every compiled stylesheet
+	/// (#399).
+	/// </summary>
+	[Theory]
+	[InlineData("main.scss")]
+	[InlineData("main.css")]
+	[InlineData("main.min.css")]
+	public void Stylesheets_GiveToolbarLinkButtonsTheButtonsHeightAndCorners(string file)
+	{
+		var css = File.ReadAllText(Path.Combine(PackagingGuardTests.RepositoryRoot, "PanoramicData.Blazor", "wwwroot", "css", file));
+
+		var rule = Regex.Match(css, @"\.pdtoolbar \.pdtoolbaritem \.pdtoolbarlinkbutton\s*\{(?<body>[^}]*)\}");
+
+		rule.Success.Should().BeTrue($"{file} should style .pdtoolbarlinkbutton inside a toolbar");
+		rule.Groups["body"].Value.Should().MatchRegex(@"height:\s*100%");
+		rule.Groups["body"].Value.Should().MatchRegex(@"border-radius:\s*var\(--bs-border-radius,\s*0?\.375rem\)");
 	}
 
 	/// <summary>The size maps onto the Bootstrap button size classes.</summary>

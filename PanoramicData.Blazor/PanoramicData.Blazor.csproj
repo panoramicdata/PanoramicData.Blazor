@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>The badge on PDButton and PDToolbarButton now sits a count level with the button's text, at the same height as before. Its padding and line height can be changed through the new --pd-button-badge-padding and --pd-button-badge-line-height custom properties.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDTagInput gains three opt-in options: PreferTypedText, so Enter adds an exact match or the typed text rather than a longer suggestion containing it; ShowRejectionMessage and RejectionMessage, which say under the box why a tag was refused; and CommitPendingAsync, which adds text typed just before a Save. A refused tag now sets aria-invalid, and every --pd-taginput-* variable can be set on any ancestor, such as a theme. An icon-only PDToolbarLinkButton now matches the height and width of a PDToolbarButton beside it (#399).</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
