@@ -107,6 +107,39 @@ public partial class PDTagInputTests
 		_emitted.Should().ContainSingle();
 	}
 
+	/// <summary>
+	/// Verifies that CommitPendingAsync closes the suggestion list, so a parent that saves and hides while the list is
+	/// open does not find it still open, and filtered from last time, when it shows the input again.
+	/// </summary>
+	[Fact]
+	public async Task CommitPendingAsync_closes_the_suggestion_list()
+	{
+		var component = RenderInput(p => p.Add(x => x.Suggestions, ["alpha", "beta"]));
+		await TypeAsync(component, "be");
+		Suggestions(component).Should().Equal("beta");
+
+		await component.InvokeAsync(component.Instance.CommitPendingAsync);
+
+		Suggestions(component).Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that a new list from the parent also closes the suggestion list and clears the typed text, as both
+	/// belonged to the tags it replaces.
+	/// </summary>
+	[Fact]
+	public async Task A_new_list_from_the_parent_closes_the_suggestions_and_clears_the_text()
+	{
+		var component = RenderInput(p => p.Add(x => x.Suggestions, ["alpha", "beta"]));
+		await TypeAsync(component, "be");
+		Suggestions(component).Should().Equal("beta");
+
+		component.Render(p => p.Add(x => x.Values, ["alpha"]));
+
+		Suggestions(component).Should().BeEmpty();
+		component.Find(".pd-taginput-input").GetAttribute("value").Should().BeNullOrEmpty();
+	}
+
 	/// <summary>Verifies that a new list supplied by the parent replaces the tags shown.</summary>
 	[Fact]
 	public void A_new_list_from_the_parent_replaces_the_tags()
