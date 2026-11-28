@@ -74,12 +74,16 @@ public static partial class StringExtensions
 	public static string QuoteForFilter(this string text)
 	{
 		ArgumentNullException.ThrowIfNull(text);
-		var isQuoted = text.Length >= 2 && text.StartsWith('"') && text.EndsWith('"');
-		var isEnclosure = text.Length >= 2 && text.StartsWith('#') && text.EndsWith('#');
-		var needsQuotes = !isQuoted && !isEnclosure && (text.Contains('#') || text.IndexOfAny(_whitespaceChars) >= 0);
+		var needsQuotes = !text.IsWrappedIn('"')
+			&& !text.IsWrappedIn('#')
+			&& (text.Contains('#') || text.IndexOfAny(_whitespaceChars) >= 0);
 
 		return needsQuotes ? $"\"{text}\"" : text;
 	}
+
+	/// <summary>Whether the string is at least two characters long and starts and ends with the given character.</summary>
+	internal static bool IsWrappedIn(this string text, char wrapper)
+		=> text.Length >= 2 && text[0] == wrapper && text[^1] == wrapper;
 
 	/// <summary>
 	/// Removes a surrounding pair of double-quote characters from the string, if present.
