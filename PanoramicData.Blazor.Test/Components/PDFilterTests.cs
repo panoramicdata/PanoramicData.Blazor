@@ -64,6 +64,9 @@ public partial class PDFilterTests : BunitContext
 	private static List<string> OptionValues(IRenderedComponent<PDFilter> component)
 		=> [.. component.FindAll("select option").Select(o => o.GetAttribute("value") ?? string.Empty)];
 
+	private static string? SelectedOperator(IRenderedComponent<PDFilter> component)
+		=> component.FindAll("select option").SingleOrDefault(o => o.HasAttribute("selected"))?.GetAttribute("value");
+
 	private static IReadOnlyList<AngleSharp.Dom.IElement> ValueLabels(IRenderedComponent<PDFilter> component)
 		=> component.FindAll(".values-list .pd-label");
 

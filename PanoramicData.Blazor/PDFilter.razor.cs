@@ -22,6 +22,40 @@ public partial class PDFilter : IAsyncDisposable
 	// operators that never change to a multiple value operator when a further value is clicked
 	private static readonly FilterTypes[] _singleOnlyTypes = [FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual];
 
+	// The operators the drop-down lists, in its order, each with the option that allows it
+	private static readonly FilterOperator[] _commonOperators =
+	[
+		new(FilterTypes.Equals, "Equals", options => options.AllowEquals),
+		new(FilterTypes.DoesNotEqual, "Does not equal", options => options.AllowDoesNotEqual),
+		new(FilterTypes.In, "In list", options => options.AllowIn),
+		new(FilterTypes.NotIn, "Not In list", options => options.AllowNotIn)
+	];
+
+	private static readonly FilterOperator[] _orderedOperators =
+	[
+		new(FilterTypes.GreaterThan, "Greater than", options => options.AllowGreaterThan),
+		new(FilterTypes.GreaterThanOrEqual, "Greater than or equal", options => options.AllowGreaterThanOrEqual),
+		new(FilterTypes.LessThan, "Less than", options => options.AllowLessThan),
+		new(FilterTypes.LessThanOrEqual, "Less than or equal", options => options.AllowLessThanOrEqual),
+		new(FilterTypes.Range, "In range", options => options.AllowRange)
+	];
+
+	private static readonly FilterOperator[] _textOperators =
+	[
+		new(FilterTypes.StartsWith, "Starts with", options => options.AllowStartsWith),
+		new(FilterTypes.EndsWith, "Ends with", options => options.AllowEndsWith),
+		new(FilterTypes.Contains, "Contains", options => options.AllowContains),
+		new(FilterTypes.DoesNotContain, "Does not contain", options => options.AllowDoesNotContain),
+		new(FilterTypes.IsEmpty, "Is Empty", options => options.AllowIsEmpty),
+		new(FilterTypes.IsNotEmpty, "Is Not Empty", options => options.AllowIsNotEmpty)
+	];
+
+	private static readonly FilterOperator[] _nullOperators =
+	[
+		new(FilterTypes.IsNull, "Is Null", options => options.AllowIsNull),
+		new(FilterTypes.IsNotNull, "Is Not Null", options => options.AllowIsNotNull)
+	];
+
 	/// <summary>
 	/// Gets the drop down holding the filter editor, set by the markup.
 	/// </summary>
@@ -151,9 +185,24 @@ public partial class PDFilter : IAsyncDisposable
 		}
 	}
 
+	// The operators offered for the data type, as the options allow them
+	private IEnumerable<FilterOperator> OfferedOperators()
+		=> _commonOperators
+			.Concat(DataType is FilterDataTypes.Enum or FilterDataTypes.Text or FilterDataTypes.Bool ? [] : _orderedOperators)
+			.Concat(DataType == FilterDataTypes.Text ? _textOperators : [])
+			.Concat(Nullable ? _nullOperators : [])
+			.Where(filterOperator => filterOperator.IsAllowed(Options));
+
+	// An operator the options do not offer would leave the drop-down blank, so the first offered one is used instead
+	private FilterTypes OfferedOrFirst(FilterTypes filterType)
+	{
+		var offered = OfferedOperators().Select(filterOperator => filterOperator.Type).ToList();
+		return offered.Count == 0 || offered.Contains(filterType) ? filterType : offered[0];
+	}
+
 	private async Task OnClear()
 	{
-		_filterType = FilterTypes.Equals;
+		_filterType = OfferedOrFirst(FilterTypes.Equals);
 		_value1 = string.Empty;
 		_value2 = string.Empty;
 		_selectedValues.Clear();
@@ -183,7 +232,7 @@ public partial class PDFilter : IAsyncDisposable
 	private async Task OnDropDownShown()
 	{
 		_selectedValues.Clear();
-		_filterType = Filter.FilterType;
+		_filterType = OfferedOrFirst(Filter.FilterType);
 		_value1 = Filter.Value;
 		_value2 = Filter.Value2;
 		await RefreshValues().ConfigureAwait(true);
@@ -369,4 +418,6 @@ public partial class PDFilter : IAsyncDisposable
 			_values = await FetchValuesAsync.Invoke(filter).ConfigureAwait(true);
 		}
 	}
+
+	private sealed record FilterOperator(FilterTypes Type, string Label, Func<FilterOptions, bool> IsAllowed);
 }
