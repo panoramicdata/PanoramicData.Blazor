@@ -10,6 +10,17 @@ namespace PanoramicData.Blazor.Test.Extensions;
 /// </summary>
 public class StringExtensionsTests
 {
+	/// <summary>A value filter text would split, or read as a <c>#</c> enclosure, is quoted; any other is left as it is.</summary>
+	[Theory]
+	[InlineData("C#", "\"C#\"")]
+	[InlineData("#Build", "\"#Build\"")]
+	[InlineData("Ready Now", "\"Ready Now\"")]
+	[InlineData("Plain", "Plain")]
+	[InlineData("\"Ready Now\"", "\"Ready Now\"")]
+	[InlineData("#2026-01-01 10:00#", "#2026-01-01 10:00#")]
+	public void QuoteForFilter_QuotesWhatFilterTextWouldMisread(string text, string expected)
+		=> text.QuoteForFilter().Should().Be(expected);
+
 	/// <summary>The shortcut is appended in brackets, with the highlight marker removed from the text.</summary>
 	[Fact]
 	public void AppendShortcut_AppendsShortcutText()

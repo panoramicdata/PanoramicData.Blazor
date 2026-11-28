@@ -240,16 +240,11 @@ public class Filter
 		};
 	}
 
+	// Never double-quoted; a # outside a whole #...# enclosure would open one, swallowing the rest of the text
 	private static string QuoteIfNeeded(string value)
-	{
-		// Already quoted - don't double-quote. This guards against callers that pre-quoted the value.
-		if (value.Length >= 2 && value.StartsWith('"') && value.EndsWith('"'))
-		{
-			return value;
-		}
-
-		return value.Contains(' ') ? $"\"{value}\"" : value;
-	}
+		=> !value.IsWrappedIn('"') && (value.Contains(' ') || (value.Contains('#') && !value.IsWrappedIn('#')))
+			? $"\"{value}\""
+			: value;
 
 	/// <summary>
 	/// Updates this filter's type and values by parsing <paramref name="text"/> and finding the token whose key matches <see cref="Key"/>.

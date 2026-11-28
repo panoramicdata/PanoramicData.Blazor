@@ -66,6 +66,26 @@ public static partial class StringExtensions
 	}
 
 	/// <summary>
+	/// Returns the string in double quotes when filter text would otherwise split it, or read part of it as a <c>#</c>
+	/// enclosure: when it contains whitespace or a <c>#</c>, and is neither quoted already nor a whole <c>#...#</c> enclosure.
+	/// </summary>
+	/// <param name="text">A value for a filter's text.</param>
+	/// <returns>A double-quoted copy of the string, or the original string.</returns>
+	public static string QuoteForFilter(this string text)
+	{
+		ArgumentNullException.ThrowIfNull(text);
+		var needsQuotes = !text.IsWrappedIn('"')
+			&& !text.IsWrappedIn('#')
+			&& (text.Contains('#') || text.IndexOfAny(_whitespaceChars) >= 0);
+
+		return needsQuotes ? $"\"{text}\"" : text;
+	}
+
+	/// <summary>Whether the string is at least two characters long and starts and ends with the given character.</summary>
+	internal static bool IsWrappedIn(this string text, char wrapper)
+		=> text.Length >= 2 && text[0] == wrapper && text[^1] == wrapper;
+
+	/// <summary>
 	/// Removes a surrounding pair of double-quote characters from the string, if present.
 	/// </summary>
 	/// <param name="text">The string to strip.</param>

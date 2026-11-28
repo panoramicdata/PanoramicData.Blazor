@@ -403,7 +403,7 @@ public partial class PDFilter : IAsyncDisposable
 		}
 	}
 
-	private string JoinSelectedValues() => string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()));
+	private string JoinSelectedValues() => string.Join("|", _selectedValues.Select(x => x.QuoteForFilter()));
 
 	private async Task RefreshValues()
 	{

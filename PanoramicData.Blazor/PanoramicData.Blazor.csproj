@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDTagInput's CommitPendingAsync does nothing once the input has been disposed, instead of throwing (which in Blazor Server ends the circuit). PDWizard ignores a second Next or Finish while one is still under way, and disables both meanwhile, so a double click cannot complete the wizard twice or skip a step.</PackageReleaseNotes>
+    <PackageReleaseNotes>A filter value holding a # is now quoted, by PDFilter's value list and by Filter.ToString, so it no longer opens a # enclosure that swallowed the rest of the filter text (new StringExtensions.QuoteForFilter). PDTagInput: Escape at an open suggestion list closes the list without also closing a dialog around the box, and the new TryCommitPendingAsync says whether typed text was refused, so a caller can stop a save instead of losing it.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

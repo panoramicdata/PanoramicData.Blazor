@@ -4,7 +4,7 @@
 		+ (_isInvalid ? " pd-taginput--invalid" : string.Empty);
 }
 
-<div id="@Id" class="pd-taginput @CssClass" @attributes="AdditionalAttributes">
+<div id="@Id" class="pd-taginput @CssClass" @attributes="AdditionalAttributes" @ref="RootRef">
 
 	<div class="pd-taginput-control@(stateClasses)" @onclick="OnContainerClickAsync">
 
