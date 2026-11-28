@@ -147,13 +147,15 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	/// </summary>
 	public async Task CommitPendingAsync()
 	{
+		// The parent is acting on the tags, saving say, so the blur's own commit is cancelled and the list it would have
+		// closed is closed here
 		_blurToken?.Cancel();
-		if (_text.Trim().Length == 0)
+		_showDropdown = false;
+		if (_text.Trim().Length > 0)
 		{
-			return;
+			await TryAddTagAsync(_text).ConfigureAwait(true);
 		}
 
-		await TryAddTagAsync(_text).ConfigureAwait(true);
 		StateHasChanged();
 	}
 
@@ -179,6 +181,11 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		{
 			_values.AddRange(Values);
 		}
+
+		// The typed text and the open list belonged to the tags just replaced
+		_text = string.Empty;
+		_showDropdown = false;
+		_activeIndex = -1;
 	}
 
 	/// <summary>

@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDFilter now opens, and returns after Clear, at the first operator its options offer when the filter's own operator is not offered, instead of showing a blank operator list. Filters whose operator is offered are unchanged (#407).</PackageReleaseNotes>
+    <PackageReleaseNotes>PDTagInput no longer leaves its suggestion list open, filtered from last time, when a parent commits the pending text with CommitPendingAsync or supplies a new list of tags: both now close the list, and a new list also clears the text being typed.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
