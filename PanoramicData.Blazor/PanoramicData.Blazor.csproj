@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>PDWizardStep has a new CanLeaveAsync check, run by Next and Finish before the step's OnLeaveAsync: returning false keeps the wizard on the step, so a step can refuse to be left while it holds input it could not accept.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDTagInput has a new TextChanged callback, raised as the typed text changes and with empty text once it is added or cleared, so a parent can check it as it is typed (for example, to disable a Save). Its rejection message can no longer be selected, like its tags.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
