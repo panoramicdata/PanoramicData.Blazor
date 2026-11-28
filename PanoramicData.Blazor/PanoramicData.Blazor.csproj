@@ -27,7 +27,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>A filter value holding a # is now quoted, by PDFilter's value list and by Filter.ToString, so it no longer opens a # enclosure that swallowed the rest of the filter text (new StringExtensions.QuoteForFilter). PDTagInput: Escape at an open suggestion list closes the list without also closing a dialog around the box, and the new TryCommitPendingAsync says whether typed text was refused, so a caller can stop a save instead of losing it.</PackageReleaseNotes>
+    <PackageReleaseNotes>PDWizardStep has a new CanLeaveAsync check, run by Next and Finish before the step's OnLeaveAsync: returning false keeps the wizard on the step, so a step can refuse to be left while it holds input it could not accept.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />

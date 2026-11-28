@@ -43,6 +43,12 @@ public partial class PDWizardStep : ComponentBase
     [Parameter] public Func<Task>? OnEnterAsync { get; set; }
 
     /// <summary>
+    /// Gets or sets an optional async check run when the user moves on from this step with Next or Finish, before
+    /// <see cref="OnLeaveAsync"/>. Return false to stay on the step, for example when it holds input it could not accept.
+    /// </summary>
+    [Parameter] public Func<Task<bool>>? CanLeaveAsync { get; set; }
+
+    /// <summary>
     /// Gets or sets an async callback invoked when the user leaves this step (before moving forward).
     /// </summary>
     [Parameter] public Func<Task>? OnLeaveAsync { get; set; }

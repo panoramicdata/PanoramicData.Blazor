@@ -35,6 +35,7 @@ public partial class PDWizardTests : BunitContext
 			builder.AddAttribute(6, nameof(PDWizardStep.OnLeaveAsync), step.OnLeaveAsync);
 			builder.AddAttribute(7, nameof(PDWizardStep.LoadingContent), step.LoadingContent);
 			builder.AddAttribute(8, nameof(PDWizardStep.ChildContent), (RenderFragment)(b => b.AddMarkupContent(0, $"<p class=\"body\">{step.Title} body</p>")));
+			builder.AddAttribute(9, nameof(PDWizardStep.CanLeaveAsync), step.CanLeaveAsync);
 			builder.CloseComponent();
 		}
 	};
@@ -183,6 +184,8 @@ public partial class PDWizardTests : BunitContext
 		public Func<Task>? OnEnterAsync { get; init; }
 
 		public Func<Task>? OnLeaveAsync { get; init; }
+
+		public Func<Task<bool>>? CanLeaveAsync { get; init; }
 
 		public RenderFragment? LoadingContent { get; init; }
 	}

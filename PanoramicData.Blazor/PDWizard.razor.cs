@@ -209,7 +209,10 @@ public partial class PDWizard : ComponentBase
 		_busy = true;
 		try
 		{
-			await LeaveCurrentStepAsync().ConfigureAwait(true);
+			if (!await TryLeaveCurrentStepAsync().ConfigureAwait(true))
+			{
+				return;
+			}
 
 			// GoToStepAsync ignores an index past the last visible step
 			await GoToStepAsync(_activeStepIndex + 1).ConfigureAwait(true);
@@ -296,7 +299,11 @@ public partial class PDWizard : ComponentBase
 		_busy = true;
 		try
 		{
-			await LeaveCurrentStepAsync().ConfigureAwait(true);
+			if (!await TryLeaveCurrentStepAsync().ConfigureAwait(true))
+			{
+				return;
+			}
+
 			await OnComplete.InvokeAsync().ConfigureAwait(true);
 			await ResetAsync().ConfigureAwait(true);
 		}
@@ -306,12 +313,21 @@ public partial class PDWizard : ComponentBase
 		}
 	}
 
-	private async Task LeaveCurrentStepAsync()
+	// False, staying on the step, when its CanLeaveAsync says no; its leave hook then does not run
+	private async Task<bool> TryLeaveCurrentStepAsync()
 	{
+		if (CurrentStep?.CanLeaveAsync is { } canLeaveAsync && !await canLeaveAsync().ConfigureAwait(true))
+		{
+			StateHasChanged();
+			return false;
+		}
+
 		if (CurrentStep?.OnLeaveAsync is { } onLeaveAsync)
 		{
 			await onLeaveAsync().ConfigureAwait(true);
 		}
+
+		return true;
 	}
 
 	private async Task OnCancelClickAsync()
