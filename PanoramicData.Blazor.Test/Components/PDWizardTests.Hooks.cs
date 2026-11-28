@@ -28,6 +28,60 @@ public partial class PDWizardTests
 	}
 
 	/// <summary>
+	/// Verifies that Next stays on a step whose CanLeaveAsync says no, without running its leave hook.
+	/// </summary>
+	[Fact]
+	public void Next_WhenTheStepCannotBeLeft_StaysOnIt()
+	{
+		var left = false;
+		var wizard = RenderWizard([new("One") { CanLeaveAsync = () => Task.FromResult(false), OnLeaveAsync = () => { left = true; return Task.CompletedTask; } }, new("Two")]);
+
+		FooterButton(wizard, "Next").Click();
+
+		Body(wizard).Should().Be("One body");
+		left.Should().BeFalse();
+	}
+
+	/// <summary>
+	/// Verifies that Next checks CanLeaveAsync, then runs the leave hook and moves on when the step can be left.
+	/// </summary>
+	[Fact]
+	public void Next_WhenTheStepCanBeLeft_ChecksThenLeaves()
+	{
+		var events = new List<string>();
+		Step[] steps =
+		[
+			new("One")
+			{
+				CanLeaveAsync = () => { events.Add("check"); return Task.FromResult(true); },
+				OnLeaveAsync = () => { events.Add("leave"); return Task.CompletedTask; }
+			},
+			new("Two")
+		];
+		var wizard = RenderWizard(steps);
+
+		FooterButton(wizard, "Next").Click();
+
+		events.Should().Equal("check", "leave");
+		Body(wizard).Should().Be("Two body");
+	}
+
+	/// <summary>
+	/// Verifies that Finish does not complete the wizard while the last step's CanLeaveAsync says no.
+	/// </summary>
+	[Fact]
+	public void Finish_WhenTheStepCannotBeLeft_DoesNotComplete()
+	{
+		var completed = 0;
+		var wizard = RenderWizard([new("One") { CanLeaveAsync = () => Task.FromResult(false) }], p => p.Add(x => x.OnComplete, () => completed++));
+
+		FooterButton(wizard, "Finish").Click();
+
+		completed.Should().Be(0);
+		Body(wizard).Should().Be("One body");
+	}
+
+	/// <summary>
 	/// Verifies that while a step's enter hook runs the body is hidden behind a loading panel and the footer
 	/// is disabled, and that both return when it completes.
 	/// </summary>
