@@ -140,6 +140,22 @@ public partial class PDTagInputTests
 		component.Find(".pd-taginput-input").GetAttribute("value").Should().BeNullOrEmpty();
 	}
 
+	/// <summary>
+	/// Verifies that CommitPendingAsync on an input already disposed (with a dialog or wizard step, say) does nothing:
+	/// it used to throw from the disposed blur timer, which in Blazor Server ends the circuit.
+	/// </summary>
+	[Fact]
+	public async Task CommitPendingAsync_on_a_disposed_input_does_nothing()
+	{
+		var component = RenderInput();
+		var input = component.Instance;
+		await component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
+		await DisposeComponentsAsync();
+
+		await FluentActions.Awaiting(() => component.InvokeAsync(input.CommitPendingAsync)).Should().NotThrowAsync();
+		_emitted.Should().BeEmpty();
+	}
+
 	/// <summary>Verifies that a new list supplied by the parent replaces the tags shown.</summary>
 	[Fact]
 	public void A_new_list_from_the_parent_replaces_the_tags()

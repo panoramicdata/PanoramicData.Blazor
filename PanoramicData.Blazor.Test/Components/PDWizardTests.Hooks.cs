@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor.Test;
 
@@ -45,6 +46,47 @@ public partial class PDWizardTests
 		await wizard.InvokeAsync(entering.SetResult);
 
 		wizard.WaitForAssertion(() => wizard.FindAll(".pd-wizard-loading").Should().BeEmpty());
+		Body(wizard).Should().Be("Two body");
+	}
+
+	/// <summary>
+	/// Verifies that a second click on Finish while the first is still completing is ignored, so a double click cannot
+	/// raise OnComplete twice (and, say, create something twice).
+	/// </summary>
+	[Fact]
+	public async Task Finish_ClickedTwiceWhileCompleting_RaisesOnCompleteOnce()
+	{
+		var completing = new TaskCompletionSource();
+		var completed = 0;
+		var wizard = RenderWizard([new("One")], p => p.Add(x => x.OnComplete, async () =>
+		{
+			completed++;
+			await completing.Task;
+		}));
+
+		var first = FooterButton(wizard, "Finish").ClickAsync(new MouseEventArgs());
+		var second = FooterButton(wizard, "Finish").ClickAsync(new MouseEventArgs());
+		await wizard.InvokeAsync(completing.SetResult);
+		await Task.WhenAll(first, second);
+
+		completed.Should().Be(1);
+	}
+
+	/// <summary>
+	/// Verifies that a second click on Next while the current step's leave hook is still running is ignored, so the
+	/// wizard moves on one step, not two.
+	/// </summary>
+	[Fact]
+	public async Task Next_ClickedTwiceWhileLeaving_MovesOneStep()
+	{
+		var leaving = new TaskCompletionSource();
+		var wizard = RenderWizard([new("One") { OnLeaveAsync = () => leaving.Task }, new("Two"), new("Three")]);
+
+		var first = FooterButton(wizard, "Next").ClickAsync(new MouseEventArgs());
+		var second = FooterButton(wizard, "Next").ClickAsync(new MouseEventArgs());
+		await wizard.InvokeAsync(leaving.SetResult);
+		await Task.WhenAll(first, second);
+
 		Body(wizard).Should().Be("Two body");
 	}
 
