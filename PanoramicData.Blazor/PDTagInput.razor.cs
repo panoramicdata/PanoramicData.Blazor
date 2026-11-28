@@ -4,9 +4,13 @@ namespace PanoramicData.Blazor;
 /// An input component for entering multiple short text values (tags), with optional autocomplete
 /// suggestions, free-text entry, validation limits and keyboard support.
 /// </summary>
-public partial class PDTagInput : ComponentBase, IDisposable
+public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 {
 	private static int _sequence;
+
+	private DotNetObjectReference<PDTagInput>? _objRef;
+	private IJSObjectReference? _module;
+	private TagRejectionReason? _lastRejection;
 
 	private readonly List<string> _values = [];
 	private List<string> _filteredSuggestions = [];
@@ -21,6 +25,16 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	/// Gets or sets the tag text input element, set by the component markup.
 	/// </summary>
 	internal ElementReference InputRef { get; set; }
+
+	/// <summary>
+	/// Gets or sets the root element, set by the component markup.
+	/// </summary>
+	internal ElementReference RootRef { get; set; }
+
+	/// <summary>
+	/// Gets or sets the JavaScript runtime, which loads the script that stops Escape at an open suggestion list.
+	/// </summary>
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	private CancellationTokenSource? _blurToken;
 	private List<string>? _suppliedValues;
@@ -145,18 +159,59 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	/// Adds the typed text as a tag now, as leaving the box would. Call it before saving, so text typed just before a
 	/// Save is kept.
 	/// </summary>
-	public async Task CommitPendingAsync()
+	public async Task CommitPendingAsync() => await TryCommitPendingAsync().ConfigureAwait(true);
+
+	/// <summary>
+	/// Adds the typed text as a tag now, as <see cref="CommitPendingAsync"/> does, and says whether anything was left
+	/// behind: false when the text was refused, in which case it stays in the box with the reason shown.
+	/// </summary>
+	/// <returns>True when the text was added or nothing was typed; false when the typed text was refused.</returns>
+	public async Task<bool> TryCommitPendingAsync()
 	{
 		// The parent is acting on the tags, saving say, so the blur's own commit is cancelled and the list it would have
 		// closed is closed here
 		_blurToken?.Cancel();
 		_showDropdown = false;
-		if (_text.Trim().Length > 0)
-		{
-			await TryAddTagAsync(_text).ConfigureAwait(true);
-		}
+		_lastRejection = null;
+
+		// A repeat of a tag already there loses nothing, so only another refusal counts as text left behind
+		var committed = _text.Trim().Length == 0
+			|| await TryAddTagAsync(_text).ConfigureAwait(true)
+			|| _lastRejection == TagRejectionReason.Duplicate;
 
 		StateHasChanged();
+		return committed;
+	}
+
+	/// <summary>
+	/// Closes the suggestion list. Called from JavaScript when Escape closes the list, which then goes no further, so a
+	/// dialog the box is in stays open.
+	/// </summary>
+	[JSInvokable]
+	public void CloseSuggestions()
+	{
+		_showDropdown = false;
+		StateHasChanged();
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+		{
+			return;
+		}
+
+		try
+		{
+			_objRef = DotNetObjectReference.Create(this);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTagInput.razor.js").ConfigureAwait(true);
+			await _module.InvokeVoidAsync("initialize", RootRef, _objRef).ConfigureAwait(true);
+		}
+		catch (Exception ex) when (ex is JSException or JSDisconnectedException or TaskCanceledException)
+		{
+			// Without the script only one thing is lost: Escape at an open list also reaches any dialog around the box
+		}
 	}
 
 	private StringComparison Comparison => CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -264,6 +319,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 	private async Task RejectAsync(string tag, TagRejectionReason reason)
 	{
+		_lastRejection = reason;
 		var rejection = new TagRejectedEventArgs(tag, reason);
 		_isInvalid = true;
 		_rejectionText = ShowRejectionMessage ? MessageFor(rejection) : null;
@@ -481,6 +537,29 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 		// So a CommitPendingAsync after disposal, from a parent still holding a reference, finds no timer to cancel
 		_blurToken = null;
+		_objRef?.Dispose();
+		_objRef = null;
+		GC.SuppressFinalize(this);
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		Dispose();
+		if (_module is not null)
+		{
+			try
+			{
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, and the script with it
+			}
+
+			_module = null;
+		}
+
 		GC.SuppressFinalize(this);
 	}
 }

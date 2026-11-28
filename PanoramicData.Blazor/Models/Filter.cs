@@ -248,7 +248,9 @@ public class Filter
 			return value;
 		}
 
-		return value.Contains(' ') ? $"\"{value}\"" : value;
+		// A # outside a whole #...# enclosure would open one, swallowing the rest of the text
+		var isEnclosure = value.Length >= 2 && value.StartsWith('#') && value.EndsWith('#');
+		return value.Contains(' ') || (value.Contains('#') && !isEnclosure) ? $"\"{value}\"" : value;
 	}
 
 	/// <summary>

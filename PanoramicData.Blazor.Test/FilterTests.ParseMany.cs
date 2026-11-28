@@ -1,4 +1,5 @@
-﻿using PanoramicData.Blazor.Models;
+﻿using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Models;
 using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
@@ -8,6 +9,24 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public partial class FilterTests
 {
+	/// <summary>
+	/// Verifies that a value holding <c>#</c> survives the filter text, in an In list and as a single value, and that
+	/// the filters after it are kept.
+	/// </summary>
+	[Fact]
+	public void ParseMany_KeepsAValueHoldingAHash_AndTheFiltersAfterIt()
+	{
+		var inList = new Filter(FilterTypes.In, "tags", string.Join('|', new[] { "C#", "Demo" }.Select(value => value.QuoteForFilter())));
+		var single = new Filter(FilterTypes.Equals, "lang", "F#");
+
+		var filters = Filter.ParseMany($"{inList} {single} name:*x*").ToList();
+
+		filters.Count.ShouldBe(3);
+		filters[0].Value.Split('|').Select(value => value.RemoveQuotes()).ShouldBe(["C#", "Demo"]);
+		filters[1].Value.RemoveQuotes().ShouldBe("F#");
+		filters[2].Key.ShouldBe("name");
+	}
+
 	/// <summary>Verifies that ParseMany yields no filters for an empty string.</summary>
 	[Fact]
 	public void ParseMany_EmptyString_YieldsNoFilters()

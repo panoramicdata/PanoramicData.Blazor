@@ -79,6 +79,89 @@ public partial class PDTagInputTests
 		_emitted.Should().ContainSingle().Which.Should().Equal("pending");
 	}
 
+	/// <summary>Verifies that TryCommitPendingAsync adds the typed text and reports nothing left behind.</summary>
+	[Fact]
+	public async Task TryCommitPendingAsync_adds_the_typed_tag_and_reports_it()
+	{
+		var component = RenderInput();
+		var committed = false;
+
+		await TypeAsync(component, "pending");
+		await component.InvokeAsync(async () => committed = await component.Instance.TryCommitPendingAsync());
+
+		committed.Should().BeTrue();
+		Tags(component).Should().Equal("pending");
+	}
+
+	/// <summary>Verifies that TryCommitPendingAsync with nothing typed reports nothing left behind.</summary>
+	[Fact]
+	public async Task TryCommitPendingAsync_with_nothing_typed_reports_nothing_left()
+	{
+		var component = RenderInput();
+		var committed = false;
+
+		await component.InvokeAsync(async () => committed = await component.Instance.TryCommitPendingAsync());
+
+		committed.Should().BeTrue();
+	}
+
+	/// <summary>Verifies that TryCommitPendingAsync reports refused text, which stays in the box with the reason.</summary>
+	[Fact]
+	public async Task TryCommitPendingAsync_reports_refused_text_and_keeps_it()
+	{
+		var component = RenderInput(p => p
+			.Add(x => x.MaxTagLength, 3)
+			.Add(x => x.ShowRejectionMessage, true));
+		var committed = true;
+
+		await TypeAsync(component, "toolong");
+		await component.InvokeAsync(async () => committed = await component.Instance.TryCommitPendingAsync());
+
+		committed.Should().BeFalse();
+		Tags(component).Should().BeEmpty();
+		component.Find(".pd-taginput-input").GetAttribute("value").Should().Be("toolong");
+		component.FindAll(".pd-taginput-message").Should().ContainSingle();
+	}
+
+	/// <summary>Verifies that typed text repeating a tag already there counts as nothing left behind.</summary>
+	[Fact]
+	public async Task TryCommitPendingAsync_with_a_repeat_reports_nothing_left()
+	{
+		var component = RenderInput(p => p.Add(x => x.Values, ["alpha"]));
+		var committed = false;
+
+		await TypeAsync(component, "alpha");
+		await component.InvokeAsync(async () => committed = await component.Instance.TryCommitPendingAsync());
+
+		committed.Should().BeTrue();
+		Tags(component).Should().Equal("alpha");
+	}
+
+	/// <summary>Verifies that CloseSuggestions, which the script calls when Escape closes the list, closes it.</summary>
+	[Fact]
+	public async Task CloseSuggestions_closes_the_list()
+	{
+		var component = RenderInput(p => p.Add(x => x.Suggestions, ["pending tag"]));
+
+		await TypeAsync(component, "pending");
+		component.Find(".pd-taginput-dropdown").Should().NotBeNull();
+		await component.InvokeAsync(component.Instance.CloseSuggestions);
+
+		component.FindAll(".pd-taginput-dropdown").Should().BeEmpty();
+	}
+
+	/// <summary>Verifies that the box hands its script the root to watch, so Escape at an open list stops there.</summary>
+	[Fact]
+	public void The_script_is_given_the_root_to_watch_for_Escape()
+	{
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDTagInput.razor.js");
+		module.SetupVoid("initialize", _ => true).SetVoidResult();
+
+		RenderInput();
+
+		module.VerifyInvoke("initialize");
+	}
+
 	/// <summary>Verifies that CommitPendingAsync with nothing typed changes nothing.</summary>
 	[Fact]
 	public async Task CommitPendingAsync_with_nothing_typed_does_nothing()
