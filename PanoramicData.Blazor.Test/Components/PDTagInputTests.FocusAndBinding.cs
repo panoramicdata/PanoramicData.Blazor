@@ -123,6 +123,47 @@ public partial class PDTagInputTests
 		component.FindAll(".pd-taginput-message").Should().ContainSingle();
 	}
 
+	/// <summary>Verifies that TextChanged reports the text as it is typed, then empty once it is added.</summary>
+	[Fact]
+	public async Task TextChanged_reports_the_typed_text_then_empty_once_added()
+	{
+		var reported = new List<string>();
+		var component = RenderInput(p => p.Add(x => x.TextChanged, (string text) => reported.Add(text)));
+
+		await TypeAsync(component, "a");
+		await TypeAsync(component, "ab");
+		await PressAsync(component, "Enter");
+
+		reported.Should().Equal("a", "ab", string.Empty);
+		Tags(component).Should().Equal("ab");
+	}
+
+	/// <summary>Verifies that TextChanged reports what is left after a comma adds the text before it.</summary>
+	[Fact]
+	public async Task TextChanged_after_a_comma_reports_the_rest()
+	{
+		var reported = new List<string>();
+		var component = RenderInput(p => p.Add(x => x.TextChanged, (string text) => reported.Add(text)));
+
+		await TypeAsync(component, "alpha,be");
+
+		reported.Should().Equal("be");
+		Tags(component).Should().Equal("alpha");
+	}
+
+	/// <summary>Verifies that TextChanged reports empty when CommitPendingAsync adds the typed text.</summary>
+	[Fact]
+	public async Task TextChanged_reports_empty_when_the_parent_commits()
+	{
+		var reported = new List<string>();
+		var component = RenderInput(p => p.Add(x => x.TextChanged, (string text) => reported.Add(text)));
+
+		await TypeAsync(component, "pending");
+		await component.InvokeAsync(component.Instance.CommitPendingAsync);
+
+		reported.Should().Equal("pending", string.Empty);
+	}
+
 	/// <summary>Verifies that typed text repeating a tag already there counts as nothing left behind.</summary>
 	[Fact]
 	public async Task TryCommitPendingAsync_with_a_repeat_reports_nothing_left()

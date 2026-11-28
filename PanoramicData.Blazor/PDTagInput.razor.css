@@ -138,6 +138,7 @@
 /* ── Rejection message (ShowRejectionMessage) ──────────────────────────── */
 .pd-taginput-message {
 	margin-top: 0.25rem;
+	user-select: none;
 	color: var(--pd-taginput-message-color, var(--bs-danger, #dc3545));
 	font-size: var(--pd-taginput-message-font-size, 0.875em);
 }

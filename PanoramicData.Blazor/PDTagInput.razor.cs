@@ -8,6 +8,7 @@ public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 {
 	private static int _sequence;
 
+	private string _reportedText = string.Empty;
 	private DotNetObjectReference<PDTagInput>? _objRef;
 	private IJSObjectReference? _module;
 	private TagRejectionReason? _lastRejection;
@@ -139,6 +140,12 @@ public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 	[Parameter] public EventCallback<TagRejectedEventArgs> TagRejected { get; set; }
 
 	/// <summary>
+	/// An event callback invoked when the text being typed changes. Argument is the text, empty once it has been added
+	/// as a tag or cleared, so a parent can check it as it is typed.
+	/// </summary>
+	[Parameter] public EventCallback<string> TextChanged { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether Enter adds an exact match or the typed text rather than the highlighted suggestion, unless the
 	/// user chose that suggestion with the arrow keys. Defaults to false, where Enter adds the highlighted suggestion.
 	/// </summary>
@@ -262,6 +269,7 @@ public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 		if (tag.Length == 0)
 		{
 			_text = string.Empty;
+			await ReportTextAsync().ConfigureAwait(true);
 			return false;
 		}
 
@@ -274,6 +282,7 @@ public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 
 		_values.Add(tag);
 		_text = string.Empty;
+		await ReportTextAsync().ConfigureAwait(true);
 		_highlightChosen = false;
 		ApplyFilter();
 		_showDropdown = _showDropdown && _filteredSuggestions.Count > 0;
@@ -336,6 +345,16 @@ public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 		};
 
 	// Warns while the text is too long, before anything is committed, so the tag is never refused by surprise
+	// Only a change is reported, so adding the tags before a comma does not report the text emptying between them
+	private async Task ReportTextAsync()
+	{
+		if (_text != _reportedText)
+		{
+			_reportedText = _text;
+			await TextChanged.InvokeAsync(_text).ConfigureAwait(true);
+		}
+	}
+
 	private void WarnIfTooLong()
 	{
 		var typed = _text.Trim();
@@ -396,6 +415,7 @@ public partial class PDTagInput : ComponentBase, IDisposable, IAsyncDisposable
 			_text = parts[^1];
 		}
 
+		await ReportTextAsync().ConfigureAwait(true);
 		WarnIfTooLong();
 		ApplyFilter();
 		_showDropdown = _filteredSuggestions.Count > 0;
