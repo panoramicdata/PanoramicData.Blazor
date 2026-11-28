@@ -38,6 +38,33 @@ public partial class PDFilterTests
 	}
 
 	/// <summary>
+	/// Verifies that a filter whose operator the options do not offer opens at the first operator they do, not at a blank
+	/// operator list.
+	/// </summary>
+	[Fact]
+	public async Task A_filter_opens_at_the_first_offered_operator_when_its_own_is_not_offered()
+	{
+		var component = RenderFilter(FilterDataTypes.Text, options: new FilterOptions { AllowEquals = false, AllowDoesNotEqual = false });
+
+		await OpenAsync(component);
+
+		SelectedOperator(component).Should().Be("In");
+	}
+
+	/// <summary>
+	/// Verifies that a filter whose operator is offered opens at it.
+	/// </summary>
+	[Fact]
+	public async Task A_filter_opens_at_its_own_operator_when_it_is_offered()
+	{
+		var component = RenderFilter(FilterDataTypes.Text, filter: new Filter(FilterTypes.Contains, "name", "x"));
+
+		await OpenAsync(component);
+
+		SelectedOperator(component).Should().Be("Contains");
+	}
+
+	/// <summary>
 	/// Verifies that operators disabled in the options are not offered.
 	/// </summary>
 	[Fact]
