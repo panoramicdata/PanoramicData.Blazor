@@ -478,6 +478,9 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	{
 		_blurToken?.Cancel();
 		_blurToken?.Dispose();
+
+		// So a CommitPendingAsync after disposal, from a parent still holding a reference, finds no timer to cancel
+		_blurToken = null;
 		GC.SuppressFinalize(this);
 	}
 }
